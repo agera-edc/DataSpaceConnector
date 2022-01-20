@@ -17,6 +17,7 @@ plugins {
     `maven-publish`
     checkstyle
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
+    jacoco
 }
 
 repositories {
@@ -65,6 +66,7 @@ allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
     apply(plugin = "java")
+    apply(plugin = "jacoco")
 
     checkstyle {
         toolVersion = "9.0"
@@ -184,6 +186,9 @@ openApiMerger {
                 name.set("Apache License v2.0")
                 url.set("http://apache.org/v2")
             }
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
         }
     }
 }
