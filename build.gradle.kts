@@ -186,6 +186,7 @@ openApiMerger {
                 name.set("Apache License v2.0")
                 url.set("http://apache.org/v2")
             }
+    }
     tasks.jacocoTestReport {
         reports {
             xml.required.set(true)
