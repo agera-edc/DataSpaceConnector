@@ -165,6 +165,12 @@ allprojects {
             from("${rootProject.projectDir.path}/NOTICE.md")
         }
     }
+
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
+        }
+    }
 }
 
 openApiMerger {
@@ -186,11 +192,6 @@ openApiMerger {
                 name.set("Apache License v2.0")
                 url.set("http://apache.org/v2")
             }
-    }
-    tasks.jacocoTestReport {
-        reports {
-            xml.required.set(true)
-        }
     }
 }
 
