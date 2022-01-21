@@ -29,6 +29,7 @@ import org.eclipse.dataspaceconnector.ids.spi.IdsType;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +40,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@EnabledIfEnvironmentVariable(named = "RUN_INTEGRATION_TEST", matches = "true")
 public class MultipartControllerIntegrationTest extends AbstractMultipartControllerIntegrationTest {
     private static final String CONNECTOR_ID = UUID.randomUUID().toString();
     private static final String CATALOG_ID = UUID.randomUUID().toString();

@@ -54,6 +54,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.metadata.MetadataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -68,6 +69,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@EnabledIfEnvironmentVariable(named = "RUN_INTEGRATION_TEST", matches = "true")
 class MultipartDispatcherIntegrationTest extends AbstractMultipartDispatcherIntegrationTest {
     private static final String CONNECTOR_ID = UUID.randomUUID().toString();
     private TransformerRegistry transformerRegistry;
