@@ -18,6 +18,7 @@ plugins {
     checkstyle
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
     jacoco
+    id("com.github.spotbugs") version "5.0.5"
 }
 
 repositories {
@@ -67,12 +68,27 @@ allprojects {
     apply(plugin = "checkstyle")
     apply(plugin = "java")
     apply(plugin = "jacoco")
+    apply(plugin = "com.github.spotbugs")
 
     checkstyle {
         toolVersion = "9.0"
         configFile = rootProject.file("resources/edc-checkstyle-config.xml")
         maxErrors = 0 // does not tolerate errors ...
         maxWarnings = 0 // ... or warnings
+    }
+
+    spotbugs {
+        showProgress.set(true)
+        reportLevel.set(com.github.spotbugs.snom.Confidence.DEFAULT)
+    }
+
+    //tasks.withType<com.github.spotbugs.SpotBugsTask> {
+    tasks.spotbugsMain {
+        reports.create("html") {
+            required.set(true)
+            outputLocation.set(file("$buildDir/reports/spotbugs.html"))
+            setStylesheet("fancy-hist.xsl")
+        }
     }
 
     java {
