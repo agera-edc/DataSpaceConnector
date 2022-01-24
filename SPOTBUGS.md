@@ -23,22 +23,20 @@ tasks.spotbugsMain {
 }
 ```
 
-An own report is generated per each Gradle module.
+An own report is generated per each Gradle module. This is not practical as one has to navigate to the different modules to get to the findings, a central aggregated overview would come handy.
 
 ![Spotbugs report](.attachments/spotbugs.png)
 
 ## Aggregating reports
 
-TBD 
+### Using aggregator plugin
+
+There is [a plugin](https://github.com/SimonScholz/report-aggregator) available from a developer to perform the aggregation
+
 
 ### Gradle aggregation
 
-TBD 
-
-### Using aggregator plugin
-
 TBD
-https://github.com/SimonScholz/report-aggregator
 
 ## Resource usage
 
