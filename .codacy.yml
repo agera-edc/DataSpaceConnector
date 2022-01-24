@@ -1,0 +1,6 @@
+---
+engines:
+  spotbugs:
+    modules:
+      - classesDirectories: [ "**/build/classes" ]
+        sourceDirectories:  [ "**/src/main" ]
