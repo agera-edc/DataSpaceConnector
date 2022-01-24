@@ -1,0 +1,6 @@
+<FindBugsFilter>
+    <Match>
+        <!-- Do not fail when invoking System.exit. -->
+        <Bug pattern="DM_EXIT"/>
+    </Match>
+</FindBugsFilter>

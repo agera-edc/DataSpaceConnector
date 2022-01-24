@@ -77,9 +77,11 @@ allprojects {
         maxWarnings = 0 // ... or warnings
     }
 
+    // See https://github.com/spotbugs/spotbugs-gradle-plugin#configure-spotbugs-plugin
     spotbugs {
         showProgress.set(true)
         reportLevel.set(com.github.spotbugs.snom.Confidence.DEFAULT)
+        excludeFilter.set(file("resources/spotbugs-excludes.xml"))
     }
 
     //tasks.withType<com.github.spotbugs.SpotBugsTask> {
