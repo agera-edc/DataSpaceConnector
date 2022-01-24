@@ -25,6 +25,8 @@ tasks.spotbugsMain {
 
 An own report is generated per each Gradle module.
 
+![Spotbugs report](.attachments/spotbugs.png)
+
 ## Aggregating reports
 
 TBD 
