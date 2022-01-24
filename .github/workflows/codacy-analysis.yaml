@@ -19,3 +19,4 @@ jobs:
           # api-token: ${{ secrets.CODACY_API_TOKEN }}
           upload: true
           max-allowed-issues: 2147483647
+          allow-network: true
