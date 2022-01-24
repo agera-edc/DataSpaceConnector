@@ -40,4 +40,4 @@ https://github.com/SimonScholz/report-aggregator
 
 ## Resource usage
 
-Spotbugs can be quite resource intense. The [effort configuration](https://spotbugs.readthedocs.io/en/stable/effort.html)) helps tune Spotbugs accordingly for each individual project.
+Spotbugs can be quite resource intense. The [effort configuration](https://spotbugs.readthedocs.io/en/stable/effort.html) helps tune Spotbugs accordingly for each individual project.
