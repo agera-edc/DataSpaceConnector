@@ -79,12 +79,13 @@ allprojects {
 
     // See https://github.com/spotbugs/spotbugs-gradle-plugin#configure-spotbugs-plugin
     spotbugs {
+        ignoreFailures.set(true) // if false, build fails on bugs
         showProgress.set(true)
+        effort.set(com.github.spotbugs.snom.Effort.DEFAULT)
         reportLevel.set(com.github.spotbugs.snom.Confidence.DEFAULT)
-        excludeFilter.set(file("resources/spotbugs-excludes.xml"))
+        excludeFilter.set(file("$rootDir/resources/spotbugs-excludes.xml"))
     }
 
-    //tasks.withType<com.github.spotbugs.SpotBugsTask> {
     tasks.spotbugsMain {
         reports.create("html") {
             required.set(true)
