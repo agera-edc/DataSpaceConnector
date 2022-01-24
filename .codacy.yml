@@ -2,5 +2,7 @@
 engines:
   spotbugs:
     modules:
-      - classesDirectories: [ "**/build/classes" ]
-        sourceDirectories:  [ "**/src/main" ]
+      - classesDirectories: [ "core/base/build/classes" ]
+        sourceDirectories:  [ "core/base/src/main" ]
+      - classesDirectories: [ "core/contract/build/classes" ]
+        sourceDirectories:  [ "core/contract/main" ]
