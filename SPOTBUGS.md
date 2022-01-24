@@ -27,7 +27,16 @@ An own report is generated per each Gradle module.
 
 ## Aggregating reports
 
+TBD 
+
+### Gradle aggregation
+
+TBD 
+
+### Using aggregator plugin
+
 TBD
+https://github.com/SimonScholz/report-aggregator
 
 ## Resource usage
 
