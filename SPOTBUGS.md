@@ -33,10 +33,7 @@ An own report is generated per each Gradle module. This is not practical as one 
 
 There is [a plugin](https://github.com/SimonScholz/report-aggregator) available from a developer to perform the aggregation
 
-
-### Gradle aggregation
-
-TBD
+## Integration with Codacy
 
 ## Resource usage
 
