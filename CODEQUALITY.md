@@ -93,3 +93,12 @@ Caused by: edu.umd.cs.findbugs.classfile.ResourceNotFoundException: Resource not
 	at edu.umd.cs.findbugs.FindBugs2.execute(FindBugs2.java:245)
 	... 21 more
 ```
+
+### Reported EDC bugs
+
+We did a quick evaluation of high priority bugs (P1) as reported by Spotbugs:
+
+| Bug                                                | Description | Fix effort |
+|----------------------------------------------------| ----------- |------------|
+| Reliance on default encoding (DM_DEFAULT_ENCODING) | Found a call to a method which will perform a byte to String (or String to byte) conversion, and will assume that the default platform encoding is suitable. This will cause the application behaviour to vary between platforms. Use an alternative API and specify a charset name or Charset object explicitly     | low        |
+| Field isn't final but should be (MS_SHOULD_BE_FINAL) | This static field public but not final, and could be changed by malicious code or by accident from another package. The field could be made final to avoid this vulnerability.      | low        |
