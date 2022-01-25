@@ -10,7 +10,7 @@ TBD
 
 ## Spotbugs
 
-Spotbugs is a program to find bugs in Java programs. It looks for instances of “bug patterns” — code instances that are likely to be errors by inspecting Java bytecode.
+[Spotbugs](https://spotbugs.github.io/) is a program which uses static analysis to look for bugs in Java code. It looks for instances of “bug patterns” — code instances that are likely to be errors by inspecting Java bytecode.
 
 ### Running SpotBugs with Gradle
 
@@ -46,6 +46,10 @@ There is [a plugin](https://github.com/SimonScholz/report-aggregator) available 
 ```
 
 For the moment it looks like a more custom solutions like the ones discussed in [this issue](https://github.com/spotbugs/spotbugs-gradle-plugin/issues/114) might be more appropriate.
+
+### Findsecbugs plugin
+
+The [Find Security Bugs](https://find-sec-bugs.github.io/) plugin extends Spotbugs with additional security checks.
 
 #### Resource usage
 
