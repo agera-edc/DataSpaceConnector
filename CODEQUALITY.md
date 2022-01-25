@@ -2,7 +2,45 @@
 
 ## Checkstyle 
 
-TBD
+[Checkstyle](https://checkstyle.org/) is a static code analysis tool for Java code.
+
+### Running Checkstyle
+
+Use the [Checkstyle Gradle Plugin](https://docs.gradle.org/current/userguide/checkstyle_plugin.html) to run Checkstyle.
+
+```kotlin
+plugins {
+    checkstyle
+}
+
+```
+
+Checkstyle can be configured using [properties](https://docs.gradle.org/current/dsl/org.gradle.api.plugins.quality.CheckstyleExtension.html):
+
+```kotlin
+checkstyle {
+        configFile = rootProject.file("resources/edc-checkstyle-config.xml")
+        maxErrors = 0 
+    }
+```
+
+Checkstyle generates reports which can be configured: 
+
+```kotlin
+tasks.withType<Checkstyle> {
+        reports {
+            html.required.set(false)
+            xml.required.set(false)
+        }
+    }
+```
+
+### Usage of Checkstyle in EDC
+
+Checkstyle is configured in EDC repository running on every build. It's configured to break the build on every error or warning.
+Checkstyle is set up to run explicitly in [Github Workflow](./.github/workflows/verify.yaml) on every change in a Pull Request. 
+
+More information about Checktyle in EDC can be found in [the doc about the style guide](./styleguide.md).
 
 ## PMD
 
