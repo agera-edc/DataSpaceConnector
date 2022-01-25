@@ -1,8 +1,18 @@
-# ADR on Spotbugs
+# ADR on code quality tooling
+
+## Checkstyle 
+
+TBD
+
+## PMD
+
+TBD
+
+## Spotbugs
 
 Spotbugs is a program to find bugs in Java programs. It looks for instances of “bug patterns” — code instances that are likely to be errors by inspecting Java bytecode.
 
-## Running SpotBugs with Gradle
+### Running SpotBugs with Gradle
 
 Use the [Spotbugs Gradle Plugin](https://github.com/spotbugs/spotbugs-gradle-plugin) to run Spotbugs. 
 
@@ -27,7 +37,7 @@ An own report is generated per each Gradle module. This is not practical as one 
 
 ![Spotbugs report](.attachments/spotbugs.png)
 
-### Aggregating reports
+#### Aggregating reports
 
 There is [a plugin](https://github.com/SimonScholz/report-aggregator) available to perform the aggregation. The plugin seems not to be in active development and gives an error when trying to run it:
 
@@ -37,11 +47,11 @@ There is [a plugin](https://github.com/SimonScholz/report-aggregator) available 
 
 For the moment it looks like a more custom solutions like the ones discussed in [this issue](https://github.com/spotbugs/spotbugs-gradle-plugin/issues/114) might be more appropriate.
 
-### Resource usage
+#### Resource usage
 
 Spotbugs can be quite resource intense. The [effort configuration](https://spotbugs.readthedocs.io/en/stable/effort.html) helps tune Spotbugs accordingly for each individual project.
 
-## Running Spotbugs with Codacy
+### Running Spotbugs with Codacy
 
 According to [the docs](https://docs.codacy.com/related-tools/local-analysis/running-spotbugs/), codacy supports Spotbugs integration. 
 
