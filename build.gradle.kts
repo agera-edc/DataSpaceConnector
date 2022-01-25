@@ -21,6 +21,10 @@ plugins {
     id("com.github.spotbugs") version "5.0.5"
 }
 
+dependencies {
+    spotbugsPlugins("com.h3xstream.findsecbugs:findsecbugs-plugin:1.11.0")
+}
+
 repositories {
     mavenCentral()
 }
