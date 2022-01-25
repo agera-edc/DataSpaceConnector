@@ -45,7 +45,7 @@ There is [a plugin](https://github.com/SimonScholz/report-aggregator) available 
  In plugin 'com.simonscholz.reports' type 'com.simonscholz.report.GenerateAggregatedReportTask' property 'level' is missing an input or output annotation.
 ```
 
-For the moment it looks like a more custom solutions like the ones discussed in [this issue](https://github.com/spotbugs/spotbugs-gradle-plugin/issues/114) might be more appropriate.
+For the moment it looks like a more custom solution with a XSL aggregation/transformation of Spotbugs XML output files is the most promising approach.
 
 ### Findsecbugs plugin
 
