@@ -79,7 +79,7 @@ allprojects {
 
     // See https://github.com/spotbugs/spotbugs-gradle-plugin#configure-spotbugs-plugin
     spotbugs {
-        ignoreFailures.set(false) // if false, build fails on bugs
+        ignoreFailures.set(true) // if false, build fails on bugs
         showProgress.set(true)
         effort.set(com.github.spotbugs.snom.Effort.DEFAULT)
         reportLevel.set(com.github.spotbugs.snom.Confidence.DEFAULT)
