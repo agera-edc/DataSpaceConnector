@@ -12,6 +12,12 @@ TBD
 
 [Spotbugs](https://spotbugs.github.io/) is a program which uses static analysis to look for bugs in Java code. It looks for instances of “bug patterns” — code instances that are likely to be errors by inspecting Java bytecode.
 
+### Running SpotBugs with the IntelliJ plugin
+
+The [Spotbugs Intellij plugin](https://plugins.jetbrains.com/plugin/14014-spotbugs) runs Spotbugs directly from the IDE. This is the most effective way to look and fix Spotbugs issues from the developers perspective.
+
+![Intellij Plugin](.attachments/spotbugs-intellij.png)
+
 ### Running SpotBugs with Gradle
 
 Use the [Spotbugs Gradle Plugin](https://github.com/spotbugs/spotbugs-gradle-plugin) to run Spotbugs. 
@@ -33,7 +39,9 @@ tasks.spotbugsMain {
 }
 ```
 
-An own report is generated per each Gradle module. This is not practical as one has to navigate to the different modules to get to the findings, a central aggregated overview would come handy.
+An own report is generated per each Gradle module. This is not practical as one has to navigate to the different modules to get to the findings, a central aggregated overview would come handy for visualization.
+
+An efficient and pragmatic option is to use the Gradle setup only to enforce that no open Spotbugs issues remain when running CI, while using IDE plugins (like the one mentioned in the previous section) to visualize and fix issues locally. 
 
 ![Spotbugs report](.attachments/spotbugs.png)
 
