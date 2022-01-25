@@ -98,3 +98,26 @@ The report can be drilled to highlight the code subjected to coverage changes.
 
 The configuration of Codecov can be adjusted in a [`codecov.yaml` configuration file](https://docs.codecov.com/docs/codecov-yaml). That allows for example configuration to ensure each new PR [does not decrease coverage](https://docs.codecov.com/docs/common-recipe-list#increase-overall-coverage-on-each-pull-request).
 
+### Option 4: JaCoCo with Codacy
+
+[Codacy](https://www.codacy.com/) is an online service for both static code analysis and test code coverage analysis. It is free for Open Source projects.
+
+We [enrolled our repository fork](https://docs.codacy.com/getting-started/codacy-quickstart/) into Codacy using its Web UI, and obtained a [Project API token](https://docs.codacy.com/codacy-api/api-tokens/) which we set up as a GitHub secret.
+
+We used the modified `build.gradle.kts` file as above to create JaCoCo XML reports. We then used the [Codacy GitHub action](https://github.com/codacy/codacy-coverage-reporter-action) to upload our reports. The `find ` command is set up to exclude one XML report with empty content that is 240 bytes long, and causes the following action to fail.
+
+```yaml
+       - name: Set Coverage Report Paths
+         id: coverage-paths
+         run: |
+           echo -n "::set-output name=COVERAGE_REPORT_PATHS::"
+           find . -name jacocoTestReport.xml -size +300c -printf '%p,'
+           
+       - name: Publish Code Coverage Results
+         uses: codacy/codacy-coverage-reporter-action@v1
+         with:
+           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+           coverage-reports: ${{ steps.coverage-paths.outputs.COVERAGE_REPORT_PATHS }}
+```
+
+The action worked, but the coverage reports are still not being displayed in the [Codacy UI](https://app.codacy.com/gh/Agera-CatenaX/EclipseDataSpaceConnector/settings/coverage). We are talking to Codacy support to investigate the issue.
