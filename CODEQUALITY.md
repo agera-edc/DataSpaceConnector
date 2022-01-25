@@ -41,8 +41,6 @@ tasks.spotbugsMain {
 
 An own report is generated per each Gradle module. This is not practical as one has to navigate to the different modules to get to the findings, a central aggregated overview would come handy for visualization.
 
-An efficient and pragmatic option is to use the Gradle setup only to enforce that no open Spotbugs issues remain when running CI, while using IDE plugins (like the one mentioned in the previous section) to visualize and fix issues locally. 
-
 ![Spotbugs report](.attachments/spotbugs.png)
 
 #### Aggregating reports
@@ -53,7 +51,9 @@ There is [a plugin](https://github.com/SimonScholz/report-aggregator) available 
  In plugin 'com.simonscholz.reports' type 'com.simonscholz.report.GenerateAggregatedReportTask' property 'level' is missing an input or output annotation.
 ```
 
-For the moment it looks like a more custom solution with a XSL aggregation/transformation of Spotbugs XML output files is the most promising approach.
+For the moment it looks like a more custom solution with a XSL aggregation/transformation of Spotbugs XML output files is the most promising approach for achieving aggregated reports with Gradle.
+
+An pragmatic setup would to use the Gradle setup only to enforce that no open Spotbugs issues remain when running CI, while using IDE plugins (like the one mentioned in the previous section) to visualize and fix issues locally.
 
 ### Findsecbugs plugin
 
