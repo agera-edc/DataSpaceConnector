@@ -25,6 +25,14 @@ Use the [Spotbugs Gradle Plugin](https://github.com/spotbugs/spotbugs-gradle-plu
 The plugin is configured to generate html reports and with a file for accepted exclusions: 
 
 ```kotlin
+plugins {
+    id("com.github.spotbugs") version "5.0.5"
+}
+
+dependencies {
+    spotbugsPlugins("com.h3xstream.findsecbugs:findsecbugs-plugin:1.11.0")
+}
+
 spotbugs {
     ignoreFailures.set(true) // if false, build fails on bugs
     excludeFilter.set(file("$rootDir/resources/spotbugs-excludes.xml"))
@@ -38,6 +46,10 @@ tasks.spotbugsMain {
     }
 }
 ```
+
+The [Find Security Bugs](https://find-sec-bugs.github.io/) plugin extends Spotbugs with additional security checks.
+
+Spotbugs can be quite resource intense. The [effort configuration](https://spotbugs.readthedocs.io/en/stable/effort.html) helps tune Spotbugs accordingly for each individual project.
 
 An own report is generated per each Gradle module. This is not practical as one has to navigate to the different modules to get to the findings, a central aggregated overview would come handy for visualization.
 
@@ -54,14 +66,6 @@ There is [a plugin](https://github.com/SimonScholz/report-aggregator) available 
 For the moment it looks like a more custom solution with a XSL aggregation/transformation of Spotbugs XML output files is the most promising approach for achieving aggregated reports with Gradle.
 
 An pragmatic setup would to use the Gradle setup only to enforce that no open Spotbugs issues remain when running CI, while using IDE plugins (like the one mentioned in the previous section) to visualize and fix issues locally.
-
-### Findsecbugs plugin
-
-The [Find Security Bugs](https://find-sec-bugs.github.io/) plugin extends Spotbugs with additional security checks.
-
-#### Resource usage
-
-Spotbugs can be quite resource intense. The [effort configuration](https://spotbugs.readthedocs.io/en/stable/effort.html) helps tune Spotbugs accordingly for each individual project.
 
 ### Running Spotbugs with Codacy
 
