@@ -57,9 +57,10 @@ More information about Checktyle in EDC can be found in [the doc about the style
 
 ### Running Checkstyle with Codacy
 
-Checkstyle is available as a built-in tool in Codacy. 
+Checkstyle is available as a built-in tool in Codacy. By clicking on the tool the Checkstyle rule set can be configured. 
 
 ![Checkstyle in Codacy](.attachments/checkstyle_codacy_feature.png)
+
 
 With this feature toggled Codacy scans the code and can apply the checks on the PRs. From the Codacy dashboard we can see the issues found by Checkstyle 
 with an explanation why it's an issue:
@@ -96,6 +97,10 @@ Running PMD on EDC results in over 27000 violations at the time of writing with 
 A quick scan through the finding reveals that most of them are low priority issues like "short class name", "comment size", "too many imports", "method argument could be final". Some others are false positives that don't apply for the code in question like "use concurrent hashmap" in a single-threaded context or "empty catch block" in a code area where this is expected. Among them some interesting items can be found like "mutable static state" or "avoid nested if statements" for a code piece with 3 nested ifs.
 
 Our experience with PMD is that the high amount of noise it generates leads to the frustrating task of having to add exceptions to the ruleset instead of focusing on real issues.
+
+### Running PMD with Codacy
+
+PMD is also available as a built-in tool in Codacy. It can be configured in the same way as [Checkstyle](#running-checkstyle-with-codacy).
 
 ## Spotbugs
 
