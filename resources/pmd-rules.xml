@@ -6,7 +6,6 @@
     <description>
         Rules for Java
     </description>
-
     <rule ref="category/java/bestpractices.xml">
         <!-- Too many false positives, seems to be broken when using var -->
         <exclude name="UnusedPrivateMethod"/>

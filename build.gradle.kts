@@ -18,6 +18,7 @@ plugins {
     checkstyle
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
     jacoco
+    pmd
     id("com.github.spotbugs") version "5.0.5"
 }
 
@@ -72,6 +73,7 @@ allprojects {
     apply(plugin = "checkstyle")
     apply(plugin = "java")
     apply(plugin = "jacoco")
+    apply(plugin = "pmd")
     apply(plugin = "com.github.spotbugs")
 
     checkstyle {
@@ -79,6 +81,13 @@ allprojects {
         configFile = rootProject.file("resources/edc-checkstyle-config.xml")
         maxErrors = 0 // does not tolerate errors ...
         maxWarnings = 0 // ... or warnings
+    }
+
+    pmd {
+        isConsoleOutput = true
+        toolVersion = "6.21.0"
+        rulesMinimumPriority.set(1)
+        ruleSets = listOf("resources/pmd-rules-reduced.xml")
     }
 
     // See https://github.com/spotbugs/spotbugs-gradle-plugin#configure-spotbugs-plugin

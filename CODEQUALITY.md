@@ -90,13 +90,34 @@ PMD is a Java source code analyzer that finds common programming flaws like unus
 
 The [Intellij PMD plugin](https://plugins.jetbrains.com/plugin/1137-pmdplugin) runs PMD directly from the IDE with either a predefined set of rules or custom ones from the project.
 
+Unfortunately the plugin does not allow to configure the minimum priority threshold for issues, leading to a full-blown violations report.
+
+### Running PMD with Gradle
+
+Use the [PMD Gradle Plugin](https://docs.gradle.org/current/userguide/pmd_plugin.html) to run PMD.
+
+```kotlin
+plugins {
+    pmd
+}
+
+pmd {
+    isConsoleOutput = true
+    toolVersion = "6.21.0"
+    rulesMinimumPriority.set(1)
+    ruleSets = listOf("resources/pmd-rules.xml")
+}
+```
+
+The `rulesMinimumPriority` allows to set the minimum priority level of violations for failing the build.
+
 ### Reported EDC issues
 
 Running PMD on EDC results in over 27000 violations at the time of writing with the predefined rulesets. Using the [pmd-rules.xml](./resources/pmd-rules.xml) ruleset we end up with 15000 violations.
 
-A quick scan through the finding reveals that most of them are low priority issues like "short class name", "comment size", "too many imports", "method argument could be final". Some others are false positives that don't apply for the code in question like "use concurrent hashmap" in a single-threaded context or "empty catch block" in a code area where this is expected. Among them some interesting items can be found like "mutable static state" or "avoid nested if statements" for a code piece with 3 nested ifs.
+A quick scan through the findings reveals that most of them are low priority issues like "short class name", "comment size", "too many imports", "method argument could be final". Some others are false positives that don't apply for the code in question like "use concurrent hashmap" in a single-threaded context or "empty catch block" in a code area where this is expected. Among them some interesting items can be found like "mutable static state" or "avoid nested if statements" for a code piece with 3 nested ifs.
 
-Our experience with PMD is that the high amount of noise it generates leads to the frustrating task of having to add exceptions to the ruleset instead of focusing on real issues.
+Taking a much more targeted [pmd-rules-reduced.xml](./resources/pmd-rules-reduced.xml) ruleset focusing on just few of the most important violations reduces noise and brings the total amount of violations to a much more manageable ~350 items. We encourage starting with a focused small ruleset and add rules bit by bit whenever needed. 
 
 ### Running PMD with Codacy
 
