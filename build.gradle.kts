@@ -84,6 +84,7 @@ allprojects {
     }
 
     pmd {
+        isIgnoreFailures = true // if false, build fails on violations
         isConsoleOutput = true
         toolVersion = "6.21.0"
         rulesMinimumPriority.set(1)
