@@ -1,4 +1,4 @@
-# ADR on code quality tooling
+# ADR on Code Quality
 
 # Overview of tools
 
@@ -52,7 +52,17 @@ More information about Checktyle in EDC can be found in [the doc about the style
 
 ## PMD
 
-PMD is a Java source code analyzer that finds common programming flaws like unused variables, empty catch blocks, unnecessary object creation, and so forth.
+PMD is a Java source code analyzer that finds common programming flaws like unused variables, empty catch blocks, unnecessary object creation, and so forth. It provides predefined rule sets that can be used out of the box grouped in different categories: bestpractices, documentation, multithreading, performance, etc. Often these defaults are a bit too extensive and lead to a big amount of issues detected (running PMD on EDC results in over 27000 violations at the time of writing), so it is advisable to create a custom rule set for the most meaningful patterns.
+
+The [pmd-rules.xml](./resources/pmd-rules.xml) file defines a custom rule set that was used in a [previous project](https://github.com/catenax/tractusx/blob/main/coreservices/partsrelationshipservice/ci/pmd-rules.xml). Still with this ruleset we end up with 15000 violations.
+
+A quick scan through the finding reveals that most of them are low priority issues like "short class name", "comment size", "too many imports", "method argument could be final". Some others are false positives that don't apply for the code in question like "use concurrent hashmap" in a single-threaded context or "empty catch block" in a code area where this is expected. Among them some interesting items can be found like "mutable static state" or "avoid nested if statements" for a code piece with 3 nested ifs.
+
+Our experience with PMD is that the high amount of noise it generates leads to the frustrating task of having to add exceptions to the ruleset instead of focusing on real issues.
+
+### Running PMD with the IntelliJ plugin
+
+The [Intellij PMD plugin](https://plugins.jetbrains.com/plugin/1137-pmdplugin) runs PMD directly from the IDE with either a predefined set of rules or custom ones from the project.
 
 ## Spotbugs
 
@@ -68,7 +78,7 @@ The [Spotbugs Intellij plugin](https://plugins.jetbrains.com/plugin/14014-spotbu
 
 Use the [Spotbugs Gradle Plugin](https://github.com/spotbugs/spotbugs-gradle-plugin) to run Spotbugs. 
 
-The plugin is configured to generate html reports and with a file for accepted exclusions: 
+The plugin is configured to generate html reports and with a file for accepted exclusions. An initial set of exclusions can be taken from sample open source projects like the [Azure Java SDK](https://github.com/Azure/azure-sdk-for-java/blob/main/eng/code-quality-reports/src/main/resources/spotbugs/spotbugs-exclude.xml)
 
 ```kotlin
 plugins {
