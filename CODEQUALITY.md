@@ -81,6 +81,10 @@ Going into details we can see a link to the issues report on Codacy:
 
 ![Checkstyle in Codacy](.attachments/codacy_github_details.png)
 
+Using Checkstyle with Codacy has an advantage of keeping all checks in the same shared dashboard where all code quality analysis from different tools are 
+combined. It helps to monitor the current status of the code quality in the repository. 
+However, if the goal is to have checks reported in the PR then running Checkstyle explicitly in Github Actions offers better visibility as the checks are 
+posted directly in the PR review discussion by Github Actions bot. 
 
 ## PMD
 
