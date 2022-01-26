@@ -103,7 +103,7 @@ There is [a plugin](https://github.com/SimonScholz/report-aggregator) available 
 
 For the moment it looks like a more custom solution with a XSL aggregation/transformation of Spotbugs XML output files is the most promising approach for achieving aggregated reports with Gradle.
 
-An pragmatic setup would to use the Gradle setup only to enforce that no open Spotbugs issues remain when running CI, while using IDE plugins (like the one mentioned in the previous section) to visualize and fix issues locally.
+A pragmatic setup would to use the Gradle setup only to enforce that no open Spotbugs issues remain when running CI, while using IDE plugins (like the one mentioned in the previous section) to visualize and fix issues locally.
 
 ### Running Spotbugs with Codacy
 
@@ -146,11 +146,15 @@ Caused by: edu.umd.cs.findbugs.classfile.ResourceNotFoundException: Resource not
 
 ### Reported EDC bugs
 
-We did a quick evaluation of high priority bugs (P1) as reported by Spotbugs and estimated the effort it would take to either fix relevant issues and ignore irrelevant ones to get a feeling of the value of using this tool.  
+A full Spotbugs scan with the IntelliJ plugin configured to run with maximal effort and confidence reports 120 issues in EDC code.
 
-| Bug                                                | Description | Fix effort |
-|----------------------------------------------------| ----------- |------------|
-| Reliance on default encoding (DM_DEFAULT_ENCODING) | Found a call to a method which will perform a byte to String (or String to byte) conversion, and will assume that the default platform encoding is suitable. This will cause the application behaviour to vary between platforms. Use an alternative API and specify a charset name or Charset object explicitly     | low        |
-| Field isn't final but should be (MS_SHOULD_BE_FINAL) | This static field public but not final, and could be changed by malicious code or by accident from another package. The field could be made final to avoid this vulnerability.      | low        |
+We did a quick evaluation of these issues and estimated the effort it would take to either fix relevant issues or ignore irrelevant ones to get a feeling of the value of using this tool.  
 
-TBD
+| Bug                                                                              | Description                                                                                                                                                                                                                                                                                                                                    | Fix effort |
+|----------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| SA_FIELD_SELF_ASSIGNMENT                                                         | Self-assignment to field. Such assignments are useless, and may indicate a logic error or typo.                                                                                                                                                                                                                                                | low        |
+| NP_NONNULL_RETURN_VIOLATION, NP_NONNULL_PARAM_VIOLATION, NP_NULL_PARAMETER_DEREF | Detection of possible null return values or parameters for elements annotated with @NotNull                                                                                                                                                                                                                                                    | low        |
+| DM_RANDOM_USED_ONLY_ONCE                                                         | This code creates a java.util.Random object, uses it to generate one random number, and then discards the Random object. This produces mediocre quality random numbers and is inefficient.                                                                                                                                                     | low        |
+| DM_DEFAULT_ENCODING                                                              | Reliance on default encoding. Found a call to a method which will perform a byte to String (or String to byte) conversion, and will assume that the default platform encoding is suitable. This will cause the application behaviour to vary between platforms. Use an alternative API and specify a charset name or Charset object explicitly | low        |
+| MS_SHOULD_BE_FINAL                                                               | This static field public but not final, and could be changed by malicious code or by accident from another package. The field could be made final to avoid this vulnerability.                                                                                                                                                                 | low        |
+| RDN_REDUNDANT_NULL_CHECK_OF_NON_NULL_VALUE                                       | This error does not seem to hold high priority as reported as its just a redundant @NotNull indication.                                                                                                                                                                                                                                        | low        |
