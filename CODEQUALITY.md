@@ -2,7 +2,7 @@
 
 ## Checkstyle 
 
-[Checkstyle](https://checkstyle.org/) is a static code analysis tool for Java code.
+[Checkstyle](https://checkstyle.org/) is a static code analysis tool to help programmers write Java code that adheres to a coding standard (coding style, naming patterns, indentation, etc..)
 
 ### Running Checkstyle
 
