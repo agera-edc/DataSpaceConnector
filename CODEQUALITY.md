@@ -114,6 +114,10 @@ pmd {
     toolVersion = "6.41.0"
     ruleSets = listOf("resources/pmd-rules-reduced.xml")
 }
+
+tasks.pmdTest {  // do not run PMD on test code
+    enabled = false
+}
 ```
 
 The `rulesMinimumPriority` allows to set the minimum priority level of violations for failing the build.
@@ -193,7 +197,7 @@ Taking a much more targeted [pmd-rules-reduced.xml](./resources/pmd-rules-reduce
 
 ### Running SpotBugs with the IntelliJ plugin
 
-The [Spotbugs Intellij plugin](https://plugins.jetbrains.com/plugin/14014-spotbugs) runs Spotbugs directly from the IDE. This is the most effective way to look and fix Spotbugs issues from the developers perspective.
+The [Spotbugs Intellij plugin](https://plugins.jetbrains.com/plugin/14014-spotbugs) runs Spotbugs directly from the IDE. This is the most effective way to look and fix Spotbugs issues from the developers perspective. Running the IntelliJ plugin on a machine with a 2.3Ghz 8-Core Intel Core i9 CPU running takes around 1 minute. 
 
 ![Intellij Plugin](.attachments/spotbugs-intellij.png)
 
@@ -201,7 +205,9 @@ The [Spotbugs Intellij plugin](https://plugins.jetbrains.com/plugin/14014-spotbu
 
 Use the [Spotbugs Gradle Plugin](https://github.com/spotbugs/spotbugs-gradle-plugin) to run Spotbugs. 
 
-The plugin is configured to generate html reports and with a file for accepted exclusions. An initial set of exclusions can be taken from sample open source projects like the [Azure Java SDK](https://github.com/Azure/azure-sdk-for-java/blob/main/eng/code-quality-reports/src/main/resources/spotbugs/spotbugs-exclude.xml)
+The plugin is configured to generate html reports and with a file for accepted exclusions. An initial set of exclusions can be taken from sample open source projects like the [Azure Java SDK](https://github.com/Azure/azure-sdk-for-java/blob/main/eng/code-quality-reports/src/main/resources/spotbugs/spotbugs-exclude.xml). 
+
+Running `gradle spotbugsMain` takes around 3.5 minutes on a machine with a 2.3Ghz 8-Core Intel Core i9 CPU.
 
 ```kotlin
 plugins {
