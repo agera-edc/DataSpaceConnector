@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  connector-provider:
+    container_name: sample04-provider
+    build:
+      context: .
+      target: connector-provider
+    ports:
+      - "8181:8181"
+
+  connector-consumer:
+    container_name: sample04-consumer
+    build:
+      context: .
+      target: connector-consumer
+    ports:
+      - "9191:9191"
