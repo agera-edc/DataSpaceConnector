@@ -86,6 +86,19 @@ combined. It helps to monitor the current status of the code quality in the repo
 However, if the goal is to have checks reported in the PR then running Checkstyle explicitly in Github Actions offers better visibility as the checks are 
 posted directly in the PR review discussion by Github Actions bot. 
 
+### Checkstyle in the Intellij 
+
+EDC style guide recommends using [Checkstyle-IDEA plugin](https://plugins.jetbrains.com/plugin/1065-checkstyle-idea). 
+To use [edc-checkstyle-config.xml](./resources/edc-checkstyle-config.xml) config file we have to create new Active configuration in checkstyle preferences:
+
+![Checkstyle in Intellij](.attachments/checkstyle_intellij.png)
+
+After installing the plugin it should be visible as one of the tool windows (View -> Tool windows -> Checkstyle). Then to run the scan we have to pick the 
+created configuration and click e.g. "Check Project" or "Check current file".
+
+![Checkstyle in Intellij](.attachments/checkstyle_tool_windows_1.png)
+![Checkstyle in Intellij](.attachments/checkstyle_tool_windows_2.png)
+
 ## PMD
 
 PMD is a Java source code analyzer that finds common programming flaws like unused variables, empty catch blocks, unnecessary object creation, and so forth. It provides predefined rule sets that can be used out of the box grouped in different categories: bestpractices, documentation, multithreading, performance, etc. Often these defaults are a bit too extensive and lead to a big amount of issues detected, so it is advisable to create a custom rule set for the most meaningful patterns. The [pmd-rules.xml](./resources/pmd-rules.xml) file defines a custom rule set that was used in a [previous project](https://github.com/catenax/tractusx/blob/main/coreservices/partsrelationshipservice/ci/pmd-rules.xml)
