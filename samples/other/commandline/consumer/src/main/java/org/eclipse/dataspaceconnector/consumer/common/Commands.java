@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Common functions.
  */
-public class Commands {
+public final class Commands {
 
     private Commands() {
     }

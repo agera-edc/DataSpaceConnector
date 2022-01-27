@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-public class ExtensionLoader {
+public final class ExtensionLoader {
 
     private ExtensionLoader() {
     }

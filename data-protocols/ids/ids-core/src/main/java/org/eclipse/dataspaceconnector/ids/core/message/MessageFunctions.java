@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
-public class MessageFunctions {
+public final class MessageFunctions {
 
     private MessageFunctions() {
     }

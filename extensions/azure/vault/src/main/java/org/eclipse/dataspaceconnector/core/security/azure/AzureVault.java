@@ -34,7 +34,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Implements a vault backed by Azure Vault.
  */
-public class AzureVault implements Vault {
+public final class AzureVault implements Vault {
 
     private final SecretClient secretClient;
     private final Monitor monitor;
