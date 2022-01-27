@@ -36,8 +36,7 @@
     <rule ref="category/java/bestpractices.xml/MethodReturnsInternalArray" />
     <rule ref="category/java/bestpractices.xml/MissingOverride" />
     <rule ref="category/java/bestpractices.xml/OneDeclarationPerLine" />
-    <rule ref="category/java/bestpractices.xml/PositionLiteralsFirstInCaseInsensitiveComparisons" />
-    <rule ref="category/java/bestpractices.xml/PositionLiteralsFirstInComparisons" />
+    <rule ref="category/java/bestpractices.xml/LiteralsFirstInComparisons" />
     <!-- <rule ref="category/java/bestpractices.xml/PreserveStackTrace" /> -->
     <rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap" />
     <rule ref="category/java/bestpractices.xml/SwitchStmtsShouldHaveDefault" />
@@ -128,7 +127,7 @@
     <rule ref="category/java/errorprone.xml/AvoidInstanceofChecksInCatchClause" />
     <rule ref="category/java/errorprone.xml/AvoidLosingExceptionInformation" />
     <rule ref="category/java/errorprone.xml/AvoidMultipleUnaryOperators" />
-    <rule ref="category/java/errorprone.xml/BadComparison" />
+    <rule ref="category/java/errorprone.xml/ComparisonWithNaN" />
     <rule ref="category/java/errorprone.xml/BrokenNullCheck" />
     <rule ref="category/java/errorprone.xml/CallSuperFirst" />
     <rule ref="category/java/errorprone.xml/CheckSkipResult" />
@@ -145,7 +144,7 @@
     </rule>
     <rule ref="category/java/errorprone.xml/CompareObjectsWithEquals" />
     <rule ref="category/java/errorprone.xml/ConstructorCallsOverridableMethod" />
-    <rule ref="category/java/errorprone.xml/DoNotCallSystemExit" />
+    <rule ref="category/java/errorprone.xml/DoNotTerminateVM" />
     <rule ref="category/java/errorprone.xml/DoNotExtendJavaLangThrowable" />
     <rule ref="category/java/errorprone.xml/DoNotThrowExceptionInFinally" />
     <rule ref="category/java/errorprone.xml/DontImportSun" />

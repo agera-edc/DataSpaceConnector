@@ -86,8 +86,7 @@ allprojects {
     pmd {
         isIgnoreFailures = true // if false, build fails on violations
         isConsoleOutput = true
-        toolVersion = "6.21.0"
-        rulesMinimumPriority.set(1)
+        toolVersion = "6.41.0"
         ruleSets = listOf("resources/pmd-rules-reduced.xml")
     }
 
@@ -100,12 +99,20 @@ allprojects {
         excludeFilter.set(file("$rootDir/resources/spotbugs-excludes.xml"))
     }
 
+    tasks.pmdTest {
+        enabled = false
+    }
+
     tasks.spotbugsMain {
         reports.create("html") {
             required.set(true)
             outputLocation.set(file("$buildDir/reports/spotbugs.html"))
             setStylesheet("fancy-hist.xsl")
         }
+    }
+
+    tasks.spotbugsTest {
+        enabled = false
     }
 
     java {
