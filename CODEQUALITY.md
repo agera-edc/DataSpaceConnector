@@ -332,3 +332,29 @@ Spotbugs reports 303 issues spread across 27 bug patterns of high and medium pri
 | ⚠️ 2      | VA_FORMAT_STRING_USES_NEWLINE           | Format string should use %n rather than \n           | BAD_PRACTICE   | 2     |
 
 Some issues found might lead to real problems when using EDC in production. Given that false positives can be easily ignored using annotations or exclusion filters we highly encourage using Spotbugs as we see a high value VS effort ratio. A suggestion could be to start with a rather lenient configuration and increase strictness as appropriate.  
+
+## CodeQL
+
+CodeQL is a semantic code analysis engine developed by GitHub to automate security checks. A database is extracted from source code that can be analysed with a powerful query language. Each single query can be thought of as a “check” or “rule” representing a distinct security vulnerability that is being searched for. There is an available set of standard CodeQL queries, written by GitHub researchers and community contributors, and custom ones can be written too. See [Writing queries](https://codeql.github.com/docs/writing-codeql-queries/codeql-queries/) in the CodeQL docs for more information.
+
+CodeQL is integrated in the EDC CI build in a dedicated [Github workflow](.github/workflows/codeql-analysis.yml). This workflow runs on PRs and commits to the main branch and runs the default set of queries as provided by CodeQL.
+
+### Running CodeQL with Visual Studio Code
+
+CodeQL queries can be run locally using the [Visual Studio Code Extension](https://codeql.github.com/docs/codeql-for-visual-studio-code/setting-up-codeql-in-visual-studio-code/). First we need to build a database using the CodeQL CLI:
+
+```bash
+codeql database create --language=java resources/edc-database
+```
+
+Once the database is built it can be imported to the available databases in Visual Studio Code as described in [the documentation](https://codeql.github.com/docs/codeql-for-visual-studio-code/analyzing-your-projects/). 
+
+Sample queries can be imported from the [CodeQL Github repository](https://github.com/github/codeql). To achieve this clone the repository and import the [java/ql/src](https://github.com/github/codeql/tree/main/java/ql/src) folder into your Visual Studio workspace.
+
+You can run up to 20 simultaneous queries within Visual Studio Code by right-clicking on the desired queries and then selecting "Run Queries in Selected Files" 
+
+![CodeQL Query in Visual Studio Code](.attachments/codeql_vsc.png)
+
+One of the queries returns a finding which we can inspect by selecting it on the query pane:
+
+![CodeQL Query Result](.attachments/codeql_vsc_query_result.png)

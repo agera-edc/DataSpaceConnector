@@ -107,7 +107,6 @@ allprojects {
         reports.create("html") {
             required.set(true)
             outputLocation.set(file("$buildDir/reports/spotbugs.html"))
-            setStylesheet("fancy-hist.xsl")
         }
         reports.create("xml") {
             required.set(true)
