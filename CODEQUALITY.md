@@ -358,3 +358,46 @@ You can run up to 20 simultaneous queries within Visual Studio Code by right-cli
 One of the queries returns a finding which we can inspect by selecting it on the query pane:
 
 ![CodeQL Query Result](.attachments/codeql_vsc_query_result.png)
+
+Although useful for verifying and debugging single queries, due to the limitation of running at most 20 queries at a time the Visual Studio Code plugin is not an adequate solution to run full query suites.
+
+### Running CodeQL with the CLI
+
+Install the CodeQL CLI as described in the [documentation](https://codeql.github.com/docs/codeql-cli/getting-started-with-the-codeql-cli/#setting-up-the-codeql-cli)
+
+Install the java queries package by running:
+
+```bash
+codeql pack download codeql/java-queries
+```
+
+If not already done, built a CodeQL database for EDC running:
+
+```bash
+codeql database create --language=java resources/edc-database
+```
+
+Run the CodeQL analysis using the Java queries:
+
+```bash
+codeql database analyze resources/edc-database codeql/java-queries --format=csv --output=analysis-results.csv
+```
+
+At the time of writing the latest `codeql/java-queries` pack version is `0.0.7` containing 44 rules giving the following output on the EDC codebase:
+
+```bash
+Analysis produced the following diagnostic data:
+
+|             Diagnostic             |                      Summary                       |
++------------------------------------+----------------------------------------------------+
+| Diagnostics for framework coverage | 132 results (101 unknowns, 10 errors, 21 warnings) |
+| Extraction errors                  | 0 results                                          |
+| Successfully extracted files       | 930 results                                        |
+| Extraction warnings                | 0 results                                          |
+Analysis produced the following metric data:
+
+|               Metric                | Value |
++-------------------------------------+-------+
+| Total lines of code in the database | 45911 |
+```
+No findings are listed in `analyzisis-results.csv` which aligns with the [EDC CodeQL Github workflow](https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/actions) results.
