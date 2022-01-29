@@ -331,7 +331,7 @@ Spotbugs reports 303 issues spread across 27 bug patterns of high and medium pri
 | ⚠️ 2      | UUF_UNUSED_FIELD                        | Unused field                                         | PERFORMANCE    | 1     |
 | ⚠️ 2      | VA_FORMAT_STRING_USES_NEWLINE           | Format string should use %n rather than \n           | BAD_PRACTICE   | 2     |
 
-Some issues found might lead to real problems when using EDC in production. Given that false positives can be easily ignored using annotations or exclusion filters we highly encourage using Spotbugs as we see a high value VS effort ratio. A suggestion could be to start with a rather lenient configuration and increase strictness as appropriate.  
+Most issues found might lead to real problems when using EDC in production and can be fixed with a relatively low effort. Given that false positives can be easily ignored using annotations or exclusion filters we highly encourage using Spotbugs as we see a high value VS effort ratio. A suggestion could be to start with a rather lenient configuration and increase strictness as appropriate.  
 
 ## CodeQL
 
@@ -412,17 +412,18 @@ codeql database analyze <PATH_TO_REPO>/java-security-and-quality.qls --format=cs
 
 The resulting [analysis-results.csv](analysis-results.csv) contains 200 findings spread across 44 different categories. The following table lists the findings with "error" and "warning" priority:
 
-| Priority | Name                                     | Description | Count                                                      |
-| -------- |------------------------------------------| ----------- |------------------------------------------------------------|
-| 🚨 error | Missing format argument                  | A format call with an insufficient number of arguments causes an 'IllegalFormatException'. | 2                                                          |
-| 🚨 error | Self assignment                          | Assigning a variable to itself has no effect. | 1                                                          |
-| 🚨 error | Container contents are never accessed    | A collection or map whose contents are never queried or accessed is useless. | 1                                                          |
-| 🚨 error | Log Injection                            | Building log entries from user-controlled data may allow insertion of forged log entries by malicious users. | 1                                                          |
-| 🚨 error | Hard-coded credential in API call        | Using a hard-coded credential in a call to a sensitive Java API may compromise security. | 4                                                          |
-| 🚨 error | Unreleased lock                          | A lock that is acquired one or more times without a matching number of unlocks may cause a deadlock. | 1                                                          |
-| ⚠️ warning | Dereferenced variable may be null | Dereferencing a variable whose value may be 'null' may cause a 'NullPointerException'. | 1                                                          |
-| ⚠️ warning | Potential input resource leak | A resource that is opened for reading but not closed may cause a resource leak. | 1                                                          |
-| ⚠️ warning | Use of a potentially broken or risky cryptographic algorithm | Using broken or weak cryptographic algorithms can allow an attacker to compromise security. | 6                                                          |
-| ⚠️ warning | Random used only once | Creating an instance of 'Random' for each pseudo-random number required does not guarantee an evenly distributed sequence of random numbers. | 4                                                          |
-| ⚠️ warning | Inconsistent compareTo | If a class overrides 'compareTo' but not 'equals' | 1 | 
+| Priority   | Name                                     | Description | Count |
+|------------|------------------------------------------| ----------- |-------|
+| 🚨 error   | Missing format argument                  | A format call with an insufficient number of arguments causes an 'IllegalFormatException'. | 2 |
+| 🚨 error   | Self assignment                          | Assigning a variable to itself has no effect. | 1     |
+| 🚨 error   | Container contents are never accessed    | A collection or map whose contents are never queried or accessed is useless. | 1     |                 
+| 🚨 error   | Log Injection                            | Building log entries from user-controlled data may allow insertion of forged log entries by malicious users. | 1     |
+| 🚨 error   | Hard-coded credential in API call        | Using a hard-coded credential in a call to a sensitive Java API may compromise security. | 4     |
+| 🚨 error   | Unreleased lock                          | A lock that is acquired one or more times without a matching number of unlocks may cause a deadlock. | 1     |
+| ⚠️ warning | Dereferenced variable may be null | Dereferencing a variable whose value may be 'null' may cause a 'NullPointerException'. | 1     |
+| ⚠️ warning | Potential input resource leak | A resource that is opened for reading but not closed may cause a resource leak. | 1     |
+| ⚠️ warning | Use of a potentially broken or risky cryptographic algorithm | Using broken or weak cryptographic algorithms can allow an attacker to compromise security. | 6     |
+| ⚠️ warning | Random used only once | Creating an instance of 'Random' for each pseudo-random number required does not guarantee an evenly distributed sequence of random numbers. | 4     |
+| ⚠️ warning | Inconsistent compareTo | If a class overrides 'compareTo' but not 'equals' | 1     | 
 
+A quick look through the issues reveal that most of them pinpoint very specific issues that can be solved with relatively low effort. Some issues seem quite critical dealing to unexpected exceptions and deadlocks, so we see a high value VS fix effort ration. Additionally, the 177 findings with "recommendation" priority (not listed in the table above) hint to code smells similar to those reported by PMD. Unfortunately, a big drawback of using CodeQL might be dealing with false positives as [GitHub CodeScanning](https://giters.com/github/codeql/issues/7294) does not support alert suppression comments and annotations at the moment.
