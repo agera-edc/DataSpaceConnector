@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.samples;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
@@ -23,16 +24,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.Callable;
-import java.util.function.Predicate;
-
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.json;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
 
 /**
@@ -79,23 +76,23 @@ public class FileTransferSystemTest {
         assertThat(contractNegotiationRequestId).isNotBlank();
 
         // Verify ContractNegotiation is CONFIRMED (state = 1200)
-        await().atMost(60, SECONDS).untilAsserted(() -> {
+        await().atMost(30, SECONDS).untilAsserted(() -> {
 
-            assertThatJson(getNegotiatedAgreement(contractNegotiationRequestId)).and(
+            assertThatJson(getNegotiatedAgreement(contractNegotiationRequestId).toString()).and(
                     json -> json.node("id").isEqualTo(contractNegotiationRequestId),
                     json -> json.node("state").isEqualTo(1200),
                     json -> json.node("contractAgreement.id").isNotNull()
             );
         });
 
-//        //Get contract agreement id.
-//        var contractAgreementId = assertThatJson(getNegotiatedAgreement(contractNegotiationRequestId))
-//                .node("contractAgreement.id").asString();
+        // Obtain contract agreement ID
+        var contractAgreementId = getNegotiatedAgreement(contractNegotiationRequestId)
+                .get("contractAgreement").get("id").toString();
 
-
+        assertThat(contractAgreementId).isNotNull();
     }
 
-    private String getNegotiatedAgreement(String contractNegotiationRequestId) {
+    private ObjectNode getNegotiatedAgreement(String contractNegotiationRequestId) {
         return
                 given()
                         .pathParam(CONTRACT_NEGOTIATION_REQUEST_ID, contractNegotiationRequestId)
@@ -104,6 +101,6 @@ public class FileTransferSystemTest {
                         .get(CONTRACT_AGREEMENT_PATH)
                         .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
-                        .extract().asString();
+                        .extract().as(ObjectNode.class);
     }
 }
