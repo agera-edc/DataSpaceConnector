@@ -404,7 +404,9 @@ No findings are listed in `analyzisis-results.csv` which aligns with the [EDC Co
 
 ### Running additional CodeQL query suites with the CLI
 
-In addition to the default queries run in the previous sections we tried running additional suites available in the [CodeQL Github repository](https://github.com/github/codeql). After cloning the repository further java query suites can be found in the `java/ql/src/codeql-suites` directory.
+In addition to the default queries run in the previous sections we tried running an additional suite available in the [CodeQL Github repository](https://github.com/github/codeql). After cloning the repository further java query suites can be found in the `java/ql/src/codeql-suites` directory.
+
+Run the `java-security-and-quality` suite:
 
 ```bash
 codeql database analyze <PATH_TO_REPO>/java-security-and-quality.qls --format=csv --output=analysis-results.csv
@@ -426,4 +428,6 @@ The resulting [analysis-results.csv](analysis-results.csv) contains 200 findings
 | ⚠️ warning | Random used only once | Creating an instance of 'Random' for each pseudo-random number required does not guarantee an evenly distributed sequence of random numbers. | 4     |
 | ⚠️ warning | Inconsistent compareTo | If a class overrides 'compareTo' but not 'equals' | 1     | 
 
-A quick look through the issues reveal that most of them pinpoint very specific issues that can be solved with relatively low effort. Some issues seem quite critical dealing to unexpected exceptions and deadlocks, so we see a high value VS fix effort ration. Additionally, the 177 findings with "recommendation" priority (not listed in the table above) hint to code smells similar to those reported by PMD. Unfortunately, a big drawback of using CodeQL might be dealing with false positives as [GitHub CodeScanning](https://giters.com/github/codeql/issues/7294) does not support alert suppression comments and annotations at the moment.
+A quick look through the issues reveal that most of them pinpoint very specific issues that can be solved with relatively low effort. Some issues seem quite critical dealing to unexpected exceptions and deadlocks, so we see a high value VS fix effort ration. Additionally, the 177 findings with "recommendation" priority (not listed in the table above) hint to code smells similar to those reported by PMD. 
+
+Unfortunately, a big drawback of using CodeQL might be dealing with false positives as [GitHub CodeScanning](https://giters.com/github/codeql/issues/7294) does not support alert suppression comments and annotations at the moment. Generally this aligns with the general impression of CodeQL still being not as mature as the other evaluated tools. Documentation is often incomplete or unclear, and some features are still in experimental mode. 
