@@ -401,3 +401,28 @@ Analysis produced the following metric data:
 | Total lines of code in the database | 45911 |
 ```
 No findings are listed in `analyzisis-results.csv` which aligns with the [EDC CodeQL Github workflow](https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/actions) results.
+
+### Running additional CodeQL query suites with the CLI
+
+In addition to the default queries run in the previous sections we tried running additional suites available in the [CodeQL Github repository](https://github.com/github/codeql). After cloning the repository further java query suites can be found in the `java/ql/src/codeql-suites` directory.
+
+```bash
+codeql database analyze <PATH_TO_REPO>/java-security-and-quality.qls --format=csv --output=analysis-results.csv
+```
+
+The resulting [analysis-results.csv](analysis-results.csv) contains 200 findings spread across 44 different categories. The following table lists the findings with "error" and "warning" priority:
+
+| Priority | Name                                     | Description | Count                                                      |
+| -------- |------------------------------------------| ----------- |------------------------------------------------------------|
+| 🚨 error | Missing format argument                  | A format call with an insufficient number of arguments causes an 'IllegalFormatException'. | 2                                                          |
+| 🚨 error | Self assignment                          | Assigning a variable to itself has no effect. | 1                                                          |
+| 🚨 error | Container contents are never accessed    | A collection or map whose contents are never queried or accessed is useless. | 1                                                          |
+| 🚨 error | Log Injection                            | Building log entries from user-controlled data may allow insertion of forged log entries by malicious users. | 1                                                          |
+| 🚨 error | Hard-coded credential in API call        | Using a hard-coded credential in a call to a sensitive Java API may compromise security. | 4                                                          |
+| 🚨 error | Unreleased lock                          | A lock that is acquired one or more times without a matching number of unlocks may cause a deadlock. | 1                                                          |
+| ⚠️ warning | Dereferenced variable may be null | Dereferencing a variable whose value may be 'null' may cause a 'NullPointerException'. | 1                                                          |
+| ⚠️ warning | Potential input resource leak | A resource that is opened for reading but not closed may cause a resource leak. | 1                                                          |
+| ⚠️ warning | Use of a potentially broken or risky cryptographic algorithm | Using broken or weak cryptographic algorithms can allow an attacker to compromise security. | 6                                                          |
+| ⚠️ warning | Random used only once | Creating an instance of 'Random' for each pseudo-random number required does not guarantee an evenly distributed sequence of random numbers. | 4                                                          |
+| ⚠️ warning | Inconsistent compareTo | If a class overrides 'compareTo' but not 'equals' | 1 | 
+
