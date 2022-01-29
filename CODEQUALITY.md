@@ -430,4 +430,16 @@ The resulting [analysis-results.csv](analysis-results.csv) contains 200 findings
 
 A quick look through the issues reveal that most of them pinpoint very specific issues that can be solved with relatively low effort. Some issues seem quite critical dealing to unexpected exceptions and deadlocks, so we see a high value VS fix effort ration. Additionally, the 177 findings with "recommendation" priority (not listed in the table above) hint to code smells similar to those reported by PMD. 
 
-Unfortunately, a big drawback of using CodeQL might be dealing with false positives as [GitHub CodeScanning](https://giters.com/github/codeql/issues/7294) does not support alert suppression comments and annotations at the moment. Generally this aligns with the general impression of CodeQL still being not as mature as the other evaluated tools. Documentation is often incomplete or unclear, and some features are still in experimental mode. 
+Unfortunately, a big drawback of using CodeQL might be dealing with false positives as [GitHub code scanning](https://giters.com/github/codeql/issues/7294) does not support alert suppression comments and annotations at the moment. Generally this aligns with the general impression of CodeQL still not being as mature as the other evaluated tools. Documentation is often incomplete or unclear, and some features are still in experimental mode. Nonetheless, CodeQL is on its path to become the default Github code analysis system, so its to be expected that such things will improve in the near future.
+
+### Running CodeQL together with LGTM
+
+[LGTM](https://lgtm.com/) is an online analysis platform that automatically checks your code for real CVEs and vulnerabilities using CodeQL. LGTM is free for open source projects and integrates very nicely with Github hosted projects.
+
+EDC was added as a project following the [instructions](https://lgtm.com/help/lgtm/adding-projects) to LGTM. After building the CodeQL database and running the analysis, a [graphical report](https://lgtm.com/projects/g/eclipse-dataspaceconnector/DataSpaceConnector/?mode=list) is available.
+
+![lgtm](.attachments/lgtm.png)
+
+LGTM runs a total of [179 default queries](https://lgtm.com/projects/g/eclipse-dataspaceconnector/DataSpaceConnector/queries/?pack=com.lgtm%2Fjava-queries) and supports adding custom ones if required. Installing the [LGTM application](https://github.com/apps/lgtm-com/installations/new) enables the integration with PR workflows to guarantee a quality threshold.
+
+In contrast to running CodeQL as a Github Action, LGTM supports alert suppression, and generally feels as a more comfortable and mature alternative.
