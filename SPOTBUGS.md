@@ -92,34 +92,36 @@ Caused by: edu.umd.cs.findbugs.classfile.ResourceNotFoundException: Resource not
 
 Spotbugs reports 303 issues spread across 27 bug patterns of high and medium priority. See [Spotbugs documentation](https://spotbugs.readthedocs.io/en/stable/bugDescriptions.html).
 
-| Priority | Pattern                                 | Description                                          | Category       | Count |
-| -------- | --------------------------------------- | ---------------------------------------------------- | -------------- | ----- |
-| 🚨 1      | DM_DEFAULT_ENCODING                     | Reliance on  default encoding                        | I18N           | 11    |
-| 🚨 1      | DMI_RANDOM_USED_ONLY_ONCE               | Random object created and used only once             | BAD_PRACTICE   | 5     |
-| 🚨 1      | MS_SHOULD_BE_FINAL                      | Field isn't final but should be                      | MALICIOUS_CODE | 3     |
-| 🚨 1      | NP_NONNULL_PARAM_VIOLATION              | Method call passes null to a non-null parameter      | CORRECTNESS    | 1     |
-| ⚠️ 2      | DCN_NULLPOINTER_EXCEPTION               | NullPointerException caught                          | STYLE          | 7     |
-| ⚠️ 2      | DLS_DEAD_LOCAL_STORE                    | Dead store to local variable                         | STYLE          | 2     |
+| Priority | Pattern                                 | Description                                         | Category       | Count |
+| -------- | --------------------------------------- | --------------------------------------------------- | -------------- | ----- |
+| 🚨 1      | DM_DEFAULT_ENCODING                     | Reliance on default encoding                        | I18N           | 11    |
+| 🚨 1      | DMI_RANDOM_USED_ONLY_ONCE               | Random object created and used only once            | BAD_PRACTICE   | 5     |
+| 🚨 1      | MS_SHOULD_BE_FINAL                      | Field isn't final but should be                     | MALICIOUS_CODE | 3     |
+| 🚨 1      | NP_NONNULL_PARAM_VIOLATION              | Method call passes null to a non-null parameter     | CORRECTNESS    | 1     |
+| ⚠️ 2      | DCN_NULLPOINTER_EXCEPTION               | NullPointerException caught                         | STYLE          | 7     |
+| ⚠️ 2      | DLS_DEAD_LOCAL_STORE                    | Dead store to local variable                        | STYLE          | 2     |
 | ⚠️ 2      | EI_EXPOSE_REP                           | May exposeinternal representation by returning reference to mutable object | MALICIOUS_CODE | 99    |
 | ⚠️ 2      | EI_EXPOSE_REP2                          | May expose internal representation by incorporating  reference to mutable object | MALICIOUS_CODE | 130   |
 | ⚠️ 2      | EQ_COMPARETO_USE_OBJECT_EQUALS          | Class defines compareTo(...) and uses Object.equals() | BAD_PRACTICE   | 1     |
 | ⚠️ 2      | IM_BAD_CHECK_FOR_ODD                    | Check for oddness that won't work for negative numbers | STYLE          | 1     |
 | ⚠️ 2      | MS_EXPOSE_REP                           | Public static method may expose internal representation by returning array | MALICIOUS_CODE | 1     |
-| ⚠️ 2      | MS_PKGPROTECT                           | Field should be package protected                    | MALICIOUS_CODE | 1     |
+| ⚠️ 2      | MS_PKGPROTECT                           | Field should be package protected                   | MALICIOUS_CODE | 1     |
 | ⚠️ 2      | NP_BOOLEAN_RETURN_NULL                  | Method with Boolean return type returns explicit null | BAD_PRACTICE   | 1     |
-| ⚠️ 2      | NP_LOAD_OF_KNOWN_NULL_VALUE             | Load of known null value                             | STYLE          | 3     |
+| ⚠️ 2      | NP_LOAD_OF_KNOWN_NULL_VALUE             | Load of known null value                            | STYLE          | 3     |
 | ⚠️ 2      | NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE  | Possible null pointer dereference due to return value of called method | STYLE          | 21    |
-| ⚠️ 2      | RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE   | Redundant nullcheck of value known to be null        | STYLE          | 3     |
-| ⚠️ 2      | SA_FIELD_SELF_ASSIGNMENT                | Self assignment of field                             | CORRECTNESS    | 1     |
-| ⚠️ 2      | SE_COMPARATOR_SHOULD_BE_SERIALIZABLE    | Comparator doesn't implement Serializable            | BAD_PRACTICE   | 1     |
-| ⚠️ 2      | SS_SHOULD_BE_STATIC                     | Unread field, should this field be static?           | PERFORMANCE    | 2     |
-| ⚠️ 2      | ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD | Write to static field from instance method           | STYLE          | 1     |
-| ⚠️ 2      | UC_USELESS_OBJECT                       | Useless object created                               | STYLE          | 1     |
-| ⚠️ 2      | UL_UNRELEASED_LOCK_EXCEPTION_PATH       | Method does not release lock on all exception paths  | MT_CORRECTNESS | 1     |
-| ⚠️ 2      | UPM_UNCALLED_PRIVATE_METHOD             | Private method is never called                       | PERFORMANCE    | 1     |
-| ⚠️ 2      | UR_UNINIT_READ                          | Uninitialized read of field in constructor           | CORRECTNESS    | 1     |
-| ⚠️ 2      | URF_UNREAD_FIELD                        | Unread field                                         | PERFORMANCE    | 1     |
-| ⚠️ 2      | UUF_UNUSED_FIELD                        | Unused field                                         | PERFORMANCE    | 1     |
-| ⚠️ 2      | VA_FORMAT_STRING_USES_NEWLINE           | Format string should use %n rather than \n           | BAD_PRACTICE   | 2     |
+| ⚠️ 2      | RCN_REDUNDANT_NULLCHECK_OF_NULL_VALUE   | Redundant nullcheck of value known to be null       | STYLE          | 3     |
+| ⚠️ 2      | SA_FIELD_SELF_ASSIGNMENT                | Self assignment of field                            | CORRECTNESS    | 1     |
+| ⚠️ 2      | SE_COMPARATOR_SHOULD_BE_SERIALIZABLE    | Comparator doesn't implement Serializable           | BAD_PRACTICE   | 1     |
+| ⚠️ 2      | SS_SHOULD_BE_STATIC                     | Unread field, should this field be static?          | PERFORMANCE    | 2     |
+| ⚠️ 2      | ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD | Write to static field from instance method          | STYLE          | 1     |
+| ⚠️ 2      | UC_USELESS_OBJECT                       | Useless object created                              | STYLE          | 1     |
+| ⚠️ 2      | UL_UNRELEASED_LOCK_EXCEPTION_PATH       | Method does not release lock on all exception paths | MT_CORRECTNESS | 1     |
+| ⚠️ 2      | UPM_UNCALLED_PRIVATE_METHOD             | Private method is never called                      | PERFORMANCE    | 1     |
+| ⚠️ 2      | UR_UNINIT_READ                          | Uninitialized read of field in constructor          | CORRECTNESS    | 1     |
+| ⚠️ 2      | URF_UNREAD_FIELD                        | Unread field                                        | PERFORMANCE    | 1     |
+| ⚠️ 2      | UUF_UNUSED_FIELD                        | Unused field                                        | PERFORMANCE    | 1     |
+| ⚠️ 2      | VA_FORMAT_STRING_USES_NEWLINE           | Format string should use %n rather than \n          | BAD_PRACTICE   | 2     |
 
-Most issues found might lead to real problems when using EDC in production and can be fixed with a relatively low effort. Given that false positives can be easily ignored using annotations or exclusion filters we highly encourage using Spotbugs as we see a high value VS effort ratio. A suggestion could be to start with a rather lenient configuration and increase strictness as appropriate.
+Most findings pinpoint real problems that could lead to production issues. Generally these can be fixed with a relatively low effort. 
+
+There is still quite a few false positives that would need to be ignored, but given that this can be easily achieved using annotations or exclusion filters seems like Spotbugs provides a high value VS effort ratio. A suggestion could be to start with a rather lenient configuration and increase strictness as appropriate.

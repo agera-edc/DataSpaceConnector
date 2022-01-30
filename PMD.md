@@ -103,4 +103,8 @@ Taking a much more targeted [pmd-rules-reduced.xml](./resources/pmd-rules-reduce
 | ❕ 3        | UseConcurrentHashMap | Multithreading | https://pmd.github.io/pmd-6.41.0/pmd_rules_java_multithreading.html#useconcurrenthashmap |
 | ❕ 3        | UseIndexOfChar | Performance | https://pmd.github.io/pmd-6.41.0/pmd_rules_java_performance.html#useindexofchar |
 
-A quick look through the top priority issues reveals that although a quick fix for the issues is easy to implement, often bugs uncover suboptimal software design constructs. Fixing the software design issues might lead to implementation tasks not to be underestimated.
+A quick first look through the top priority issues (priority 1 & 2) reveals:
+- Criticality of the issues is not high. Most of the issues pinpoint to software design smells, but nothing that would need a timely action.
+- Although a quick fix for most the issues is easy to implement, often bugs uncover suboptimal software design constructs. Fixing the software design issues might lead to implementation tasks not to be underestimated.
+
+Lower priority (priority 3) issues still have a high noise ratio with many false positives. These can be resolved with a suppression annotation, but even better would be to carefully define a reduced set of rules that can deliver most value.

@@ -18,4 +18,9 @@
 
 ## Comparison of tools
 
-TBD
+| Tool                                     | Criticality of results | Breadth of results | Noise ratio (false positives) | Impact on build time      | Tool maturity      | Comments                                                                         |
+|------------------------------------------|------------------------|--------------------|-------------------------------|---------------------------|--------------------|----------------------------------------------------------------------------------|
+| PMD                                      | ⚠️ medium-low          | ✅ large            | ⚠️ high                       | ✅ medium                  | ✅ well established | Huge amounts of findings with many false positives, requires usage of IDE plugin | 
+| Spotbugs                                 | ✅ high                 | ✅ large            | ⚠️ medium                     | ⚠️ high                   | ✅ well established | High impact on build time, requires usage of IDE plugin                          |
+| CodeQL without [LGTM](https://lgtm.com/) | ✅ high                 | ⚠️ medium          | ✅ low                         | ✅ low (parallel pipeline) | ⚠️ relatively new  | ⚠️ Only security rules, does not support suppressions                            |
+| CodeQL with [LGTM](https://lgtm.com/)    | ✅ high                 | ✅ large            | ✅ low                         | ✅ low (parallel pipeline) | ⚠️ relatively new  | Dependency to external tool                                                      |
