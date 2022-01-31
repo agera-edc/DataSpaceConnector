@@ -9,6 +9,14 @@
 | Spotbugs   | Byte code     | Focuses on common programming flaws that can not be found with source code analysis like infinite loop, equals method always returns true, opened streams, a collection which contains itself, etc. The [FindSecBugs](https://find-sec-bugs.github.io/) plugin extends Spotbugs with the detection of 141 security bugs. |
 | CodeQL     | Source code   | A semantic code analysis engine. CodeQL treats code as data, allowing you to find potential vulnerabilities in your code with greater confidence than traditional static analyzers.                                                                                                                                      |
 
+## Overview of platforms
+
+| Platform                  | Description                                                                                                                                            |
+|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [Github](github.com)      | Source code repository used by EDC. Different tools can be integrated into CI workflows using Github actions.                                          |
+| [Codacy](www.codacy.com)  | Online platform for both static code analysis and test code coverage analysis. It is free for Open Source projects.                                    |
+| [LGTM](https://lgtm.com/) | Online platform for static code analysis using deep semantic code search with data science insights using CodeQL. It is free for Open Source projects. |
+
 ## Evaluation
 
 - [Checkstyle](CHECKSTYLE.md)
@@ -20,12 +28,20 @@
 
 The following table summarizes the strengths and weaknesses of the analyzed tools. Some of these tools are not exclusive to each other, but rather complementing. As a matter of fact it is very common to see setups with Checkstyle combined with PMD and/or Spotbugs. Checkstyle complements as well CodeQL but on the other hand CodeQL (with LGTM) overlaps with Spotbugs and PMD quite a bit, probably not bringing much value using these tools in combination.
 
-| Tool                                  | Pertinence of results* | Breadth of results | Noise ratio (false positives) | Execution time | Tool maturity      | Comments                                                                                                                 |
-|---------------------------------------|------------------------|--------------------|-------------------------------|----------------|--------------------|--------------------------------------------------------------------------------------------------------------------------|
-| Checkstyle                            | ✅ high                 | ✅ large            | ✅ low                         | ✅ low          | ✅ well established | ✅ Already in use in EDC repo                                                                                             |
-| PMD                                   | ⚠️ medium-low          | ✅ large            | ⚠️ high                       | ✅ medium       | ✅ well established | ⚠️ No result aggregation (IDE plugin recommended)                                                                        | 
-| Spotbugs                              | ✅ high                 | ✅ large            | ⚠️ medium                     | ⚠️ high        | ✅ well established | ⚠️ No result aggregation (IDE plugin recommended)                                                                        |
-| CodeQL with default java pack         | ✅ high                 | ⚠️ medium          | ✅ low                         | ⚠️ high        | ⚠️ relatively new  | ⚠️ Only few security rules<br/> ⚠️ Does not support suppressions <br/> ✅ CodeQL Github Action already in use in EDC repo |
-| CodeQL with [LGTM](https://lgtm.com/) | ✅ high                 | ✅ large            | ✅ low                         | ⚠️ high        | ⚠️ relatively new  | ⚠️ Dependency to external tool<br/>✅ CodeQL Github Action already in use in EDC repo                                     |
+| Tool                                                                    | Pertinence of results* | Breadth of results | Noise ratio (false positives) | Execution time | Tool maturity      | Comments                                                                                                                 |
+|-------------------------------------------------------------------------|------------------------|--------------------|-------------------------------|----------------|--------------------|--------------------------------------------------------------------------------------------------------------------------|
+| Checkstyle                                                              | ✅ high                 | ✅ large            | ✅ low                         | ✅ low          | ✅ well established | ✅ Already in use in EDC repo                                                                                             |
+| PMD                                                                     | ⚠️ medium-low          | ✅ large            | ⚠️ high                       | ✅ medium       | ✅ well established | ⚠️ No result aggregation (IDE plugin recommended)                                                                        | 
+| Spotbugs                                                                | ✅ high                 | ✅ large            | ⚠️ medium                     | ⚠️ high        | ✅ well established | ⚠️ No result aggregation (IDE plugin recommended)                                                                        |
+| CodeQL with default java query pack                                     | ✅ high                 | ⚠️ medium          | ✅ low                         | ⚠️ high        | ⚠️ relatively new  | ⚠️ Only few security rules<br/> ⚠️ Does not support suppressions <br/> ✅ CodeQL Github Action already in use in EDC repo |
+| CodeQL with [LGTM](https://lgtm.com/help/lgtm/about-queries) query pack | ✅ high                 | ✅ large            | ✅ low                         | ⚠️ high        | ⚠️ relatively new  | ⚠️ Dependency to external tool<br/>✅ CodeQL Github Action already in use in EDC repo                                     |
 
 &ast; Pertinence of results refers to the importance/relevance of findings as estimated by the developer who wrote this documentation
+
+## Comparison of platforms
+
+TBD
+
+## Suggestions for EDC
+
+TBD
