@@ -11,6 +11,7 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: '11'
+
       # lets run Checkstyle explicitly (as opposed to within gradle) due to better reporting capabilities
     - name: Run Checkstyle
       uses: nikitasavinov/checkstyle-action@0.4.0
@@ -22,13 +23,12 @@ jobs:
         checkstyle_version: '9.0'
         reporter: 'github-check'
         filter_mode: 'nofilter'
-    - uses: pmd/pmd-github-action@v1
+
+    - name: Gradle Run PMD
+      run: ./gradlew pmdMain
+    - uses: jwgmeligmeyling/pmd-github-action@master
       with:
-        rulesets: 'resources/pmd-rules-reduced.xml'
-    - name: Upload PMD results
-      uses: github/codeql-action/upload-sarif@v1
-      with:
-        sarif_file: pmd-report.sarif
+        path: '**/reports/pmd/main.xml'
 
   Unit-Test:
     runs-on: ubuntu-latest
