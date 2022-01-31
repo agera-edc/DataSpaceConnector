@@ -49,6 +49,22 @@ A pragmatic setup would to use the Gradle setup only to enforce that no open Spo
 
 ![Spotbugs report](.attachments/spotbugs.png)
 
+## Running Spotbugs with Github Actions
+
+The [Spotbugs Github Action](https://github.com/jwgmeligmeyling/spotbugs-github-action) allows running Spotbugs from a CI workflow and uploading the results to Github.
+
+```yaml
+- name: Gradle Run Spotbugs
+  run: ./gradlew spotbugsMain
+- uses: jwgmeligmeyling/spotbugs-github-action@master
+  with:
+    path: '**/spotbugs.xml'
+```
+
+Adding these steps leads to Github generating annotations for the violations found that will be highlighted in PRs:
+
+![Spotbugs Github annotations](.attachments/github_spotbugs_annotations.png)
+
 ## Running Spotbugs with Codacy
 
 According to [the docs](https://docs.codacy.com/related-tools/local-analysis/running-spotbugs/), codacy supports Spotbugs integration.

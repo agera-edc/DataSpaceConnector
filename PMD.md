@@ -40,7 +40,7 @@ A pragmatic setup could be to use the Gradle setup only to enforce that no open 
 
 ## Running PMD with a Github action
 
-The [PMD Github Action](https://github.com/pmd/pmd-github-action) allows running PMD from a Github workflow and uploading the results. 
+The [PMD Github Action](https://github.com/pmd/pmd-github-action) allows running PMD from a CI workflow and uploading the results to Github. 
 
 ```yaml
 - name: Gradle Run PMD
@@ -50,7 +50,7 @@ The [PMD Github Action](https://github.com/pmd/pmd-github-action) allows running
     path: '**/reports/pmd/main.xml'
 ```
 
-Adding this configuration leads to Github generating annotations for the violations found that will be highlighted in PRs:
+Adding these steps leads to Github generating annotations for the violations found that will be highlighted in PRs:
 
 ![PMD Github annotations](.attachments/github_pmd_annotations.png)
 
