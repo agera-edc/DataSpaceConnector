@@ -211,3 +211,12 @@ The above workflow will send a comment to the PR showing the code coverage of th
 
 ![Code Coverage with JaCoCo and Github Action](.attachments/code-coverage-jacoco-gitbhub-actions.png)
 
+## Comparison of selected options
+
+| Tool | Project coverage report | Coverage on PR in Github | Additional comments |
+|-------|------------------|-------------------------|--------------------|
+| JaCoCo with Codecov | ✅ Detailed report on Codecov dashboard | ✅ Github bot messages on every PR (coverage after the PR is merged, total project coverage, code complexity) | ✅ Reports on code complexity<br/> ✅ Easy configuration |
+| JaCoCo with Github Actions | ✅ Basic report (percentage) | ✅ Github bot messages on every PR (coverage on changed files and total project coverage) | Github Actions config requires a path to JaCoCo reports |
+| JaCoCo with Codacy | ✅ Report available on Codacy dashboard | ⚠️ Not supported | ⚠️ Delays in reports showing up in the dashboard |
+
+
