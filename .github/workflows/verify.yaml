@@ -30,6 +30,12 @@ jobs:
       with:
         path: '**/reports/pmd/main.xml'
 
+    - name: Gradle Run Spotbugs
+      run: ./gradlew spotbugsMain
+    - uses: jwgmeligmeyling/spotbugs-github-action@master
+      with:
+        path: '**/spotbugs.xml'
+
   Unit-Test:
     runs-on: ubuntu-latest
     steps:
