@@ -24,12 +24,15 @@ jobs:
           reporter: 'github-check'
           filter_mode: 'nofilter'
 
+      - uses: pmd/pmd-github-action@v1
+        with:
+          rulesets: 'resources/pmd-rules-reduced.xml'
 
       - name: Gradle Test Core
         env:
           INTEGRATION_TEST: false
         # checkstyle would also run as part of the `check` task
-        run: ./gradlew clean check jacocoTestReport -x checkstyleMain -x checkstyleTest
+        run: ./gradlew clean check jacocoTestReport -x checkstyleMain -x checkstyleTest -x pmdMain -x pmdTest
 
       - name: CodeCov
         uses: codecov/codecov-action@v2
