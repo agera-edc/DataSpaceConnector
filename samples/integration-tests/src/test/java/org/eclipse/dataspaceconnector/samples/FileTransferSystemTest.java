@@ -41,10 +41,19 @@ public class FileTransferSystemTest {
 
     private static final String CONTRACT_NEGOTIATION_PATH = "/api/negotiation";
     private static final String CONTRACT_AGREEMENT_PATH = "/api/control/negotiation/{contractNegotiationRequestId}";
-    private static final String CONNECTOR_ADDRESS = "connectorAddress";
-    private static final String CONTRACT_NEGOTIATION_REQUEST_ID = "contractNegotiationRequestId";
+    private static final String FILE_TRANSFER_PATH = "/api/file/test-document";
+
+    private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
+    private static final String CONTRACT_NEGOTIATION_REQUEST_ID_PARAM = "contractNegotiationRequestId";
+    private static final String DESTINATION_PARAM = "destination";
+    private static final String CONTRACT_ID_PARAM = "contractId";
+
     private static final String CONSUMER_CONNECTOR_HOST = propOrEnv("edc.consumer.connector.host", "http://localhost:9191");
+    private static final String CONSUMER_ASSET_PATH = propOrEnv("edc.samples.04.consumer.asset.path", "/tmp/consumer");
+
     private static final String PROVIDER_CONNECTOR_HOST = propOrEnv("edc.provider.connector.host", "http://localhost:8181");
+    private static final String PROVIDER_ASSET_PATH = propOrEnv("edc.samples.04.asset.path", "/tmp/provider/test-document.txt");
+
     private static final String API_KEY_CONTROL_AUTH = propOrEnv("edc.api.control.auth.apikey.value", "password");
     private static final String API_KEY_HEADER = "X-Api-Key";
 
@@ -58,13 +67,13 @@ public class FileTransferSystemTest {
         //Arrange
         var contractOffer = TestUtils.getFileFromResourceName("contractoffer.json");
 
-        //Act
+        //Act & Assert
 
         // Initiate a contract negotiation
         var contractNegotiationRequestId =
                 given()
                         .contentType(ContentType.JSON)
-                        .queryParam(CONNECTOR_ADDRESS, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
+                        .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
                         .body(contractOffer)
                         .when()
                         .post(CONTRACT_NEGOTIATION_PATH)
@@ -87,15 +96,28 @@ public class FileTransferSystemTest {
 
         // Obtain contract agreement ID
         var contractAgreementId = getNegotiatedAgreement(contractNegotiationRequestId)
-                .get("contractAgreement").get("id").toString();
+                .get("contractAgreement").get("id").textValue();
 
-        assertThat(contractAgreementId).isNotNull();
+        //Initiate file transfer
+        var transferProcessId =
+                given()
+                        .noContentType()
+                        .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
+                        .queryParam(DESTINATION_PARAM, CONSUMER_ASSET_PATH)
+                        .queryParam(CONTRACT_ID_PARAM, contractAgreementId)
+                        .when()
+                        .post(FILE_TRANSFER_PATH)
+                        .then()
+                        .assertThat().statusCode(HttpStatus.SC_OK)
+                        .extract().asString();
+
+        assertThat(transferProcessId).isNotNull();
     }
 
     private ObjectNode getNegotiatedAgreement(String contractNegotiationRequestId) {
         return
                 given()
-                        .pathParam(CONTRACT_NEGOTIATION_REQUEST_ID, contractNegotiationRequestId)
+                        .pathParam(CONTRACT_NEGOTIATION_REQUEST_ID_PARAM, contractNegotiationRequestId)
                         .header(API_KEY_HEADER, API_KEY_CONTROL_AUTH)
                         .when()
                         .get(CONTRACT_AGREEMENT_PATH)
