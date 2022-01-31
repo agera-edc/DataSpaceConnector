@@ -38,6 +38,22 @@ An own report is generated per each Gradle module. This is not practical as one 
 
 A pragmatic setup could be to use the Gradle setup only to enforce that no open PMD issues remain when running CI, while using IDE plugins to visualize and fix issues locally.
 
+## Running PMD with a Github action
+
+The [PMD Github Action](https://github.com/pmd/pmd-github-action) allows running PMD from a Github workflow and uploading the results. 
+
+```yaml
+- name: Gradle Run PMD
+  run: ./gradlew pmdMain
+- uses: jwgmeligmeyling/pmd-github-action@master
+  with:
+    path: '**/reports/pmd/main.xml'
+```
+
+Adding this configuration leads to Github generating annotations for the violations found that will be highlighted in PRs:
+
+![PMD Github annotations](.attachments/github_pmd_annotations.png)
+
 ## Running PMD with Codacy
 
 PMD is also available as a built-in tool in Codacy. It can be configured in the same way as [Checkstyle](#running-checkstyle-with-codacy).
