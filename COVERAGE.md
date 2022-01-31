@@ -119,8 +119,13 @@ We used the modified `build.gradle.kts` file as above to create JaCoCo XML repor
            project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
            coverage-reports: ${{ steps.coverage-paths.outputs.COVERAGE_REPORT_PATHS }}
 ```
+At first the reports weren't visible in the [Codacy UI](https://app.codacy.com/gh/Agera-CatenaX/EclipseDataSpaceConnector/settings/coverage), but they 
+started to appear after ~16 hours.
 
-The action worked, but the coverage reports are still not being displayed in the [Codacy UI](https://app.codacy.com/gh/Agera-CatenaX/EclipseDataSpaceConnector/settings/coverage). We are talking to Codacy support to investigate the issue.
+In the meantime we also reached out to Codacy support to investigate the issue.
+
+Below screenshot shows code coverage diagram of the main branch analysis.
+![Code Coverage with Codacy](.attachments/code-coverage-codacy.png)
 
 ### Option 5: JaCoCo with SonarQube
 
@@ -163,9 +168,9 @@ Otherwise these properties should be set: _sonar.host.url_, _sonar.jacoco.report
 
 Code coverage analysis with SonarQube:
 
-![Code Coverage with Sonar](.attachments/code_coverage_sonar.png)
+![Code Coverage with Sonar](.attachments/code-coverage-sonar.png)
 
-### Integration with Github Actions
+#### Integration with Github Actions
 
 Integration with github Actions wasn't a part of this spike, because it requires having a SonarQube instance deployed for the whole project, instead of using 
 localhost version.
@@ -174,8 +179,32 @@ More information about [Github Integration](https://docs.sonarqube.org/latest/an
 
 [Github Action that helps to run the code analysis.](https://github.com/marketplace/actions/official-sonarqube-scan)
 
-### Limitations of the Community Edition version
+#### Limitations of the Community Edition version
 
 - Analysis of multiple branches is not supported
 - Reporting measures to branches and pull requests in Github not supported
 - Automatic detection of branches/pull requests in Github Actions not supported
+
+### Option 6: JaCoCo with Github Action
+
+Code coverage coming from JaCoCo reports can be added to a PR using [Github Action JaCoCo Report](https://github.com/marketplace/actions/jacoco-report).
+
+```yaml
+- name: Set Coverage Report Paths
+    id: coverage-paths
+    run: |
+      echo -n "::set-output name=COVERAGE_REPORT_PATHS::$(find ~+ -name jacocoTestReport.xml -size +300c -printf '%p,' | sed 's/.$//')"
+
+- name: Add coverage to PR
+    id: jacoco
+    uses: madrapps/jacoco-report@v1.2
+    with:
+      paths: ${{ steps.coverage-paths.outputs.COVERAGE_REPORT_PATHS }} # Comma separated absolute paths of the generated jacoco xml files
+      token: ${{ secrets.GITHUB_TOKEN }} # Github personal token to add commits to Pull Request
+      min-coverage-overall: 40 # The minimum code coverage that is required to pass for overall project
+      min-coverage-changed-files: 60 #The minimum code coverage that is required to pass for changed files
+```
+The above workflow will send a comment to the PR showing the code coverage of the files modified in the PR and the overall project code coverage.
+
+![Code Coverage with JaCoCo and Github Action](.attachments/code-coverage-jacoco-gitbhub-actions.png)
+
