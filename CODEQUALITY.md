@@ -40,7 +40,13 @@ The following table summarizes the strengths and weaknesses of the analyzed tool
 
 ## Comparison of platforms
 
-TBD
+| Platform                                                                    | Code coverage               | Code quality analysis                 | PR reports  | Usage | 
+|-------------------------------------------------------------------------|------------------------|--------------------|---------------------------------------|------------------------------|
+| Github Actions*                                                             | ✅ available                            | ✅ available                         | ✅ available       | ⚠️ Every tool needs to be added to a workflow and configured manually<br/> ✅ The configuration needs to be maintained from the repository |
+| LGTM                                                                        | -                                       | ✅ available (CodeQL)                 | ✅ available       | ⚠️ Doesn't work on forks<br/> 
+| Codecov                                                                     | ✅ available                            | -                                     | ✅ available       | ✅ Measures available directly in Github and in the separate dashboard       |                                                             
+| Codacy                                                                      | ✅ available                            | ✅ available                         | ⚠️ Not for code coverage<br/> ⚠️ Code quality reports are just link to Codacy dashboard                                  | ✅ A lot of quality scanning tools built in<br/> ⚠️ Code coverage view very basic<br/> ⚠️ Reliability (delayed measures)
+
 
 ## Suggestions for EDC
 
