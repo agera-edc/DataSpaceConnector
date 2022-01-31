@@ -67,6 +67,12 @@ Analysis produced the following metric data:
 ```
 No findings are listed in `analyzisis-results.csv` which aligns with the [EDC CodeQL Github workflow](https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/actions) results.
 
+## Running CodeQL with the CodeQL Github Action
+
+The [CodeQL](https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/actions/workflows/codeql-analysis.yml) Gihub workflow in the EDC repository uses the [CodeQL Github Action](https://github.com/github/codeql-action) to run CodeQL. The default java package is used leading to the same results as the ones listed in the previous section.
+
+Running the pipeline takes around ~15mins.
+
 ## Running additional CodeQL query suites with the CLI
 
 In addition to the default queries run in the previous sections we tried running an additional suite available in the [CodeQL Github repository](https://github.com/github/codeql). After cloning the repository further java query suites can be found in the `java/ql/src/codeql-suites` directory.
