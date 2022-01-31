@@ -80,7 +80,7 @@ In addition to the default queries run in the previous sections we tried running
 Run the `java-security-and-quality` suite:
 
 ```bash
-codeql database analyze <PATH_TO_REPO>/java-security-and-quality.qls --format=csv --output=analysis-results.csv
+codeql database analyze resources/edc-database <PATH_TO_REPO>/java-security-and-quality.qls --format=csv --output=analysis-results.csv
 ```
 
 The resulting [analysis-results.csv](analysis-results.csv) contains 200 findings spread across 44 different categories. The following table lists the findings with "error" and "warning" priority:
