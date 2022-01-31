@@ -1,4 +1,4 @@
-name: Test Code (Style, Tests)
+name: Analyze and Test Code
 
 on: [ push, pull_request ]
 
@@ -29,6 +29,12 @@ jobs:
     - uses: jwgmeligmeyling/pmd-github-action@master
       with:
         path: '**/reports/pmd/main.xml'
+
+    - name: Gradle Run Spotbugs
+      run: ./gradlew spotbugsMain
+    - uses: jwgmeligmeyling/spotbugs-github-action@master
+      with:
+        path: '**/spotbugs.xml'
 
   Unit-Test:
     runs-on: ubuntu-latest
