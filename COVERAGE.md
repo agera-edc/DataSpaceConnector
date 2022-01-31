@@ -127,6 +127,9 @@ In the meantime we also reached out to Codacy support to investigate the issue.
 Below screenshot shows code coverage diagram of the main branch analysis.
 ![Code Coverage with Codacy](.attachments/code-coverage-codacy.png)
 
+We didn't manage to set up Codacy to see the code coverage reports for the PRs neither in the Codacy dashboard nor in Github Actions. 
+Codacy seems to offer more features for code quality analysis than for code coverage scans. 
+
 ### Option 5: JaCoCo with SonarQube
 
 [SonarQube](https://docs.sonarqube.org/latest/setup/get-started-2-minutes/) is a platform for both static code analysis and test code coverage analysis. It offers an open source Community 
