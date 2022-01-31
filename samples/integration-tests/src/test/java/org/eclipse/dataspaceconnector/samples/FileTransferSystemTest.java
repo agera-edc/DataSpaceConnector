@@ -24,6 +24,12 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
+
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -39,20 +45,23 @@ import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationF
 @IntegrationTest
 public class FileTransferSystemTest {
 
+    private static final String PROVIDER_ASSET_NAME = "test-document";
+
     private static final String CONTRACT_NEGOTIATION_PATH = "/api/negotiation";
     private static final String CONTRACT_AGREEMENT_PATH = "/api/control/negotiation/{contractNegotiationRequestId}";
-    private static final String FILE_TRANSFER_PATH = "/api/file/test-document";
+    private static final String FILE_TRANSFER_PATH = "/api/file/{filename}";
 
     private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
     private static final String CONTRACT_NEGOTIATION_REQUEST_ID_PARAM = "contractNegotiationRequestId";
     private static final String DESTINATION_PARAM = "destination";
     private static final String CONTRACT_ID_PARAM = "contractId";
+    private static final String FILE_NAME_PARAM = "filename";
 
     private static final String CONSUMER_CONNECTOR_HOST = propOrEnv("edc.consumer.connector.host", "http://localhost:9191");
     private static final String CONSUMER_ASSET_PATH = propOrEnv("edc.samples.04.consumer.asset.path", "/tmp/consumer");
 
     private static final String PROVIDER_CONNECTOR_HOST = propOrEnv("edc.provider.connector.host", "http://localhost:8181");
-    private static final String PROVIDER_ASSET_PATH = propOrEnv("edc.samples.04.asset.path", "/tmp/provider/test-document.txt");
+    private static final String PROVIDER_ASSET_PATH = propOrEnv("edc.samples.04.asset.path", format("/tmp/provider/%s.txt", PROVIDER_ASSET_NAME));
 
     private static final String API_KEY_CONTROL_AUTH = propOrEnv("edc.api.control.auth.apikey.value", "password");
     private static final String API_KEY_HEADER = "X-Api-Key";
@@ -63,9 +72,12 @@ public class FileTransferSystemTest {
     }
 
     @Test
-    public void transferFile_success() {
+    public void transferFile_success() throws IOException {
         //Arrange
         var contractOffer = TestUtils.getFileFromResourceName("contractoffer.json");
+        //Create a file with test data on provide file system.
+        var fileContent = "Sample04-test-" + UUID.randomUUID();
+        Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         //Act & Assert
 
@@ -75,9 +87,9 @@ public class FileTransferSystemTest {
                         .contentType(ContentType.JSON)
                         .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
                         .body(contractOffer)
-                        .when()
+                .when()
                         .post(CONTRACT_NEGOTIATION_PATH)
-                        .then()
+                .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
                         .extract().asString();
 
@@ -87,7 +99,7 @@ public class FileTransferSystemTest {
         // Verify ContractNegotiation is CONFIRMED (state = 1200)
         await().atMost(30, SECONDS).untilAsserted(() -> {
 
-            assertThatJson(getNegotiatedAgreement(contractNegotiationRequestId).toString()).and(
+            assertThatJson(fetchNegotiatedAgreement(contractNegotiationRequestId).toString()).and(
                     json -> json.node("id").isEqualTo(contractNegotiationRequestId),
                     json -> json.node("state").isEqualTo(1200),
                     json -> json.node("contractAgreement.id").isNotNull()
@@ -95,34 +107,61 @@ public class FileTransferSystemTest {
         });
 
         // Obtain contract agreement ID
-        var contractAgreementId = getNegotiatedAgreement(contractNegotiationRequestId)
+        var contractAgreementId = fetchNegotiatedAgreement(contractNegotiationRequestId)
                 .get("contractAgreement").get("id").textValue();
 
         //Initiate file transfer
         var transferProcessId =
                 given()
                         .noContentType()
+                        .pathParam(FILE_NAME_PARAM, PROVIDER_ASSET_NAME)
                         .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
                         .queryParam(DESTINATION_PARAM, CONSUMER_ASSET_PATH)
                         .queryParam(CONTRACT_ID_PARAM, contractAgreementId)
-                        .when()
+                .when()
                         .post(FILE_TRANSFER_PATH)
-                        .then()
+                .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
                         .extract().asString();
 
+        // Verify TransferProcessId
         assertThat(transferProcessId).isNotNull();
+
+        //Verify file transfer is completed and file contents
+        await().atMost(30, SECONDS).untilAsserted(() -> {
+
+            var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
+            var actualFileContent = fetchFileContent(copiedFilePath);
+            assertThat(actualFileContent).isNotNull();
+            assertThat(actualFileContent).isEqualTo(fileContent);
+        });
     }
 
-    private ObjectNode getNegotiatedAgreement(String contractNegotiationRequestId) {
+    /**
+     * Fetch negotiated contract agreement.
+     * @param contractNegotiationRequestId ID of the ongoing contract negotiation between consumer and provider.
+     * @return Negotiation as {@link ObjectNode}.
+     */
+    private ObjectNode fetchNegotiatedAgreement(String contractNegotiationRequestId) {
         return
                 given()
                         .pathParam(CONTRACT_NEGOTIATION_REQUEST_ID_PARAM, contractNegotiationRequestId)
                         .header(API_KEY_HEADER, API_KEY_CONTROL_AUTH)
-                        .when()
+                .when()
                         .get(CONTRACT_AGREEMENT_PATH)
-                        .then()
+                .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
                         .extract().as(ObjectNode.class);
+    }
+
+    private String fetchFileContent(Path filePath) {
+        if (filePath.toFile().exists()) {
+            try {
+                return Files.readAllLines(filePath).get(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 }
