@@ -48,7 +48,3 @@ The following table summarizes the strengths and weaknesses of the analyzed tool
 | Codacy                                                                      | ✅ available                                                                         | ✅ available                                                                                           | ⚠️ Not supported for code coverage<br/> ⚠️ Code quality reports are just links to Codacy dashboard  | ✅ A lot of code quality scanning tools built in<br/> ⚠️ Code coverage view very basic<br/> ⚠️ Tools configuration maintained in Codacy dashboard<br/> ⚠️ Reports are sometimes delayed |
 
 * Explicit usage of Github Actions from the [marketplace](https://github.com/marketplace?type=actions)
-
-## Suggestions for EDC
-
-TBD
