@@ -24,5 +24,4 @@ We recommend extending the scope of the queries to include code quality analysis
 We recommend starting with a smaller set of CodeQL queries for measuring code quality and incrementally increase the scope of the analysis. There is two possible approaches for this:
 
 - Use additional CodeQL query packs / write additional custom CodeQL queries
-- Use additional tools like PMD/Spotbugs with a very reduced set of rules complementing the existing CodeQL queries  
-- Evaluate using [LGTM](https://lgtm.com/) as an alternative to the CodeQL Github action with extended features (PR comments, support for suppression annotations in code)
+- Use additional tools like PMD/Spotbugs with a very reduced set of rules complementing the existing CodeQL queries
