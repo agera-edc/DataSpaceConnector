@@ -17,11 +17,7 @@ Additionally, we recommend adding a tool for visualizing code coverage statistic
 
 At the moment the `codeql-analysis.xml` runs a CodeQL scan with the default java pack (0.0.7 at the time of writing). This only executes ~44 security queries not including code quality.
 
-We recommend extending the scope of the queries to include code quality analysis. Additional suites can be found in the [CodeQL Github repository](https://github.com/github/codeql/tree/main/java/ql/src/codeql-suites). This would require fixing the critical alerts in the same PR introducing the new rules. Less critical ones can be deleted or suppressed using the [Github UI](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/managing-code-scanning-alerts-for-your-repository#dismissing-or-deleting-alerts).
-
-### Analyze value of lgtm
-
-A nice alternative to running CodeQL as a Github action is [LGTM](https://lgtm.com/). The main advantage of this option is that this platform supports review comments with CodeQL results in PRs (see [documentation](https://lgtm.com/help/lgtm/github-apps-integration)). CodeQL findings with the Github action are well visible within Github, but this solution could still help raise awareness of increased/decreased CodeQL findings in a PR and would possibility prevent from having to fix all available issues in one go when introducing CodeQL. Additionally, LGTM supports suppression annotations in Java code (@SupressWarnings), which CodeQL with the Github action does not.
+We recommend extending the scope of the queries to include code quality analysis. Additional suites can be found in the [CodeQL Github repository](https://github.com/github/codeql/tree/main/java/ql/src/codeql-suites). This would require fixing the critical alerts in the same PR introducing the new rules. Less critical ones can be suppressed using the [Github UI](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/managing-code-scanning-alerts-for-your-repository#dismissing-or-deleting-alerts).
 
 ### Incrementally increase the scope of static code analysis
 
@@ -29,3 +25,4 @@ We recommend starting with a smaller set of CodeQL queries for measuring code qu
 
 - Use additional CodeQL query packs / write additional custom CodeQL queries
 - Use additional tools like PMD/Spotbugs with a very reduced set of rules complementing the existing CodeQL queries  
+- Evaluate using [LGTM](https://lgtm.com/) as an alternative to the CodeQL Github action with extended features (PR comments, support for suppression annotations in code)
