@@ -103,6 +103,41 @@ A quick look through the issues reveal that most of them pinpoint very specific 
 
 Unfortunately, a big drawback of using CodeQL might be dealing with false positives as [GitHub code scanning](https://giters.com/github/codeql/issues/7294) does not support alert suppression comments and annotations at the moment. Generally this aligns with the general impression of CodeQL still not being as mature as the other evaluated tools. Documentation is often incomplete or unclear, and some features are still in experimental mode. Nonetheless, CodeQL is on its path to become the default Github code analysis system, so its to be expected that such things will improve in the near future.
 
+## Running CodeQL in Github Actions
+
+The extended queries can be run also directly from Github Actions by specifying queries in the workflow config file.
+
+```yaml
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v1
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-and-quality
+```
+We run the CodeQL scan on EDC fork repository using [security-and-quality queries](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs).
+This scan resulted in similar list of alerts as mentioned in previous section.
+
+The results can be visible in the Github Workflow check view under the PR and in Security Tab.
+
+![CodeQL](.attachments/codeql_github_alerts.png)
+
+After clicking on the alert we can see a view with more detailed explanations about it, references and examples.
+
+![CodeQL](.attachments/codeql_alert_view.png)
+
+From this view the alerts can be analysed and dismissed/removed if they are not applicable.
+
+![CodeQL](.attachments/codeql_dismiss_alerts.png)
+
+Dismissing the alerts will dismiss them on all branches. Dismissed alerts can be later reopened. Deleting the alerts doesn't prevent them from appearing on 
+the next scans.
+[Here](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/managing-code-scanning-alerts-for-your-repository#dismissing-or-deleting-alerts) you can find more information about dismissing/deleting CodeQL alerts.
+
+In Settings tab we can also define the alert severities causing [pull request check failure](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#defining-the-severities-causing-pull-request-check-failure). 
+
+![CodeQL](.attachments/codeql_severity_settings.png)
+
 ## Running CodeQL together with LGTM
 
 [LGTM](https://lgtm.com/) is an online analysis platform that automatically checks your code for real CVEs and vulnerabilities using CodeQL. LGTM is free for open source projects and integrates very nicely with Github hosted projects.
