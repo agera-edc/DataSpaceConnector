@@ -7,25 +7,21 @@ In this spike we performed an analysis of tools to measure and guarantee code qu
 
 ## Recommendations for EDC
 
-### Code coverage with jacoco
+### Code coverage with jacoco and Codecov
 
-We recommend introducing jacoco for measuring code coverage to get metrics on the current state of EDC testing as well as its evolution over time. See the [evaluation results](COVERAGE.md) for more details.
+We recommend introducing jacoco for measuring code coverage to get metrics on the current state of EDC testing as well as its evolution over time. 
+
+Additionally, we recommend adding a tool for visualizing code coverage statistics on PRs. This will raise developer awareness on an increase/decrease of coverage introduced by PRs. We suggest using the Codecov platform for this purpose, as it provides a detailed report including a dashboard with additional metrics like code complexity. See the [evaluation results](COVERAGE.md) for more details.
 
 ### Increase CodeQL analysis scope
 
 At the moment the `codeql-analysis.xml` runs a CodeQL scan with the default java pack (0.0.7 at the time of writing). This only executes ~44 security queries not including code quality.
 
-We recommend extending the scope of the queries to include code quality analysis. Additional suites can be found in the [CodeQL Github repository](https://github.com/github/codeql/tree/main/java/ql/src/codeql-suites).
+We recommend extending the scope of the queries to include code quality analysis. Additional suites can be found in the [CodeQL Github repository](https://github.com/github/codeql/tree/main/java/ql/src/codeql-suites). This would require fixing the critical alerts in the same PR introducing the new rules. Less critical ones can be deleted or suppressed using the [Github UI](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/managing-code-scanning-alerts-for-your-repository#dismissing-or-deleting-alerts).
 
-We suggest fixing the critical alerts in the same PR introducing the new rules. Less critical ones can be deleted or suppressed using the [Github UI](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/managing-code-scanning-alerts-for-your-repository#dismissing-or-deleting-alerts).
+### Analyze value of lgtm
 
-### Visualize code coverage in PRs with Codecov
-
-We recommend adding a tool for visualizing code coverage statistics on PRs. This will raise developer awareness on an increase/decrease of coverage introduced by PRs. We suggest using the Codecov platform for this purpose, as it provides a detailed report including a dashboard with additional metrics like code complexity. See the [evaluation results](COVERAGE.md) for more details.
-
-### [Optional] Visualize CodeQL results in PRs with lgtm
-
-A nice alternative to running CodeQL as a Github action is [LGTM](https://lgtm.com/). The main advantage of this option is that this platform supports review comments with CodeQL results in PRs (see [documentation](https://lgtm.com/help/lgtm/github-apps-integration)). CodeQL findings with the Github action are well visible within Github, but this solution could still help raise awareness of increased/decreased CodeQL findings in a PR and would possibility prevent from having to fix all available issues in one go when introducing CodeQL.
+A nice alternative to running CodeQL as a Github action is [LGTM](https://lgtm.com/). The main advantage of this option is that this platform supports review comments with CodeQL results in PRs (see [documentation](https://lgtm.com/help/lgtm/github-apps-integration)). CodeQL findings with the Github action are well visible within Github, but this solution could still help raise awareness of increased/decreased CodeQL findings in a PR and would possibility prevent from having to fix all available issues in one go when introducing CodeQL. Additionally, LGTM supports suppression annotations in Java code (@SupressWarnings), which CodeQL with the Github action does not.
 
 ### Incrementally increase the scope of static code analysis
 
