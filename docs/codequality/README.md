@@ -7,22 +7,22 @@ In this spike we performed an analysis of tools to measure and guarantee code qu
 
 ## Recommendations for EDC
 
-## Increase CodeQL analysis scope 
+### Increase CodeQL analysis scope 
 
 At the moment the `codeql-analysis.xml` runs a CodeQL scan with the default java pack (0.0.7 at the time of writing). This only executes ~44 security queries not including code quality.
 
 We recommend extending the scope of the queries to include code quality analysis. Additional suites can be found in the [CodeQL Github repository](https://github.com/github/codeql/tree/main/java/ql/src/codeql-suites).
 
-## Code coverage with jacoco
+### Code coverage with jacoco
 
 We recommend introducing jacoco for measuring code coverage. See the [evaluation results](COVERAGE.md) for more details.
 
-## Visualize code coverage in PRs with Codecov
+### Visualize code coverage in PRs with Codecov
 
 We recommend adding a tool for visualizing code coverage statistics on PRs. This will raise developer awareness on a decrease of coverage introduced by PRs. We suggest to use the Codecov platform for this purpose, as it provides a detailed report including a dashboard with additional metrics like code complexity. See the [evaluation results](COVERAGE.md) for more details.
 
 
-## Incrementally increase the scope of static code analysis
+### Incrementally increase the scope of static code analysis
 
 We recommend starting with a smaller set of CodeQL queries for measuring code quality and incrementally increase the scope of the analysis. There is two possible approaches for this:
 
