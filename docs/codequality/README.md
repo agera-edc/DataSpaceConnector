@@ -13,14 +13,15 @@ At the moment the `codeql-analysis.xml` runs a CodeQL scan with the default java
 
 We recommend extending the scope of the queries to include code quality analysis. Additional suites can be found in the [CodeQL Github repository](https://github.com/github/codeql/tree/main/java/ql/src/codeql-suites).
 
+We suggest fixing the critical alerts in the same PR introducing the new rules. Less critical ones can be deleted or suppressed using the [Github UI](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/managing-code-scanning-alerts-for-your-repository#dismissing-or-deleting-alerts).
+
 ### Code coverage with jacoco
 
-We recommend introducing jacoco for measuring code coverage. See the [evaluation results](COVERAGE.md) for more details.
+We recommend introducing jacoco for measuring code coverage to get metrics on the current state of EDC testing as well as its evolution over time. See the [evaluation results](COVERAGE.md) for more details.
 
 ### Visualize code coverage in PRs with Codecov
 
-We recommend adding a tool for visualizing code coverage statistics on PRs. This will raise developer awareness on a decrease of coverage introduced by PRs. We suggest to use the Codecov platform for this purpose, as it provides a detailed report including a dashboard with additional metrics like code complexity. See the [evaluation results](COVERAGE.md) for more details.
-
+We recommend adding a tool for visualizing code coverage statistics on PRs. This will raise developer awareness on an increase/decrease of coverage introduced by PRs. We suggest using the Codecov platform for this purpose, as it provides a detailed report including a dashboard with additional metrics like code complexity. See the [evaluation results](COVERAGE.md) for more details.
 
 ### Incrementally increase the scope of static code analysis
 
