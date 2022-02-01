@@ -11,11 +11,11 @@
 
 ## Overview of platforms
 
-| Platform                  | Description                                                                                                                                            |
-|---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [Github](github.com)      | Source code repository used by EDC. Different tools can be integrated into CI workflows using Github actions.                                          |
-| [Codacy](www.codacy.com)  | Online platform for both static code analysis and test code coverage analysis. It is free for Open Source projects.                                    |
-| [LGTM](https://lgtm.com/) | Online platform for static code analysis using deep semantic code search with data science insights using CodeQL. It is free for Open Source projects. |
+| Platform | Description                                                                                                                                            |
+|----------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Github   | Source code repository used by EDC. Different tools can be integrated into CI workflows using Github actions.                                          |
+| Codacy   | Online platform for both static code analysis and test code coverage analysis. It is free for Open Source projects.                                    |
+| LGTM     | Online platform for static code analysis using deep semantic code search with data science insights using CodeQL. It is free for Open Source projects. |
 
 ## Evaluation
 
