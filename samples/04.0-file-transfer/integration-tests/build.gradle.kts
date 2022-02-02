@@ -29,6 +29,7 @@ dependencies {
     testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.28.0")
 
     testImplementation(testFixtures(project(":common:util")))
+    testImplementation(testFixtures(project(":launchers:junit")))
 }
 
 tasks.getByName<Test>("test") {

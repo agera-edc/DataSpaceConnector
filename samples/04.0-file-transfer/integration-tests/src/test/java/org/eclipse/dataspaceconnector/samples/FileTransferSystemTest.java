@@ -20,6 +20,7 @@ import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
+import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -97,15 +98,22 @@ public class FileTransferSystemTest {
                         .extract().asString();
 
         // UUID is returned to get the contract agreement negotiated between provider and consumer.
-        assertThat(contractNegotiationRequestId).isNotBlank();
+        assertThat(contractNegotiationRequestId)
+                .withFailMessage("Contract negotiation requestId is null").isNotBlank();
 
         // Verify ContractNegotiation is CONFIRMED (state = 1200)
         await().atMost(30, SECONDS).untilAsserted(() -> {
 
             assertThatJson(fetchNegotiatedAgreement(contractNegotiationRequestId).toString()).and(
-                    json -> json.node("id").isEqualTo(contractNegotiationRequestId),
-                    json -> json.node("state").isEqualTo(1200),
-                    json -> json.node("contractAgreement.id").isNotNull()
+                    json -> json.node("id")
+                            .withFailMessage("Negotiation id is null")
+                            .isEqualTo(contractNegotiationRequestId),
+                    json -> json.node("state")
+                            .withFailMessage("ContractNegotiation is not in CONFIRMED state.")
+                            .isEqualTo(ContractNegotiationStates.CONFIRMED.code()),
+                    json -> json.node("contractAgreement.id")
+                            .withFailMessage("contractAgreement.id is null")
+                            .isNotNull()
             );
         });
 
@@ -141,8 +149,12 @@ public class FileTransferSystemTest {
         if (CHECK_FILE) {
             var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
             var actualFileContent = fetchFileContent(copiedFilePath);
-            assertThat(actualFileContent).isNotNull();
-            assertThat(actualFileContent).isEqualTo(fileContent);
+            assertThat(actualFileContent)
+                    .withFailMessage("Transferred file contents are null")
+                    .isNotNull();
+            assertThat(actualFileContent)
+                    .withFailMessage("Transferred file contents are not same as the source file")
+                    .isEqualTo(fileContent);
         });
     }
 
@@ -174,6 +186,11 @@ public class FileTransferSystemTest {
                         .extract().as(ObjectNode.class);
     }
 
+    /**
+     * Helper method to read file contents on the given {@link Path}
+     * @param filePath see {@link Path}
+     * @return Contents of file as a {@link String} or null if file does not exist.
+     */
     private String fetchFileContent(Path filePath) {
         if (filePath.toFile().exists()) {
             try {
