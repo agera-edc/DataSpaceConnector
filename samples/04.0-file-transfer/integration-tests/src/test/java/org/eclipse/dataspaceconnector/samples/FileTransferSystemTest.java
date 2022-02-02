@@ -21,6 +21,7 @@ import org.apache.http.HttpStatus;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -142,7 +143,7 @@ public class FileTransferSystemTest {
         await().atMost(30, SECONDS).untilAsserted(() -> {
             assertThatJson(fetchTransfer(transferProcessId).toString()).and(
                     json -> json.node("id").isEqualTo(transferProcessId),
-                    json -> json.node("state").isEqualTo(800) // COMPLETED
+                    json -> json.node("state").isEqualTo(TransferProcessStates.COMPLETED.code())
             );
         });
 

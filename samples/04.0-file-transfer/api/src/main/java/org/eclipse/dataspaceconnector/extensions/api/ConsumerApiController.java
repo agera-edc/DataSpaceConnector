@@ -27,30 +27,35 @@ import org.eclipse.dataspaceconnector.spi.contract.negotiation.ConsumerContractN
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.response.NegotiationResult;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
+import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractOfferRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
+import static jakarta.ws.rs.core.Response.Status.NOT_ACCEPTABLE;
 import static java.lang.String.format;
 
-@Consumes({ MediaType.APPLICATION_JSON })
-@Produces({ MediaType.APPLICATION_JSON })
+@Consumes({MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_JSON})
 @Path("/")
 public class ConsumerApiController {
 
     private final Monitor monitor;
     private final TransferProcessManager processManager;
     private final ConsumerContractNegotiationManager consumerNegotiationManager;
+    private final TransferProcessStore transferProcessStore;
 
     public ConsumerApiController(Monitor monitor, TransferProcessManager processManager,
-                                 ConsumerContractNegotiationManager consumerNegotiationManager) {
+                                 ConsumerContractNegotiationManager consumerNegotiationManager, TransferProcessStore transferProcessStore) {
         this.monitor = monitor;
         this.processManager = processManager;
         this.consumerNegotiationManager = consumerNegotiationManager;
+        this.transferProcessStore = transferProcessStore;
     }
 
     @GET
