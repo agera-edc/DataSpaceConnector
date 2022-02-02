@@ -68,7 +68,7 @@ public class FileTransferSystemTest {
     private static final String PROVIDER_ASSET_PATH = propOrEnv("edc.samples.04.asset.path", format("/tmp/provider/%s.txt", PROVIDER_ASSET_NAME));
 
     private static final String API_KEY_CONTROL_AUTH = propOrEnv("edc.api.control.auth.apikey.value", "password");
-    private static final boolean CHECK_FILE = Boolean.valueOf(propOrEnv("CHECK_FILE", "true"));
+    private static final boolean CHECK_FILE = Boolean.parseBoolean(propOrEnv("CHECK_FILE", "true"));
     private static final String API_KEY_HEADER = "X-Api-Key";
 
     @BeforeAll
