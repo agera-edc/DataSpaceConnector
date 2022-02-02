@@ -1,5 +1,6 @@
 package org.eclipse.dataspaceconnector.demo.runtime;
 
+import io.opentelemetry.api.OpenTelemetry;
 import org.eclipse.dataspaceconnector.boot.system.DefaultServiceExtensionContext;
 import org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
@@ -26,9 +27,9 @@ public class CustomRuntime extends BaseRuntime {
     }
 
     @Override
-    protected @NotNull ServiceExtensionContext createContext(TypeManager typeManager, Monitor monitor) {
+    protected @NotNull ServiceExtensionContext createContext(TypeManager typeManager, Monitor monitor, OpenTelemetry openTelemetry) {
         //override the default service extension context with a super customized one
-        return new SuperCustomExtensionContext(typeManager, monitor);
+        return new SuperCustomExtensionContext(typeManager, monitor, openTelemetry);
     }
 
     @Override
@@ -40,8 +41,8 @@ public class CustomRuntime extends BaseRuntime {
     }
 
     private static class SuperCustomExtensionContext extends DefaultServiceExtensionContext {
-        public SuperCustomExtensionContext(TypeManager typeManager, Monitor monitor) {
-            super(typeManager, monitor);
+        public SuperCustomExtensionContext(TypeManager typeManager, Monitor monitor, OpenTelemetry openTelemetry) {
+            super(typeManager, monitor, openTelemetry);
         }
     }
 }

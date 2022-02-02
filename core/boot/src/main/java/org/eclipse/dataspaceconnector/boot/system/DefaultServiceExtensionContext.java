@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.boot.system;
 
+import io.opentelemetry.api.OpenTelemetry;
 import org.eclipse.dataspaceconnector.boot.util.TopologicalSort;
 import org.eclipse.dataspaceconnector.core.BaseExtension;
 import org.eclipse.dataspaceconnector.core.CoreExtension;
@@ -50,6 +51,7 @@ import java.util.stream.Stream;
  */
 public class DefaultServiceExtensionContext implements ServiceExtensionContext {
     private final Monitor monitor;
+    private final OpenTelemetry openTelemetry;
     private final TypeManager typeManager;
 
     private final Map<Class<?>, Object> services = new HashMap<>();
@@ -57,13 +59,14 @@ public class DefaultServiceExtensionContext implements ServiceExtensionContext {
     private List<ConfigurationExtension> configurationExtensions;
     private String connectorId;
 
-    public DefaultServiceExtensionContext(TypeManager typeManager, Monitor monitor) {
-        this(typeManager, monitor, new ServiceLocatorImpl());
+    public DefaultServiceExtensionContext(TypeManager typeManager, Monitor monitor, OpenTelemetry openTelemetry) {
+        this(typeManager, monitor, openTelemetry, new ServiceLocatorImpl());
     }
 
-    public DefaultServiceExtensionContext(TypeManager typeManager, Monitor monitor, ServiceLocator serviceLocator) {
+    public DefaultServiceExtensionContext(TypeManager typeManager, Monitor monitor, OpenTelemetry openTelemetry, ServiceLocator serviceLocator) {
         this.typeManager = typeManager;
         this.monitor = monitor;
+        this.openTelemetry = openTelemetry;
         this.serviceLocator = serviceLocator;
         // register as services
         registerService(TypeManager.class, typeManager);
@@ -78,6 +81,11 @@ public class DefaultServiceExtensionContext implements ServiceExtensionContext {
     @Override
     public Monitor getMonitor() {
         return monitor;
+    }
+
+    @Override
+    public OpenTelemetry getOpenTelemetry() {
+        return openTelemetry;
     }
 
     @Override

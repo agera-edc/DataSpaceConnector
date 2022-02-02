@@ -25,6 +25,8 @@ dependencies {
     api("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
     api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
     api("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonVersion}")
+    api("io.opentelemetry:opentelemetry-api:1.10.0")
+    api("io.opentelemetry:opentelemetry-extension-annotations:1.10.0")
 
     testImplementation(testFixtures(project(":common:util")))
 }

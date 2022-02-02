@@ -15,6 +15,7 @@
 
 package org.eclipse.dataspaceconnector.contract;
 
+import io.opentelemetry.api.OpenTelemetry;
 import org.eclipse.dataspaceconnector.contract.agent.ParticipantAgentServiceImpl;
 import org.eclipse.dataspaceconnector.contract.negotiation.ConsumerContractNegotiationManagerImpl;
 import org.eclipse.dataspaceconnector.contract.negotiation.ProviderContractNegotiationManagerImpl;
@@ -50,6 +51,7 @@ public class ContractServiceExtension implements ServiceExtension {
 
     private static final long DEFAULT_ITERATION_WAIT = 5000; // millis
     private Monitor monitor;
+    private OpenTelemetry openTelemetry;
     private ServiceExtensionContext context;
     private ConsumerContractNegotiationManagerImpl consumerNegotiationManager;
     private ProviderContractNegotiationManagerImpl providerNegotiationManager;
@@ -68,6 +70,7 @@ public class ContractServiceExtension implements ServiceExtension {
     @Override
     public void initialize(ServiceExtensionContext context) {
         monitor = context.getMonitor();
+        openTelemetry = context.getOpenTelemetry();
         this.context = context;
 
         registerTypes(context);
@@ -129,6 +132,7 @@ public class ContractServiceExtension implements ServiceExtension {
                 .waitStrategy(waitStrategy)
                 .dispatcherRegistry(dispatcherRegistry)
                 .monitor(monitor)
+                .openTelemetry(openTelemetry)
                 .validationService(validationService)
                 .build();
 

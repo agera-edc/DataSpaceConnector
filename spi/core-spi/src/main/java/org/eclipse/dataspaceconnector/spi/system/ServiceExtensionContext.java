@@ -14,13 +14,13 @@
 
 package org.eclipse.dataspaceconnector.spi.system;
 
+import io.opentelemetry.api.OpenTelemetry;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Context provided to extensions when they are initialized.
@@ -37,6 +37,12 @@ public interface ServiceExtensionContext extends SettingResolver {
      * Returns the system monitor.
      */
     Monitor getMonitor();
+
+    /**
+     * Returns the OpenTelemetry.
+     * This is the entrypoint to telemetry functionality for tracing, metrics and baggage.
+     */
+    OpenTelemetry getOpenTelemetry();
 
     /**
      * Returns the type manager.

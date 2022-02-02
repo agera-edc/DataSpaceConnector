@@ -59,8 +59,7 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiati
  */
 public class ProviderContractNegotiationManagerImpl extends ContractNegotiationObservable implements ProviderContractNegotiationManager {
 
-    // TODO: Follow https://opentelemetry.io/docs/instrumentation/java/manual_instrumentation/
-    private final OpenTelemetry openTelemetry = GlobalOpenTelemetry.get();
+    private OpenTelemetry openTelemetry;
     private static ContractNegotiationTraceContextMapper traceContextMapper = new ContractNegotiationTraceContextMapper();
 
     private final AtomicBoolean active = new AtomicBoolean();
@@ -489,6 +488,11 @@ public class ProviderContractNegotiationManagerImpl extends ContractNegotiationO
 
         public Builder monitor(Monitor monitor) {
             manager.monitor = monitor;
+            return this;
+        }
+
+        public Builder openTelemetry(OpenTelemetry openTelemetry) {
+            manager.openTelemetry = openTelemetry;
             return this;
         }
 

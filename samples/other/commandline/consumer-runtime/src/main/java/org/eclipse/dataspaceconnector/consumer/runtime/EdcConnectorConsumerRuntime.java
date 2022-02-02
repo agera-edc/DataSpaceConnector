@@ -14,6 +14,8 @@
 
 package org.eclipse.dataspaceconnector.consumer.runtime;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
 import org.eclipse.dataspaceconnector.boot.monitor.MonitorProvider;
 import org.eclipse.dataspaceconnector.boot.system.DefaultServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
@@ -31,6 +33,7 @@ import static org.eclipse.dataspaceconnector.boot.system.ExtensionLoader.loadVau
 
 public class EdcConnectorConsumerRuntime {
     private Monitor monitor;
+    private OpenTelemetry openTelemetry;
     private TypeManager typeManager;
     private List<ServiceExtension> serviceExtensions;
     private DefaultServiceExtensionContext context;
@@ -40,8 +43,8 @@ public class EdcConnectorConsumerRuntime {
 
     public void start() {
         MonitorProvider.setInstance(monitor);
-
-        context = new DefaultServiceExtensionContext(typeManager, monitor);
+        openTelemetry = GlobalOpenTelemetry.get();
+        context = new DefaultServiceExtensionContext(typeManager, monitor, openTelemetry);
         context.initialize();
 
         try {

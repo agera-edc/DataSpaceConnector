@@ -14,6 +14,8 @@
 
 package org.eclipse.dataspaceconnector.junit.launcher;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.OpenTelemetry;
 import okhttp3.Interceptor;
 import org.eclipse.dataspaceconnector.boot.monitor.MonitorProvider;
 import org.eclipse.dataspaceconnector.boot.system.DefaultServiceExtensionContext;
@@ -52,6 +54,7 @@ public class EdcExtension implements BeforeTestExecutionCallback, AfterTestExecu
     private List<ServiceExtension> runningServiceExtensions;
     private DefaultServiceExtensionContext context;
     private Monitor monitor;
+    private OpenTelemetry openTelemetry = GlobalOpenTelemetry.get();
 
     /**
      * Registers a mock service with the runtime.
@@ -81,7 +84,7 @@ public class EdcExtension implements BeforeTestExecutionCallback, AfterTestExecu
 
         MonitorProvider.setInstance(monitor);
 
-        context = new DefaultServiceExtensionContext(typeManager, monitor, new MultiSourceServiceLocator());
+        context = new DefaultServiceExtensionContext(typeManager, monitor, openTelemetry, new MultiSourceServiceLocator());
         context.initialize();
 
         serviceMocks.forEach((key, value) -> context.registerService(cast(key), value));

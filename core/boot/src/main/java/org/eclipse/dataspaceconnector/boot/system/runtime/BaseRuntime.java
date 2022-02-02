@@ -1,6 +1,7 @@
 package org.eclipse.dataspaceconnector.boot.system.runtime;
 
 
+import io.opentelemetry.api.OpenTelemetry;
 import org.eclipse.dataspaceconnector.boot.monitor.MonitorProvider;
 import org.eclipse.dataspaceconnector.boot.system.DefaultServiceExtensionContext;
 import org.eclipse.dataspaceconnector.boot.system.ExtensionLoader;
@@ -38,6 +39,7 @@ public class BaseRuntime {
 
     private final AtomicReference<HealthCheckResult> startupStatus = new AtomicReference<>(HealthCheckResult.failed("Startup not complete"));
     private Monitor monitor;
+    private OpenTelemetry openTelemetry;
 
     public static void main(String[] args) {
         BaseRuntime runtime = new BaseRuntime();
@@ -54,9 +56,11 @@ public class BaseRuntime {
     protected void boot() {
         var typeManager = createTypeManager();
         monitor = createMonitor();
+        openTelemetry = ExtensionLoader.loadOpenTelemetry();
+
         MonitorProvider.setInstance(monitor);
 
-        var context = createContext(typeManager, monitor);
+        var context = createContext(typeManager, monitor, openTelemetry);
         initializeContext(context);
 
 
@@ -134,8 +138,8 @@ public class BaseRuntime {
      * @return a {@code ServiceExtensionContext}
      */
     @NotNull
-    protected ServiceExtensionContext createContext(TypeManager typeManager, Monitor monitor) {
-        return new DefaultServiceExtensionContext(typeManager, monitor);
+    protected ServiceExtensionContext createContext(TypeManager typeManager, Monitor monitor, OpenTelemetry openTelemetry) {
+        return new DefaultServiceExtensionContext(typeManager, monitor, openTelemetry);
     }
 
     /**

@@ -58,7 +58,7 @@ public class ContractNegotiation {
     private String counterPartyId;
     private String counterPartyAddress;
     private String protocol;
-    private Map<String, String> traceContext;
+    private Map<String, String> traceContext = new HashMap<>();
     private Type type = Type.CONSUMER;
     private int state = UNSAVED.code();
     private int stateCount;
