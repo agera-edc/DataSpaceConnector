@@ -95,15 +95,22 @@ public class FileTransferSystemTest {
                         .extract().asString();
 
         // UUID is returned to get the contract agreement negotiated between provider and consumer.
-        assertThat(contractNegotiationRequestId).isNotBlank();
+        assertThat(contractNegotiationRequestId)
+                .withFailMessage("Contract negotiation requestId is null").isNotBlank();
 
         // Verify ContractNegotiation is CONFIRMED (state = 1200)
         await().atMost(30, SECONDS).untilAsserted(() -> {
 
             assertThatJson(fetchNegotiatedAgreement(contractNegotiationRequestId).toString()).and(
-                    json -> json.node("id").isEqualTo(contractNegotiationRequestId),
-                    json -> json.node("state").isEqualTo(ContractNegotiationStates.CONFIRMED.code()),
-                    json -> json.node("contractAgreement.id").isNotNull()
+                    json -> json.node("id")
+                            .withFailMessage("Negotiation id is null")
+                            .isEqualTo(contractNegotiationRequestId),
+                    json -> json.node("state")
+                            .withFailMessage("ContractNegotiation is not in CONFIRMED state.")
+                            .isEqualTo(ContractNegotiationStates.CONFIRMED.code()),
+                    json -> json.node("contractAgreement.id")
+                            .withFailMessage("contractAgreement.id is null")
+                            .isNotNull()
             );
         });
 
@@ -159,6 +166,11 @@ public class FileTransferSystemTest {
                         .extract().as(ObjectNode.class);
     }
 
+    /**
+     * Helper method to read file contents on the given {@link Path}
+     * @param filePath see {@link Path}
+     * @return Contents of file as a {@link String} or null if file does not exist.
+     */
     private String fetchFileContent(Path filePath) {
         if (filePath.toFile().exists()) {
             try {
