@@ -49,10 +49,12 @@ public class FileTransferSystemTest {
 
     private static final String CONTRACT_NEGOTIATION_PATH = "/api/negotiation";
     private static final String CONTRACT_AGREEMENT_PATH = "/api/control/negotiation/{contractNegotiationRequestId}";
+    private static final String TRANSFER_PATH = "/api/transfer/{transferId}";
     private static final String FILE_TRANSFER_PATH = "/api/file/{filename}";
 
     private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
     private static final String CONTRACT_NEGOTIATION_REQUEST_ID_PARAM = "contractNegotiationRequestId";
+    private static final String TRANSFER_ID_PARAM = "transferId";
     private static final String DESTINATION_PARAM = "destination";
     private static final String CONTRACT_ID_PARAM = "contractId";
     private static final String FILE_NAME_PARAM = "filename";
@@ -64,6 +66,7 @@ public class FileTransferSystemTest {
     private static final String PROVIDER_ASSET_PATH = propOrEnv("edc.samples.04.asset.path", format("/tmp/provider/%s.txt", PROVIDER_ASSET_NAME));
 
     private static final String API_KEY_CONTROL_AUTH = propOrEnv("edc.api.control.auth.apikey.value", "password");
+    private static final boolean CHECK_FILE = Boolean.valueOf(propOrEnv("CHECK_FILE", "true"));
     private static final String API_KEY_HEADER = "X-Api-Key";
 
     @BeforeAll
@@ -129,13 +132,30 @@ public class FileTransferSystemTest {
 
         //Verify file transfer is completed and file contents
         await().atMost(30, SECONDS).untilAsserted(() -> {
+            assertThatJson(fetchTransfer(transferProcessId).toString()).and(
+                    json -> json.node("id").isEqualTo(transferProcessId),
+                    json -> json.node("state").isEqualTo(800) // COMPLETED
+            );
+        });
 
+        if (CHECK_FILE) {
             var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
             var actualFileContent = fetchFileContent(copiedFilePath);
             assertThat(actualFileContent).isNotNull();
             assertThat(actualFileContent).isEqualTo(fileContent);
         });
     }
+
+    private ObjectNode fetchTransfer(String transferProcessId) {
+        return
+    given()
+                        .pathParam(TRANSFER_ID_PARAM, transferProcessId)
+                .when()
+                        .get(TRANSFER_PATH)
+                .then()
+                        .assertThat().statusCode(HttpStatus.SC_OK)
+                        .extract().as(ObjectNode.class);
+        }
 
     /**
      * Fetch negotiated contract agreement.

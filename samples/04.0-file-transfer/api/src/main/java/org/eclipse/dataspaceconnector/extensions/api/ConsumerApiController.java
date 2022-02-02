@@ -113,5 +113,16 @@ public class ConsumerApiController {
 
         return result.failed() ? Response.status(400).build() : Response.ok(result.getContent()).build();
     }
+
+    @GET
+    @Path("transfer/{id}")
+    public Response getTransferById(@PathParam("id") String id) {
+        return Optional.ofNullable(transferProcessStore.find(id))
+                .map(
+                        v -> Response.ok(v).build()
+                ).orElse(
+                        Response.status(NOT_ACCEPTABLE).build()
+                );
+    }
 }
 
