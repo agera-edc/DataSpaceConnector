@@ -27,6 +27,7 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.22.0")
     testImplementation("org.awaitility:awaitility:4.1.1")
     testImplementation("net.javacrumbs.json-unit:json-unit-assertj:2.28.0")
+    testImplementation("org.testcontainers:testcontainers:1.16.3")
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
