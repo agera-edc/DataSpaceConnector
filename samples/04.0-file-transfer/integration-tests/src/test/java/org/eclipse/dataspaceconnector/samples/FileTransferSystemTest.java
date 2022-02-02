@@ -155,7 +155,7 @@ public class FileTransferSystemTest {
             assertThat(actualFileContent)
                     .withFailMessage("Transferred file contents are not same as the source file")
                     .isEqualTo(fileContent);
-        });
+        }
     }
 
     private ObjectNode fetchTransfer(String transferProcessId) {
