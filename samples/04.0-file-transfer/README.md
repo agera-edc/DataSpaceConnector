@@ -194,7 +194,7 @@ addition to just confirming or declining an offer.
 
 In order to trigger the negotiation, we use the endpoint previously created in the `api` extension. We specify the
 address of the provider connector as a query parameter and set our contract offer in the request body. The contract
-offer is prepared in [contractoffer.json](contractoffer.json)
+offer is prepared in [contractoffer.json](integration-tests/src/test/resources/contractoffer.json)
 and can be used as is. In a real scenario, a potential consumer would first need to request a description of the
 provider's offers in order to get the provider's contract offer.
 

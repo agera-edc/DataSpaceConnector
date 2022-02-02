@@ -133,8 +133,12 @@ public class FileTransferSystemTest {
 
             var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
             var actualFileContent = fetchFileContent(copiedFilePath);
-            assertThat(actualFileContent).isNotNull();
-            assertThat(actualFileContent).isEqualTo(fileContent);
+            assertThat(actualFileContent)
+                    .withFailMessage("Transferred file contents are null")
+                    .isNotNull();
+            assertThat(actualFileContent)
+                    .withFailMessage("Transferred file contents are not same as the source file")
+                    .isEqualTo(fileContent);
         });
     }
 
