@@ -62,7 +62,7 @@ allprojects {
 
 We modified the `.github/workflows/verify.yaml` workflow as follows:
 
-```
+```yaml
       - name: Gradle Test Core
          run: ./gradlew clean check jacocoTestReport
 
@@ -97,6 +97,20 @@ The report can be drilled to highlight the code subjected to coverage changes.
 ![Code Coverage with Codecov](.attachments/code-coverage-codecov-pr-detail.png)
 
 The configuration of Codecov can be adjusted in a [`codecov.yaml` configuration file](https://docs.codecov.com/docs/codecov-yaml). That allows for example configuration to ensure each new PR [does not decrease coverage](https://docs.codecov.com/docs/common-recipe-list#increase-overall-coverage-on-each-pull-request).
+
+#### Using Codecov with forks
+
+Further tests showed that if Codecov is installed in the base repository then providing the Codecov token is indeed not required for open source projects:
+
+```yaml
+       - name: CodeCov
+         uses: codecov/codecov-action@v2
+```
+
+The Codecov PR reports are available with no additional changes also for PRs between forks and the base repository.
+
+If the owners of a fork repository want to use Codecov also for internal PRs (before merging to upstream) then Codecov App needs to be installed also in the 
+fork, but in this case we also got the reports without providing the token. 
 
 ### Option 4: JaCoCo with Codacy
 
