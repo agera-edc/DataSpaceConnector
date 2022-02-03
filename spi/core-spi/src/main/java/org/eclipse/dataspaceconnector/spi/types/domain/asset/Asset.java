@@ -33,9 +33,9 @@ public class Asset {
 
     public static final String PROPERTY_ID = "asset:prop:id";
     public static final String PROPERTY_NAME = "asset:prop:name";
+    public static final String PROPERTY_DESCRIPTION = "asset:prop:description";
     public static final String PROPERTY_VERSION = "asset:prop:version";
     public static final String PROPERTY_CONTENT_TYPE = "asset:prop:contenttype";
-    public static final String PROPERTY_POLICY_ID = "asset:prop:policy-id";
 
     private Map<String, Object> properties;
 
@@ -54,6 +54,11 @@ public class Asset {
     }
 
     @JsonIgnore
+    public String getDescription() {
+        return getPropertyAsString(PROPERTY_DESCRIPTION);
+    }
+
+    @JsonIgnore
     public String getVersion() {
         return getPropertyAsString(PROPERTY_VERSION);
     }
@@ -61,11 +66,6 @@ public class Asset {
     @JsonIgnore
     public String getContentType() {
         return getPropertyAsString(PROPERTY_CONTENT_TYPE);
-    }
-
-    @JsonIgnore
-    public String getPolicyId() {
-        return getPropertyAsString(PROPERTY_POLICY_ID);
     }
 
     public Map<String, Object> getProperties() {
@@ -106,6 +106,11 @@ public class Asset {
             return (B) this;
         }
 
+        public B description(String description) {
+            asset.properties.put(PROPERTY_DESCRIPTION, description);
+            return (B) this;
+        }
+
         public B version(String version) {
             asset.properties.put(PROPERTY_VERSION, version);
             return (B) this;
@@ -113,11 +118,6 @@ public class Asset {
 
         public B contentType(String contentType) {
             asset.properties.put(PROPERTY_CONTENT_TYPE, contentType);
-            return (B) this;
-        }
-
-        public B policyId(String policyId) {
-            asset.properties.put(PROPERTY_POLICY_ID, policyId);
             return (B) this;
         }
 

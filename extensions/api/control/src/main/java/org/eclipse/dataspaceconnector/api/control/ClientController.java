@@ -24,8 +24,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.dataspaceconnector.api.control.response.NegotiationStatusResponse;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.ConsumerContractNegotiationManager;
-import org.eclipse.dataspaceconnector.spi.contract.negotiation.response.NegotiationResult;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.store.ContractNegotiationStore;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferInitiateResult;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
@@ -36,8 +36,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 
-@Consumes({ MediaType.APPLICATION_JSON })
-@Produces({ MediaType.APPLICATION_JSON })
+@Consumes({MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_JSON})
 @Path("/control")
 public class ClientController {
 
@@ -91,6 +91,18 @@ public class ClientController {
         }
 
         return Response.ok(negotiation).build();
+    }
+    
+    @GET
+    @Path("negotiation/{id}/state")
+    public Response getNegotiationStateById(@PathParam("id") String id) {
+        var negotiation = contractNegotiationStore.find(id);
+    
+        if (negotiation == null) {
+            return Response.status(404).build();
+        }
+        
+        return Response.ok(new NegotiationStatusResponse(negotiation)).build();
     }
 
     @GET

@@ -24,8 +24,8 @@ plugins {
 dependencies {
     api(project(":core"))
     api(project(":spi"))
-    implementation(project(":extensions:aws:s3:provision"))
-    implementation(project(":extensions:aws:s3:s3-schema"))
+    implementation(project(":extensions:aws:s3:s3-provision"))
+    implementation(project(":extensions:aws:s3:s3-core"))
     implementation(project(":extensions:inline-data-transfer:inline-data-transfer-spi"))
     implementation(project(":extensions:inline-data-transfer:inline-data-transfer-core"))
 
@@ -46,8 +46,7 @@ dependencies {
 }
 
 application {
-    @Suppress("DEPRECATION")
-    mainClassName = "org.eclipse.dataspaceconnector.core.system.runtime.BaseRuntime"
+    mainClass.set("org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime")
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {

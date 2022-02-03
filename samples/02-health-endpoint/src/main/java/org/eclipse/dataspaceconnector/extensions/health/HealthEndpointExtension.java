@@ -1,11 +1,11 @@
 package org.eclipse.dataspaceconnector.extensions.health;
 
-import org.eclipse.dataspaceconnector.spi.protocol.web.WebService;
+import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.system.Requires;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
-@Requires({ WebService.class })
+@Requires({WebService.class})
 public class HealthEndpointExtension implements ServiceExtension {
 
     @Override

@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.configuration.fs;
 
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.system.Config;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,9 @@ import org.junit.jupiter.api.Test;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
@@ -31,24 +34,26 @@ import static org.mockito.Mockito.when;
 
 class FsConfigurationExtensionTest {
     private FsConfigurationExtension configurationExtension;
+    private ServiceExtensionContext context;
 
     @BeforeEach
     void setUp() throws URISyntaxException {
         Path location = Paths.get(getClass().getClassLoader().getResource("edc-configuration.properties").toURI());
 
         configurationExtension = new FsConfigurationExtension(location);
+
+        context = mock(ServiceExtensionContext.class);
+        when(context.getMonitor()).thenReturn(mock(Monitor.class));
+
+        configurationExtension.initialize(context.getMonitor());
     }
 
     @Test
     void verifyResolution() {
-        ServiceExtensionContext context = mock(ServiceExtensionContext.class);
-        when(context.getMonitor()).thenReturn(mock(Monitor.class));
+        var config = configurationExtension.getConfig();
 
-        configurationExtension.initialize(context.getMonitor());
-
-        assertEquals("testvalue1", configurationExtension.getSetting("testkey1"));
-        assertNull(configurationExtension.getSetting("notthere"));
-        verify(context).getMonitor();
+        assertThat(config.getString("testkey1")).isEqualTo("testvalue1");
+        assertThat(config.getString("not.there", null)).isEqualTo(null);
     }
 
 }

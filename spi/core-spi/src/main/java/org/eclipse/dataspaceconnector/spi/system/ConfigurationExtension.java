@@ -14,17 +14,15 @@
 
 package org.eclipse.dataspaceconnector.spi.system;
 
-import org.jetbrains.annotations.Nullable;
-
 /**
  * Contributes configuration to a runtime. Multiple configuration extensions may be loaded in a runtime.
  */
 public interface ConfigurationExtension extends BootExtension {
 
     /**
-     * Returns the configuration setting for the key or null if not found.
+     * Gets the configuration starting from the root
+     *
+     * @return A config object
      */
-    @Nullable
-    String getSetting(String key);
-
+    Config getConfig();
 }

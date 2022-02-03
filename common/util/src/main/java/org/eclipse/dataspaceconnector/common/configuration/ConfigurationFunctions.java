@@ -32,4 +32,5 @@ public class ConfigurationFunctions {
         value = System.getenv(upperKey);
         return value != null ? value : defaultValue;
     }
+
 }

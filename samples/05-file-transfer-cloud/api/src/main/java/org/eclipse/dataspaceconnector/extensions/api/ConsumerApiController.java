@@ -15,12 +15,12 @@ import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
-import org.eclipse.dataspaceconnector.transfer.core.commandqueue.commands.DeprovisionRequest;
+import org.eclipse.dataspaceconnector.transfer.core.command.commands.DeprovisionRequest;
 
 import java.util.UUID;
 
-@Consumes({ MediaType.APPLICATION_JSON })
-@Produces({ MediaType.APPLICATION_JSON })
+@Consumes({MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_JSON})
 @Path("/")
 public class ConsumerApiController {
 

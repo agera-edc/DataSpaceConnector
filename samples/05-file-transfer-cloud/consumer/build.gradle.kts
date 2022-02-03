@@ -33,9 +33,10 @@ dependencies {
     implementation(project(":extensions:in-memory:negotiation-store-memory"))
     implementation(project(":extensions:http"))
 
+    implementation(project(":extensions:aws:s3:s3-provision"))
+
     implementation(project(":extensions:iam:iam-mock"))
     implementation(project(":extensions:azure:vault"))
-    implementation(project(":extensions:aws:s3:provision"))
 
     implementation(project(":extensions:api:control"))
 
@@ -48,7 +49,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("org.eclipse.dataspaceconnector.core.system.runtime.BaseRuntime")
+    mainClass.set("org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime")
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {

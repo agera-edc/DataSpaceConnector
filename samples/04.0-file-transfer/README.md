@@ -130,7 +130,7 @@ As the provider connector is the one performing the file transfer after the file
 needs the `transfer-file` extension provided in this sample.
 
 ```kotlin
-implementation(project(":samples:04-file-transfer:transfer-file"))
+implementation(project(":samples:04.0-file-transfer:transfer-file"))
 ```
 
 We also need to adjust the provider's `config.properties`. The property `edc.samples.04.asset.path`
@@ -147,7 +147,7 @@ While the consumer does not need the `transfer-file` module, it does indeed need
 REST API:
 
 ```kotlin
-implementation(project(":samples:04-file-transfer:api"))
+implementation(project(":samples:04.0-file-transfer:api"))
 ```
 
 It is good practice to explicitly configure the consumer's API port in `consumer/config.properties` like we learned in
@@ -165,11 +165,11 @@ The first step to running this sample is building and starting both the provider
 done the same way as in the previous samples.
 
 ```bash
-./gradlew samples:04-file-transfer:consumer:build
-java -Dedc.fs.config=samples/04-file-transfer/consumer/config.properties -jar samples/04-file-transfer/consumer/build/libs/consumer.jar
+./gradlew samples:04.0-file-transfer:consumer:build
+java -Dedc.fs.config=samples/04.0-file-transfer/consumer/config.properties -jar samples/04.0-file-transfer/consumer/build/libs/consumer.jar
 # in another terminal window:
-./gradlew samples:04-file-transfer:provider:build
-java -Dedc.fs.config=samples/04-file-transfer/provider/config.properties -jar samples/04-file-transfer/provider/build/libs/provider.jar
+./gradlew samples:04.0-file-transfer:provider:build
+java -Dedc.fs.config=samples/04.0-file-transfer/provider/config.properties -jar samples/04.0-file-transfer/provider/build/libs/provider.jar
 ````
 
 Assuming you didn't change the ports in config files, the consumer will listen on port `9191`
@@ -199,7 +199,7 @@ and can be used as is. In a real scenario, a potential consumer would first need
 provider's offers in order to get the provider's contract offer.
 
 ```bash
-curl -X POST -H "Content-Type: application/json" -d @samples/04-file-transfer/integration-tests/src/test/resources/contractoffer.json "http://localhost:9191/api/negotiation?connectorAddress=http://localhost:8181/api/ids/multipart"
+curl -X POST -H "Content-Type: application/json" -d @samples/04.0-file-transfer/integration-tests/src/test/resources/contractoffer.json "http://localhost:9191/api/negotiation?connectorAddress=http://localhost:8181/api/ids/multipart"
 ```
 
 In the response we'll get a UUID that we can use to get the contract agreement negotiated between provider and consumer.
@@ -209,82 +209,35 @@ In the response we'll get a UUID that we can use to get the contract agreement n
 After calling the endpoint for initiating a contract negotiation, we get a UUID as the response. This UUID is the ID of
 the ongoing contract negotiation between consumer and provider. The negotiation sequence between provider and consumer
 is executed asynchronously in the background by a state machine. Once both provider and consumer either reach
-the `confirmed` or the  `declined`
-state, the negotiation is finished. We can now use the UUID to check the current status of the negotiation using an
-endpoint on the consumer side. As this end point is not part of this sample's API but of the actual control API, we need
-to authenticate ourselves to use this endpoint. For this, we use the `X-Api-Key` header with the same value that's set
-in our consumer's `config.properties`.
+the `confirmed` or the  `declined` state, the negotiation is finished. We can now use the UUID to check the
+current status of the negotiation using an endpoint on the consumer side. As this endpoint is not part of this
+sample's API but of the actual control API, we need to authenticate ourselves to use this endpoint. For this,
+we use the `X-Api-Key` header with the same value that's set in our consumer's `config.properties`.
 
 ```bash
-curl -X GET -H 'X-Api-Key: password' "http://localhost:9191/api/control/negotiation/{UUID}"
+curl -X GET -H 'X-Api-Key: password' "http://localhost:9191/api/control/negotiation/{UUID}/state"
 ```
 
-This will return a full description of the negotiation (see sample output below). When the state reads `1200` (=
-confirmed), this description will also contain a contract agreement. We can now use this agreement to request the file.
-So we copy and store the agreement's ID for the next step.
+This will return the current status of the negotiation and, if the negotiation has been completed successfully,
+the ID of a contract agreement. We can now use this agreement to request the file. So we copy and store the
+agreement ID for the next step.
 
 Sample output:
 
 ```json
 {
-  "id": <NEGOTIATION_UUID>,
-  "correlationId": null,
-  "counterPartyId": "consumer",
-  "counterPartyAddress": "http://localhost:8181/api/ids/multipart",
-  "protocol": "ids-multipart",
-  "type": "CONSUMER",
-  "state": 1200,
-  "stateCount": 1,
-  "stateTimestamp": 1639131245365,
-  "errorDetail": null,
-  "contractAgreement": {
-    "id": <AGREEMENT_ID>,
-    "providerAgentId": "null",
-    "consumerAgentId": "null",
-    "contractSigningDate": 0,
-    "contractStartDate": 0,
-    "contractEndDate": 0,
-    "asset": {
-      "properties": {
-        "asset:prop:id": "urn:artifact:test-document"
-      }
-    },
-    "policy": {
-      "uid": "be03b061-d9dc-4b85-a2a2-697ea6e7ca60",
-      "permissions": [
-        {
-          "edctype": "dataspaceconnector:permission",
-          "uid": null,
-          "target": "test-document",
-          "action": {
-            "type": "USE",
-            "includedIn": null,
-            "constraint": null
-          },
-          "assignee": null,
-          "assigner": null,
-          "constraints": [],
-          "duties": []
-        }
-      ],
-      "prohibitions": [],
-      "obligations": [],
-      "extensibleProperties": {},
-      "inheritsFrom": null,
-      "assigner": null,
-      "assignee": null,
-      "target": null,
-      "@type": {
-        "@policytype": "set"
-      }
-    }
-  },
-  "contractOffers": [
-    ...
-  ],
-  "lastContractOffer": {
-    ...
-  }
+  "status": "CONFIRMED",
+  "contractAgreementId": "<AGREEMENT_ID>"
+}
+```
+
+If you see an output similar to the following, the negotiation has not yet been completed. In this case,
+just wait for a moment and call the endpoint again.
+
+```json
+{
+    "status": "REQUESTED",
+    "contractAgreementId": null
 }
 ```
 

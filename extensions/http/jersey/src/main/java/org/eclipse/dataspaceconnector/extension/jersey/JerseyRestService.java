@@ -16,8 +16,8 @@ package org.eclipse.dataspaceconnector.extension.jersey;
 
 import org.eclipse.dataspaceconnector.extension.jetty.JettyService;
 import org.eclipse.dataspaceconnector.spi.EdcException;
+import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
-import org.eclipse.dataspaceconnector.spi.protocol.web.WebService;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;

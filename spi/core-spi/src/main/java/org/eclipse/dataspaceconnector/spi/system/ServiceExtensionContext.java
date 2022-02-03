@@ -24,13 +24,13 @@ import java.util.List;
 /**
  * Context provided to extensions when they are initialized.
  */
-public interface ServiceExtensionContext {
+public interface ServiceExtensionContext extends SettingResolver {
 
     /**
      * Fetches the unique ID of the connector. If the {@code dataspaceconnector.connector.name} config value has been set, that value is returned; otherwise  a random
      * name is chosen.
      */
-    public String getConnectorId();
+    String getConnectorId();
 
     /**
      * Returns the system monitor.
@@ -41,11 +41,6 @@ public interface ServiceExtensionContext {
      * Returns the type manager.
      */
     TypeManager getTypeManager();
-
-    /**
-     * Returns the configuration value, or the default value if not found.
-     */
-    String getSetting(String setting, String defaultValue);
 
     /**
      * Returns true if the service type is registered.

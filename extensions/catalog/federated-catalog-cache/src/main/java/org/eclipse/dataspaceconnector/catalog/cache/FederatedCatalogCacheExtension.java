@@ -6,8 +6,8 @@ import org.eclipse.dataspaceconnector.catalog.cache.crawler.CrawlerImpl;
 import org.eclipse.dataspaceconnector.catalog.cache.crawler.NodeQueryAdapterRegistryImpl;
 import org.eclipse.dataspaceconnector.catalog.cache.loader.LoaderManagerImpl;
 import org.eclipse.dataspaceconnector.catalog.cache.management.PartitionManagerImpl;
+import org.eclipse.dataspaceconnector.catalog.cache.query.CacheQueryAdapterImpl;
 import org.eclipse.dataspaceconnector.catalog.cache.query.CacheQueryAdapterRegistryImpl;
-import org.eclipse.dataspaceconnector.catalog.cache.query.DefaultCacheQueryAdapter;
 import org.eclipse.dataspaceconnector.catalog.cache.query.IdsMultipartNodeQueryAdapter;
 import org.eclipse.dataspaceconnector.catalog.cache.query.QueryEngineImpl;
 import org.eclipse.dataspaceconnector.catalog.spi.CacheQueryAdapterRegistry;
@@ -23,9 +23,9 @@ import org.eclipse.dataspaceconnector.catalog.spi.QueryEngine;
 import org.eclipse.dataspaceconnector.catalog.spi.WorkItem;
 import org.eclipse.dataspaceconnector.catalog.spi.WorkItemQueue;
 import org.eclipse.dataspaceconnector.catalog.spi.model.UpdateResponse;
+import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
-import org.eclipse.dataspaceconnector.spi.protocol.web.WebService;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
-@Provides({ Crawler.class, LoaderManager.class, QueryEngine.class, NodeQueryAdapterRegistry.class, CacheQueryAdapterRegistry.class })
+@Provides({Crawler.class, LoaderManager.class, QueryEngine.class, NodeQueryAdapterRegistry.class, CacheQueryAdapterRegistry.class})
 public class FederatedCatalogCacheExtension implements ServiceExtension {
     public static final int DEFAULT_NUM_CRAWLERS = 1;
     private static final int DEFAULT_QUEUE_LENGTH = 50;
@@ -77,7 +77,7 @@ public class FederatedCatalogCacheExtension implements ServiceExtension {
         var queryAdapterRegistry = new CacheQueryAdapterRegistryImpl();
         context.registerService(CacheQueryAdapterRegistry.class, queryAdapterRegistry);
 
-        queryAdapterRegistry.register(new DefaultCacheQueryAdapter(store));
+        queryAdapterRegistry.register(new CacheQueryAdapterImpl(store));
         var queryEngine = new QueryEngineImpl(queryAdapterRegistry);
         context.registerService(QueryEngine.class, queryEngine);
         monitor = context.getMonitor();
@@ -124,7 +124,7 @@ public class FederatedCatalogCacheExtension implements ServiceExtension {
     @NotNull
     private LoaderManager createLoaderManager(FederatedCacheStore store) {
         return LoaderManagerImpl.Builder.newInstance()
-                .loaders(List.of(new DefaultLoader(store)))
+                .loaders(List.of(new LoaderImpl(store)))
                 .batchSize(partitionManagerConfig.getLoaderBatchSize(DEFAULT_BATCH_SIZE))
                 .waitStrategy(() -> partitionManagerConfig.getLoaderRetryTimeout(DEFAULT_RETRY_TIMEOUT_MILLIS))
                 .monitor(monitor)

@@ -25,6 +25,7 @@ include(":core:policy:policy-evaluator")
 include(":core:transfer")
 include(":core:contract")
 include(":core:base")
+include(":core:boot")
 
 // modules that provide implementations for data ingress/egress
 include(":data-protocols:ids:ids-api-multipart-endpoint-v1")
@@ -40,14 +41,13 @@ include(":extensions:ion:ion-client")
 include(":extensions:aws")
 include(":extensions:api:control")
 include(":extensions:api:observability")
-include(":extensions:aws:s3:provision")
-include(":extensions:aws:s3:s3-schema")
+include(":extensions:aws:s3:s3-core")
+include(":extensions:aws:s3:s3-provision")
 include(":extensions:aws:s3:s3-data-operator")
 include(":extensions:aws:aws-test")
 include(":extensions:azure:blobstorage")
-include(":extensions:azure:blobstorage:blob-schema")
-include(":extensions:azure:blobstorage:provision")
-include(":extensions:azure:blobstorage:api")
+include(":extensions:azure:blobstorage:blob-core")
+include(":extensions:azure:blobstorage:blob-provision")
 include(":extensions:azure:blobstorage:blob-data-operator")
 include(":extensions:azure:events")
 include(":extensions:azure:events-config")
@@ -97,6 +97,11 @@ include(":extensions:http:jersey")
 include(":extensions:http:jetty")
 include(":extensions:inline-data-transfer:inline-data-transfer-core")
 include(":extensions:inline-data-transfer:inline-data-transfer-spi")
+include(":extensions:transaction")
+include(":extensions:transaction:transaction-spi")
+include(":extensions:transaction:transaction-datasource-spi")
+include(":extensions:transaction:transaction-atomikos")
+include(":extensions:transaction:transaction-local")
 
 // modules for launchers, i.e. runnable compositions of the app
 include(":launchers:basic")
@@ -118,13 +123,13 @@ include(":samples:other:streaming")
 include(":samples:other:custom-runtime")
 
 
-
 // extension points for a connector
 include(":spi")
 include(":spi:core-spi")
 include(":spi:transfer-spi")
 include(":spi:contract-spi")
 include(":spi:catalog-spi")
+include(":spi:web-spi")
 
 //include(":openapi")
 

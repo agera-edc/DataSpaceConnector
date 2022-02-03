@@ -1,6 +1,6 @@
 package org.eclipse.dataspaceconnector.api.observability;
 
-import org.eclipse.dataspaceconnector.spi.protocol.web.WebService;
+import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -24,7 +24,7 @@ public class ObservabilityApiExtension implements ServiceExtension {
 
     @Override
     public String name() {
-        return "EDC Control API";
+        return "Observability API";
     }
 
     @Override

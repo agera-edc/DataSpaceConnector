@@ -1,6 +1,6 @@
 package org.eclipse.dataspaceconnector.api.observability;
 
-import org.eclipse.dataspaceconnector.spi.protocol.web.WebService;
+import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckService;
 import org.eclipse.dataspaceconnector.spi.system.health.LivenessProvider;
