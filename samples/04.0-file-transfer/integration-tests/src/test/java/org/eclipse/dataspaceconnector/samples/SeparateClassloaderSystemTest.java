@@ -20,33 +20,18 @@ import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
-import org.eclipse.dataspaceconnector.core.system.runtime.BaseRuntime;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
-import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ServiceLoader;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.jar.JarInputStream;
-import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
@@ -61,7 +46,6 @@ import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationF
  */
 @Tag("SystemTests")
 @IntegrationTest
-@ExtendWith(EdcExtension.class)
 public class SeparateClassloaderSystemTest {
 
     private static final String PROVIDER_ASSET_NAME = "test-document";
@@ -78,7 +62,6 @@ public class SeparateClassloaderSystemTest {
     private static final String CONTRACT_ID_PARAM = "contractId";
     private static final String FILE_NAME_PARAM = "filename";
 
-    private static final String CONSUMER_CONNECTOR_HOST = propOrEnv("edc.consumer.connector.host", "http://localhost:9191");
     private static final String CONSUMER_ASSET_PATH = propOrEnv("edc.samples.04.consumer.asset.path", "/tmp/consumer");
 
     private static final String PROVIDER_CONNECTOR_HOST = propOrEnv("edc.provider.connector.host", "http://localhost:8181");
@@ -88,41 +71,20 @@ public class SeparateClassloaderSystemTest {
     private static final boolean CHECK_FILE = Boolean.parseBoolean(propOrEnv("CHECK_FILE", "true"));
     private static final String API_KEY_HEADER = "X-Api-Key";
 
+    @RegisterExtension
+    @Order(1)
+    static EdcRuntimeExtension otherConnector = new EdcRuntimeExtension(
+            Map.of(
+                    "web.http.port", "9191",
+                    "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
+                    "ids.webhook.address", "http://localhost:9191"));
+
+    @RegisterExtension
+    @Order(2)
+    static EdcExtension edc = new EdcExtension();
+
     @BeforeAll
-    static void setUp() throws Exception {
-
-        // Prepare Testcontainer of consumer connector
-        var rootProject = Paths.get(System.getProperty("user.dir")).getParent().toAbsolutePath();
-
-        System.setProperty("web.http.port", "9191");
-        System.setProperty("edc.api.control.auth.apikey.value", "password");
-        System.setProperty("ids.webhook.address", "http://localhost:9191");
-        var latch = new CountDownLatch(1);
-        var otherConnector = new Thread(() ->
-        {
-            try {
-                var file = new File(rootProject + "/consumer/build/libs/consumer.jar");
-                assertThat(file).canRead();
-                var jar = new JarInputStream(new FileInputStream(file));
-                var manifest = jar.getManifest();
-                var mainClassName = manifest.getMainAttributes().getValue("Main-Class");
-
-                var classLoader = URLClassLoader.newInstance(new URL[]{file.toURI().toURL()},
-                        ClassLoader.getSystemClassLoader());
-                Thread.currentThread().setContextClassLoader(classLoader);
-
-                var mainClass = classLoader.loadClass(mainClassName);
-                var mainMethod = mainClass.getMethod("main", String[].class);
-                mainMethod.invoke(null, new Object[]{new String[0]});
-
-                latch.countDown();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-        otherConnector.start();
-        latch.await(10, SECONDS);
-        System.clearProperty("web.http.port");
+    static void setUp() {
         System.setProperty("ids.webhook.address", "http://localhost:8181");
 
         // Consumer connector host URI.
