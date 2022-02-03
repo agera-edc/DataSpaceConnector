@@ -37,7 +37,7 @@ public class GradleModuleRuntimeExtension implements BeforeAllCallback, AfterAll
         Process exec = Runtime.getRuntime().exec(root + "/gradlew -q " + moduleName + ":printClasspath");
         InputStream inputStream = exec.getInputStream();
         var st = new String(inputStream.readAllBytes());
-        assertThat(exec.exitValue()).isEqualTo(0);
+        assertThat(exec.waitFor()).isEqualTo(0);
 
         var classPathEntries = Arrays.stream(st.split(":|\\s"))
                 .filter(s -> !s.isBlank())
