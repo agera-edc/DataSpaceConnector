@@ -62,10 +62,11 @@ public class FileTransferSystemTest {
     private static final String FILE_NAME_PARAM = "filename";
 
     private static final String CONSUMER_CONNECTOR_HOST = propOrEnv("edc.consumer.connector.host", "http://localhost:9191");
-    private static final String CONSUMER_ASSET_PATH = propOrEnv("edc.samples.04.consumer.asset.path", "/tmp/consumer");
+    private static final String CONSUMER_ASSET_PATH = propOrEnv("edc.consumer.asset.path", "/tmp/consumer");
+    private static final String CONSUMER_ASSET_HOST_PATH = propOrEnv("edc.consumer.asset.host.path", "/tmp/consumer");
 
     private static final String PROVIDER_CONNECTOR_HOST = propOrEnv("edc.provider.connector.host", "http://localhost:8181");
-    private static final String PROVIDER_ASSET_PATH = propOrEnv("edc.samples.04.asset.path", format("/tmp/provider/%s.txt", PROVIDER_ASSET_NAME));
+    private static final String PROVIDER_ASSET_HOST_PATH = propOrEnv("edc.provider.asset.host.path", format("/tmp/provider/%s.txt", PROVIDER_ASSET_NAME));
 
     private static final String API_KEY_CONTROL_AUTH = propOrEnv("edc.api.control.auth.apikey.value", "password");
     private static final boolean CHECK_FILE = Boolean.parseBoolean(propOrEnv("CHECK_FILE", "true"));
@@ -82,7 +83,7 @@ public class FileTransferSystemTest {
         var contractOffer = TestUtils.getFileFromResourceName("contractoffer.json");
         //Create a file with test data on provide file system.
         var fileContent = "Sample04-test-" + UUID.randomUUID();
-        Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
+        Files.write(Path.of(PROVIDER_ASSET_HOST_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         //Act & Assert
 
@@ -152,7 +153,7 @@ public class FileTransferSystemTest {
         });
 
         if (CHECK_FILE) {
-            var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
+            var copiedFilePath = Path.of(format(CONSUMER_ASSET_HOST_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
             var actualFileContent = fetchFileContent(copiedFilePath);
             assertThat(actualFileContent)
                     .withFailMessage("Transferred file contents are null")
