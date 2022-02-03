@@ -1,6 +1,6 @@
 package org.eclipse.dataspaceconnector.samples;
 
-import org.eclipse.dataspaceconnector.core.system.runtime.BaseRuntime;
+import org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
