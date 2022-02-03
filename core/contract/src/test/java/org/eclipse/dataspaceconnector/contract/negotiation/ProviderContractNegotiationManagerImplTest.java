@@ -13,6 +13,7 @@
  */
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.response.NegotiationResult;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.store.ContractNegotiationStore;
@@ -92,6 +93,7 @@ class ProviderContractNegotiationManagerImplTest {
                 .validationService(validationService)
                 .dispatcherRegistry(dispatcherRegistry)
                 .monitor(monitor)
+                .openTelemetry(GlobalOpenTelemetry.get())
                 .build();
 
         //TODO hand over store in start method, but run method should not be executed

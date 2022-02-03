@@ -13,6 +13,7 @@
  */
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import org.eclipse.dataspaceconnector.contract.common.ContractId;
 import org.eclipse.dataspaceconnector.negotiation.store.memory.InMemoryContractNegotiationStore;
 import org.eclipse.dataspaceconnector.policy.model.Action;
@@ -79,6 +80,7 @@ public abstract class AbstractContractNegotiationIntegrationTest {
         providerManager = ProviderContractNegotiationManagerImpl.Builder.newInstance()
                 .dispatcherRegistry(new FakeProviderDispatcherRegistry())
                 .monitor(monitor)
+                .openTelemetry(GlobalOpenTelemetry.get())
                 .validationService(validationService)
                 .waitStrategy(() -> 1000)
                 .build();
