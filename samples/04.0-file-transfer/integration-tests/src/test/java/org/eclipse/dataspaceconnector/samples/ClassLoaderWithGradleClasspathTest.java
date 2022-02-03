@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
@@ -45,8 +44,8 @@ import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationF
  * System Test for Sample 04.0-file-transfer
  */
 @Tag("SystemTests")
-@IntegrationTest
-public class SeparateClassloaderSystemTest {
+// @IntegrationTest
+public class ClassLoaderWithGradleClasspathTest {
 
     private static final String PROVIDER_ASSET_NAME = "test-document";
 
@@ -80,18 +79,6 @@ public class SeparateClassloaderSystemTest {
                     "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
                     "ids.webhook.address", "http://localhost:9191"));
 
-    // Alternative to the above:
-    /*
-    @RegisterExtension
-    @Order(1)
-    static JarRuntimeExtension otherConnector = new JarRuntimeExtension(
-            "../consumer/build/libs/consumer.jar",
-            Map.of(
-                    "web.http.port", "9191",
-                    "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
-                    "ids.webhook.address", "http://localhost:9191"));
-     */
-
     @RegisterExtension
     @Order(2)
     static EdcExtension edc = new EdcExtension();
@@ -115,7 +102,6 @@ public class SeparateClassloaderSystemTest {
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         //Act & Assert
-
         // Initiate a contract negotiation
         var contractNegotiationRequestId =
                 given()
