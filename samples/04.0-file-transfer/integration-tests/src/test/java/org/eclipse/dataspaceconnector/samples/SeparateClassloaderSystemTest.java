@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -44,6 +45,7 @@ import java.util.ServiceLoader;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 
 import static io.restassured.RestAssured.given;
@@ -94,39 +96,43 @@ public class SeparateClassloaderSystemTest {
 
         System.setProperty("web.http.port", "9191");
         System.setProperty("edc.api.control.auth.apikey.value", "password");
-        var c = new CountDownLatch(1);
-        Thread t = new Thread(() ->
+        System.setProperty("ids.webhook.address", "http://localhost:9191");
+        var latch = new CountDownLatch(1);
+        var otherConnector = new Thread(() ->
         {
-            ClassLoader parent = null;
-            parent = ClassLoader.getSystemClassLoader();
-            URLClassLoader child = null;
             try {
-                File file = new File(rootProject +
-                        "/consumer/build/libs/consumer.jar");
+                var file = new File(rootProject + "/consumer/build/libs/consumer.jar");
                 assertThat(file).canRead();
+                var jar = new JarInputStream(new FileInputStream(file));
+                var manifest = jar.getManifest();
+                var mainClassName = manifest.getMainAttributes().getValue("Main-Class");
 
-                child = URLClassLoader.newInstance(new URL[]{file.toURL()
-                        },
-                        parent);
-                Thread.currentThread().setContextClassLoader(child);
-                Class<?> r = child.loadClass(BaseRuntime.class.getCanonicalName());
-                var m = r.getMethod("main", String[].class);
-                m.invoke(null, new Object[]{new String[0]});
-                c.countDown();
+                var classLoader = URLClassLoader.newInstance(new URL[]{file.toURI().toURL()},
+                        ClassLoader.getSystemClassLoader());
+                Thread.currentThread().setContextClassLoader(classLoader);
+
+                var mainClass = classLoader.loadClass(mainClassName);
+                var mainMethod = mainClass.getMethod("main", String[].class);
+                mainMethod.invoke(null, new Object[]{new String[0]});
+
+                latch.countDown();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         });
-        t.start();
-        c.await(10, SECONDS);
+        otherConnector.start();
+        latch.await(10, SECONDS);
         System.clearProperty("web.http.port");
+        System.setProperty("ids.webhook.address", "http://localhost:8181");
 
         // Consumer connector host URI.
         RestAssured.baseURI = format("http://%s:%s", "localhost", 9191);
     }
 
     @Test
-    public void transferFile_success() throws IOException {
+    public void transferFile_success() throws Exception {
+        Thread.sleep(4000);
+
         //Arrange
         var contractOffer = TestUtils.getFileFromResourceName("contractoffer.json");
         //Create a file with test data on provide file system.
@@ -225,6 +231,7 @@ public class SeparateClassloaderSystemTest {
 
     /**
      * Fetch negotiated contract agreement.
+     *
      * @param contractNegotiationRequestId ID of the ongoing contract negotiation between consumer and provider.
      * @return Negotiation as {@link ObjectNode}.
      */
@@ -242,6 +249,7 @@ public class SeparateClassloaderSystemTest {
 
     /**
      * Helper method to read file contents on the given {@link Path}
+     *
      * @param filePath see {@link Path}
      * @return Contents of file as a {@link String} or null if file does not exist.
      */
