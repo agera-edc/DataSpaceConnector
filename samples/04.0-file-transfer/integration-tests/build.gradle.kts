@@ -37,4 +37,8 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+        events("skipped", "failed")
+    }
 }
