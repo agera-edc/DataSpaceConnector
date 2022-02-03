@@ -13,31 +13,29 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.jar.JarInputStream;
-import java.util.stream.Collectors;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 public class EdcRuntimeExtension implements BeforeAllCallback, AfterAllCallback {
+    final String jarFile;
     final Map<String, String> properties;
     private Thread otherConnector;
 
-    public EdcRuntimeExtension(Map<String, String> properties) {
+    public EdcRuntimeExtension(String jarFile, Map<String, String> properties) {
+        this.jarFile = jarFile;
         this.properties = Map.copyOf(properties);
     }
 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
-        var rootProject = Paths.get(System.getProperty("user.dir")).getParent().toAbsolutePath();
-
-        var saved = (Properties) System.getProperties().clone();
+        var savedProperties = (Properties) System.getProperties().clone();
         properties.forEach((k, v) -> System.setProperty(k, v));
         var latch = new CountDownLatch(1);
         otherConnector = new Thread(() ->
         {
             try {
-                var file = new File(rootProject + "/consumer/build/libs/consumer.jar");
+                var file = new File(jarFile);
                 assertThat(file).canRead();
                 var jar = new JarInputStream(new FileInputStream(file));
                 var manifest = jar.getManifest();
@@ -58,12 +56,11 @@ public class EdcRuntimeExtension implements BeforeAllCallback, AfterAllCallback 
         });
         otherConnector.start();
         latch.await(10, SECONDS);
-        System.setProperties(saved);
-        System.out.println("PROPS:" + System.getProperties());
+        System.setProperties(savedProperties);
     }
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
-        
+        otherConnector.join();
     }
 }

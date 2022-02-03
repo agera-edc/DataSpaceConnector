@@ -74,6 +74,7 @@ public class SeparateClassloaderSystemTest {
     @RegisterExtension
     @Order(1)
     static EdcRuntimeExtension otherConnector = new EdcRuntimeExtension(
+            "../consumer/build/libs/consumer.jar",
             Map.of(
                     "web.http.port", "9191",
                     "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
