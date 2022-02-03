@@ -73,12 +73,24 @@ public class SeparateClassloaderSystemTest {
 
     @RegisterExtension
     @Order(1)
-    static EdcRuntimeExtension otherConnector = new EdcRuntimeExtension(
+    static GradleModuleRuntimeExtension otherConnector = new GradleModuleRuntimeExtension(
+            ":samples:04.0-file-transfer:consumer",
+            Map.of(
+                    "web.http.port", "9191",
+                    "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
+                    "ids.webhook.address", "http://localhost:9191"));
+
+    // Alternative to the above:
+    /*
+    @RegisterExtension
+    @Order(1)
+    static JarRuntimeExtension otherConnector = new JarRuntimeExtension(
             "../consumer/build/libs/consumer.jar",
             Map.of(
                     "web.http.port", "9191",
                     "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
                     "ids.webhook.address", "http://localhost:9191"));
+     */
 
     @RegisterExtension
     @Order(2)

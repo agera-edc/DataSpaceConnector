@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
@@ -17,12 +16,12 @@ import java.util.jar.JarInputStream;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EdcRuntimeExtension implements BeforeAllCallback, AfterAllCallback {
+public class JarRuntimeExtension implements BeforeAllCallback, AfterAllCallback {
     final String jarFile;
     final Map<String, String> properties;
-    private Thread otherConnector;
+    private Thread runtimeThread;
 
-    public EdcRuntimeExtension(String jarFile, Map<String, String> properties) {
+    public JarRuntimeExtension(String jarFile, Map<String, String> properties) {
         this.jarFile = jarFile;
         this.properties = Map.copyOf(properties);
     }
@@ -30,9 +29,9 @@ public class EdcRuntimeExtension implements BeforeAllCallback, AfterAllCallback 
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         var savedProperties = (Properties) System.getProperties().clone();
-        properties.forEach((k, v) -> System.setProperty(k, v));
+        properties.forEach(System::setProperty);
         var latch = new CountDownLatch(1);
-        otherConnector = new Thread(() ->
+        runtimeThread = new Thread(() ->
         {
             try {
                 var file = new File(jarFile);
@@ -54,13 +53,15 @@ public class EdcRuntimeExtension implements BeforeAllCallback, AfterAllCallback 
                 throw new RuntimeException(e);
             }
         });
-        otherConnector.start();
-        latch.await(10, SECONDS);
+        runtimeThread.start();
+
+        assertThat(latch.await(10, SECONDS)).isTrue();
+
         System.setProperties(savedProperties);
     }
 
     @Override
     public void afterAll(ExtensionContext context) throws Exception {
-        otherConnector.join();
+        runtimeThread.join();
     }
 }
