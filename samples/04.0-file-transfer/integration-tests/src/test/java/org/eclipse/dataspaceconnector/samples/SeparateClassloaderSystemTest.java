@@ -94,6 +94,7 @@ public class SeparateClassloaderSystemTest {
 
         System.setProperty("web.http.port", "9191");
         System.setProperty("edc.api.control.auth.apikey.value", "password");
+        System.setProperty("ids.webhook.address", "http://localhost:9191");
         var c = new CountDownLatch(1);
         Thread t = new Thread(() ->
         {
@@ -120,13 +121,17 @@ public class SeparateClassloaderSystemTest {
         t.start();
         c.await(10, SECONDS);
         System.clearProperty("web.http.port");
+        System.setProperty("ids.webhook.address", "http://localhost:8181");
+
 
         // Consumer connector host URI.
         RestAssured.baseURI = format("http://%s:%s", "localhost", 9191);
     }
 
     @Test
-    public void transferFile_success() throws IOException {
+    public void transferFile_success() throws Exception {
+        Thread.sleep(4000);
+
         //Arrange
         var contractOffer = TestUtils.getFileFromResourceName("contractoffer.json");
         //Create a file with test data on provide file system.
