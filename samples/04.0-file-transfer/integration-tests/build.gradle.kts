@@ -31,6 +31,8 @@ dependencies {
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
+
+    implementation(project(":samples:04.0-file-transfer:provider"))
 }
 
 tasks.getByName<Test>("test") {

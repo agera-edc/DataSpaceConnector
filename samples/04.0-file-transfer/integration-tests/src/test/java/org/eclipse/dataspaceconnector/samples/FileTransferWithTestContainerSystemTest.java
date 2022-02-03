@@ -20,16 +20,23 @@ import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
+import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.testcontainers.Testcontainers;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.images.builder.ImageFromDockerfile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -45,7 +52,8 @@ import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationF
  */
 @Tag("SystemTests")
 @IntegrationTest
-public class FileTransferSystemTest {
+@ExtendWith(EdcExtension.class)
+public class FileTransferWithTestContainerSystemTest {
 
     private static final String PROVIDER_ASSET_NAME = "test-document";
 
@@ -70,10 +78,33 @@ public class FileTransferSystemTest {
     private static final String API_KEY_CONTROL_AUTH = propOrEnv("edc.api.control.auth.apikey.value", "password");
     private static final boolean CHECK_FILE = Boolean.parseBoolean(propOrEnv("CHECK_FILE", "true"));
     private static final String API_KEY_HEADER = "X-Api-Key";
+    private static GenericContainer consumerContainer;
 
     @BeforeAll
     static void setUp() {
-        RestAssured.baseURI = CONSUMER_CONNECTOR_HOST;
+
+        // Enable Testcontainers to connect to host port
+        Testcontainers.exposeHostPorts(8181);
+
+        // Prepare Testcontainer of consumer connector
+        var rootProject = Paths.get(System.getProperty("user.dir")).getParent().toAbsolutePath();
+        consumerContainer = new GenericContainer(
+                new ImageFromDockerfile()
+                        .withFileFromClasspath("Dockerfile", "ConsumerDockerfile")
+                        .withFileFromPath("consumer.jar", Path.of(rootProject + "/consumer/build/libs/consumer.jar"))
+                        .withFileFromPath("config.properties", Path.of(rootProject + "/consumer/config.properties")))
+                .withExposedPorts(9191)
+                .withAccessToHost(true);
+
+        // Start consumer connector test container
+        consumerContainer.start();
+        // Consumer connector host URI.
+        RestAssured.baseURI = format("http://%s:%s", consumerContainer.getHost(), consumerContainer.getFirstMappedPort());
+    }
+
+    @AfterAll
+    static void tearDown() {
+        consumerContainer.stop();
     }
 
     @Test
@@ -110,7 +141,7 @@ public class FileTransferSystemTest {
                             .withFailMessage("Negotiation id is null")
                             .isEqualTo(contractNegotiationRequestId),
                     json -> json.node("state")
-                            .withFailMessage("ContractNegotiation is not in CONFIRMED state")
+                            .withFailMessage("ContractNegotiation is not in CONFIRMED state.")
                             .isEqualTo(ContractNegotiationStates.CONFIRMED.code()),
                     json -> json.node("contractAgreement.id")
                             .withFailMessage("contractAgreement.id is null")
