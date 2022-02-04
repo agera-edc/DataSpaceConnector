@@ -2,7 +2,7 @@
 
 ## Decision
 
-Extend the existing  `EdcExtension`  JUnit facility (that can currently run a single EDC runtime and supports stubbing and extension of runtime services) as follows:
+Extend the existing `EdcExtension` JUnit facility (that can currently run a single EDC runtime and supports stubbing and extension of runtime services) as follows:
 
 - Load more than one EDC runtime.
 - Load EDC runtimes in separate Class Loaders.
@@ -24,6 +24,7 @@ Key drivers for the choice are:
 - Use of existing frameworks, stability and portability.
 
 We have performed technical spikes testing multiple approaches (detailed further below), including various combinations of:
+
 - JUnit
 - [Docker compose](https://docs.docker.com/compose/)
 - Starting custom Class Loaders for separate threads for the Provider and Connector with separate class paths, and distinct instances of dependent instances, effectively providing full runtime isolation within a single JVM
@@ -93,7 +94,7 @@ Successfully tagged 040-file-transfer_sample04-connector-consumer:latest
 ```
 
 ```shell
-$ RUN_INTEGRATION_TEST=true time ./gradlew cleanTest :samples:04.0-file-transfer:integration-tests:test --tests org.eclipse.dataspaceconnector.samples.FileTransferSystemTest
+RUN_INTEGRATION_TEST=true time ./gradlew cleanTest :samples:04.0-file-transfer:integration-tests:test --tests org.eclipse.dataspaceconnector.samples.FileTransferSystemTest
 ```
 
 This setup is stable and straightforward, but the inner loop is not very efficient. Debugging a remote process is possible buts adds complexity.
@@ -106,7 +107,7 @@ The integration tests module only contains the classpath of the Provider module:
     implementation(project(":samples:04.0-file-transfer:provider"))
 ```
 
-The JUnit integration test runs the Provider using the preexisting  `EdcExtension`, and the Consumer using a newly developed extension:
+The JUnit integration test runs the Provider using the preexisting `EdcExtension`, and the Consumer using a newly developed extension:
 
 ```java
     // EDC Consumer runtime
@@ -150,8 +151,8 @@ runtimeThread = new Thread(() ->
 ```
 
 ```kotlin
-		// build.gradle.kts (under allprojects)
-		tasks.register("printClasspath") {
+     // build.gradle.kts (under allprojects)
+     tasks.register("printClasspath") {
      doLast {
         println("${sourceSets["main"].runtimeClasspath.asPath}");
         }
@@ -173,7 +174,7 @@ tasks.getByName<Test>("test") {
 
 The test runs in seconds.
 
-```
+```shell
 $ RUN_INTEGRATION_TEST=true time ./gradlew cleanTest :samples:04.0-file-transfer:integration-tests:test --tests org.eclipse.dataspaceconnector.samples.ClassLoaderWithGradleClasspathTest
 
 > Configure project :
@@ -260,7 +261,7 @@ BUILD SUCCESSFUL in 33s
 
 Running in an IDE (IntelliJ IDEA), the debugger can be used in both Provider and Consumer code. When a class source is modified and the test is rerun, the change is immediately reflected.
 
-We could have run the equivalent setup inverting the Provider and Consumer in the two extensions we used. In this infrastructure, only one of the connectors can use the `EdcExtension` facilities to add or mock services. This exploratory spike code was built as a quick-and-dirty PoC. When adapting this spike code for merging, we should improve this setup, by extending the  `EdcExtension`  to provide both classpath isolation and test runtime configurability.
+We could have run the equivalent setup inverting the Provider and Consumer in the two extensions we used. In this infrastructure, only one of the connectors can use the `EdcExtension` facilities to add or mock services. This exploratory spike code was built as a quick-and-dirty PoC. When adapting this spike code for merging, we should improve this setup, by extending the `EdcExtension` to provide both classpath isolation and test runtime configurability.
 
 Note that this setup requires the modules to have previously been built (`./gradlew build`).
 
@@ -285,8 +286,6 @@ The setup is very similar to the above, but the Shadow JAR of the connector is r
     @Order(2)
     static EdcExtension edc = new EdcExtension();
 ```
-
-
 
 ```java
 // JarRuntimeExtension
