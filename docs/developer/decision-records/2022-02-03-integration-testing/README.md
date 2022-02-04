@@ -39,7 +39,7 @@ if required in the future.
 
 ## Spikes
 
-We have performed technical spikes on [sample 04.0-file-transfer](../../../samples/04.0-file-transfer/README.md), that runs two EDC connectors, a Consumer and a Provider. The test requires three components:
+We have performed technical spikes on [sample 04.0-file-transfer](../../../samples/04.0-file-transfer/README.md), that runs two EDC connectors, a Consumer and a Provider. [Spike code is in a forked repository](https://github.com/agera-edc/DataSpaceConnector/pull/3/files). The test requires three components:
 
 - Consumer EDC connector
 - Provider EDC connector
