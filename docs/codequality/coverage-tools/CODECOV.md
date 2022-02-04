@@ -77,9 +77,12 @@ fork, but in this case we also got the reports without providing the token.
 
 ## Codecov reports
 
-We can download a report containing the data from (max) last 6 months about Line and Complexity Coverage from the Codecov dashboard:
+We can download a report containing the data from (max) last 6 months about Line and Complexity Coverage from the Codecov dashboard. 
+The coverage on the chart can be aggregated per day, hour, month and commit.
 
 ![Code Coverage with Codecov](../.attachments/code-coverage-codecov-dashboard.png)
+
+Codecov only shows commits that have uploaded coverage reports and are six months or less old ([Codecov doc](https://docs.codecov.com/docs/frequently-asked-questions#where-are-my-older-commits-my-project-dashboard-doesnt-show-any-commit-data-in-the-line-graph)).
 
 ## Useful links
 
