@@ -19,10 +19,10 @@
 
 ## Evaluation
 
-- [Checkstyle](CHECKSTYLE.md)
-- [PMD](PMD.md)
-- [Spotbugs](SPOTBUGS.md)
-- [CodeQL](CODEQL.md)
+- [Checkstyle](quality-tools/CHECKSTYLE.md)
+- [PMD](quality-tools/PMD.md)
+- [Spotbugs](quality-tools/SPOTBUGS.md)
+- [CodeQL](quality-tools/CODEQL.md)
 
 ## Comparison of tools
 

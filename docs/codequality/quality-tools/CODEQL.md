@@ -18,11 +18,11 @@ Sample queries can be imported from the [CodeQL Github repository](https://githu
 
 You can run up to 20 simultaneous queries within Visual Studio Code by right-clicking on the desired queries and then selecting "Run Queries in Selected Files"
 
-![CodeQL Query in Visual Studio Code](.attachments/codeql_vsc.png)
+![CodeQL Query in Visual Studio Code](../.attachments/codeql_vsc.png)
 
 One of the queries returns a finding which we can inspect by selecting it on the query pane:
 
-![CodeQL Query Result](.attachments/codeql_vsc_query_result.png)
+![CodeQL Query Result](../.attachments/codeql_vsc_query_result.png)
 
 Although useful for verifying and debugging single queries, due to the limitation of running at most 20 queries at a time the Visual Studio Code plugin is not an adequate solution to run full query suites.
 
@@ -120,15 +120,15 @@ This scan resulted in similar list of alerts as mentioned in previous section.
 
 The results can be visible in the Github Workflow check view under the PR and in Security Tab.
 
-![CodeQL](.attachments/codeql_github_alerts.png)
+![CodeQL](../.attachments/codeql_github_alerts.png)
 
 After clicking on the alert we can see a view with more detailed explanations about it, references and examples.
 
-![CodeQL](.attachments/codeql_alert_view.png)
+![CodeQL](../.attachments/codeql_alert_view.png)
 
 From this view the alerts can be analysed and dismissed/removed if they are not applicable.
 
-![CodeQL](.attachments/codeql_dismiss_alerts.png)
+![CodeQL](../.attachments/codeql_dismiss_alerts.png)
 
 Dismissing the alerts will dismiss them on all branches. Dismissed alerts can be later reopened. Deleting the alerts doesn't prevent them from appearing on 
 the next scans.
@@ -136,7 +136,7 @@ the next scans.
 
 In Settings tab we can also define the alert severities causing [pull request check failure](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#defining-the-severities-causing-pull-request-check-failure). 
 
-![CodeQL](.attachments/codeql_severity_settings.png)
+![CodeQL](../.attachments/codeql_severity_settings.png)
 
 ## Running CodeQL together with LGTM
 
@@ -144,7 +144,7 @@ In Settings tab we can also define the alert severities causing [pull request ch
 
 EDC was added as a project following the [instructions](https://lgtm.com/help/lgtm/adding-projects) to LGTM. After building the CodeQL database and running the analysis, a [graphical report](https://lgtm.com/projects/g/eclipse-dataspaceconnector/DataSpaceConnector/?mode=list) is available.
 
-![lgtm](.attachments/lgtm.png)
+![lgtm](../.attachments/lgtm.png)
 
 LGTM runs a total of [179 default queries](https://lgtm.com/projects/g/eclipse-dataspaceconnector/DataSpaceConnector/queries/?pack=com.lgtm%2Fjava-queries) and supports adding custom ones if required. Installing the [LGTM application](https://github.com/apps/lgtm-com/installations/new) enables the integration with PR workflows to guarantee a quality threshold.
 

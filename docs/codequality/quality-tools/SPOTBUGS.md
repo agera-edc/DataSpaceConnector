@@ -6,7 +6,7 @@
 
 The [Spotbugs Intellij plugin](https://plugins.jetbrains.com/plugin/14014-spotbugs) runs Spotbugs directly from the IDE. This is the most effective way to look and fix Spotbugs issues from the developers perspective. Running the IntelliJ plugin on a machine with a 2.3Ghz 8-Core Intel Core i9 CPU running takes around 1 minute.
 
-![Intellij Plugin](.attachments/spotbugs-intellij.png)
+![Intellij Plugin](../.attachments/spotbugs-intellij.png)
 
 ## Running SpotBugs with Gradle
 
@@ -47,7 +47,7 @@ Similar to PMD, an own report is generated per each Gradle module, which is not 
 
 A pragmatic setup would to use the Gradle setup only to enforce that no open Spotbugs issues remain when running CI, while using IDE plugins to visualize and fix issues locally.
 
-![Spotbugs report](.attachments/spotbugs.png)
+![Spotbugs report](../.attachments/spotbugs.png)
 
 ## Running Spotbugs with Github Actions
 
@@ -63,7 +63,7 @@ The [Spotbugs Github Action](https://github.com/jwgmeligmeyling/spotbugs-github-
 
 Adding these steps leads to Github generating annotations for the violations found that will be highlighted in PRs:
 
-![Spotbugs Github annotations](.attachments/github_spotbugs_annotations.png)
+![Spotbugs Github annotations](../.attachments/github_spotbugs_annotations.png)
 
 ## Running Spotbugs with Codacy
 
