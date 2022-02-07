@@ -27,7 +27,7 @@ We have performed technical spikes testing multiple approaches (detailed further
 
 - JUnit
 - [Docker compose](https://docs.docker.com/compose/)
-- Starting custom Class Loaders for separate threads for the Provider and Connector with separate class paths, and distinct instances of dependent instances, effectively providing full runtime isolation within a single JVM
+- Starting custom Class Loaders for separate threads for the Provider and Connector with separate class paths. Using distinct Class Loaders (and threads) for each service effectively provides full runtime isolation within a single JVM
 - [Testcontainers](https://www.testcontainers.org/) with custom containers was also evaluated, but support for bidirectional communication to host is complex, and we didn't manage to get it running.
 
 Spinning additional Class Loaders for runtimes with JUnit provides very fast inner loop. Using the Gradle Classpath is [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) and ensures the runtime under test exactly matches the standalone one.
