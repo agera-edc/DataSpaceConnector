@@ -6,7 +6,7 @@ Use the [Micrometer](https://micrometer.io/) metrics library to automatically co
 
 **Note:** This decision record only deals with *automatically collected metrics*. *Custom metrics* will be addressed in further work.
 
-**Note:** The basic functionality in the EDC IoC container does not allow proper decoupling of Micrometer listener from factory logic. Therefore, it is currently necessary to write Micrometer binding code directly in factory classes (for example, the class that sets up the Jetty server).
+**Note:** The basic functionality in the EDC [IoC](https://en.wikipedia.org/wiki/Inversion_of_control) container does not allow proper decoupling of Micrometer listener from factory logic. Therefore, it is currently necessary to write Micrometer binding code directly in factory classes (for example, the class that sets up the Jetty server).
 
 ## Rationale
 
