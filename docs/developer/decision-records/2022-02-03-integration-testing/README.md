@@ -34,8 +34,7 @@ Spinning additional Class Loaders for runtimes with JUnit provides very fast inn
 
 In contrast, approaches based on Docker have a slow inner loop and require rebuild between runs.
 
-The approach used is not limited to the Dataspace Connector, it can be used to run any Java module
-if required in the future.
+The approach used is not limited to the Dataspace Connector, it can be used to run any Java module if required in the future.
 
 ## Spikes
 
@@ -47,7 +46,7 @@ We have performed technical spikes on [sample 04.0-file-transfer](../../../sampl
 
 We have written code for the following three options:
 
-- **Docker-compose,** which works but provides an inconvenient inner loop.
+- **Docker-compose** which works but provides an inconvenient inner loop.
 - **Class Loader with Gradle Classpath**, which uses Gradle to determine the effective class path for each runtime, and is very efficient. It is therefore the base for the recommendation above.
 - **Class Loader with Shadow JAR**, a variant of the above which uses the Shadow JAR, and provides a less efficient inner loop.
 
@@ -97,7 +96,7 @@ Successfully tagged 040-file-transfer_sample04-connector-consumer:latest
 RUN_INTEGRATION_TEST=true EDC_PROVIDER_CONNECTOR_HOST=http://sample04-connector-provider:8181 time ./gradlew cleanTest :samples:04.0-file-transfer:integration-tests:test --tests org.eclipse.dataspaceconnector.samples.FileTransferSystemTest
 ```
 
-This setup is stable and straightforward, but the inner loop is not very efficient. Debugging a remote process is possible buts adds complexity. For faster debugging one approach could be is to run connectors in debug mode within IDE and later use the same code to update docker build. 
+This setup is stable and straightforward, but the inner loop is not very efficient. Debugging a remote process is possible buts adds complexity. For faster debugging one approach could be is to run connectors in debug mode within IDE and later use the same code to update docker build.
 
 ### Class Loader with Gradle Classpath
 
