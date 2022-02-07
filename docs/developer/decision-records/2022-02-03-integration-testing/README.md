@@ -96,7 +96,9 @@ Successfully tagged 040-file-transfer_sample04-connector-consumer:latest
 RUN_INTEGRATION_TEST=true EDC_PROVIDER_CONNECTOR_HOST=http://sample04-connector-provider:8181 time ./gradlew cleanTest :samples:04.0-file-transfer:integration-tests:test --tests org.eclipse.dataspaceconnector.samples.FileTransferSystemTest
 ```
 
-This setup is stable and straightforward, but the inner loop is not very efficient. Debugging a remote process is possible buts adds complexity. For faster debugging one approach could be is to run connectors in debug mode within IDE and later use the same code to update docker build.
+This setup is stable and straightforward, but the inner loop is not very efficient. Debugging a remote process is possible but adds complexity.
+
+For faster debugging one approach could be is to run connectors code in debug mode within IDE. But to test any recent local code fix within docker, as a pre-step connectors jar needs to be rebuild with `./gradlew samples:04.0-file-transfer:consumer:build` and `./gradlew samples:04.0-file-transfer:provider:build` and then on next run docker-compose will pick up them.
 
 ### Class Loader with Gradle Classpath
 
