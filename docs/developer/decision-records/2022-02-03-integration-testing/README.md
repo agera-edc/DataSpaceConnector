@@ -98,7 +98,7 @@ RUN_INTEGRATION_TEST=true EDC_PROVIDER_CONNECTOR_HOST=http://sample04-connector-
 
 This setup is stable and straightforward, but the inner loop is not very efficient. Debugging a remote process is possible but adds complexity.
 
-For faster debugging one approach could be to run connectors code in debug mode within IDE. But to test any recent local code fix within docker, as a pre-step connectors jar needs to be rebuild with `./gradlew samples:04.0-file-transfer:consumer:build` and `./gradlew samples:04.0-file-transfer:provider:build` and then on next run docker-compose will pick up them.
+For faster local debugging one approach could be to run connectors code in debug mode within IDE and necessary run configurations can be provide as xml config file and also can be committed to the repository to reduce local development environment setup effort. But to test any recent local code fix with docker environment, as a pre-step connectors jar needs to be rebuild and then on next run docker-compose will use them to start connectors locally within docker.
 
 ### Class Loader with Gradle Classpath
 
