@@ -26,7 +26,7 @@ We use the [global Micrometer registry](https://micrometer.io/docs/concepts#_glo
 
 ### Prometheus
 
-We adapted sample 04.3 to deploy an open-source Prometheus server:
+We created a sample `04.3`  to deploy an open-source Prometheus server:
 
 ```yaml
   prometheus:
