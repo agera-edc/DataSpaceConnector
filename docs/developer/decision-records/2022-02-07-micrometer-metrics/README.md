@@ -80,7 +80,7 @@ At startup, we run the following code:
 
 This tracks among others the number of live threads:
 
-![jvm-metrics](/Users/algattik/GitHub/EclipseDataSpaceConnector/docs/developer/decision-records/2022-02-07-micrometer-metrics/jvm-metrics.png)
+![jvm-metrics](jvm-metrics.png)
 
 ### Collecting OkHttp metrics
 
@@ -95,7 +95,7 @@ An `OkHttpClient` instance is globally confirmed in the `:core:base` module. We 
 
 This yields count and duration histogram metrics, tagged by target URL.
 
-![okhttp-metrics](/Users/algattik/GitHub/EclipseDataSpaceConnector/docs/developer/decision-records/2022-02-07-micrometer-metrics/okhttp-metrics.png)
+![okhttp-metrics](okhttp-metrics.png)
 
 ### Collecting Jetty metrics
 
@@ -107,7 +107,7 @@ JettyConnectionMetrics.addToAllConnectors(server, Metrics.globalRegistry);
 
 This yields the count of connections, as well as counters and histograms of inbound and outbound bytes:
 
-![jetty-metrics](/Users/algattik/GitHub/EclipseDataSpaceConnector/docs/developer/decision-records/2022-02-07-micrometer-metrics/jetty-metrics.png)
+![jetty-metrics](jetty-metrics.png)
 
 ### Jersey
 
@@ -123,8 +123,8 @@ Jersey is the REST framework used in EDC to provide JAX-RS (JSR-370) endpoints (
 
 This yields count and duration histogram metrics, tagged by REST service as well as result status and exception thrown, if any.
 
-![jersey-metrics](/Users/algattik/GitHub/EclipseDataSpaceConnector/docs/developer/decision-records/2022-02-07-micrometer-metrics/jersey-metrics.png)
+![jersey-metrics](jersey-metrics.png)
 
 The sample query below tracks a particular duration [histogram quantile](https://prometheus.io/docs/practices/histograms/#quantiles). In this instance, 95% of queries to the `/api/negotiation` endpoint are served in under ~4.8 milliseconds.
 
-![jersey-quantile](/Users/algattik/GitHub/EclipseDataSpaceConnector/docs/developer/decision-records/2022-02-07-micrometer-metrics/jersey-quantile.png)
+![jersey-quantile](jersey-quantile.png)
