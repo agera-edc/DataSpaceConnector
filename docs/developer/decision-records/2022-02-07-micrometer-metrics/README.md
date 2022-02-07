@@ -26,7 +26,7 @@ We use the [global Micrometer registry](https://micrometer.io/docs/concepts#_glo
 
 ### Prometheus
 
-We created [a sample 04.3](https://github.com/agera-edc/DataSpaceConnector/tree/spike/419/7-micrometer-metrics/samples/04.3-open-telemetry) to deploy an open-source Prometheus server:
+In our spike, we created [a sample 04.3](https://github.com/agera-edc/DataSpaceConnector/tree/spike/419/7-micrometer-metrics/samples/04.3-open-telemetry) to deploy an open-source Prometheus server:
 
 ```yaml
   prometheus:
