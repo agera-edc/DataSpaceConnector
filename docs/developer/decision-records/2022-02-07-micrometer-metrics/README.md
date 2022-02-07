@@ -45,7 +45,7 @@ We added an environment variable for the OpenTelemetry agent to automatically ex
  OTEL_METRICS_EXPORTER: prometheus
 ```
 
-We created a suitable file at `prometheus/prometheus.yml` for the Prometheus server to scrape those endpoints.`
+We created a suitable file at `prometheus/prometheus.yml` for the Prometheus server to scrape those endpoints.
 
 ```yaml
 global:
@@ -128,4 +128,3 @@ This yields count and duration histogram metrics, tagged by REST service as well
 The sample query below tracks a particular duration [histogram quantile](https://prometheus.io/docs/practices/histograms/#quantiles). In this instance, 95% of queries to the `/api/negotiation` endpoint are served in under ~4.8 milliseconds.
 
 ![jersey-quantile](/Users/algattik/GitHub/EclipseDataSpaceConnector/docs/developer/decision-records/2022-02-07-micrometer-metrics/jersey-quantile.png)
-
