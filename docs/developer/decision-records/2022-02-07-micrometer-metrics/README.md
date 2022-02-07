@@ -12,7 +12,7 @@ The basic functionality in the EDC IoC container does not allow proper decouplin
 
 Capturing key system metrics, especially on I/O interfaces, is essential to system observability. Micrometer is a mature framework for collecting metrics, is well supported by vendors of metrics collector products, and can directly integrate with the popular open-source libraries used in EDC.
 
-The [OpenTelemetry Metrics](https://opentelemetry.io/docs/reference/specification/metrics/) library standard was also considered, but it is currently experimental and still lacks broad vendor and library support. It is likely to catch up in the midterm future, at which point Micrometer might be swapped.
+The [OpenTelemetry Metrics](https://opentelemetry.io/docs/reference/specification/metrics/) library standard was also considered, but it is currently experimental and still lacks broad vendor and library support. It is likely to catch up in the medium-term future, at which point Micrometer might be swapped.
 
 The [OpenTelemetry agent](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/supported-libraries.md#libraries--frameworks) already supports collecting metrics from Micrometer, and [exposing them](https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md) to a Prometheus endpoint. Prometheus is a widely used open source standard for exposing application metrics via an HTTP endpoint. On Azure, the [Application Insights agent](https://docs.microsoft.com/azure/azure-monitor/app/java-in-process-agent) natively forwards metrics from Micrometer to Azure Application Insights.
 
