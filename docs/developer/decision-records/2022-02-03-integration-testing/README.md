@@ -96,9 +96,9 @@ Successfully tagged 040-file-transfer_sample04-connector-consumer:latest
 RUN_INTEGRATION_TEST=true EDC_PROVIDER_CONNECTOR_HOST=http://sample04-connector-provider:8181 time ./gradlew cleanTest :samples:04.0-file-transfer:integration-tests:test --tests org.eclipse.dataspaceconnector.samples.FileTransferSystemTest
 ```
 
-This setup is stable and straightforward, but the inner loop is not very efficient. Debugging a remote process is possible but adds complexity.
+This setup is stable and straightforward and also resembles a real deployment scenario in which provider and consumer connectors are running as a separate independent java process, but the inner loop is not very efficient for local development as to reload every new code change connector jars needs to rebuild and restart docker process to use latest jars. Debugging a remote process is possible but adds complexity.
 
-For faster local debugging one approach could be to run connectors code in debug mode within IDE and necessary run configurations can be provide as xml config file and also can be committed to the repository to reduce local development environment setup effort. But to test any recent local code fix with docker environment, as a pre-step connectors jar needs to be rebuild and then on next run docker-compose will use them to start connectors locally within docker.
+For faster local development/debugging one efficient approach could be to run connectors code in debug mode within IDE and necessary IDE run configurations can be provide as xml config files and these run configurations also can be committed in the repository to reduce local development environment setup effort.
 
 ### Class Loader with Gradle Classpath
 
