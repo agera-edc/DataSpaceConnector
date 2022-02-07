@@ -6,6 +6,8 @@ Use the [Micrometer](https://micrometer.io/) metrics library to automatically co
 
 This decision record only deals with *automatically collected metrics*. *Custom metrics* will be addressed in further work.
 
+The basic functionality in the EDC IoC container does not allow proper decoupling of Micrometer listener from factory logic. Therefore, it is currently necessary to write Micrometer binding code directly in factory classes (for example, the class that sets up the Jetty server).
+
 ## Rationale
 
 Capturing key system metrics, especially on I/O interfaces, is essential to system observability. Micrometer is a mature framework for collecting metrics, is well supported by vendors of metrics collector products, and can directly integrate with the popular open-source libraries used in EDC.
