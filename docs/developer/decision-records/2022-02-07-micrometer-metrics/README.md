@@ -130,3 +130,7 @@ This yields count and duration histogram metrics, tagged by REST service as well
 The sample query below tracks a particular duration [histogram quantile](https://prometheus.io/docs/practices/histograms/#quantiles). In this instance, 95% of queries to the `/api/negotiation` endpoint are served in under ~4.8 milliseconds.
 
 ![jersey-quantile](jersey-quantile.png)
+
+### ExecutorService
+
+Micrometer can [automatically monitor `ExecutorService`](https://github.com/micrometer-metrics/micrometer/blob/708c62def62c477700a22e15145be689af95fbdb/micrometer-core/src/main/java/io/micrometer/core/instrument/binder/jvm/ExecutorServiceMetrics.java) and report of number of idle and active threads,  queued tasks etc. That will be particularly useful when managing thread pools for parallel data transfers.
