@@ -98,7 +98,7 @@ RUN_INTEGRATION_TEST=true EDC_PROVIDER_CONNECTOR_HOST=http://sample04-connector-
 
 This setup is stable and straightforward and also resembles a real deployment scenario in which provider and consumer connectors are running as a separate independent java process, but the inner loop is not very efficient for local development as to reload every new code change connector jars needs to rebuild and restart docker process to use latest jars. Debugging a remote process is possible but adds complexity.
 
-For faster local development/debugging one efficient approach could be to run connectors code in debug mode within IDE and necessary IDE run configurations can be provide as xml config files and these run configurations also can be committed in the repository to reduce local development environment setup effort.
+For faster local development/debugging one efficient approach could be to run connectors code in debug mode within IDE and necessary IDE run configurations can be provided as xml config files. These run configurations also can be committed in the repository to reduce local development environment setup effort.
 
 ### Class Loader with Gradle Classpath
 
