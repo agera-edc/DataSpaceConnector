@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.apache.http.HttpStatus;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -49,7 +48,6 @@ import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationF
  * System Test for Sample 04.0-file-transfer
  */
 @Tag("SystemTests")
-@IntegrationTest
 public class FileTransferIntegrationTest {
 
     private static final String PROVIDER_ASSET_NAME = "test-document";
@@ -189,7 +187,7 @@ public class FileTransferIntegrationTest {
                 .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
                         .extract().as(ObjectNode.class);
-        }
+    }
 
     /**
      * Fetch negotiated contract agreement.
