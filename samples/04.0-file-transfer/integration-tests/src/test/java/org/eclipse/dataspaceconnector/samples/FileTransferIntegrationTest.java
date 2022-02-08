@@ -150,9 +150,9 @@ public class FileTransferIntegrationTest {
                         .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
                         .queryParam(DESTINATION_PARAM, CONSUMER_ASSET_PATH)
                         .queryParam(CONTRACT_ID_PARAM, contractAgreementId)
-                        .when()
+                .when()
                         .post(FILE_TRANSFER_PATH)
-                        .then()
+                .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
                         .extract().asString();
 
