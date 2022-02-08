@@ -42,7 +42,13 @@ public class EdcRuntimeExtension extends EdcExtension {
     final String moduleName;
     final Map<String, String> properties;
     private Thread runtimeThread;
-    private static final String GRADLE_WRAPPER = "gradlew";
+    private static final String GRADLE_WRAPPER_UNIX = "gradlew";
+    private static final String GRADLE_WRAPPER_WINDOWS = "gradlew.bat";
+    private static final String GRADLE_WRAPPER;
+
+    static {
+        GRADLE_WRAPPER = (System.getProperty("os.name").toLowerCase().contains("win")) ? GRADLE_WRAPPER_WINDOWS : GRADLE_WRAPPER_UNIX;
+    }
 
     public EdcRuntimeExtension(String moduleName, Map<String, String> properties) {
         this.moduleName = moduleName;
