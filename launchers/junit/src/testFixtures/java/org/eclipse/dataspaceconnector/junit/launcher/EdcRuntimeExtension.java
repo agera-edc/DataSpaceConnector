@@ -91,8 +91,7 @@ public class EdcRuntimeExtension extends EdcExtension {
 
         var latch = new CountDownLatch(1);
 
-        runtimeThread = new Thread(() ->
-        {
+        runtimeThread = new Thread(() -> {
             try {
 
                 // Make the ClassLoader available to the ServiceLoader.
