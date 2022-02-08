@@ -74,7 +74,7 @@ public class EdcExtension implements BeforeTestExecutionCallback, AfterTestExecu
     }
 
     @Override
-    public void beforeTestExecution(ExtensionContext extensionContext) {
+    public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
         var typeManager = new TypeManager();
 
         monitor = loadMonitor();
@@ -101,7 +101,7 @@ public class EdcExtension implements BeforeTestExecutionCallback, AfterTestExecu
     }
 
     @Override
-    public void afterTestExecution(ExtensionContext context) {
+    public void afterTestExecution(ExtensionContext context) throws Exception {
         if (runningServiceExtensions != null) {
             var iter = runningServiceExtensions.listIterator(runningServiceExtensions.size());
             while (iter.hasPrevious()) {
