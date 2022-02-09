@@ -90,14 +90,10 @@ class ProviderContractNegotiationManagerImplTest {
         // Create monitor mock
         Monitor monitor = mock(Monitor.class);
 
-        // Create telemetry mock
-        Telemetry telemetry = new Telemetry(OpenTelemetry.noop());
-
         negotiationManager = ProviderContractNegotiationManagerImpl.Builder.newInstance()
                 .validationService(validationService)
                 .dispatcherRegistry(dispatcherRegistry)
                 .monitor(monitor)
-                .telemetry(telemetry)
                 .build();
 
         //TODO hand over store in start method, but run method should not be executed

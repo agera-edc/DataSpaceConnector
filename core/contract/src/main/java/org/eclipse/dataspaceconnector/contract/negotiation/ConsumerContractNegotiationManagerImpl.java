@@ -14,6 +14,7 @@
  */
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.contract.common.ContractId;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.ConsumerContractNegotiationManager;
@@ -72,7 +73,7 @@ public class ConsumerContractNegotiationManagerImpl extends ContractNegotiationO
     private int batchSize = 5;
     private NegotiationWaitStrategy waitStrategy = () -> 5000L;  // default wait five seconds
     private Monitor monitor;
-    private Telemetry telemetry;
+    private Telemetry telemetry = new Telemetry(GlobalOpenTelemetry.get());
     private ExecutorService executor;
 
     private RemoteMessageDispatcherRegistry dispatcherRegistry;

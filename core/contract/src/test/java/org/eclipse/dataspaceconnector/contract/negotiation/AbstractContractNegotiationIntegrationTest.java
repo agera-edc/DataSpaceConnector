@@ -76,16 +76,12 @@ public abstract class AbstractContractNegotiationIntegrationTest {
         // Create a monitor that logs to the console
         Monitor monitor = new FakeConsoleMonitor();
 
-        // Create telemetry mock
-        Telemetry telemetry = new Telemetry(OpenTelemetry.noop());
-
         // Create the provider contract negotiation manager
         providerManager = ProviderContractNegotiationManagerImpl.Builder.newInstance()
                 .dispatcherRegistry(new FakeProviderDispatcherRegistry())
                 .monitor(monitor)
                 .validationService(validationService)
                 .waitStrategy(() -> 1000)
-                .telemetry(telemetry)
                 .build();
         providerStore = new InMemoryContractNegotiationStore();
 
@@ -95,7 +91,6 @@ public abstract class AbstractContractNegotiationIntegrationTest {
                 .monitor(monitor)
                 .validationService(validationService)
                 .waitStrategy(() -> 1000)
-                .telemetry(telemetry)
                 .build();
         consumerStore = new InMemoryContractNegotiationStore();
         

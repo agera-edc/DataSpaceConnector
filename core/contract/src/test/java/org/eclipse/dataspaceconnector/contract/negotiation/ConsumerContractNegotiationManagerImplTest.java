@@ -59,13 +59,11 @@ class ConsumerContractNegotiationManagerImplTest {
     void setUp() throws Exception {
 
         Monitor monitor = mock(Monitor.class);
-        Telemetry telemetry = new Telemetry(OpenTelemetry.noop());
 
         negotiationManager = ConsumerContractNegotiationManagerImpl.Builder.newInstance()
                 .validationService(validationService)
                 .dispatcherRegistry(dispatcherRegistry)
                 .monitor(monitor)
-                .telemetry(telemetry)
                 .build();
 
         //TODO hand over store in start method, but run method should not be executed

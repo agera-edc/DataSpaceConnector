@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
+import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.spi.command.Command;
 import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
@@ -98,7 +99,7 @@ public class TransferProcessManagerImpl extends TransferProcessObservable implem
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
     private DataFlowManager dataFlowManager;
     private Monitor monitor;
-    private Telemetry telemetry;
+    private Telemetry telemetry = new Telemetry(GlobalOpenTelemetry.get());
     private ExecutorService executor;
     private StatusCheckerRegistry statusCheckerRegistry;
     private Vault vault;
