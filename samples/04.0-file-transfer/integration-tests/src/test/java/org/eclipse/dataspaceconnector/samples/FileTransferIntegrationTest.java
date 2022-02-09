@@ -101,7 +101,7 @@ public class FileTransferIntegrationTest {
     public void transferFile_success() throws Exception {
         // Arrange
         var contractOffer = TestUtils.getFileFromResourceName("contractoffer.json");
-        // Create a file with test data on provide file system.
+        // Create a file with test data on provider file system.
         var fileContent = "Sample04-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
