@@ -99,13 +99,13 @@ public class FileTransferIntegrationTest {
 
     @Test
     public void transferFile_success() throws Exception {
-        //Arrange
+        // Arrange
         var contractOffer = TestUtils.getFileFromResourceName("contractoffer.json");
-        //Create a file with test data on provide file system.
+        // Create a file with test data on provide file system.
         var fileContent = "Sample04-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
-        //Act & Assert
+        // Act & Assert
         // Initiate a contract negotiation
         var contractNegotiationRequestId =
                 given()
@@ -140,7 +140,7 @@ public class FileTransferIntegrationTest {
         var contractAgreementId = fetchNegotiatedAgreement(contractNegotiationRequestId)
                 .get("contractAgreement").get("id").textValue();
 
-        //Initiate file transfer
+        // Initiate file transfer
         var transferProcessId =
                 given()
                         .noContentType()
@@ -157,7 +157,7 @@ public class FileTransferIntegrationTest {
         // Verify TransferProcessId
         assertThat(transferProcessId).isNotNull();
 
-        //Verify file transfer is completed and file contents
+        // Verify file transfer is completed and file contents
         await().atMost(30, SECONDS).untilAsserted(() ->
                 assertThatJson(fetchTransfer(transferProcessId).toString()).and(
                         json -> json.node("id")
