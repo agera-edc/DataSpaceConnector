@@ -73,7 +73,7 @@ public class ConsumerContractNegotiationManagerImpl extends ContractNegotiationO
     private int batchSize = 5;
     private NegotiationWaitStrategy waitStrategy = () -> 5000L;  // default wait five seconds
     private Monitor monitor;
-    private Telemetry telemetry = new Telemetry(GlobalOpenTelemetry.get());
+    private Telemetry telemetry;
     private ExecutorService executor;
 
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
@@ -513,7 +513,7 @@ public class ConsumerContractNegotiationManagerImpl extends ContractNegotiationO
         }
 
         public static Builder newInstance() {
-            return new Builder();
+            return new Builder().telemetry(new Telemetry(GlobalOpenTelemetry.get()));
         }
 
         public Builder validationService(ContractValidationService validationService) {

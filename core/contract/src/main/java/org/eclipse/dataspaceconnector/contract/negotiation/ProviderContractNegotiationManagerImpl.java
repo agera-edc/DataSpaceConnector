@@ -67,7 +67,7 @@ public class ProviderContractNegotiationManagerImpl extends ContractNegotiationO
     private ContractValidationService validationService;
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
     private Monitor monitor;
-    private Telemetry telemetry = new Telemetry(GlobalOpenTelemetry.get());
+    private Telemetry telemetry;
     private ExecutorService executor;
 
     private ProviderContractNegotiationManagerImpl() { }
@@ -471,7 +471,7 @@ public class ProviderContractNegotiationManagerImpl extends ContractNegotiationO
         }
 
         public static Builder newInstance() {
-            return new Builder();
+            return new Builder().telemetry(new Telemetry(GlobalOpenTelemetry.get()));
         }
 
         public Builder validationService(ContractValidationService validationService) {

@@ -99,7 +99,7 @@ public class TransferProcessManagerImpl extends TransferProcessObservable implem
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
     private DataFlowManager dataFlowManager;
     private Monitor monitor;
-    private Telemetry telemetry = new Telemetry(GlobalOpenTelemetry.get());
+    private Telemetry telemetry;
     private ExecutorService executor;
     private StatusCheckerRegistry statusCheckerRegistry;
     private Vault vault;
@@ -627,7 +627,7 @@ public class TransferProcessManagerImpl extends TransferProcessObservable implem
         }
 
         public static Builder newInstance() {
-            return new Builder();
+            return new Builder().telemetry(new Telemetry(GlobalOpenTelemetry.get()));
         }
 
         public Builder batchSize(int size) {
