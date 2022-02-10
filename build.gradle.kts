@@ -16,6 +16,7 @@ plugins {
     `java-library`
     `maven-publish`
     checkstyle
+    jacoco
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
 }
 
