@@ -16,8 +16,6 @@ package org.eclipse.dataspaceconnector.core.security.fs;
 
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
 
-import java.util.Optional;
-
 import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
 
 public final class FsConfiguration {
@@ -29,7 +27,7 @@ public final class FsConfiguration {
     static final String KEYSTORE_LOCATION = propOrEnv("edc.keystore", "dataspaceconnector-keystore.jks");
 
     @EdcSetting
-    static final String KEYSTORE_PASSWORD = propOrEnv("edc.keystore.password");
+    static final String KEYSTORE_PASSWORD = propOrEnv("edc.keystore.password", "test123");
 
     @EdcSetting
     static final boolean PERSISTENT_VAULT = Boolean.parseBoolean(propOrEnv("edc.vault.persistent", "true"));
