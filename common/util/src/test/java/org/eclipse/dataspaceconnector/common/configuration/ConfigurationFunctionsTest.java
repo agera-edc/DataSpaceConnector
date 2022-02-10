@@ -25,6 +25,11 @@ public class ConfigurationFunctionsTest {
 
     @Test
     void findsRandomPort() {
-        assertThat(ConfigurationFunctions.findUnallocatedServerPort()).isBetween(EPHEMERAL_PORT_MIN, EPHEMERAL_PORT_MAX);
+        var port1 = ConfigurationFunctions.findUnallocatedServerPort();
+        var port2 = ConfigurationFunctions.findUnallocatedServerPort();
+
+        assertThat(port1).isBetween(EPHEMERAL_PORT_MIN, EPHEMERAL_PORT_MAX);
+        assertThat(port2).isBetween(EPHEMERAL_PORT_MIN, EPHEMERAL_PORT_MAX);
+        assertThat(port2).isNotEqualTo(port1);
     }
 }
