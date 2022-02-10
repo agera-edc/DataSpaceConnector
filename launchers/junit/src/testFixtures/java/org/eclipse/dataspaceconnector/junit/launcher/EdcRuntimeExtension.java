@@ -34,6 +34,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * A JUnit extension for running an embedded EDC runtime as part of a test fixture.
+ * A custom gradle task printClasspath is used to determine the runtime classpath of the module to run.
  * The runtime obtains a classpath determined by the Gradle build.
  * <p>
  * This extension attaches a EDC runtime to the {@link BeforeTestExecutionCallback} and {@link AfterTestExecutionCallback} lifecycle hooks. Parameter injection of runtime services is supported.
