@@ -79,10 +79,10 @@ allprojects {
         }
     }
 
-
+    // EdcRuntimeExtension usages this to determine the runtime classpath of the module to run.
     tasks.register("printClasspath") {
         doLast {
-        println("${sourceSets["main"].runtimeClasspath.asPath}");
+            println(sourceSets["main"].runtimeClasspath.asPath);
         }
     }
 
