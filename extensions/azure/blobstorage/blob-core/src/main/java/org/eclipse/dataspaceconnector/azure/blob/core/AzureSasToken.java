@@ -26,12 +26,12 @@ public class AzureSasToken implements SecretToken {
     private final String sas;
     private final long expiration;
 
-    public AzureSasToken(@NotNull @JsonProperty("sas") String writeOnlySas, @JsonProperty("expiration") long expiration) {
+    public AzureSasToken(@JsonProperty("sas") String writeOnlySas, @JsonProperty("expiration") long expiration) {
         sas = writeOnlySas;
         this.expiration = expiration;
     }
 
-    public @NotNull String getSas() {
+    public String getSas() {
         return sas;
     }
 
