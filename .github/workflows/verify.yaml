@@ -30,6 +30,7 @@ jobs:
           INTEGRATION_TEST: false
         # checkstyle would also run as part of the `check` task
         run: ./gradlew clean check -x checkstyleMain -x checkstyleTest
+
       - name: CodeCov
         uses: codecov/codecov-action@v2
 
