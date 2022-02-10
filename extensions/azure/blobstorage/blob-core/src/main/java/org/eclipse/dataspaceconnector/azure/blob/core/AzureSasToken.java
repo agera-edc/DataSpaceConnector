@@ -17,6 +17,7 @@ package org.eclipse.dataspaceconnector.azure.blob.core;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.SecretToken;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -25,12 +26,12 @@ public class AzureSasToken implements SecretToken {
     private final String sas;
     private final long expiration;
 
-    public AzureSasToken(@JsonProperty("sas") String writeOnlySas, @JsonProperty("expiration") long expiration) {
+    public AzureSasToken(@NotNull @JsonProperty("sas") String writeOnlySas, @JsonProperty("expiration") long expiration) {
         sas = writeOnlySas;
         this.expiration = expiration;
     }
 
-    public String getSas() {
+    public @NotNull String getSas() {
         return sas;
     }
 

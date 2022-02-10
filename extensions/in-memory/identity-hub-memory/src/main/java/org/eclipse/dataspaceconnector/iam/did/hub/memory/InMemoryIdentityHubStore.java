@@ -48,7 +48,8 @@ public class InMemoryIdentityHubStore implements IdentityHubStore {
                 case create:
                     commitIdCache.computeIfAbsent(commit.getObjectId(), k -> new ArrayList<>()).add(commit);
                     var qualifiedType = commit.getQualifiedType();
-                    hubCache.computeIfAbsent(qualifiedType, k -> new HashMap<>()).computeIfAbsent(commit.getObjectId(), k -> new ArrayList<>()).add(createObject(commit));
+                    hubCache.computeIfAbsent(qualifiedType, k -> new HashMap<>()).computeIfAbsent(commit.getObjectId(), k -> new ArrayList<>())
+                            .add(createObject(commit));
                     break;
                 case update:
                 case delete:
@@ -74,25 +75,25 @@ public class InMemoryIdentityHubStore implements IdentityHubStore {
     @Override
     public Collection<HubObject> query(ObjectQuery query) {
         lock.readLock().lock();
-        switch (query.getInterface()) {
-            case Collections:
-                try {
+        try {
+            switch (query.getInterface()) {
+                case Collections:
                     var objects = hubCache.get(query.getQualifiedType());
                     if (objects == null) {
                         return Collections.emptyList();
                     }
-
                     return objects.values().stream().flatMap(Collection::stream).collect(toList());
-                } finally {
-                    lock.readLock().unlock();
-                }
-            case Actions:
-            case Permissions:
-            case Profile:
-                throw new UnsupportedOperationException("Not implemented");
-            default:
-                return null;
+                case Actions:
+                case Permissions:
+                case Profile:
+                    throw new UnsupportedOperationException("Not implemented");
+                default:
+                    return null;
+            }
+        } finally {
+            lock.readLock().unlock();
         }
+
     }
 
     private HubObject createObject(Commit commit) {
