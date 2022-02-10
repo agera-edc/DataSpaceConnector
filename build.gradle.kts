@@ -165,6 +165,7 @@ allprojects {
         }
     }
 
+    // Generate XML reports for Codecov
     tasks.jacocoTestReport {
         reports {
             xml.required.set(true)
