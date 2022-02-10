@@ -107,6 +107,7 @@ public class EdcRuntimeExtension extends EdcExtension {
             }
         });
 
+        MONITOR.info("Starting module " + moduleName);
         // Start thread and wait for EDC to start up.
         runtimeThread.start();
 
@@ -114,6 +115,7 @@ public class EdcRuntimeExtension extends EdcExtension {
             throw new EdcException("Failed to start EDC runtime");
         }
 
+        MONITOR.info("Module " + moduleName + " started");
         // Restore system properties.
         System.setProperties(savedProperties);
     }

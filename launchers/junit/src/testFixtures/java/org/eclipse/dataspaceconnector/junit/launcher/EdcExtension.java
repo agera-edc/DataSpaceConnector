@@ -51,7 +51,8 @@ public class EdcExtension implements BeforeTestExecutionCallback, AfterTestExecu
     private final LinkedHashMap<Class<? extends SystemExtension>, List<SystemExtension>> systemExtensions = new LinkedHashMap<>();
     private List<ServiceExtension> runningServiceExtensions;
     private DefaultServiceExtensionContext context;
-    private Monitor monitor;
+
+    protected static final Monitor MONITOR = loadMonitor();
 
     /**
      * Registers a mock service with the runtime.
@@ -77,11 +78,9 @@ public class EdcExtension implements BeforeTestExecutionCallback, AfterTestExecu
     public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
         var typeManager = new TypeManager();
 
-        monitor = loadMonitor();
+        MonitorProvider.setInstance(MONITOR);
 
-        MonitorProvider.setInstance(monitor);
-
-        context = new DefaultServiceExtensionContext(typeManager, monitor, new MultiSourceServiceLocator());
+        context = new DefaultServiceExtensionContext(typeManager, MONITOR, new MultiSourceServiceLocator());
         context.initialize();
 
         serviceMocks.forEach((key, value) -> context.registerService(cast(key), value));
@@ -107,7 +106,7 @@ public class EdcExtension implements BeforeTestExecutionCallback, AfterTestExecu
             while (iter.hasPrevious()) {
                 ServiceExtension extension = iter.previous();
                 extension.shutdown();
-                monitor.info("Shutdown " + extension);
+                MONITOR.info("Shutdown " + extension);
             }
         }
 
