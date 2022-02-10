@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,7 +41,9 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.findUnallocatedServerPort;
 import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
+
 
 /**
  * System Test for Sample 04.0-file-transfer
@@ -234,20 +235,6 @@ public class FileTransferIntegrationTest {
             return Files.createTempDirectory(FileTransferIntegrationTest.class.getSimpleName()).toString();
         } catch (IOException e) {
             throw new EdcException(e);
-        }
-    }
-
-    /**
-     * Utility method to find an unallocated port. Note that there is a race condition,
-     * the port might be allocated by the time it is used.
-     *
-     * @return a server port.
-     */
-    private static int findUnallocatedServerPort() {
-        try (ServerSocket socket = new ServerSocket(0)) {
-            return socket.getLocalPort();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }
