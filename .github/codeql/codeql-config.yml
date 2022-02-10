@@ -1,6 +1,6 @@
 name: "EDC CodeQL config"
 
 queries:
-  - uses: +security-and-quality
+  - uses: security-and-quality
 paths-ignore:
   - '**/*Test.java'
