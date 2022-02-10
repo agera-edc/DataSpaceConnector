@@ -65,6 +65,7 @@ allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
     apply(plugin = "java")
+    apply(plugin = "jacoco")
 
     checkstyle {
         toolVersion = "9.0"
@@ -161,6 +162,12 @@ allprojects {
         metaInf {
             from("${rootProject.projectDir.path}/LICENSE")
             from("${rootProject.projectDir.path}/NOTICE.md")
+        }
+    }
+
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
         }
     }
 }
