@@ -77,11 +77,11 @@ public class InMemoryIdentityHubStore implements IdentityHubStore {
         try {
             switch (query.getInterface()) {
                 case Collections:
-                        var objects = hubCache.get(query.getQualifiedType());
-                        if (objects == null) {
-                            return Collections.emptyList();
-                        }
-                        return objects.values().stream().flatMap(Collection::stream).collect(toList());
+                    var objects = hubCache.get(query.getQualifiedType());
+                    if (objects == null) {
+                        return Collections.emptyList();
+                    }
+                    return objects.values().stream().flatMap(Collection::stream).collect(toList());
                 case Actions:
                 case Permissions:
                 case Profile:
