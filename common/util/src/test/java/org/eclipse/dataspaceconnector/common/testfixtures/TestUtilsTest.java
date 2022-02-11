@@ -24,6 +24,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TestUtilsTest {
 
+    private static final int EPHEMERAL_PORT_MIN = 1024;
+    private static final int EPHEMERAL_PORT_MAX = 65535;
+
     @Test
     void getFreePort() {
         assertThat(TestUtils.getFreePort()).isGreaterThan(0).isLessThan(65535);
@@ -55,5 +58,10 @@ class TestUtilsTest {
         try (var socket = new ServerSocket(port)) {
             assertThat(TestUtils.getFreePort(1024)).describedAs("Next free port").isGreaterThan(socket.getLocalPort());
         }
+    }
+
+    @Test
+    void findsRandomPort() {
+        assertThat(TestUtils.findUnallocatedServerPort()).isBetween(EPHEMERAL_PORT_MIN, EPHEMERAL_PORT_MAX);
     }
 }

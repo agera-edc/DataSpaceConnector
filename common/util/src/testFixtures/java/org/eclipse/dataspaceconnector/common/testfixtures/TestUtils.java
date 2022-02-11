@@ -117,4 +117,18 @@ public class TestUtils {
         }
         return port;
     }
+
+    /**
+     * Utility method to find an unallocated port. Note that there is a race condition,
+     * the port might be allocated by the time it is used.
+     *
+     * @return a server port.
+     */
+    public static int findUnallocatedServerPort() {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            return socket.getLocalPort();
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 }

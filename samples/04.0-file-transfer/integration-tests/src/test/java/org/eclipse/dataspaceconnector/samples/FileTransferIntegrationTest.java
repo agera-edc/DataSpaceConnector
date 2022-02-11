@@ -41,8 +41,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.findUnallocatedServerPort;
 import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
+import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.findUnallocatedServerPort;
 
 
 /**
