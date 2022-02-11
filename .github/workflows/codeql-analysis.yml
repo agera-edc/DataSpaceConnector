@@ -38,7 +38,7 @@ jobs:
           # Prefix the list here with "+" to use these queries and those in the config file.
           # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
-      # Builds the project
+      # Builds the project (only production code without tests)
       - name: Build Java production code
         run: ./gradlew assemble
 
