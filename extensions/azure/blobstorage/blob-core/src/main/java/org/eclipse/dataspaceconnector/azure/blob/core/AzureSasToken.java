@@ -17,7 +17,6 @@ package org.eclipse.dataspaceconnector.azure.blob.core;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.SecretToken;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
