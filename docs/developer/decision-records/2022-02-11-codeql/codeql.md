@@ -28,11 +28,11 @@ production sources:
 ```
 The results can be visible in the Github Workflow check view under the PR and in Security Tab.
 
-![CodeQL](../../.attachments/codeql_github_alerts.png)
+![CodeQL](codeql_github_alerts.png)
 
 From this view the alerts can be analysed and dismissed/removed if they are not applicable.
 
-![CodeQL](../../.attachments/codeql_dismiss_alerts.png)
+![CodeQL](codeql_dismiss_alerts.png)
 
 After clicking on the alert we can see a view with more detailed explanations about it, references and examples.
 
@@ -42,4 +42,4 @@ the next scans.
 
 In Settings tab we can also define the alert severities causing [pull request check failure](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#defining-the-severities-causing-pull-request-check-failure).
 
-![CodeQL](../../.attachments/codeql_severity_settings.png)
+![CodeQL](codeql_severity_settings.png)
