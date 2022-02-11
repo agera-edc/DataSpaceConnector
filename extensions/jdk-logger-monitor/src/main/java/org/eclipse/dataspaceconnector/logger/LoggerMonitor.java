@@ -32,10 +32,6 @@ public class LoggerMonitor implements Monitor {
      */
     private static final Logger LOGGER = Logger.getLogger(LoggerMonitor.class.getName());
 
-    private static String apply(String s) {
-        return s.replaceAll("([\\r\\n])", " ");
-    }
-
     @Override
     public void severe(final Supplier<String> supplier, final Throwable... errors) {
         log(supplier, Level.SEVERE, errors);
