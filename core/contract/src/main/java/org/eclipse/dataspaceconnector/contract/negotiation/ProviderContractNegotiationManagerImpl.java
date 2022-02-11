@@ -26,6 +26,7 @@ import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
+import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreement;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreementRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiation;
@@ -42,7 +43,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.contract.common.ContractId.DEFINITION_PART;
@@ -66,9 +67,9 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     private ContractValidationService validationService;
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
     private Monitor monitor;
+    private Telemetry telemetry;
     private ExecutorService executor;
     private ContractNegotiationObservable observable;
-    private Predicate<Boolean> isProcessed = it -> it;
 
     private ProviderContractNegotiationManagerImpl() { }
 
@@ -139,6 +140,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
                 .counterPartyAddress(request.getConnectorAddress())
                 .protocol(request.getProtocol())
                 .type(ContractNegotiation.Type.PROVIDER)
+                .traceContext(telemetry.getCurrentTraceContext())
                 .build();
 
         negotiation.transitionRequested();
@@ -250,9 +252,9 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     private void run() {
         while (active.get()) {
             try {
-                var providerOffering = onNegotiationsInState(PROVIDER_OFFERING).doProcess(this::processProviderOffering);
-                var declining = onNegotiationsInState(DECLINING).doProcess(this::processDeclining);
-                var confirming = onNegotiationsInState(CONFIRMING).doProcess(this::processConfirming);
+                var providerOffering = processNegotiationsInState(PROVIDER_OFFERING, this::processProviderOffering);
+                var declining = processNegotiationsInState(DECLINING, this::processDeclining);
+                var confirming = processNegotiationsInState(CONFIRMING, this::processConfirming);
 
                 var totalProcessed = providerOffering + declining + confirming;
 
@@ -279,8 +281,9 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
         }
     }
 
-    private EntitiesProcessor<ContractNegotiation> onNegotiationsInState(ContractNegotiationStates state) {
-        return new EntitiesProcessor<>(() -> negotiationStore.nextForState(state.code(), batchSize));
+    private long processNegotiationsInState(ContractNegotiationStates state, Function<ContractNegotiation, Boolean> function) {
+        return new EntitiesProcessor<>(() -> negotiationStore.nextForState(state.code(), batchSize))
+                .doProcess(telemetry.contextPropagationMiddleware(function));
     }
 
     /**
@@ -366,8 +369,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      *
      * @return true if processed, false elsewhere
      */
-    @NotNull
-    private Boolean processConfirming(ContractNegotiation negotiation) {
+    private boolean processConfirming(ContractNegotiation negotiation) {
         var retrievedAgreement = negotiation.getContractAgreement();
 
         ContractAgreement agreement;
@@ -475,6 +477,11 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
 
         public Builder dispatcherRegistry(RemoteMessageDispatcherRegistry dispatcherRegistry) {
             manager.dispatcherRegistry = dispatcherRegistry;
+            return this;
+        }
+
+        public Builder telemetry(Telemetry telemetry) {
+            manager.telemetry = telemetry;
             return this;
         }
 

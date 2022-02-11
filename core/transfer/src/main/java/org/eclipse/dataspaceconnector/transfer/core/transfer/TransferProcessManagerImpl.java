@@ -26,6 +26,7 @@ import org.eclipse.dataspaceconnector.spi.proxy.ProxyEntry;
 import org.eclipse.dataspaceconnector.spi.proxy.ProxyEntryHandlerRegistry;
 import org.eclipse.dataspaceconnector.spi.response.ResponseStatus;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
+import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferInitiateResult;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
 import org.eclipse.dataspaceconnector.spi.transfer.flow.DataFlowManager;
@@ -53,6 +54,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
@@ -98,6 +100,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
     private DataFlowManager dataFlowManager;
     private Monitor monitor;
+    private Telemetry telemetry;
     private ExecutorService executor;
     private StatusCheckerRegistry statusCheckerRegistry;
     private Vault vault;
@@ -248,7 +251,8 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             return TransferInitiateResult.success(processId);
         }
         var id = randomUUID().toString();
-        var process = TransferProcess.Builder.newInstance().id(id).dataRequest(dataRequest).type(type).build();
+        var process = TransferProcess.Builder.newInstance().id(id).dataRequest(dataRequest).type(type)
+                .traceContext(telemetry.getCurrentTraceContext()).build();
         if (process.getState() == TransferProcessStates.UNSAVED.code()) {
             process.transitionInitial();
         }
@@ -307,6 +311,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
                 .dataRequest(dataRequest)
                 .state(COMPLETED.code())
                 .type(type)
+                .traceContext(telemetry.getCurrentTraceContext())
                 .build();
     }
 
@@ -333,12 +338,12 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     private void run() {
         while (active.get()) {
             try {
-                long initial = onTransfersInState(INITIAL).doProcess(this::processInitial);
-                long provisioned = onTransfersInState(PROVISIONED).doProcess(this::processProvisioned);
-                long ackRequested = onTransfersInState(REQUESTED_ACK).doProcess(this::processAckRequested);
-                long inProgress = onTransfersInState(IN_PROGRESS).doProcess(this::processInProgress);
-                long deprovisioningRequest = onTransfersInState(DEPROVISIONING_REQ).doProcess(this::processDeprovisioningRequest);
-                long deprovisioned = onTransfersInState(DEPROVISIONED).doProcess(this::processDeprovisioned);
+                long initial = processTransfersInState(INITIAL, this::processInitial);
+                long provisioned = processTransfersInState(PROVISIONED, this::processProvisioned);
+                long ackRequested = processTransfersInState(REQUESTED_ACK, this::processAckRequested);
+                long inProgress = processTransfersInState(IN_PROGRESS, this::processInProgress);
+                long deprovisioningRequest = processTransfersInState(DEPROVISIONING_REQ, this::processDeprovisioningRequest);
+                long deprovisioned = processTransfersInState(DEPROVISIONED, this::processDeprovisioned);
 
                 long commandsProcessed = onCommands().doProcess(this::processCommand);
 
@@ -366,8 +371,9 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
     }
 
-    private EntitiesProcessor<TransferProcess> onTransfersInState(TransferProcessStates state) {
-        return new EntitiesProcessor<>(() -> transferProcessStore.nextForState(state.code(), batchSize));
+    private long processTransfersInState(TransferProcessStates state, Function<TransferProcess, Boolean> function) {
+        var functionWithTraceContext = telemetry.contextPropagationMiddleware(function);
+        return new EntitiesProcessor<>(() -> transferProcessStore.nextForState(state.code(), batchSize)).doProcess(functionWithTraceContext);
     }
 
     private EntitiesProcessor<Command> onCommands() {
@@ -601,6 +607,11 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
         public Builder statusCheckerRegistry(StatusCheckerRegistry statusCheckerRegistry) {
             manager.statusCheckerRegistry = statusCheckerRegistry;
+            return this;
+        }
+
+        public Builder telemetry(Telemetry telemetry) {
+            manager.telemetry = telemetry;
             return this;
         }
 
