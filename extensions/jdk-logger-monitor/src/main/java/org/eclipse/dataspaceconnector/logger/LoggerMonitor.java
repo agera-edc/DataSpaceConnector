@@ -60,7 +60,7 @@ public class LoggerMonitor implements Monitor {
         if (errors == null || errors.length == 0) {
             LOGGER.log(level, supplier);
         } else {
-            Arrays.stream(errors).forEach(error -> LOGGER.log(level, supplier.get(), error));
+            Arrays.stream(errors).forEach(error -> LOGGER.log(level, supplier.get().replaceAll("\\s+", " "), error));
         }
     }
 
