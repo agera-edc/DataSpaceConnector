@@ -16,23 +16,17 @@ OpenTelemetry provides a vendor-agnostic solution that can be configured to send
 
 In addition to the spans created by OpenTelemetry's [automatic instrumentation](https://opentelemetry.io/docs/instrumentation/java/automatic/), additional custom spans have been created using the [WithSpan](https://github.com/open-telemetry/opentelemetry-java-instrumentation/blob/main/docs/manual-instrumentation.md#creating-spans-around-methods-with-withspan) annotation in several parts of the EDC codebase.
 
-The general rule of the thumb is to create additional custom spans for operations relevant for tracing, normally involving some kind of I/O and/or communication between components. Examples of these can be:
+The general rule of the thumb is to create additional custom spans for operations relevant for tracing, normally involving some kind of I/O and/or communication between components, plus additional core operations that need to be tracked. For EDC we recommend creating custom spans for the following operations:
 
-- Consumer-provider connector communication
+- Consumer-provider connector communication (methods called by REST handlers)
+- State handling methods (methods called by the ContractNegotiation and TransferProcess state machine)
 - Resource provisioning and deprovisioning
 - TransferProcess data flows
 - Database operations
 
 ### Span naming
 
-Open telemetry spans are named according to the best practices mentioned in the [documentation](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/api.md#span):
-
-```java
-@WithSpan(value = "<ACTION>_<OBJECT_RECEIVING_ACTION>")
-
-// e.g.
-@WithSpan(value = "save_contract_negotiation")
-```
+Although custom spans can be given a specific name, we suggest using default span names to avoid duplication. Good method naming will automatically lead to good span naming as this will be used as default, together with the class name (e.g. `ProvisionManagerImpl.provision`)
 
 ## Sample traces with Jaeger
 
