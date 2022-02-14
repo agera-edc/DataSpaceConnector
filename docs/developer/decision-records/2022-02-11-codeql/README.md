@@ -30,11 +30,13 @@ The results can be visible in the Github Workflow check view under the PR and in
 
 ![CodeQL](codeql_github_alerts.png)
 
-From this view the alerts can be analysed and dismissed/removed if they are not applicable.
+After clicking on the alert we can see a view with more detailed explanations about it, references and examples.
+
+## Suppressing the alerts
+
+From both views (under the PS and in the Security Tab) the alerts can be analysed and dismissed/removed if they are not applicable.
 
 ![CodeQL](codeql_dismiss_alerts.png)
-
-After clicking on the alert we can see a view with more detailed explanations about it, references and examples.
 
 Dismissing the alerts will dismiss them on all branches. Dismissed alerts can be later reopened. Deleting the alerts doesn't prevent them from appearing on
 the next scans.
@@ -43,3 +45,21 @@ the next scans.
 In Settings tab we can also define the alert severities causing [pull request check failure](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#defining-the-severities-causing-pull-request-check-failure).
 
 ![CodeQL](codeql_severity_settings.png)
+
+[GitHub code scanning](https://github.com/github/codeql/issues/7294#issuecomment-985496463) does not support alert suppression comments and annotations at 
+the moment.
+
+### LGTM
+
+[LGTM](https://lgtm.com/) is an online analysis platform that automatically checks your code for real CVEs and vulnerabilities using CodeQL.
+In contrast to running CodeQL as a Github Action, LGTM supports [alert suppression](https://help.semmle.com/lgtm-enterprise/user/help/alert-suppression.html) through annotations in the code.
+It could be considered a useful addition to the project in the future as it seems more comfortable to use and mature alternative.
+
+## Customization of Queries 
+
+After reviewing the current capabilities of CodeQL for the customization of queries with the intention of providing additional insight for the repo the following findings are presented:
+
+- The documentation for CodeQL is lacking in detail and provides little insight into the capabilities of the query language
+- Customization of CodeQL at this time brings little benefit and would require addition review of the source code in order to fully expose a robust features to enable customizations
+- CodeQL has valuable functionality in existing `packs` which can and should be used when it benefits the needs for the project
+- Development efforts for CodeQL remain strong and progress is expected to bring clarity and new features that will enable one to develop customizations in the future
