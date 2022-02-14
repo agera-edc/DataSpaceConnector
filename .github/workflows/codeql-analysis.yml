@@ -38,9 +38,15 @@ jobs:
           # Prefix the list here with "+" to use these queries and those in the config file.
           # queries: ./path/to/local/query, your-org/your-repo/queries@main
 
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'gradle'
+
       # Compiles production Java source (without tests)
       - name: Build
-        run: ./gradlew compileJava
+        run: ./gradlew compileJava --no-daemon
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v1
