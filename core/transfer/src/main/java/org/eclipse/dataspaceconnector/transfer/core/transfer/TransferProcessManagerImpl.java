@@ -177,7 +177,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
 
         if (transferProcess.getState() == ERROR.code()) {
-            monitor.severe(format("TransferProcessManager: transfer process %s is in ERROR state, so provisioning could not be completed"));
+            monitor.severe(format("TransferProcessManager: transfer process %s is in ERROR state, so provisioning could not be completed", processId));
             return;
         }
 
@@ -220,7 +220,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
 
         if (transferProcess.getState() == ERROR.code()) {
-            monitor.severe(format("TransferProcessManager: transfer process %s is in ERROR state, so deprovisioning could not be completed"));
+            monitor.severe(format("TransferProcessManager: transfer process %s is in ERROR state, so deprovisioning could not be completed", processId));
             return;
         }
 
