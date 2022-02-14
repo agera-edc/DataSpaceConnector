@@ -25,6 +25,5 @@ eval $(minikube docker-env)
 Run tests:
 
 ```bash
-cd DataspaceConnector
 samples/04.0-file-transfer/system-tests/kubernetes-test.sh
 ```
