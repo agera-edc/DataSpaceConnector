@@ -1,9 +1,7 @@
 # CodeQL
-
 CodeQL is a semantic code analysis engine developed by GitHub to automate security checks. A database is extracted from source code that can be analysed with a powerful query language. Each single query can be thought of as a “check” or “rule” representing a distinct security vulnerability that is being searched for. There is an available set of standard CodeQL queries, written by GitHub researchers and community contributors, and custom ones can be written too. See [Writing queries](https://codeql.github.com/docs/writing-codeql-queries/codeql-queries/) in the CodeQL docs for more information.
 
 ## Extending the scope of CodeQL queries scan
-
 CodeQL is integrated in the EDC CI build in a dedicated [Github workflow](.github/workflows/codeql-analysis.yml).
 Currently the workflow runs on PRs and commits to the main branch and runs the default set of queries as provided by CodeQL.
 
@@ -33,7 +31,6 @@ The results can be visible in the Github Workflow check view under the PR and in
 After clicking on the alert we can see a view with more detailed explanations about it, references and examples.
 
 ## Suppressing the alerts
-
 From both views (under the PS and in the Security Tab) the alerts can be analysed and dismissed/removed if they are not applicable.
 
 ![CodeQL](codeql_dismiss_alerts.png)
@@ -50,14 +47,12 @@ In Settings tab we can also define the alert severities causing [pull request ch
 the moment.
 
 ### LGTM
-
 [LGTM](https://lgtm.com/) is an online analysis platform that automatically checks your code for real CVEs and vulnerabilities using CodeQL.
 In contrast to running CodeQL as a Github Action, LGTM supports [alert suppression](https://help.semmle.com/lgtm-enterprise/user/help/alert-suppression.html)
 through comments and annotations in the code.
 It could be considered a useful addition to the project in the future as it seems more comfortable to use and mature alternative.
 
-## Customization of Queries 
-
+## Customization of Queries
 After reviewing the current capabilities of CodeQL for the customization of queries with the intention of providing additional insight for the repo the following findings are presented:
 
 - The documentation for CodeQL is lacking in detail and provides little insight into the capabilities of the query language
