@@ -156,6 +156,7 @@ include(":samples:04.0-file-transfer:api")
 include(":samples:04.0-file-transfer:transfer-file")
 include(":samples:04.0-file-transfer:client")
 include(":samples:04.0-file-transfer:integration-tests")
+include(":samples:04.0-file-transfer:system-tests")
 
 include(":samples:04.1-file-transfer-listener:consumer")
 include(":samples:04.1-file-transfer-listener:listener")

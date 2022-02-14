@@ -29,7 +29,7 @@ providerUrl="http://provider-dataspace-connector"
 destinationPath="/tmp/destination-file-$RANDOM"
 apiKey="password"
 
-./gradlew :samples:04.0-file-transfer:client:run --args "$consumerUrl $providerUrl $destinationPath $apiKey"
+./gradlew :samples:04.0-file-transfer:system-tests:run --args "$consumerUrl $providerUrl $destinationPath $apiKey"
 
 kubectl exec deployment/provider-dataspace-connector -- wc -l $destinationPath
 echo "Test succeeded."

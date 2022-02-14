@@ -14,12 +14,14 @@
 
 plugins {
     java
+    id("application")
 }
 
 dependencies {
     implementation(project(":spi"))
+    implementation(project(":samples:04.0-file-transfer:client"))
+}
 
-    implementation("io.rest-assured:rest-assured:4.5.0")
-    implementation("org.assertj:assertj-core:3.22.0")
-    implementation("org.awaitility:awaitility:4.1.1")
+application {
+    mainClass.set("org.eclipse.dataspaceconnector.samples.PerformFileTransfer")
 }
