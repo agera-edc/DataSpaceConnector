@@ -22,7 +22,7 @@ done
 nodeIP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
 consumerPort=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services consumer-dataspace-connector)
 
-# Perform negotiation and file transfer. See sample root directoy README.md file for more details.
+# Perform negotiation and file transfer. See sample root directory README.md file for more details.
 
 consumerUrl="http://$nodeIP:$consumerPort"
 providerUrl="http://provider-dataspace-connector"
