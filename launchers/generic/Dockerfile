@@ -24,4 +24,4 @@ COPY $JAR app.jar
 # Use "bash" (instead of default "sh") to support environment variables containing a dot. 
 # Use "exec" for Kubernetes graceful termination (SIGINT) to reach JVM.
 ENTRYPOINT [ "bash", "-c", \
-    "exec java -jar $JVM_ARGS app.jar"]
+    "exec java $JVM_ARGS -jar app.jar"]
