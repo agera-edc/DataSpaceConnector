@@ -39,7 +39,7 @@ public class DataFlowManagerImpl implements DataFlowManager {
         controllers.add(controller);
     }
 
-    @WithSpan("initiate_data_flow")
+    @WithSpan
     @Override
     public @NotNull DataFlowInitiateResult initiate(DataRequest dataRequest) {
         try {

@@ -48,7 +48,7 @@ public class ProvisionManagerImpl implements ProvisionManager {
         provisioners.add(provisioner);
     }
 
-    @WithSpan("provision_resources")
+    @WithSpan
     @Override
     public CompletableFuture<List<ProvisionResponse>> provision(TransferProcess process) {
         return process.getResourceManifest().getDefinitions().stream()
@@ -56,7 +56,7 @@ public class ProvisionManagerImpl implements ProvisionManager {
                 .collect(asyncAllOf());
     }
 
-    @WithSpan("deprovision_resources")
+    @WithSpan
     @Override
     public CompletableFuture<List<DeprovisionResponse>> deprovision(TransferProcess process) {
         return process.getProvisionedResourceSet().getResources().stream()
