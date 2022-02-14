@@ -14,6 +14,7 @@
  */
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
+import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.contract.common.ContractId;
 import org.eclipse.dataspaceconnector.core.manager.EntitiesProcessor;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.NegotiationWaitStrategy;
@@ -131,6 +132,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      * @param request Container object containing all relevant request parameters.
      * @return a {@link NegotiationResult}: OK
      */
+    @WithSpan(value = "process_contract_negotiation_request")
     @Override
     public NegotiationResult requested(ClaimToken token, ContractOfferRequest request) {
         var negotiation = ContractNegotiation.Builder.newInstance()
@@ -293,6 +295,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      *
      * @return true if processed, false elsewhere
      */
+    @WithSpan("send_contract_negotiation_request")
     private boolean processProviderOffering(ContractNegotiation negotiation) {
         var currentOffer = negotiation.getLastContractOffer();
 
@@ -332,6 +335,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      *
      * @return true if processed, false elsewhere
      */
+    @WithSpan("send_contract_rejection")
     private boolean processDeclining(ContractNegotiation negotiation) {
         ContractRejection rejection = ContractRejection.Builder.newInstance()
                 .protocol(negotiation.getProtocol())
@@ -369,6 +373,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      *
      * @return true if processed, false elsewhere
      */
+    @WithSpan("send_contract_agreement")
     private boolean processConfirming(ContractNegotiation negotiation) {
         var retrievedAgreement = negotiation.getContractAgreement();
 
