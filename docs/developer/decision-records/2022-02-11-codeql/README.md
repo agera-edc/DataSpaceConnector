@@ -52,7 +52,8 @@ the moment.
 ### LGTM
 
 [LGTM](https://lgtm.com/) is an online analysis platform that automatically checks your code for real CVEs and vulnerabilities using CodeQL.
-In contrast to running CodeQL as a Github Action, LGTM supports [alert suppression](https://help.semmle.com/lgtm-enterprise/user/help/alert-suppression.html) through annotations in the code.
+In contrast to running CodeQL as a Github Action, LGTM supports [alert suppression](https://help.semmle.com/lgtm-enterprise/user/help/alert-suppression.html)
+through comments and annotations in the code.
 It could be considered a useful addition to the project in the future as it seems more comfortable to use and mature alternative.
 
 ## Customization of Queries 
