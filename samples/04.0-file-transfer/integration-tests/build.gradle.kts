@@ -26,6 +26,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
+    testImplementation(project(":samples:04.0-file-transfer:client"))
 
     testRuntimeOnly(project(":samples:04.0-file-transfer:provider"))
     testRuntimeOnly(project(":samples:04.0-file-transfer:consumer"))

@@ -1,0 +1,7 @@
+image:
+  repository: provider
+  tag: latest
+edc:
+  env:
+    ids.webhook.address: http://provider-dataspace-connector
+    edc.samples.04.asset.path: /etc/hosts
