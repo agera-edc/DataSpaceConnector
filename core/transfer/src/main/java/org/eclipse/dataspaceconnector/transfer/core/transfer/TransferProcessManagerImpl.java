@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.core.base.CommandProcessor;
 import org.eclipse.dataspaceconnector.core.manager.EntitiesProcessor;
 import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
@@ -246,6 +247,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         transferProcessStore.update(transferProcess);
     }
 
+    @WithSpan("initiate_transfer_process")
     private TransferInitiateResult initiateRequest(TransferProcess.Type type, DataRequest dataRequest) {
         // make the request idempotent: if the process exists, return
         var processId = transferProcessStore.processIdForTransferId(dataRequest.getId());
@@ -382,6 +384,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         return new EntitiesProcessor<>(() -> commandQueue.dequeue(5));
     }
 
+    @WithSpan("process_command")
     private boolean processCommand(TransferProcessCommand command) {
         return commandProcessor.processCommandQueue(command);
     }
@@ -394,6 +397,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         return true;
     }
 
+    @WithSpan("deprovision_transfer_process")
     private boolean processDeprovisioningRequest(TransferProcess process) {
         process.transitionDeprovisioning();
         transferProcessStore.update(process);
@@ -459,6 +463,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
     }
 
+    @WithSpan("complete_transfer_process")
     private void transitionToCompleted(TransferProcess process) {
         process.transitionCompleted();
         monitor.debug("Process " + process.getId() + " is now " + COMPLETED);
@@ -472,6 +477,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
      * On a consumer, provisioning may entail setting up a data destination and supporting infrastructure. On a provider, provisioning is initiated when a request is received and
      * map involve preprocessing data or other operations.
      */
+    @WithSpan("provision_transfer_process")
     private boolean processInitial(TransferProcess process) {
         var manifest = manifestGenerator.generateResourceManifest(process);
         process.transitionProvisioning(manifest);
@@ -501,6 +507,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         return true;
     }
 
+    @WithSpan("process_transfer_process_request")
     private void processProviderRequest(TransferProcess process, DataRequest dataRequest) {
         var response = dataFlowManager.initiate(dataRequest);
         if (response.succeeded()) {
@@ -526,6 +533,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
     }
 
+    @WithSpan("send_transfer_process_request")
     private void sendConsumerRequest(TransferProcess process, DataRequest dataRequest) {
         process.transitionRequested();
         transferProcessStore.update(process);   // update before sending to accommodate synchronous transports; reliability will be managed by retry and idempotency

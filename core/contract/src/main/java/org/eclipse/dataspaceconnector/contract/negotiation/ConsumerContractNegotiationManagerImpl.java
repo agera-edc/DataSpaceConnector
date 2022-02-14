@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.contract.common.ContractId;
 import org.eclipse.dataspaceconnector.core.base.CommandProcessor;
 import org.eclipse.dataspaceconnector.core.manager.EntitiesProcessor;
@@ -193,6 +194,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id or no last
      *         offer found for negotiation; OK otherwise
      */
+    @WithSpan("process_contract_agreement")
     @Override
     public NegotiationResult confirmed(ClaimToken token, String negotiationId, ContractAgreement agreement, String hash) {
         var negotiation = negotiationStore.find(negotiationId);
@@ -278,6 +280,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * @param process The contract negotiation.
      * @return The response to the sent message.
      */
+    @WithSpan(value = "send_contract_negotiation_request")
     private CompletableFuture<Object> sendOffer(ContractOffer offer, ContractNegotiation process, ContractOfferRequest.Type type) {
         var request = ContractOfferRequest.Builder.newInstance()
                 .contractOffer(offer)
@@ -431,6 +434,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      *
      * @return true if processed, false elsewhere
      */
+    @WithSpan("send_contract_rejection")
     private boolean processDeclining(ContractNegotiation negotiation) {
         var rejection = ContractRejection.Builder.newInstance()
                 .protocol(negotiation.getProtocol())
