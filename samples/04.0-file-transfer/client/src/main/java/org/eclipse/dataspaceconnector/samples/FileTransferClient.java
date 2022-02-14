@@ -81,9 +81,9 @@ public class FileTransferClient {
                         .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", providerUrl))
                         .queryParam(DESTINATION_PARAM, destinationPath)
                         .queryParam(CONTRACT_ID_PARAM, contractAgreementId)
-                        .when()
+                .when()
                         .post(FILE_TRANSFER_PATH)
-                        .then()
+                .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
                         .extract().asString();
 
@@ -112,9 +112,9 @@ public class FileTransferClient {
                         .contentType(ContentType.JSON)
                         .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", providerUrl))
                         .body(contractOffer)
-                        .when()
+                .when()
                         .post(CONTRACT_NEGOTIATION_PATH)
-                        .then()
+                .then()
                         .assertThat().statusCode(HttpStatus.SC_OK)
                         .extract().asString();
 
@@ -164,6 +164,6 @@ public class FileTransferClient {
 
     private RequestSpecification givenConsumerRequest() {
         return given()
-                .baseUri(consumerUrl);
+                        .baseUri(consumerUrl);
     }
 }
