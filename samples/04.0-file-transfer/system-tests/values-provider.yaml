@@ -4,4 +4,5 @@ image:
 edc:
   env:
     ids.webhook.address: http://provider-dataspace-connector
+    # Use /etc/hosts as a copy source as it is a well-known file
     edc.samples.04.asset.path: /etc/hosts
