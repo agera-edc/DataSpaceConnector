@@ -12,7 +12,6 @@ The chart is highly configurable:
 - Configurable environment variables (as [ConfigMap](https://kubernetes.io/docs/concepts/configuration/configmap/)) for runtime settings, following [12-factor principles](https://12factor.net/config).
 - Configurable secrets (injected as environment variables into pods).
 - Configurable labels and annotations.
-
 - Configurable ingress.
 
 The chart was generated using `helm create` in order to follow best practice for components, configurability and ingress definitions, and adapted to fit the EDC runtime.
