@@ -129,8 +129,11 @@ jobs:
           java-version: '11'
           cache: 'gradle'
 
-      - name: Start minikube
-        uses: medyagh/setup-minikube@master
+      - name: Install and start minikube
+        run: |
+          curl -fLo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          chmod +x minikube
+          ./minikube start --wait all
 
       - name: Build image
         run: ./gradlew samples:04.0-file-transfer:consumer:shadowJar samples:04.0-file-transfer:provider:shadowJar --no-daemon
