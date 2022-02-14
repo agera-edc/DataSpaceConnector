@@ -22,6 +22,16 @@ minikube start
 eval $(minikube docker-env)
 ```
 
+The first step to running this sample is building and starting both the provider and the consumer connector. This is
+done the same way as in the previous samples.
+
+Build EDC consumer and provider runtime JAR files:
+
+```bash
+./gradlew samples:04.0-file-transfer:consumer:build
+./gradlew samples:04.0-file-transfer:provider:build
+````
+
 Run tests:
 
 ```bash
