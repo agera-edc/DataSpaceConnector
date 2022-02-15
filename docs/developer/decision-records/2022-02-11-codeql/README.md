@@ -36,7 +36,7 @@ The alerts can be suppressed or removed by users with Security permissions which
 
 ![CodeQL](security_permissions.png)
 
-Users with Read permissions (repository Members by default) will see the alerts in the PRs, but they won't have access to suppress the alerts or to see 
+Users with Read permissions (repository Members by default) can see the alerts in the PRs, but they don't have access to suppress the alerts or to see 
 the details.
 
 Users with the proper permissions can analyse the alerts and dismiss/remove them if they are not applicable from both views - under the PR and in the Security Tab.
