@@ -12,23 +12,26 @@
  *
  */
 
-val mockitoVersion: String by project
+val okHttpVersion: String by project
+val storageBlobVersion: String by project;
+val jodahFailsafeVersion: String by project
 
 plugins {
     `java-library`
 }
 
 dependencies {
-    api(project(":spi:transfer-spi"))  // TODO remove this dependency once ResponseFailure and ResponseStatus are moved to core-spi
-    api(project(":spi:core-spi"))
+    api(project(":extensions:data-plane:data-plane-spi"))
     implementation(project(":common:util"))
+    implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
+    implementation("com.azure:azure-storage-blob:${storageBlobVersion}")
+    implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
 }
-
 
 publishing {
     publications {
-        create<MavenPublication>("data-plane-spi") {
-            artifactId = "data-plane-spi"
+        create<MavenPublication>("data-plane-azure-storage") {
+            artifactId = "data-plane-azure-storage"
             from(components["java"])
         }
     }
