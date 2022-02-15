@@ -35,5 +35,5 @@ Build EDC consumer and provider runtime JAR files:
 Run tests:
 
 ```bash
-samples/04.0-file-transfer/system-tests/kubernetes-test.sh
+samples/04.0-file-transfer/system-tests/minikube-test.sh
 ```

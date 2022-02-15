@@ -17,14 +17,12 @@ for target in consumer provider; do
   kubectl wait --for=condition=available deployment $target-dataspace-connector --timeout=120s
 done
 
-# Resolve NodePort address for Consumer
+# Resolve service address for Consumer
 
-nodeIP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
-consumerPort=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services consumer-dataspace-connector)
+consumerUrl=$(minikube service --url consumer-dataspace-connector)
 
 # Perform negotiation and file transfer. See sample root directory README.md file for more details.
 
-consumerUrl="http://$nodeIP:$consumerPort"
 providerUrl="http://provider-dataspace-connector"
 destinationPath="/tmp/destination-file-$RANDOM"
 apiKey="password"

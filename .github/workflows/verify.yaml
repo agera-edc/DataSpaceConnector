@@ -141,7 +141,7 @@ jobs:
       - name: Test
         run: |
           eval $(minikube -p minikube docker-env)
-          samples/04.0-file-transfer/system-tests/kubernetes-test.sh
+          samples/04.0-file-transfer/system-tests/minikube-test.sh
 
       - name: Kubernetes logs
         if: always()
