@@ -69,12 +69,13 @@ public class AzureStorageDataSinkFactory implements DataSinkFactory {
 
     @Override
     public DataSink createSink(DataFlowRequest request) {
-        var dataAddress = request.getDestinationDataAddress();
-        var requestId = request.getId();
         Result<Boolean> validate = validate(request);
         if (validate.failed()) {
             throw new EdcException(validate.getFailure().getMessages().toString());
         }
+
+        var dataAddress = request.getDestinationDataAddress();
+        var requestId = request.getId();
 
         return AzureStorageDataSink.Builder.newInstance()
                 .accountName(dataAddress.getProperty(ACCOUNT_NAME))

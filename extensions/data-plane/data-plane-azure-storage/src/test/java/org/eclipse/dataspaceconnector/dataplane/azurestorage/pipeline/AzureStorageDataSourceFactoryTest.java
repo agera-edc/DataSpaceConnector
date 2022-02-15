@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 Microsoft Corporation
+ *  Copyright (c) 2022 Microsoft Corporation
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -13,82 +13,105 @@
  */
 package org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline;
 
+import com.github.javafaker.Faker;
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.dataplane.azurestorage.adapter.BlobAdapterFactory;
-import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createRequest;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.*;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 class AzureStorageDataSourceFactoryTest {
-    private AzureStorageDataSourceFactory factory;
+    BlobAdapterFactory blobAdapterFactory = mock(BlobAdapterFactory.class);
+    AzureStorageDataSourceFactory factory = new AzureStorageDataSourceFactory(blobAdapterFactory, new RetryPolicy<>(), mock(Monitor.class));
+    static Faker faker = new Faker();
+    DataFlowRequest.Builder request = createRequest(TYPE);
+    DataFlowRequest.Builder invalidRequest = createRequest(faker.lorem().word());
+    String accountName = faker.lorem().characters(3, 40, false, false);
+    String containerName = faker.lorem().characters(3, 40, false, false);
+    String blobName = faker.lorem().characters(3, 40, false, false);
+    String sharedKey = faker.lorem().characters();
+    DataAddress.Builder dataAddress = DataAddress.Builder.newInstance().type(TYPE);
+
 
     @Test
-    void verifyCanHandle() {
-        DataFlowRequest azureStorageRequest = createRequest(TYPE).build();
-        DataFlowRequest nonAzureStorageRequest = createRequest("Unknown").build();
-
-        assertThat(factory.canHandle(azureStorageRequest)).isTrue();
-        assertThat(factory.canHandle(nonAzureStorageRequest)).isFalse();
-    }
-
-    @Test
-    void verifyValidation() {
-        var dataAddress = DataAddress.Builder.newInstance().property(ACCOUNT_NAME, "http://example.com").property(BLOB_NAME, "foo").type(TYPE).build();
-        var validRequest = createRequest(TYPE).sourceDataAddress(dataAddress).build();
-        assertThat(factory.validate(validRequest).succeeded()).isTrue();
-
-        var missingEndpointRequest = createRequest("Unknown").build();
-        assertThat(factory.validate(missingEndpointRequest).failed()).isTrue();
-
-        var missingNameAddress = DataAddress.Builder.newInstance().property(ACCOUNT_NAME, "http://example.com").type(TYPE).build();
-        var missingNameRequest = createRequest(TYPE).sourceDataAddress(missingNameAddress).build();
-        assertThat(factory.validate(missingNameRequest).failed()).isTrue();
+    void canHandle_whenBlobRequest_returnsTrue() {
+        assertThat(factory.canHandle(request.build())).isTrue();
     }
 
     @Test
-    void verifyCreateSource() {
-        var dataAddress = DataAddress.Builder.newInstance()
-                .type(TYPE)
-                .property(ACCOUNT_NAME, "http://example.com")
-                .property(CONTAINER_NAME, "http://example.com")
-                .property(BLOB_NAME, "foo.json")
-                .property(SHARED_KEY, "foo.json")
-                .build();
-
-
-        var missingEndpointAddress = DataAddress.Builder.newInstance()
-                .type(TYPE)
-                .property(ACCOUNT_NAME, "http://example.com")
-                .build();
-
-        var missingNameAddress = DataAddress.Builder.newInstance()
-                .type(TYPE)
-                .property(BLOB_NAME, "foo.json")
-                .build();
-
-        var validRequest = createRequest(TYPE).sourceDataAddress(dataAddress).build();
-        var missingEndpointRequest = createRequest(TYPE).sourceDataAddress(missingEndpointAddress).build();
-        var missingNameRequest = createRequest(TYPE).sourceDataAddress(missingNameAddress).build();
-
-
-        assertThat(factory.createSource(validRequest)).isNotNull();
-        assertThrows(EdcException.class, () -> factory.createSource(missingEndpointRequest));
-        assertThrows(EdcException.class, () -> factory.createSource(missingNameRequest));
+    void canHandle_whenNotBlobRequest_returnsFalse() {
+        assertThat(factory.canHandle(invalidRequest.build())).isFalse();
     }
 
-    @BeforeEach
-    void setUp() {
-        factory = new AzureStorageDataSourceFactory(mock(BlobAdapterFactory.class), new RetryPolicy<>(), mock(Monitor.class));
+    @Test
+    void validate_whenRequestValid_succeeds() {
+        assertThat(factory.validate(request.sourceDataAddress(dataAddress
+                                .property(ACCOUNT_NAME, accountName)
+                                .property(CONTAINER_NAME, containerName)
+                                .property(BLOB_NAME, blobName)
+                                .property(SHARED_KEY, sharedKey)
+                                .build())
+                        .build())
+                .succeeded()).isTrue();
     }
 
+    @Test
+    void validate_whenMissingAccountName_fails() {
+        assertThat(factory.validate(request.sourceDataAddress(dataAddress
+                                .property(CONTAINER_NAME, containerName)
+                                .property(BLOB_NAME, blobName)
+                                .property(SHARED_KEY, sharedKey)
+                                .build())
+                        .build())
+                .failed()).isTrue();
+    }
 
+    @Test
+    void validate_whenMissingContainerName_fails() {
+        assertThat(factory.validate(request.sourceDataAddress(dataAddress
+                                .property(ACCOUNT_NAME, accountName)
+                                .property(BLOB_NAME, blobName)
+                                .property(SHARED_KEY, sharedKey)
+                                .build())
+                        .build())
+                .failed()).isTrue();
+    }
+    @Test
+    void validate_whenMissingBlobName_fails() {
+        assertThat(factory.validate(request.sourceDataAddress(dataAddress
+                                .property(ACCOUNT_NAME, accountName)
+                                .property(CONTAINER_NAME, containerName)
+                                .property(SHARED_KEY, sharedKey)
+                                .build())
+                        .build())
+                .failed()).isTrue();
+    }
+
+    @Test
+    void validate_whenMissingSharedKey_fails() {
+        assertThat(factory.validate(request.sourceDataAddress(dataAddress
+                                .property(ACCOUNT_NAME, accountName)
+                                .property(CONTAINER_NAME, containerName)
+                                .property(BLOB_NAME, blobName)
+                                .build())
+                        .build())
+                .failed()).isTrue();
+    }
+
+    @Test
+    void createSource_whenValidRequest_succeeds() {
+        var validRequest = request.sourceDataAddress(dataAddress
+                .property(ACCOUNT_NAME, accountName)
+                .property(CONTAINER_NAME, containerName)
+                .property(BLOB_NAME, blobName)
+                .property(SHARED_KEY, sharedKey)
+                .build());
+        assertThat(factory.createSource(validRequest.build())).isNotNull();
+    }
 }

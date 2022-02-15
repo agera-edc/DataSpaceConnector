@@ -24,6 +24,9 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
+import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.ACCOUNT_NAME;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.BLOB_NAME;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.CONTAINER_NAME;
@@ -53,44 +56,39 @@ public class AzureStorageDataSourceFactory implements DataSourceFactory {
     @Override
     public @NotNull Result<Boolean> validate(DataFlowRequest request) {
         var dataAddress = request.getSourceDataAddress();
-        if (dataAddress == null || !dataAddress.getProperties().containsKey(ACCOUNT_NAME)) {
-            return failure("Azure Blob data sink account not provided for request: " + request.getId());
+        var properties = dataAddress.getProperties();
+        if (!properties.containsKey(ACCOUNT_NAME)) {
+            return failure(format("Azure Blob data source %s not provided for request %s", ACCOUNT_NAME, request.getId()));
         }
-        if (dataAddress == null || !dataAddress.getProperties().containsKey(BLOB_NAME)) {
-            return failure("Azure Blob data sink blob name not provided for request: " + request.getId());
+        if (!properties.containsKey(ACCOUNT_NAME)) {
+            return failure(format("Azure Blob data source %s not provided for request %s", ACCOUNT_NAME, request.getId()));
+        }
+        if (!properties.containsKey(CONTAINER_NAME)) {
+            return failure(format("Azure Blob data source %s not provided for request %s", CONTAINER_NAME, request.getId()));
+        }
+        if (!properties.containsKey(BLOB_NAME)) {
+            return failure(format("Azure Blob data source %s not provided for request %s", BLOB_NAME, request.getId()));
+        }
+        if (!properties.containsKey(SHARED_KEY)) {
+            return failure(format("Azure Blob data source %s not provided for request %s", SHARED_KEY, request.getId()));
         }
         return VALID;
     }
 
     @Override
     public DataSource createSource(DataFlowRequest request) {
+        Result<Boolean> validate = validate(request);
+        if (validate.failed()) {
+            throw new EdcException(validate.getFailure().getMessages().toString());
+        }
         var dataAddress = request.getSourceDataAddress();
 
-        String accountName = dataAddress.getProperty(ACCOUNT_NAME);
-        if (accountName == null) {
-            throw new EdcException("Azure Blob data destination account not provided for request: " + request.getId());
-        }
-
-        String containerName = dataAddress.getProperty(CONTAINER_NAME);
-        if (containerName == null) {
-            throw new EdcException("Azure Blob data destination container not provided for request: " + request.getId());
-        }
-
-        String sharedKey = dataAddress.getProperty(SHARED_KEY);
-        if (sharedKey == null) {
-            throw new EdcException("Azure Blob data destination sharedKey not provided for request: " + request.getId());
-        }
-
-        var name = dataAddress.getProperty(BLOB_NAME);
-        if (name == null) {
-            throw new EdcException("Azure Blob data name not provided for request: " + request.getId());
-        }
         return AzureStorageDataSource.Builder.newInstance()
-                .accountName(accountName)
-                .containerName(containerName)
-                .sharedKey(sharedKey)
+                .accountName(dataAddress.getProperty(ACCOUNT_NAME))
+                .containerName(dataAddress.getProperty(CONTAINER_NAME))
+                .sharedKey(dataAddress.getProperty(SHARED_KEY))
                 .blobAdapterFactory(blobAdapterFactory)
-                .name(name)
+                .name(dataAddress.getProperty(BLOB_NAME))
                 .requestId(request.getId())
                 .retryPolicy(retryPolicy)
                 .monitor(monitor)
