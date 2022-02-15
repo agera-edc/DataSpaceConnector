@@ -31,7 +31,15 @@ The results can be visible in the Github Workflow check view under the PR and in
 After clicking on the alert we can see a view with more detailed explanations about it, references and examples.
 
 ## Suppressing the alerts
-From both views (under the PS and in the Security Tab) the alerts can be analysed and dismissed/removed if they are not applicable.
+
+The alerts can be suppressed or removed by users with Security permissions which are assigned by default to user roles Write, Maintain and Admin.
+
+![CodeQL](security_permissions.png)
+
+Users with Read permissions (repository Members by default) will see the alerts in the PRs, but they won't have access to suppress the alerts or to see 
+the details.
+
+Users with the proper permissions can analyse the alerts and dismiss/remove them if they are not applicable from both views - under the PR and in the Security Tab.
 
 ![CodeQL](codeql_dismiss_alerts.png)
 
@@ -39,7 +47,7 @@ Dismissing the alerts will dismiss them on all branches. Dismissed alerts can be
 the next scans.
 [Here](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/managing-code-scanning-alerts-for-your-repository#dismissing-or-deleting-alerts) you can find more information about dismissing/deleting CodeQL alerts.
 
-In Settings tab we can also define the alert severities causing [pull request check failure](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#defining-the-severities-causing-pull-request-check-failure).
+In Settings tab we can also define the alert severities causing [pull request check failure](https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#defining-the-severities-causing-pull-request-check-failure) (available also for users with at least Write role).
 
 ![CodeQL](codeql_severity_settings.png)
 
