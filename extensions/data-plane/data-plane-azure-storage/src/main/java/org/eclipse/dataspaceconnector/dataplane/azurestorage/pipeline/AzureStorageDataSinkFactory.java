@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
 
+import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.ACCOUNT_NAME;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.CONTAINER_NAME;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.SHARED_KEY;
@@ -55,7 +56,13 @@ public class AzureStorageDataSinkFactory implements DataSinkFactory {
     public @NotNull Result<Boolean> validate(DataFlowRequest request) {
         var dataAddress = request.getDestinationDataAddress();
         if (dataAddress == null || !dataAddress.getProperties().containsKey(ACCOUNT_NAME)) {
-            return failure("Azure Blob data sink account not provided for request: " + request.getId());
+            return failure(format("Azure Blob data sink %s not provided for request %s", ACCOUNT_NAME, request.getId()));
+        }
+        if (dataAddress == null || !dataAddress.getProperties().containsKey(CONTAINER_NAME)) {
+            return failure(format("Azure Blob data sink %s not provided for request %s", CONTAINER_NAME, request.getId()));
+        }
+        if (dataAddress == null || !dataAddress.getProperties().containsKey(SHARED_KEY)) {
+            return failure(format("Azure Blob data sink %s not provided for request %s", SHARED_KEY, request.getId()));
         }
         return VALID;
     }
@@ -64,26 +71,15 @@ public class AzureStorageDataSinkFactory implements DataSinkFactory {
     public DataSink createSink(DataFlowRequest request) {
         var dataAddress = request.getDestinationDataAddress();
         var requestId = request.getId();
-
-        String accountName = dataAddress.getProperty(ACCOUNT_NAME);
-        if (accountName == null) {
-            throw new EdcException("Azure Blob data destination account not provided for request: " + requestId);
-        }
-
-        String containerName = dataAddress.getProperty(CONTAINER_NAME);
-        if (containerName == null) {
-            throw new EdcException("Azure Blob data destination container not provided for request: " + requestId);
-        }
-
-        String sharedKey = dataAddress.getProperty(SHARED_KEY);
-        if (sharedKey == null) {
-            throw new EdcException("Azure Blob data destination sharedKey not provided for request: " + requestId);
+        Result<Boolean> validate = validate(request);
+        if (validate.failed()) {
+            throw new EdcException(validate.getFailure().getMessages().toString());
         }
 
         return AzureStorageDataSink.Builder.newInstance()
-                .accountName(accountName)
-                .containerName(containerName)
-                .sharedKey(sharedKey)
+                .accountName(dataAddress.getProperty(ACCOUNT_NAME))
+                .containerName(dataAddress.getProperty(CONTAINER_NAME))
+                .sharedKey(dataAddress.getProperty(SHARED_KEY))
                 .requestId(requestId)
                 .partitionSize(partitionSize)
                 .blobAdapterFactory(blobAdapterFactory)

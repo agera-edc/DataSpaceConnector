@@ -13,72 +13,97 @@
  */
 package org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline;
 
+import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.dataplane.azurestorage.adapter.BlobAdapterFactory;
-import org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
-import org.junit.jupiter.api.BeforeEach;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createRequest;
-import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.ACCOUNT_NAME;
-import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.CONTAINER_NAME;
-import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.SHARED_KEY;
-import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.TYPE;
+import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
 class AzureStorageDataSinkFactoryTest {
-    private AzureStorageDataSinkFactory factory;
-    private BlobAdapterFactory blobAdapterFactory;
+    BlobAdapterFactory blobAdapterFactory = mock(BlobAdapterFactory.class);
+    AzureStorageDataSinkFactory factory = new AzureStorageDataSinkFactory(blobAdapterFactory, Executors.newFixedThreadPool(1), 5, mock(Monitor.class));
+    static Faker faker = new Faker();
+    DataFlowRequest.Builder request = createRequest(TYPE);
+    DataFlowRequest.Builder invalidRequest = createRequest(faker.lorem().word());
+    String accountName = faker.lorem().characters(3, 40, false, false);
+    String containerName = faker.lorem().characters(3, 40, false, false);
+    String sharedKey = faker.lorem().characters();
+    DataAddress.Builder dataAddress = DataAddress.Builder.newInstance().type(TYPE);
+
 
     @Test
-    void verifyCanHandle() {
-        var azureStorageRequest = createRequest(AzureBlobStoreSchema.TYPE).build();
-        var nonAzureStorageRequest = createRequest("Unknown").build();
-
-        assertThat(factory.canHandle(azureStorageRequest)).isTrue();
-        assertThat(factory.canHandle(nonAzureStorageRequest)).isFalse();
-    }
-
-    @Test
-    void verifyValidation() {
-        var dataAddress = DataAddress.Builder.newInstance()
-                .property(ACCOUNT_NAME, "http://example.com")
-                .property(CONTAINER_NAME, "http://example.com")
-                .type(TYPE)
-                .build();
-        var validRequest = createRequest(TYPE).destinationDataAddress(dataAddress).build();
-        assertThat(factory.validate(validRequest).succeeded()).isTrue();
-
-        var missingEndpointRequest = createRequest("Unknown").build();
-        assertThat(factory.validate(missingEndpointRequest).failed()).isTrue();
+    void canHandle_whenBlobRequest_returnsTrue() {
+        assertThat(factory.canHandle(request.build())).isTrue();
     }
 
     @Test
-    void verifyCreateSource() {
-        var dataAddress = DataAddress.Builder.newInstance()
-                .type(AzureBlobStoreSchema.TYPE)
-                .property(ACCOUNT_NAME, "http://example.com")
-                .property(CONTAINER_NAME, "http://example.com")
-                .property(SHARED_KEY, "sekrit")
-                .build();
-        var validRequest = createRequest(AzureBlobStoreSchema.TYPE).destinationDataAddress(dataAddress).build();
-        var missingEndpointRequest = createRequest("Unknown").build();
-
-        assertThat(factory.createSink(validRequest)).isNotNull();
-        assertThrows(EdcException.class, () -> factory.createSink(missingEndpointRequest));
+    void canHandle_whenNotBlobRequest_returnsFalse() {
+        assertThat(factory.canHandle(invalidRequest.build())).isFalse();
     }
 
-    @BeforeEach
-    void setUp() {
-        blobAdapterFactory = mock(BlobAdapterFactory.class);
-        factory = new AzureStorageDataSinkFactory(blobAdapterFactory, Executors.newFixedThreadPool(1), 5, mock(Monitor.class));
+    @Test
+    void validate_whenRequestValid_succeeds() {
+        assertThat(factory.validate(request.destinationDataAddress(dataAddress
+                                .property(ACCOUNT_NAME, accountName)
+                                .property(CONTAINER_NAME, containerName)
+                                .property(SHARED_KEY, sharedKey)
+                                .build())
+                        .build())
+                .succeeded()).isTrue();
     }
 
+    @Test
+    void validate_whenMissingAccountName_fails() {
+        assertThat(factory.validate(request.destinationDataAddress(dataAddress
+                                .property(CONTAINER_NAME, containerName)
+                                .property(SHARED_KEY, sharedKey)
+                                .build())
+                        .build())
+                .failed()).isTrue();
+    }
 
+    @Test
+    void validate_whenMissingContainerName_fails() {
+        assertThat(factory.validate(request.destinationDataAddress(dataAddress
+                                .property(ACCOUNT_NAME, accountName)
+                                .property(SHARED_KEY, sharedKey)
+                                .build())
+                        .build())
+                .failed()).isTrue();
+    }
+
+    @Test
+    void validate_whenMissingSharedKey_fails() {
+        assertThat(factory.validate(request.destinationDataAddress(dataAddress
+                                .property(ACCOUNT_NAME, accountName)
+                                .property(CONTAINER_NAME, containerName)
+                                .build())
+                        .build())
+                .failed()).isTrue();
+    }
+
+    @Test
+    void createSink_whenValidRequest_succeeds() {
+        var validRequest = request.destinationDataAddress(dataAddress
+                .property(ACCOUNT_NAME, accountName)
+                .property(CONTAINER_NAME, containerName)
+                .property(SHARED_KEY, sharedKey)
+                .build());
+        assertThat(factory.createSink(validRequest.build())).isNotNull();
+    }
+
+    @Test
+    void createSink_whenInvalidRequest_fails() {
+        assertThrows(EdcException.class, () -> factory.createSink(invalidRequest.build()));
+    }
 }
