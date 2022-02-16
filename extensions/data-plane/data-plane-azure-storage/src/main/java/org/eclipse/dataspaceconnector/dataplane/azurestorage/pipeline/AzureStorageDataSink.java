@@ -41,11 +41,12 @@ public class AzureStorageDataSink extends ParallelSink {
     protected TransferResult transferParts(List<DataSource.Part> parts) {
         for (DataSource.Part part : parts) {
             OutputStream os;
+            String name = part.name();
             try {
-                os = blobAdapterFactory.getBlobAdapter(accountName, containerName, part.name(), sharedKey)
+                os = blobAdapterFactory.getBlobAdapter(accountName, containerName, name, sharedKey)
                         .getOutputStream();
             } catch (Exception e) {
-                monitor.severe(format("Error opening blob stream for %s to account %s", part.name(), accountName), e);
+                monitor.severe(format("Error opening blob stream for %s to account %s", name, accountName), e);
                 return TransferResult.failure(ERROR_RETRY, "Error");
             }
             try {
@@ -54,7 +55,7 @@ public class AzureStorageDataSink extends ParallelSink {
                 s.close();
                 os.close();
             } catch (IOException e) {
-                monitor.severe(format("Error writing blob stream for %s to account %s", part.name(), accountName), e);
+                monitor.severe(format("Error writing blob stream for %s to account %s", name, accountName), e);
                 return TransferResult.failure(ERROR_RETRY, "Error");
             }
         }
