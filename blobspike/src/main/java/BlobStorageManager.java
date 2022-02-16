@@ -49,7 +49,10 @@ public class BlobStorageManager {
         BlobClient sourceBlobClient = sourceContainerClient.getBlobClient(sourceBlob.blobName);
         BlobClient destBlobClient = destContainerClient.getBlobClient(destBlob.blobName);
         String source = sourceBlobClient.getBlobUrl();
-        destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
+        // It will trigger a copy by calling the blob service REST API.
+        var syncPoller = destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
+        // It will check the blob properties to make sure the copy is finished.
+        syncPoller.waitForCompletion();
 
         var sourceBlobContent = new ByteArrayOutputStream();
         var destBlobContent = new ByteArrayOutputStream();
