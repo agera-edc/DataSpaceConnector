@@ -17,53 +17,59 @@ import com.github.javafaker.Faker;
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.dataplane.azurestorage.adapter.BlobAdapter;
 import org.eclipse.dataspaceconnector.dataplane.azurestorage.adapter.BlobAdapterFactory;
+import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class DataSourceToDataSinkTests {
-    private static final String NULL_ENDPOINT = "https://example.com/sink";
+    private ExecutorService executor = Executors.newFixedThreadPool(2);
+    private Monitor monitor = mock(Monitor.class);
 
-    private ExecutorService executor;
-    private Monitor monitor;
     static Faker faker = new Faker();
 
     FakeBlobAdapter fakeSource = new FakeBlobAdapter();
     FakeBlobAdapter fakeDestination = new FakeBlobAdapter();
 
+    String accountName = createAccountName();
+    String containerName = createContainerName();
+    String sharedKey = createSharedKey();
+    String requestId = UUID.randomUUID().toString();
+
     /**
      * Verifies a sink is able to pull data from the source without exceptions if both endpoints are functioning.
      */
     @Test
-    void verifySuccessfulTransfer() {
+    void transfer_success() {
         var fakeSourceFactory = mock(BlobAdapterFactory.class);
         when(fakeSourceFactory.getBlobAdapter(
-                NULL_ENDPOINT,
-                NULL_ENDPOINT,
+                accountName,
+                containerName,
                 fakeSource.name,
-                "sekrit"
+                sharedKey
         )).thenReturn(fakeSource);
 
         var dataSource = AzureStorageDataSource.Builder.newInstance()
-                .accountName(NULL_ENDPOINT)
-                .containerName(NULL_ENDPOINT)
-                .sharedKey("sekrit")
+                .accountName(accountName)
+                .containerName(containerName)
+                .sharedKey(sharedKey)
                 .name(fakeSource.name)
-                .requestId("1")
+                .requestId(requestId)
                 .retryPolicy(new RetryPolicy<>())
                 .blobAdapterFactory(fakeSourceFactory)
                 .monitor(monitor)
@@ -71,17 +77,17 @@ class DataSourceToDataSinkTests {
 
         var fakeDestinationFactory = mock(BlobAdapterFactory.class);
         when(fakeDestinationFactory.getBlobAdapter(
-                "https://example.com/sink",
-                "https://example.com/sink",
+                accountName,
+                containerName,
                 fakeSource.name,
-                "sekrit"
+                sharedKey
         )).thenReturn(fakeDestination);
 
         var dataSink = AzureStorageDataSink.Builder.newInstance()
-                .accountName("https://example.com/sink")
-                .containerName("https://example.com/sink")
-                .sharedKey("sekrit")
-                .requestId("1")
+                .accountName(accountName)
+                .containerName(containerName)
+                .sharedKey(sharedKey)
+                .requestId(requestId)
                 .blobAdapterFactory(fakeDestinationFactory)
                 .executorService(executor)
                 .monitor(monitor)
@@ -90,34 +96,32 @@ class DataSourceToDataSinkTests {
         assertThat(dataSink.transfer(dataSource)).succeedsWithin(500, TimeUnit.MILLISECONDS)
                 .satisfies(transferResult -> assertThat(transferResult.succeeded()).isTrue());
 
-        assertThat(fakeDestination.out
-                        .toString()
-                ).isEqualTo(fakeSource.content);
+        assertThat(fakeDestination.out.toString()).isEqualTo(fakeSource.content);
     }
 
     /**
      * Verifies an exception thrown by the source endpoint is handled correctly.
      */
     @Test
-    void verifyFailedTransferBecauseOfClient() throws Exception {
+    void transfer_WhenSourceFails_fails() throws Exception {
 
         // simulate source error
         var ce = mock(BlobAdapter.class);
         when(ce.openInputStream()).thenThrow(new RuntimeException());
         var fakeSourceFactory = mock(BlobAdapterFactory.class);
         when(fakeSourceFactory.getBlobAdapter(
-                NULL_ENDPOINT,
-                NULL_ENDPOINT,
+                accountName,
+                containerName,
                 fakeSource.name,
-                "sekrit"
+                sharedKey
         )).thenReturn(ce);
 
         var dataSource = AzureStorageDataSource.Builder.newInstance()
-                .accountName(NULL_ENDPOINT)
-                .containerName(NULL_ENDPOINT)
-                .sharedKey("sekrit")
+                .accountName(accountName)
+                .containerName(containerName)
+                .sharedKey(sharedKey)
                 .name(fakeSource.name)
-                .requestId("1")
+                .requestId(requestId)
                 .retryPolicy(new RetryPolicy<>())
                 .blobAdapterFactory(fakeSourceFactory)
                 .monitor(monitor)
@@ -126,16 +130,17 @@ class DataSourceToDataSinkTests {
         var blobAdapterFactory = mock(BlobAdapterFactory.class);
 
         var dataSink = AzureStorageDataSink.Builder.newInstance()
-                .accountName("https://example.com/sink")
-                .containerName(NULL_ENDPOINT)
-                .sharedKey("sekrit")
-                .requestId("1")
+                .accountName(accountName)
+                .containerName(containerName)
+                .sharedKey(sharedKey)
+                .requestId(requestId)
                 .blobAdapterFactory(blobAdapterFactory)
                 .executorService(executor)
                 .monitor(monitor)
                 .build();
 
-        assertThat(dataSink.transfer(dataSource).get().failed()).isTrue();
+        TransferResult transferResult = dataSink.transfer(dataSource).get();
+        assertThat(transferResult.failed()).isTrue();
     }
 
 
@@ -143,23 +148,23 @@ class DataSourceToDataSinkTests {
      * Verifies an exception thrown by the sink endpoint is handled correctly.
      */
     @Test
-    void verifyFailedTransferBecauseOfProvider() throws Exception {
+    void transfer_whenSinkFails_fails() throws Exception {
 
         // source completes normally
         var fakeSourceFactory = mock(BlobAdapterFactory.class);
         when(fakeSourceFactory.getBlobAdapter(
-                NULL_ENDPOINT,
-                NULL_ENDPOINT,
+                accountName,
+                containerName,
                 fakeSource.name,
-                "sekrit"
+                sharedKey
         )).thenReturn(fakeSource);
 
         var dataSource = AzureStorageDataSource.Builder.newInstance()
-                .accountName(NULL_ENDPOINT)
-                .containerName(NULL_ENDPOINT)
-                .sharedKey("sekrit")
+                .accountName(accountName)
+                .containerName(containerName)
+                .sharedKey(sharedKey)
                 .name(fakeSource.name)
-                .requestId("1")
+                .requestId(requestId)
                 .retryPolicy(new RetryPolicy<>())
                 .blobAdapterFactory(fakeSourceFactory)
                 .monitor(monitor)
@@ -173,10 +178,10 @@ class DataSourceToDataSinkTests {
                 .thenReturn(ce);
 
         var dataSink = AzureStorageDataSink.Builder.newInstance()
-                .accountName(NULL_ENDPOINT)
-                .containerName(NULL_ENDPOINT)
-                .sharedKey("sekrit")
-                .requestId("1")
+                .accountName(accountName)
+                .containerName(containerName)
+                .sharedKey(sharedKey)
+                .requestId(requestId)
                 .blobAdapterFactory(fakeDestinationFactory)
                 .executorService(executor)
                 .monitor(monitor)
@@ -185,16 +190,9 @@ class DataSourceToDataSinkTests {
         assertThat(dataSink.transfer(dataSource).get().failed()).isTrue();
     }
 
-    @BeforeEach
-    void setUp() {
-        executor = Executors.newFixedThreadPool(2);
-        monitor = mock(Monitor.class);
-    }
-
-    private class FakeBlobAdapter implements BlobAdapter
-    {
-        private final String name= faker.lorem().characters();
-        private final String content= faker.lorem().sentence();
+    private class FakeBlobAdapter implements BlobAdapter {
+        private final String name = faker.lorem().characters();
+        private final String content = faker.lorem().sentence();
         private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         @Override

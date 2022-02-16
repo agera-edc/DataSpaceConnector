@@ -13,16 +13,35 @@
  */
 package org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline;
 
+import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 
 public class AzureStorageTestFixtures {
 
-    public static DataFlowRequest.Builder createRequest(String type) {
+    static Faker faker = new Faker();
+
+    static DataFlowRequest.Builder createRequest(String type) {
         return DataFlowRequest.Builder.newInstance()
                 .id("1").processId("1")
                 .sourceDataAddress(DataAddress.Builder.newInstance().type(type).build())
                 .destinationDataAddress(DataAddress.Builder.newInstance().type(type).build());
+    }
+
+    static String createAccountName() {
+        return faker.lorem().characters(3, 40, false, false);
+    }
+
+    static String createContainerName() {
+        return faker.lorem().characters(3, 40, false, false);
+    }
+
+    static String createBlobName() {
+        return faker.lorem().characters(3, 40, false, false);
+    }
+
+    static String createSharedKey() {
+        return faker.lorem().characters();
     }
 
     private AzureStorageTestFixtures() {

@@ -24,7 +24,10 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createAccountName;
+import static org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createContainerName;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createRequest;
+import static org.eclipse.dataspaceconnector.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createSharedKey;
 import static org.eclipse.dataspaceconnector.dataplane.azurestorage.schema.AzureBlobStoreSchema.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -32,14 +35,16 @@ import static org.mockito.Mockito.mock;
 class AzureStorageDataSinkFactoryTest {
     BlobAdapterFactory blobAdapterFactory = mock(BlobAdapterFactory.class);
     AzureStorageDataSinkFactory factory = new AzureStorageDataSinkFactory(blobAdapterFactory, Executors.newFixedThreadPool(1), 5, mock(Monitor.class));
+
     static Faker faker = new Faker();
+
     DataFlowRequest.Builder request = createRequest(TYPE);
     DataFlowRequest.Builder invalidRequest = createRequest(faker.lorem().word());
-    String accountName = faker.lorem().characters(3, 40, false, false);
-    String containerName = faker.lorem().characters(3, 40, false, false);
-    String sharedKey = faker.lorem().characters();
     DataAddress.Builder dataAddress = DataAddress.Builder.newInstance().type(TYPE);
 
+    String accountName = createAccountName();
+    String containerName = createContainerName();
+    String sharedKey = createSharedKey();
 
     @Test
     void canHandle_whenBlobRequest_returnsTrue() {
