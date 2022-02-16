@@ -1,6 +1,9 @@
 name: Test Code (Style, Tests)
 
-on: [ push, pull_request ]
+on:
+  push:
+  pull_request:
+    types: [ opened, reopened ] # prevent running duplicate pipelines when pushing changes to an already open PR
 
 jobs:
   Unit-Test:
