@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class BlobStorageManager {
 
     public static void main(String[] args) {
+        // See config.example.properties file.
         String propertiesFilePath = args[0];
         try (InputStream input = new FileInputStream(propertiesFilePath)) {
             Properties prop = new Properties();
