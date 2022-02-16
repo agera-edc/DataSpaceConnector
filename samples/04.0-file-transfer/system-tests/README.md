@@ -37,3 +37,5 @@ Run tests:
 ```bash
 samples/04.0-file-transfer/system-tests/minikube-test.sh
 ```
+
+Note: on certain Mac platforms, the `minikube service` commands run within the script hangs during execution. If that happens consider using a different minikube driver, such as Parallels or VirtualBox.
