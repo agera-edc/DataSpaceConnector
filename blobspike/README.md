@@ -28,4 +28,12 @@ Yes it is possible.
 
 ### Evaluate observability of copy-in-place operations and make sure it is traceable
 
+The blob storage library uses reactor-netty for network I/O. It is [supported by open telemetry](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/022914139e0d7156e98efca382397663ed247bde/instrumentation/reactor/reactor-netty).
+That's why we can see the HTTP calls corresponding to the blob copy.
+
+![Jaeger screenshot blob copy](./jaeger-blob-copy.png)
+
+The HTTP PUT corresponds to the [blob copy](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url).  
+The HTTP HEAD corresponds to the [get blob property](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties). When the SyncPoller evaluates if the blob copy is finished by checking the blob properties.
+
 ## AZ copy (TODO if Java SDK not concluent)
