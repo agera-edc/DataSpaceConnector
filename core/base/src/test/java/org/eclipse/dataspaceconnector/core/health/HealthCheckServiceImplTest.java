@@ -48,6 +48,7 @@ class HealthCheckServiceImplTest {
         service.addLivenessProvider(lpm);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.isLive().isHealthy()).isTrue();
@@ -63,6 +64,7 @@ class HealthCheckServiceImplTest {
         service.addLivenessProvider(lpm);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.isLive().isHealthy()).isFalse();
@@ -79,6 +81,7 @@ class HealthCheckServiceImplTest {
 
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.isLive().isHealthy()).isFalse();
@@ -94,6 +97,7 @@ class HealthCheckServiceImplTest {
         service.addReadinessProvider(provider);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.isReady().isHealthy()).isTrue();
@@ -110,6 +114,7 @@ class HealthCheckServiceImplTest {
         service.addReadinessProvider(provider);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.isReady().isHealthy()).isFalse();
@@ -126,6 +131,7 @@ class HealthCheckServiceImplTest {
         service.addReadinessProvider(provider);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.isReady().isHealthy()).isFalse();
@@ -142,6 +148,7 @@ class HealthCheckServiceImplTest {
         service.addStartupStatusProvider(provider);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.getStartupStatus().isHealthy()).isTrue();
@@ -161,6 +168,7 @@ class HealthCheckServiceImplTest {
         service.refresh();
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(PERIOD.multipliedBy(2))
                 .untilAsserted(() -> {
                     assertThat(service.getStartupStatus().isHealthy()).isTrue();
@@ -178,6 +186,7 @@ class HealthCheckServiceImplTest {
         service.addStartupStatusProvider(provider);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.getStartupStatus().isHealthy()).isFalse();
@@ -195,6 +204,7 @@ class HealthCheckServiceImplTest {
         service.addStartupStatusProvider(provider);
 
         await().pollInterval(POLL_INTERVAL)
+                .pollDelay(POLL_INTERVAL)
                 .atMost(AWAIT_TIMEOUT)
                 .untilAsserted(() -> {
                     assertThat(service.getStartupStatus().isHealthy()).isFalse();
