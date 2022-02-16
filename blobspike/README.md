@@ -2,6 +2,8 @@
 
 ## Copy with Java SDK
 
+We evaluated the [Java azure storage client library](https://docs.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable) to copy blobs in place.
+
 ### Evaluate if copy is done in place
 
 The blob client calls the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api) to [copy a blob](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url).
@@ -20,7 +22,9 @@ Yes it is possible.
 
 ### Evaluate if an Azure Blob can be copied in place between different storage accounts within same Azure tenant/subscription
 
-### Evaluate Integration testing approach. (when actual storage instance is needed Azurite is preferred over cloud infra)
+Yes it is possible.
+
+### Evaluate Integration testing approach (when actual storage instance is needed Azurite is preferred over cloud infra)
 
 ### Evaluate observability of copy-in-place operations and make sure it is traceable
 
