@@ -9,7 +9,9 @@ The client [get the blob properties](https://docs.microsoft.com/en-us/rest/api/s
 
 #### Evaluate if an Azure Blob can be copied in place between different Azure tenants/subscriptions.
 #### Evaluate if an Azure Blob can be copied in place within same container.
+Yes it is possible
 #### Evaluate if an Azure Blob can be copied in place within same storage account but different containers.
+Yes it is possible
 #### Evaluate if an Azure Blob can be copied in place between different storage accounts within same Azure tenant/subscription.
 #### Evaluate Integration testing approach. (when actual storage instance is needed Azurite is preferred over cloud infra).
 #### Evaluate observability of copy-in-place operations and make sure it is traceable.
