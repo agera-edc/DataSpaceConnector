@@ -2,6 +2,11 @@
 
 ### Copy with Java SDK
 #### Evaluate if copy is done in place
+
+The blob client calls the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api) to [copy a blob])(https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url).
+The copy is done in place as the client does not need to download the blob.
+The client [get the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties) by calling the REST API in order to know if the copy operation is finished.
+
 #### Evaluate if an Azure Blob can be copied in place between different Azure tenants/subscriptions.
 #### Evaluate if an Azure Blob can be copied in place within same container.
 #### Evaluate if an Azure Blob can be copied in place within same storage account but different containers.
