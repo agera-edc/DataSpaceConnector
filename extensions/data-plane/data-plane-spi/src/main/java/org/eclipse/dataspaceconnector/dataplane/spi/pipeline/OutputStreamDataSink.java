@@ -45,10 +45,10 @@ public class OutputStreamDataSink implements DataSink {
         try (var partStream = source.openPartStream()) {
             var futures = partStream.map(part -> supplyAsync(() -> transferData(part), executorService)).collect(toList());
             return allOf(futures.toArray(CompletableFuture[]::new)).thenApply((s) -> {
-                var f = futures.stream().filter(future -> future.getNow(null).failed()).findFirst();
-                return f
-                        .map(j -> TransferResult.failure(ERROR_RETRY, "Error transferring data"))
-                        .orElse(TransferResult.success());
+                if (futures.stream().anyMatch(future -> future.getNow(null).failed())) {
+                    return TransferResult.failure(ERROR_RETRY, "Error transferring data");
+                }
+                return TransferResult.success();
             });
         } catch (Exception e) {
             monitor.severe("Error processing data transfer request: ", e);
