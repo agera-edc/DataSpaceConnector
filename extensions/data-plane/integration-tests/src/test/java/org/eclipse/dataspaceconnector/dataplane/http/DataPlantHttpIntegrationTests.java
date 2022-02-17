@@ -26,8 +26,9 @@ import org.eclipse.dataspaceconnector.dataplane.http.schema.HttpDataSchema;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockserver.integration.ClientAndServer;
@@ -73,11 +74,11 @@ public class DataPlantHttpIntegrationTests {
     /**
      * HTTP Source mock server.
      */
-    private ClientAndServer dpfHttpSourceClientAndServer;
+    private static ClientAndServer dpfHttpSourceClientAndServer;
     /**
      * HTTP Sink mock server.
      */
-    private ClientAndServer dpfHttpSinkClientAndServer;
+    private static ClientAndServer dpfHttpSinkClientAndServer;
 
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -85,16 +86,25 @@ public class DataPlantHttpIntegrationTests {
             "data-plane-server",
             Map.of("web.http.control.port", String.valueOf(DPF_API_PORT)));
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    public static void setUp() {
         dpfHttpSourceClientAndServer = startClientAndServer(DPF_HTTP_SOURCE_API_PORT);
         dpfHttpSinkClientAndServer = startClientAndServer(DPF_HTTP_SINK_API_PORT);
     }
 
-    @AfterEach
-    public void tearDown() {
+    @AfterAll
+    public static void tearDown() {
         stopQuietly(dpfHttpSourceClientAndServer);
         stopQuietly(dpfHttpSinkClientAndServer);
+    }
+
+    /**
+     * Reset mock server internal state after every test.
+     */
+    @AfterEach
+    public void resetMockServer() {
+        dpfHttpSourceClientAndServer.reset();
+        dpfHttpSinkClientAndServer.reset();
     }
 
 
@@ -256,8 +266,12 @@ public class DataPlantHttpIntegrationTests {
 
         // Verify zero interaction with HTTP Sink.
         dpfHttpSinkClientAndServer.verifyZeroInteractions();
-
     }
+
+//    @Test
+//    private void transfer_sourceTemporaryFailure_success() {
+//
+//    }
 
     private ObjectNode validDataFlowRequest() {
         // Create valid dataflow request instance.
