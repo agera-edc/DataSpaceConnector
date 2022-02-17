@@ -19,8 +19,9 @@ import com.github.javafaker.Faker;
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,11 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createBlobName;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.ACCOUNT_NAME;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.BLOB_NAME;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.CONTAINER_NAME;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.SHARED_KEY;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.TYPE;
 import static org.mockito.Mockito.mock;
 
 @IntegrationTest
@@ -39,7 +45,6 @@ class AzureDataPlaneCopyIntegrationTest extends AbstractAzureBlobTest {
     static Faker faker = new Faker();
 
     RetryPolicy<Object> policy = new RetryPolicy<>().withMaxRetries(1);
-    String requestId = UUID.randomUUID().toString();
     String sinkContainerName = AzureStorageTestFixtures.createContainerName();
     String blobName = createBlobName();
     String content = faker.lorem().sentence();
@@ -57,26 +62,32 @@ class AzureDataPlaneCopyIntegrationTest extends AbstractAzureBlobTest {
                 .getBlobClient(blobName)
                 .upload(BinaryData.fromString(content));
 
-        var dataSource = AzureStorageDataSource.Builder.newInstance()
-                .accountName(account1Name)
-                .containerName(container1Name)
-                .sharedKey(account1Key)
-                .blobName(blobName)
-                .requestId(requestId)
-                .retryPolicy(policy)
-                .blobAdapterFactory(new BlobAdapterFactory(getEndpoint(account1Name)))
-                .monitor(monitor)
+        var source = DataAddress.Builder.newInstance()
+                .type(TYPE)
+                .property(ACCOUNT_NAME, account1Name)
+                .property(CONTAINER_NAME, container1Name)
+                .property(BLOB_NAME, blobName)
+                .property(SHARED_KEY, account1Key)
+                .build();
+        var destination = DataAddress.Builder.newInstance()
+                .type(TYPE)
+                .property(ACCOUNT_NAME, account2Name)
+                .property(CONTAINER_NAME, sinkContainerName)
+                .property(SHARED_KEY, account2Key)
+                .build();
+        var request = DataFlowRequest.Builder.newInstance()
+                .sourceDataAddress(source)
+                .destinationDataAddress(destination)
+                .id(UUID.randomUUID().toString())
+                .processId(UUID.randomUUID().toString())
                 .build();
 
-        var dataSink = AzureStorageDataSink.Builder.newInstance()
-                .accountName(account2Name)
-                .containerName(sinkContainerName)
-                .sharedKey(account2Key)
-                .requestId(requestId)
-                .blobAdapterFactory(new BlobAdapterFactory(getEndpoint(account2Name)))
-                .executorService(executor)
-                .monitor(monitor)
-                .build();
+        var dataSource = new AzureStorageDataSourceFactory(new BlobAdapterFactory(getEndpoint(account1Name)), policy, monitor)
+                .createSource(request);
+
+        int partitionSize = 5;
+        var dataSink = new AzureStorageDataSinkFactory(new BlobAdapterFactory(getEndpoint(account2Name)), executor, partitionSize, monitor)
+                .createSink(request);
 
         assertThat(dataSink.transfer(dataSource))
                 .succeedsWithin(500, TimeUnit.MILLISECONDS)
