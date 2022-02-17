@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class DataSourceToDataSinkTests {
+class AzureDataSourceToDataSinkTests {
     private ExecutorService executor = Executors.newFixedThreadPool(2);
     private Monitor monitor = mock(Monitor.class);
 
