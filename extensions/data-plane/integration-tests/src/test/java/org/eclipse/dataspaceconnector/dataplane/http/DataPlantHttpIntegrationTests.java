@@ -187,8 +187,8 @@ public class DataPlantHttpIntegrationTests {
                                         .withMethod(HttpMethod.POST.name())
                                         .withPath("/" + DPF_HTTP_API_PART_NAME)
                                         .withHeader(
-                                                new Header(HttpHeaderNames.CONTENT_TYPE.toString()
-                                                        , MediaType.APPLICATION_OCTET_STREAM.toString())
+                                                new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                                        MediaType.APPLICATION_OCTET_STREAM.toString())
                                         )
                                         .withBody(binary(dpfSourceResponseBody.toString().getBytes(StandardCharsets.UTF_8))),
                                 VerificationTimes.once()
