@@ -27,17 +27,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AzureDataSourceToDataSinkTests {
-    private ExecutorService executor = Executors.newFixedThreadPool(2);
-    private Monitor monitor = mock(Monitor.class);
-
     static Faker faker = new Faker();
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+    Monitor monitor = mock(Monitor.class);
     FakeBlobAdapter fakeSource = new FakeBlobAdapter();
     FakeBlobAdapter fakeSink = new FakeBlobAdapter();
     String sourceAccountName = AzureStorageTestFixtures.createAccountName();
@@ -146,8 +144,7 @@ class AzureDataSourceToDataSinkTests {
 
         TransferResult transferResult = dataSink.transfer(dataSource).get();
         assertThat(transferResult.failed()).isTrue();
-        assertThat(transferResult.getFailureMessages()).containsExactly(
-                format("Unhandled exception raised when transferring data: java.lang.RuntimeException: %s", errorMessage));
+        assertThat(transferResult.getFailureMessages()).containsExactly("Error transferring data");
     }
 
 
