@@ -12,19 +12,76 @@ The blob client calls the [Blob service REST API](https://docs.microsoft.com/en-
 The client does not need to download the blob. It only instructs the cloud to copy the blob from source to destination.
 The client [get the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties) by calling the REST API in order to know if the copy operation is finished.
 
-### Evaluate if an Azure Blob can be copied in place within same container
+### Azure Blob Copy within same container
 
-Yes it is possible. TBD
+To copy Azure Blob within the same container using Azure Java SDK we can use BlobContainerClient.
 
-### Evaluate if an Azure Blob can be copied within same storage account but different containers
+```java
 
-Yes it is possible. TBD
+BlobContainerClient container = new BlobContainerClientBuilder()
+                .connectionString(storageAccountConnectionString)
+                .containerName(containerName)
+                .buildClient();
 
-### Evaluate if an Azure Blob can be copied between different storage accounts within same Azure tenant/subscription
+BlobClient sourceBlobClient = container.getBlobClient(sourceBlobName);
+BlobClient destBlobClient = container.getBlobClient(destinationBlobName);
 
-Yes it is possible. TBD
+```
 
-### Evaluate if an Azure Blob can be copied between different Azure tenants/subscriptions
+Now using the destination and source blob clients we can trigger the copying:
+
+```java
+
+String source = sourceBlobClient.getBlobUrl();
+// It will trigger a copy by calling the blob service REST API.
+destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
+        
+```
+
+Method _beginCopy_ triggers an asynchronous operation of copying the data at the source URL to a blob.
+To fetch the status of the operation we can use poller and poll for the status manually checking if it's complete.
+
+```java
+var syncPoller = destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
+PollResponse<BlobCopyInfo> response = syncPoller.poll();
+
+while(!response.getStatus().isComplete()) {
+    ...
+    response = syncPoller.poll();
+}
+        
+```
+Alternatively, we can also block the thread waiting for the completion using _waitForCompletion_ method.
+
+```java 
+
+var syncPoller = destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
+// Wait for polling to complete.
+syncPoller.waitForCompletion(Duration.ofSeconds(5));
+        
+```
+
+### Azure Blob Copy within different containers/different storage accounts within the same tenant/subscription
+
+To copy Azure Blob between containers within the same storage account as well as different storage accounts we can use BlobClients specifying their properties: 
+```java
+
+// source blob client
+BlobClient sourceBlobClient = new BlobClientBuilder()
+    .connectionString(sourceBlob.storageAccountConnectionString)
+    .containerName(sourceBlob.containerName)
+    .blobName(sourceBlob.blobName)
+    .buildClient();
+
+// destination blob client
+BlobClient destBlobClient = new BlobClientBuilder()
+    .connectionString(destBlob.storageAccountConnectionString)
+    .containerName(destBlob.containerName)
+    .blobName(destBlob.blobName)
+    .buildClient();
+```
+
+### Azure Blob Copy between different Azure tenants/subscriptions
 
 ##### Copy between tenants using Sas token
 
