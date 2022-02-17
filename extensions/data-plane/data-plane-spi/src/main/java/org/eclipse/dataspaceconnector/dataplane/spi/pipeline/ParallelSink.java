@@ -31,7 +31,7 @@ import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.ERROR_R
 /**
  * Writes data in parallel.
  */
-public abstract class ParallelSink implements DataSink {
+abstract public class ParallelSink implements DataSink {
     protected String requestId;
     protected int partitionSize = 5;
     protected ExecutorService executorService;
