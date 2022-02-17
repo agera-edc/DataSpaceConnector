@@ -71,11 +71,32 @@ public class BlobStorageManager {
 
     public void copyBlobUsingSasToken(BlobInfo sourceBlob, BlobInfo destBlob) {
 
-        BlobClient sourceBlobClient = blobClient(sourceBlob);
-        String sasToken = getSasToken(sourceBlobClient);
+        // source blob client
+        BlobClient sourceBlobClient = new BlobClientBuilder()
+                .connectionString(sourceBlob.storageAccountConnectionString)
+                .containerName(sourceBlob.containerName)
+                .blobName(sourceBlob.blobName)
+                .buildClient();
+
+        // set permissions for the blob
+        BlobSasPermission permission = new BlobSasPermission()
+                .setReadPermission(true);
+        // define rule how long the permission is valid
+        BlobServiceSasSignatureValues sas = new BlobServiceSasSignatureValues(OffsetDateTime.now().plusDays(1), permission)
+                .setStartTime(OffsetDateTime.now());
+        // generate sas token
+        String sasToken = sourceBlobClient.generateSas(sas);
+
         String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
 
-        BlobClient destBlobClient = blobClient(destBlob);
+        // destination blob client
+        BlobClient destBlobClient = new BlobClientBuilder()
+                .connectionString(destBlob.storageAccountConnectionString)
+                .containerName(destBlob.containerName)
+                .blobName(destBlob.blobName)
+                .buildClient();
+
+        // start copying
         destBlobClient.beginCopy(sourceBlobUrl, Duration.ofSeconds(1L));
 
         // assert the blobs are the same
@@ -86,20 +107,5 @@ public class BlobStorageManager {
         assertEquals(sourceBlobContent.toString(), destBlobContent.toString());
     }
 
-    @NotNull
-    private BlobClient blobClient(BlobInfo sourceBlob) {
-        return new BlobClientBuilder()
-                .connectionString(sourceBlob.storageAccountConnectionString)
-                .containerName(sourceBlob.containerName)
-                .blobName(sourceBlob.blobName)
-                .buildClient();
-    }
-
-    private String getSasToken(BlobClient blobClient) {
-        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
-        BlobServiceSasSignatureValues sas = new BlobServiceSasSignatureValues(OffsetDateTime.now().plusDays(1), permission)
-                .setStartTime(OffsetDateTime.now());
-        return blobClient.generateSas(sas);
-    }
 }
 

@@ -12,21 +12,38 @@ The blob client calls the [Blob service REST API](https://docs.microsoft.com/en-
 The client does not need to download the blob. It only instructs the cloud to copy the blob from source to destination.
 The client [get the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties) by calling the REST API in order to know if the copy operation is finished.
 
+### Evaluate if an Azure Blob can be copied in place within same container
+
+Yes it is possible. TBD
+
+### Evaluate if an Azure Blob can be copied within same storage account but different containers
+
+Yes it is possible. TBD
+
+### Evaluate if an Azure Blob can be copied between different storage accounts within same Azure tenant/subscription
+
+Yes it is possible. TBD
+
 ### Evaluate if an Azure Blob can be copied between different Azure tenants/subscriptions
 
 ##### Copy between tenants using Sas token
 
-### Evaluate if an Azure Blob can be copied in place within same container
+Azure Blob can be copied between tenants using Java SDK. It requires creating a sas token to provide appropriate permissions to the blob.
 
-Yes it is possible.
+```java
 
-### Evaluate if an Azure Blob can be copied within same storage account but different containers
+        // set permissions for the blob
+        BlobSasPermission permission = new BlobSasPermission()
+                .setReadPermission(true);
+        // define rule how long the permission is valid
+        BlobServiceSasSignatureValues sas = new BlobServiceSasSignatureValues(OffsetDateTime.now().plusDays(1), permission)
+                .setStartTime(OffsetDateTime.now());
+        // generate sas token
+        String sasToken = sourceBlobClient.generateSas(sas);
+        
+        String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
 
-Yes it is possible.
-
-### Evaluate if an Azure Blob can be copied between different storage accounts within same Azure tenant/subscription
-
-Yes it is possible.
+```
 
 ### Evaluate Integration testing approach (when actual storage instance is needed Azurite is preferred over cloud infra)
 
