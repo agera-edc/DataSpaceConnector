@@ -81,4 +81,10 @@ public class AzureStorageTestFixtures {
             return length;
         }
     }
+
+    static class ACustomException extends RuntimeException {
+        ACustomException(String message) {
+            super(message);
+        }
+    }
 }

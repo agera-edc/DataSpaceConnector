@@ -24,9 +24,6 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
-import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.spi.result.Result.failure;
-
 /**
  * Instantiates {@link AzureStorageDataSource}s for requests whose source data type is {@link AzureBlobStoreSchema#TYPE}.
  */
@@ -81,7 +78,7 @@ public class AzureStorageDataSourceFactory implements DataSourceFactory {
                 .containerName(dataAddress.getProperty(AzureBlobStoreSchema.CONTAINER_NAME))
                 .sharedKey(dataAddress.getProperty(AzureBlobStoreSchema.SHARED_KEY))
                 .blobAdapterFactory(blobAdapterFactory)
-                .name(dataAddress.getProperty(AzureBlobStoreSchema.BLOB_NAME))
+                .blobName(dataAddress.getProperty(AzureBlobStoreSchema.BLOB_NAME))
                 .requestId(request.getId())
                 .retryPolicy(retryPolicy)
                 .monitor(monitor)

@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 /**
  * Pulls data from an Azure Storage blob source.
  */
@@ -32,7 +34,7 @@ public class AzureStorageDataSource implements DataSource {
     private String accountName;
     private String containerName;
     private String sharedKey;
-    private String name;
+    private String blobName;
     private String requestId;
     private RetryPolicy<Object> retryPolicy;
     private BlobAdapterFactory blobAdapterFactory;
@@ -45,9 +47,10 @@ public class AzureStorageDataSource implements DataSource {
 
     private AzureStoragePart getPart() {
         try {
-            var adapter = blobAdapterFactory.getBlobAdapter(accountName, containerName, name, sharedKey);
+            var adapter = blobAdapterFactory.getBlobAdapter(accountName, containerName, blobName, sharedKey);
             return new AzureStoragePart(adapter);
         } catch (Exception e) {
+            monitor.severe(format("Error accessing blob %s on account %s", blobName, accountName), e);
             throw new EdcException(e);
         }
     }
@@ -77,8 +80,8 @@ public class AzureStorageDataSource implements DataSource {
             return this;
         }
 
-        public Builder name(String name) {
-            dataSource.name = name;
+        public Builder blobName(String blobName) {
+            dataSource.blobName = blobName;
             return this;
         }
 

@@ -46,7 +46,7 @@ public class AzureStorageDataSink extends ParallelSink {
                     try {
                         input.transferTo(output);
                     } catch (Exception e) {
-                        return errorResult(format("Error transferring blob stream for %s on account %s", blobName, accountName),
+                        return errorResult(format("Error transferring blob for %s on account %s", blobName, accountName),
                                 "Error copying Azure Storage blob", e);
                     }
                 } catch (Exception e) {
