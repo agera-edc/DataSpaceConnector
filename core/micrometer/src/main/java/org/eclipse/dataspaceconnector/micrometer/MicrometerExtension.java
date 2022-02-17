@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.core;
+package org.eclipse.dataspaceconnector.micrometer;
 
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
@@ -23,6 +23,7 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import okhttp3.EventListener;
 import org.eclipse.dataspaceconnector.core.executor.ExecutorInstrumentationImplementation;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
+import org.eclipse.dataspaceconnector.spi.system.BaseExtension;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;

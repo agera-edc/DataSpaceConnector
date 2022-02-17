@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.core;
+package org.eclipse.dataspaceconnector.micrometer;
 
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;

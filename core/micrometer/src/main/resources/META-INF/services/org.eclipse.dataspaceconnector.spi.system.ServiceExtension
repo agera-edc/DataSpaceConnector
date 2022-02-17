@@ -12,4 +12,4 @@
 #
 #
 
-org.eclipse.dataspaceconnector.core.MicrometerExtension
+org.eclipse.dataspaceconnector.micrometer.MicrometerExtension
