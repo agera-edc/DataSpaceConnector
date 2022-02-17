@@ -47,6 +47,7 @@ import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.matchers.Times.once;
+import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.model.BinaryBody.binary;
 import static org.mockserver.model.HttpError.error;
 import static org.mockserver.model.HttpRequest.request;
@@ -268,10 +269,83 @@ public class DataPlantHttpIntegrationTests {
         dpfHttpSinkClientAndServer.verifyZeroInteractions();
     }
 
-//    @Test
-//    private void transfer_sourceTemporaryFailure_success() {
-//
-//    }
+    /**
+     * Validate if source is unavailable intermittently than DPF server retries to fetch data.
+     */
+    @Test
+    public void transfer_sourceTemporaryFailure_success() {
+        // Arrange
+        // First two calls to HTTP Source returns a failure response.
+        dpfHttpSourceClientAndServer
+                .when(
+                        request()
+                                .withMethod(HttpMethod.GET.name())
+                                .withPath("/" + DPF_HTTP_API_PART_NAME),
+                        exactly(2)
+                )
+                .error(
+                        error()
+                                .withDropConnection(true)
+                );
+
+        // Next call to HTTP Source returns a valid response.
+        var dpfSourceResponseBody = OBJECT_MAPPER.createObjectNode()
+                .put("data", UUID.randomUUID().toString());
+        dpfHttpSourceClientAndServer
+                .when(
+                        request()
+                                .withMethod(HttpMethod.GET.name())
+                                .withPath("/" + DPF_HTTP_API_PART_NAME),
+                        once()
+                )
+                .respond(
+                        response()
+                                .withStatusCode(HttpStatusCode.OK_200.code())
+                                .withHeader(
+                                        new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                                MediaType.APPLICATION_JSON_UTF_8.toString())
+                                )
+                                .withBody(dpfSourceResponseBody.toString())
+                );
+
+        // Act & Assert
+
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(validDataFlowRequest())
+                .when()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
+
+        // Verify HTTP Source server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                dpfHttpSourceClientAndServer
+                        .verify(
+                                request()
+                                        .withMethod(HttpMethod.GET.name())
+                                        .withPath("/" + DPF_HTTP_API_PART_NAME),
+                                VerificationTimes.exactly(3)
+                        )
+        );
+
+        // Verify HTTP Sink server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                dpfHttpSinkClientAndServer
+                        .verify(
+                                request()
+                                        .withMethod(HttpMethod.POST.name())
+                                        .withPath("/" + DPF_HTTP_API_PART_NAME)
+                                        .withHeader(
+                                                new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                                        MediaType.APPLICATION_OCTET_STREAM.toString())
+                                        )
+                                        .withBody(binary(dpfSourceResponseBody.toString().getBytes(StandardCharsets.UTF_8))),
+                                VerificationTimes.once()
+                        )
+        );
+    }
 
     private ObjectNode validDataFlowRequest() {
         // Create valid dataflow request instance.
