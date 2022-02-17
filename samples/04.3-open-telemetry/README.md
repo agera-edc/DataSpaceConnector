@@ -53,7 +53,7 @@ Other monitoring backends can be plugged in easily with OpenTelemetry. For insta
       - ../:/samples
     ports:
       - 9191:8181
-    entrypoint: java -javaagent:/samples/04.3-open-telemetry/applicationinsights-agent-3.2.5.jar -jar /samples/04.0-file-transfer/consumer/build/libs/consumer.jar
+    entrypoint: java -javaagent:/samples/04.3-open-telemetry/applicationinsights-agent-3.2.5.jar -jar /samples/04.3-open-telemetry/consumer/build/libs/consumer.jar
 ```
 
 ## Provide your own OpenTelemetry implementation
