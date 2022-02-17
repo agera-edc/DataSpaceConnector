@@ -21,6 +21,9 @@ import org.eclipse.jetty.server.ServerConnector;
 
 import java.util.function.Consumer;
 
+/**
+ * Configuration callback to instrument Jetty server metrics with Micrometer.
+ */
 public class JettyMicrometerConfiguration implements Consumer<ServerConnector> {
     @Override
     public void accept(ServerConnector connector) {

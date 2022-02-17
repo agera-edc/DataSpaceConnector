@@ -15,7 +15,7 @@
 package org.eclipse.dataspaceconnector.core.executor;
 
 /**
- * Default implementation of a {@link ExecutorInstrumentationImplementation}.
+ * Default implementation of a {@link ExecutorInstrumentationImplementation} that performs no action.
  */
-public class DefaultExecutorInstrumentationImplementation implements ExecutorInstrumentationImplementation {
+public class NoopExecutorInstrumentationImplementation implements ExecutorInstrumentationImplementation {
 }

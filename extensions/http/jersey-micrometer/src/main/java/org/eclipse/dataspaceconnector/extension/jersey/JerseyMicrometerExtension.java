@@ -24,6 +24,10 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 
+/**
+ * An extension that register a Micrometer {@link MetricsApplicationEventListener} into Jersey to
+ * provide metrics and request timings.
+ */
 @Requires({WebService.class})
 public class JerseyMicrometerExtension implements ServiceExtension {
 
@@ -52,7 +56,7 @@ public class JerseyMicrometerExtension implements ServiceExtension {
 
         var webService = context.getService(WebService.class);
 
-        webService.registerController(new MetricsApplicationEventListener(
+        webService.registerResource(new MetricsApplicationEventListener(
                 Metrics.globalRegistry,
                 new DefaultJerseyTagsProvider(),
                 /* metricName = */ "jersey",

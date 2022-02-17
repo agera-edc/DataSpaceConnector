@@ -19,7 +19,7 @@ import okhttp3.EventListener;
 import okhttp3.OkHttpClient;
 import org.eclipse.dataspaceconnector.core.base.CommandHandlerRegistryImpl;
 import org.eclipse.dataspaceconnector.core.base.RemoteMessageDispatcherRegistryImpl;
-import org.eclipse.dataspaceconnector.core.executor.DefaultExecutorInstrumentationImplementation;
+import org.eclipse.dataspaceconnector.core.executor.NoopExecutorInstrumentationImplementation;
 import org.eclipse.dataspaceconnector.core.executor.ExecutorInstrumentationImplementation;
 import org.eclipse.dataspaceconnector.core.health.HealthCheckServiceConfiguration;
 import org.eclipse.dataspaceconnector.core.health.HealthCheckServiceImpl;
@@ -28,12 +28,7 @@ import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.command.CommandHandlerRegistry;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
-import org.eclipse.dataspaceconnector.spi.system.BaseExtension;
-import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
-import org.eclipse.dataspaceconnector.spi.system.Inject;
-import org.eclipse.dataspaceconnector.spi.system.Provides;
-import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
-import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
+import org.eclipse.dataspaceconnector.spi.system.*;
 import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckService;
 
 import java.security.KeyFactory;
@@ -45,6 +40,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @BaseExtension
@@ -65,8 +61,15 @@ public class CoreServicesExtension implements ServiceExtension {
     public static final String READINESS_PERIOD_SECONDS_SETTING = "edc.core.system.health.check.readiness-period";
     @EdcSetting
     public static final String THREADPOOL_SIZE_SETTING = "edc.core.system.health.check.threadpool-size";
+    /**
+     * An optional OkHttp {@link EventListener} that can be used to instrument OkHttp client for collecting metrics.
+     * Used by the optional {@code micrometer} module.
+     */
     @Inject(required = false)
     private EventListener okHttpEventListener;
+    /**
+     * An optional instrumentor for {@link ExecutorService}. Used by the optional {@code micrometer} module.
+     */
     @Inject(required = false)
     private ExecutorInstrumentationImplementation executorInstrumentationImplementation;
 
@@ -154,6 +157,7 @@ public class CoreServicesExtension implements ServiceExtension {
         if (okHttpEventListener != null) {
             builder.eventListener(okHttpEventListener);
         }
+
         var client = builder.build();
 
         context.registerService(OkHttpClient.class, client);
@@ -162,7 +166,7 @@ public class CoreServicesExtension implements ServiceExtension {
     private void addExecutorInstrumentation(ServiceExtensionContext context) {
         context.registerService(ExecutorInstrumentation.class,
                 Objects.requireNonNullElseGet(executorInstrumentationImplementation,
-                        () -> new DefaultExecutorInstrumentationImplementation()));
+                        () -> new NoopExecutorInstrumentationImplementation()));
     }
 
 }
