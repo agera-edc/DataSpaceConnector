@@ -28,6 +28,8 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
 
     implementation("com.azure:azure-storage-blob:12.14.2")
+    implementation("io.opentelemetry:opentelemetry-api:1.11.0")
+    implementation("io.opentelemetry:opentelemetry-extension-annotations:1.11.0")
 }
 
 

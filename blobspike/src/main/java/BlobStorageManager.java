@@ -5,6 +5,7 @@ import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import org.jetbrains.annotations.NotNull;
+import io.opentelemetry.extension.annotations.WithSpan;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -42,6 +43,7 @@ public class BlobStorageManager {
         }
     }
 
+    @WithSpan("copy_blob")
     public void copyBlob(BlobInfo sourceBlob, BlobInfo destBlob) {
         BlobContainerClient sourceContainerClient = new BlobContainerClientBuilder()
                 .connectionString(sourceBlob.storageAccountConnectionString)
