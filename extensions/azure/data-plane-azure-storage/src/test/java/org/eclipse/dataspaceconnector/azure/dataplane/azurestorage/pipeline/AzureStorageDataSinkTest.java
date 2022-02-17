@@ -28,12 +28,10 @@ import static org.mockito.Mockito.when;
 
 class AzureStorageDataSinkTest {
 
+    static Faker faker = new Faker();
     Monitor monitor = mock(Monitor.class);
     ExecutorService executor = Executors.newFixedThreadPool(2);
     BlobAdapterFactory blobAdapterFactory = mock(BlobAdapterFactory.class);
-
-    static Faker faker = new Faker();
-
     DataFlowRequest.Builder request = createRequest(AzureBlobStoreSchema.TYPE);
 
     String accountName = createAccountName();

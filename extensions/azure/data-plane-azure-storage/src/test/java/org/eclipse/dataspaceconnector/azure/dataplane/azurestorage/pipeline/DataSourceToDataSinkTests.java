@@ -22,17 +22,12 @@ import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -43,10 +38,8 @@ class DataSourceToDataSinkTests {
     private Monitor monitor = mock(Monitor.class);
 
     static Faker faker = new Faker();
-
     FakeBlobAdapter fakeSource = new FakeBlobAdapter();
     FakeBlobAdapter fakeSink = new FakeBlobAdapter();
-
     String sourceAccountName = AzureStorageTestFixtures.createAccountName();
     String sourceContainerName = AzureStorageTestFixtures.createContainerName();
     String sourceSharedKey = AzureStorageTestFixtures.createSharedKey();

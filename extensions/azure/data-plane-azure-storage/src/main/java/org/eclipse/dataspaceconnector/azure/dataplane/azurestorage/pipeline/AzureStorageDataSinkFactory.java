@@ -25,9 +25,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ExecutorService;
 
-import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.spi.result.Result.failure;
-
 /**
  * Instantiates {@link AzureStorageDataSink}s for requests whose source data type is {@link AzureBlobStoreSchema#TYPE}.
  */

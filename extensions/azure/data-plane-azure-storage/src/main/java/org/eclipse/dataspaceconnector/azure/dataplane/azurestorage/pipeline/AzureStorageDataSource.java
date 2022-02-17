@@ -61,6 +61,10 @@ public class AzureStorageDataSource implements DataSource {
     public static class Builder {
         private AzureStorageDataSource dataSource;
 
+        private Builder() {
+            dataSource = new AzureStorageDataSource();
+        }
+
         public static Builder newInstance() {
             return new Builder();
         }
@@ -114,10 +118,6 @@ public class AzureStorageDataSource implements DataSource {
             Objects.requireNonNull(dataSource.monitor, "monitor");
             Objects.requireNonNull(dataSource.retryPolicy, "retryPolicy");
             return dataSource;
-        }
-
-        private Builder() {
-            dataSource = new AzureStorageDataSource();
         }
     }
 

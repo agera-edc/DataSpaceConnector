@@ -31,9 +31,9 @@ import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeli
 import static org.mockito.Mockito.mock;
 
 class AzureStorageDataSourceFactoryTest {
+    static Faker faker = new Faker();
     BlobAdapterFactory blobAdapterFactory = mock(BlobAdapterFactory.class);
     AzureStorageDataSourceFactory factory = new AzureStorageDataSourceFactory(blobAdapterFactory, new RetryPolicy<>(), mock(Monitor.class));
-    static Faker faker = new Faker();
     DataFlowRequest.Builder request = createRequest(AzureBlobStoreSchema.TYPE);
     DataFlowRequest.Builder invalidRequest = createRequest(faker.lorem().word());
     DataAddress.Builder dataAddress = DataAddress.Builder.newInstance().type(AzureBlobStoreSchema.TYPE);
@@ -86,6 +86,7 @@ class AzureStorageDataSourceFactoryTest {
                         .build())
                 .failed()).isTrue();
     }
+
     @Test
     void validate_whenMissingBlobName_fails() {
         assertThat(factory.validate(request.sourceDataAddress(dataAddress
