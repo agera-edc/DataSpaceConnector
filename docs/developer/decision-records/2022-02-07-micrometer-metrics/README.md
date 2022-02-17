@@ -4,6 +4,10 @@
 
 Use the [Micrometer](https://micrometer.io/) metrics library to automatically collect metrics from the host system, JVM, and frameworks and libraries used in EDC (including OkHttp, Jetty and Jersey). This enables users to integrate with most observability stacks in the market.
 
+Micrometer dependencies are not introduced in core. Middleware and callbacks are used to optionally import dedicated monitoring modules in the runtime.
+
+Metrics instrumentation is optional and can be disabled globally or for specific modules via runtime settings.
+
 **Note:** This decision record only deals with *automatically collected metrics*. *Custom metrics* will be addressed in further work.
 
 **Note:** The basic functionality in the EDC [IoC](https://en.wikipedia.org/wiki/Inversion_of_control) container does not allow proper decoupling of Micrometer listener from factory logic. Therefore, it is currently necessary to write Micrometer binding code directly in factory classes (for example, the class that sets up the Jetty server).

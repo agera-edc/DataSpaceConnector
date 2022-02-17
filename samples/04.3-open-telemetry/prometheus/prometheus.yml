@@ -9,7 +9,3 @@ scrape_configs:
           - 'consumer:9464'
         labels:
           service: 'Consumer'
-      - targets:
-          - 'provider:9464'
-        labels:
-          service: 'Provider'
