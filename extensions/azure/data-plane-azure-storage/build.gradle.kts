@@ -26,6 +26,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
     implementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
+
+    testImplementation(testFixtures(project(":extensions:azure:azure-test")))
+    testImplementation(testFixtures(project(":common:util")))
 }
 
 publishing {
