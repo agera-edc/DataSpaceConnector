@@ -26,8 +26,8 @@ import org.eclipse.dataspaceconnector.dataplane.http.schema.HttpDataSchema;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockserver.integration.ClientAndServer;
@@ -47,6 +47,7 @@ import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFr
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.matchers.Times.once;
 import static org.mockserver.model.BinaryBody.binary;
+import static org.mockserver.model.HttpError.error;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.stop.Stop.stopQuietly;
@@ -69,8 +70,14 @@ public class DataPlantHttpIntegrationTests {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final Faker faker = new Faker();
 
-    private static ClientAndServer dpfHttpSourceClientAndServer;
-    private static ClientAndServer dpfHttpSinkClientAndServer;
+    /**
+     * HTTP Source mock server.
+     */
+    private ClientAndServer dpfHttpSourceClientAndServer;
+    /**
+     * HTTP Sink mock server.
+     */
+    private ClientAndServer dpfHttpSinkClientAndServer;
 
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -78,14 +85,14 @@ public class DataPlantHttpIntegrationTests {
             "data-plane-server",
             Map.of("web.http.control.port", String.valueOf(DPF_API_PORT)));
 
-    @BeforeAll
-    public static void setUp() {
+    @BeforeEach
+    public void setUp() {
         dpfHttpSourceClientAndServer = startClientAndServer(DPF_HTTP_SOURCE_API_PORT);
         dpfHttpSinkClientAndServer = startClientAndServer(DPF_HTTP_SINK_API_PORT);
     }
 
-    @AfterAll
-    public static void tearDown() {
+    @AfterEach
+    public void tearDown() {
         stopQuietly(dpfHttpSourceClientAndServer);
         stopQuietly(dpfHttpSinkClientAndServer);
     }
@@ -134,7 +141,126 @@ public class DataPlantHttpIntegrationTests {
                                 .withStatusCode(HttpStatusCode.OK_200.code())
                 );
 
-        // Create DataFlowRequest request to initiate transfer.
+        // Act & Assert
+
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(validDataFlowRequest())
+                .when()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
+
+        // Verify HTTP Source server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                dpfHttpSourceClientAndServer
+                        .verify(
+                                request()
+                                        .withMethod(HttpMethod.GET.name())
+                                        .withPath("/" + DPF_HTTP_API_PART_NAME),
+                                VerificationTimes.once()
+                        )
+        );
+
+        // Verify HTTP Sink server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                dpfHttpSinkClientAndServer
+                        .verify(
+                                request()
+                                        .withMethod(HttpMethod.POST.name())
+                                        .withPath("/" + DPF_HTTP_API_PART_NAME)
+                                        .withHeader(
+                                                new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                                        MediaType.APPLICATION_OCTET_STREAM.toString())
+                                        )
+                                        .withBody(binary(dpfSourceResponseBody.toString().getBytes(StandardCharsets.UTF_8))),
+                                VerificationTimes.once()
+                        )
+        );
+
+    }
+
+    /**
+     * Test to verify DPF transfer api layer validation is working as expected.
+     */
+    @Test
+    public void transfer_invalidInput_failure() {
+        // Arrange
+        // Request with invalid source and destination type to initiate transfer.
+        var invalidRequest = DataFlowRequest.Builder.newInstance()
+                .id(faker.internet().uuid())
+                .processId(faker.internet().uuid())
+                .sourceDataAddress(DataAddress.Builder.newInstance()
+                        .type(faker.lorem().word())
+                        .properties(Map.of(
+                                HttpDataSchema.ENDPOINT, DPF_HTTP_SOURCE_API_HOST,
+                                HttpDataSchema.NAME, DPF_HTTP_API_PART_NAME
+                        ))
+                        .build())
+                .destinationDataAddress(DataAddress.Builder.newInstance()
+                        .type(faker.lorem().word())
+                        .properties(Map.of(
+                                HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST
+                        ))
+                        .build())
+                .build();
+
+        // Act & Assert
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(invalidRequest)
+                .when()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
+
+    }
+
+    @Test
+    public void transfer_sourceNotAvailable_noInteractionWithSink() {
+        // Arrange
+
+        // HTTP Source Request & Error Response
+        dpfHttpSourceClientAndServer
+                .when(
+                        request()
+                                .withMethod(HttpMethod.GET.name())
+                                .withPath("/" + DPF_HTTP_API_PART_NAME)
+                )
+                .error(
+                        error()
+                                .withDropConnection(true)
+                );
+
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(validDataFlowRequest())
+                .when()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
+
+        // Verify HTTP Source server called at lest once.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                dpfHttpSourceClientAndServer
+                        .verify(
+                                request()
+                                        .withMethod(HttpMethod.GET.name())
+                                        .withPath("/" + DPF_HTTP_API_PART_NAME),
+                                VerificationTimes.atLeast(1)
+                        )
+        );
+
+        // Verify zero interaction with HTTP Sink.
+        dpfHttpSinkClientAndServer.verifyZeroInteractions();
+
+    }
+
+    private ObjectNode validDataFlowRequest() {
+        // Create valid dataflow request instance.
         var request = DataFlowRequest.Builder.newInstance()
                 .id(faker.internet().uuid())
                 .processId(faker.internet().uuid())
@@ -157,79 +283,7 @@ public class DataPlantHttpIntegrationTests {
         var requestJsonNode = OBJECT_MAPPER.convertValue(request, ObjectNode.class);
         requestJsonNode.put(EDC_TYPE, "dataspaceconnector:dataflowrequest");
 
-        // Act & Assert
-
-        // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(requestJsonNode)
-        .when()
-                .post(TRANSFER_PATH)
-        .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
-
-        // Verify HTTP Source mock server expectation.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                dpfHttpSourceClientAndServer
-                        .verify(
-                                request()
-                                        .withMethod(HttpMethod.GET.name())
-                                        .withPath("/" + DPF_HTTP_API_PART_NAME),
-                                VerificationTimes.once()
-                        )
-        );
-
-        // Verify HTTP Sink mock server expectation.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                dpfHttpSinkClientAndServer
-                        .verify(
-                                request()
-                                        .withMethod(HttpMethod.POST.name())
-                                        .withPath("/" + DPF_HTTP_API_PART_NAME)
-                                        .withHeader(
-                                                new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                                        MediaType.APPLICATION_OCTET_STREAM.toString())
-                                        )
-                                        .withBody(binary(dpfSourceResponseBody.toString().getBytes(StandardCharsets.UTF_8))),
-                                VerificationTimes.once()
-                        )
-        );
-
-    }
-
-    @Test
-    public void transfer_invalidInput_failure() {
-        // Arrange
-        // Create DataFlowRequest request to initiate transfer.
-        var invalidRequest = DataFlowRequest.Builder.newInstance()
-                .id(faker.internet().uuid())
-                .processId(faker.internet().uuid())
-                .sourceDataAddress(DataAddress.Builder.newInstance()
-                        .type(faker.lorem().word())
-                        .properties(Map.of(
-                                HttpDataSchema.ENDPOINT, DPF_HTTP_SOURCE_API_HOST,
-                                HttpDataSchema.NAME, DPF_HTTP_API_PART_NAME
-                        ))
-                        .build())
-                .destinationDataAddress(DataAddress.Builder.newInstance()
-                        .type(faker.lorem().word())
-                        .properties(Map.of(
-                                HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST
-                        ))
-                        .build())
-                .build();
-
-        // Act & Assert
-
-        // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(invalidRequest)
-                .when()
-                .post(TRANSFER_PATH)
-                .then()
-                .assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
-
+        return requestJsonNode;
     }
 
     private RequestSpecification givenDpfRequest() {
