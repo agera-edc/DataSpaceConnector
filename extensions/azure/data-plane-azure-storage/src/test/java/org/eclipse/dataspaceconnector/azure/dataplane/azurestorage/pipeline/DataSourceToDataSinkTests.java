@@ -17,6 +17,7 @@ import com.github.javafaker.Faker;
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapter;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
+import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.FakeBlobAdapter;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.junit.jupiter.api.Test;
@@ -203,30 +204,4 @@ class DataSourceToDataSinkTests {
         assertThat(dataSink.transfer(dataSource).get().failed()).isTrue();
     }
 
-    private class FakeBlobAdapter implements BlobAdapter {
-        private final String name = faker.lorem().characters();
-        private final String content = faker.lorem().sentence();
-        private final long length = faker.random().nextLong(1_000_000_000_000_000L);
-        private final ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        @Override
-        public OutputStream getOutputStream() {
-            return out;
-        }
-
-        @Override
-        public InputStream openInputStream() {
-            return new ByteArrayInputStream(content.getBytes(UTF_8));
-        }
-
-        @Override
-        public String getBlobName() {
-            return name;
-        }
-
-        @Override
-        public long getBlobSize() {
-            return length;
-        }
-    }
 }

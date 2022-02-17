@@ -17,9 +17,8 @@ import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobA
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.ParallelSink;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,26 +39,32 @@ public class AzureStorageDataSink extends ParallelSink {
      */
     protected TransferResult transferParts(List<DataSource.Part> parts) {
         for (DataSource.Part part : parts) {
-            OutputStream os;
-            String name = part.name();
-            try {
-                os = blobAdapterFactory.getBlobAdapter(accountName, containerName, name, sharedKey)
-                        .getOutputStream();
+            String blobName = part.name();
+            try (var input = part.openStream()) {
+                try (var output = blobAdapterFactory.getBlobAdapter(accountName, containerName, blobName, sharedKey)
+                        .getOutputStream()) {
+                    try {
+                        input.transferTo(output);
+                    } catch (Exception e) {
+                        return errorResult(format("Error transferring blob stream for %s on account %s", blobName, accountName),
+                                "Error copying Azure Storage blob", e);
+                    }
+                } catch (Exception e) {
+                    return errorResult(format("Error creating blob for %s on account %s", blobName, accountName),
+                            "Error writing Azure Storage blob", e);
+                }
             } catch (Exception e) {
-                monitor.severe(format("Error opening blob stream for %s to account %s", name, accountName), e);
-                return TransferResult.failure(ERROR_RETRY, "Error");
-            }
-            try {
-                var s = part.openStream();
-                s.transferTo(os);
-                s.close();
-                os.close();
-            } catch (IOException e) {
-                monitor.severe(format("Error writing blob stream for %s to account %s", name, accountName), e);
-                return TransferResult.failure(ERROR_RETRY, "Error");
+                return errorResult(format("Error reading blob %s", blobName),
+                        "Error reading Azure Storage blob", e);
             }
         }
         return TransferResult.success();
+    }
+
+    @NotNull
+    private TransferResult errorResult(String logMessage, String errorMessage, Exception e) {
+        monitor.severe(logMessage, e);
+        return TransferResult.failure(ERROR_RETRY, errorMessage);
     }
 
     private AzureStorageDataSink() {

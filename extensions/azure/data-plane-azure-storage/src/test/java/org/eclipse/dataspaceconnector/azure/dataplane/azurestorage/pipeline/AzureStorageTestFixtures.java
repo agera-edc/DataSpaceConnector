@@ -14,8 +14,16 @@
 package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline;
 
 import com.github.javafaker.Faker;
+import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapter;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class AzureStorageTestFixtures {
 
@@ -45,5 +53,32 @@ public class AzureStorageTestFixtures {
     }
 
     private AzureStorageTestFixtures() {
+    }
+
+    static class FakeBlobAdapter implements BlobAdapter {
+        final String name = faker.lorem().characters();
+        final String content = faker.lorem().sentence();
+        final long length = faker.random().nextLong(1_000_000_000_000_000L);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        @Override
+        public OutputStream getOutputStream() {
+            return out;
+        }
+
+        @Override
+        public InputStream openInputStream() {
+            return new ByteArrayInputStream(content.getBytes(UTF_8));
+        }
+
+        @Override
+        public String getBlobName() {
+            return name;
+        }
+
+        @Override
+        public long getBlobSize() {
+            return length;
+        }
     }
 }
