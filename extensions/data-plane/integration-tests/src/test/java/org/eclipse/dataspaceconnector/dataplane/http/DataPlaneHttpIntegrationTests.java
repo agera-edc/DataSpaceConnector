@@ -57,7 +57,7 @@ import static org.mockserver.stop.Stop.stopQuietly;
 /**
  * System Test for Data Plane HTTP extension.
  */
-public class DataPlantHttpIntegrationTests {
+public class DataPlaneHttpIntegrationTests {
 
     private static final int DPF_API_PORT = getFreePort();
     private static final int DPF_HTTP_SOURCE_API_PORT = getFreePort();
