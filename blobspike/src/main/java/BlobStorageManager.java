@@ -1,12 +1,22 @@
-import com.azure.storage.blob.BlobClient;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobContainerClientBuilder;
+import com.azure.core.credential.AzureSasCredential;
+import com.azure.storage.blob.*;
+import com.azure.storage.blob.models.UserDelegationKey;
+import com.azure.storage.blob.sas.BlobSasPermission;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.OffsetDateTime;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +40,8 @@ public class BlobStorageManager {
 
             BlobInfo sourceBlob = new BlobInfo(sourceBlobName, sourceContainer, sourceConnectionString);
             BlobInfo destBlob = new BlobInfo(destBlobName, destContainer, destConnectionString);
-            new BlobStorageManager().copyBlob(sourceBlob, destBlob);
+            // new BlobStorageManager().copyBlob(sourceBlob, destBlob);
+            new BlobStorageManager().copyBlobUsingSasToken(sourceBlob, destBlob);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,4 +71,38 @@ public class BlobStorageManager {
         destBlobClient.download(destBlobContent);
         assertEquals(sourceBlobContent.toString(), destBlobContent.toString());
     }
+
+    public void copyBlobUsingSasToken(BlobInfo sourceBlob, BlobInfo destBlob) {
+
+        BlobClient sourceBlobClient = blobClient(sourceBlob);
+        String sasToken = getSasToken(sourceBlobClient);
+        String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
+
+        BlobClient destBlobClient = blobClient(destBlob);
+        destBlobClient.beginCopy(sourceBlobUrl, Duration.ofSeconds(1L));
+
+        // assert the blobs are the same
+        var sourceBlobContent = new ByteArrayOutputStream();
+        var destBlobContent = new ByteArrayOutputStream();
+        sourceBlobClient.download(sourceBlobContent);
+        destBlobClient.download(destBlobContent);
+        assertEquals(sourceBlobContent.toString(), destBlobContent.toString());
+    }
+
+    @NotNull
+    private BlobClient blobClient(BlobInfo sourceBlob) {
+        return new BlobClientBuilder()
+                .connectionString(sourceBlob.storageAccountConnectionString)
+                .containerName(sourceBlob.containerName)
+                .blobName(sourceBlob.blobName)
+                .buildClient();
+    }
+
+    private String getSasToken(BlobClient blobClient) {
+        BlobSasPermission permission = new BlobSasPermission().setReadPermission(true);
+        BlobServiceSasSignatureValues sas = new BlobServiceSasSignatureValues(OffsetDateTime.now().plusDays(1), permission)
+                .setStartTime(OffsetDateTime.now());
+        return blobClient.generateSas(sas);
+    }
 }
+

@@ -14,7 +14,9 @@ The client [get the blob properties](https://docs.microsoft.com/en-us/rest/api/s
 
 ### Evaluate if an Azure Blob can be copied between different Azure tenants/subscriptions
 
-### Evaluate if an Azure Blob can be copied within same container
+##### Copy between tenants using Sas token
+
+### Evaluate if an Azure Blob can be copied in place within same container
 
 Yes it is possible.
 
