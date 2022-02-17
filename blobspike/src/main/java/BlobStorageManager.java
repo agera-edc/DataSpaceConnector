@@ -1,21 +1,16 @@
-import com.azure.core.credential.AzureSasCredential;
-import com.azure.storage.blob.*;
-import com.azure.storage.blob.models.UserDelegationKey;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobClientBuilder;
+import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
-import com.microsoft.azure.storage.CloudStorageAccount;
-import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
 import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.time.OffsetDateTime;
 import java.util.Properties;
 

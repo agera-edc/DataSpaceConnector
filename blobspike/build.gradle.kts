@@ -28,7 +28,6 @@ dependencies {
     implementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
 
     implementation("com.azure:azure-storage-blob:12.14.2")
-    implementation("com.microsoft.azure:azure-storage:8.6.6")
 }
 
 
