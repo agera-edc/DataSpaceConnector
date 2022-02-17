@@ -14,12 +14,16 @@
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
 import org.eclipse.dataspaceconnector.contract.common.ContractId;
+import org.eclipse.dataspaceconnector.contract.observe.ContractNegotiationObservableImpl;
 import org.eclipse.dataspaceconnector.negotiation.store.memory.InMemoryContractNegotiationStore;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Duty;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.PolicyType;
-import org.eclipse.dataspaceconnector.spi.contract.negotiation.ContractNegotiationListener;
+import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
+import org.eclipse.dataspaceconnector.spi.command.CommandRunner;
+import org.eclipse.dataspaceconnector.spi.contract.negotiation.observe.ContractNegotiationListener;
+import org.eclipse.dataspaceconnector.spi.contract.negotiation.observe.ContractNegotiationObservable;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.response.NegotiationResult;
 import org.eclipse.dataspaceconnector.spi.contract.validation.ContractValidationService;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
@@ -30,20 +34,23 @@ import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreementRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiation;
-import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractOfferRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractRejection;
+import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.command.ContractNegotiationCommand;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
 import org.eclipse.dataspaceconnector.spi.types.domain.message.RemoteMessage;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.net.URI;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Setup for the contract negotiation integration test.
@@ -52,6 +59,9 @@ public abstract class AbstractContractNegotiationIntegrationTest {
 
     protected ProviderContractNegotiationManagerImpl providerManager;
     protected ConsumerContractNegotiationManagerImpl consumerManager;
+
+    protected ContractNegotiationObservable providerObservable = new ContractNegotiationObservableImpl();
+    protected ContractNegotiationObservable consumerObservable = new ContractNegotiationObservableImpl();
 
     protected InMemoryContractNegotiationStore providerStore;
     protected InMemoryContractNegotiationStore consumerStore;
@@ -74,6 +84,13 @@ public abstract class AbstractContractNegotiationIntegrationTest {
 
         // Create a monitor that logs to the console
         Monitor monitor = new FakeConsoleMonitor();
+    
+        // Create CommandQueue mock
+        CommandQueue<ContractNegotiationCommand> queue = (CommandQueue<ContractNegotiationCommand>) mock(CommandQueue.class);
+        when(queue.dequeue(anyInt())).thenReturn(new ArrayList<>());
+    
+        // Create CommandRunner mock
+        CommandRunner<ContractNegotiationCommand> runner = (CommandRunner<ContractNegotiationCommand>) mock(CommandRunner.class);
 
         // Create the provider contract negotiation manager
         providerManager = ProviderContractNegotiationManagerImpl.Builder.newInstance()
@@ -81,6 +98,9 @@ public abstract class AbstractContractNegotiationIntegrationTest {
                 .monitor(monitor)
                 .validationService(validationService)
                 .waitStrategy(() -> 1000)
+                .commandQueue(queue)
+                .commandRunner(runner)
+                .observable(providerObservable)
                 .build();
         providerStore = new InMemoryContractNegotiationStore();
 
@@ -90,6 +110,9 @@ public abstract class AbstractContractNegotiationIntegrationTest {
                 .monitor(monitor)
                 .validationService(validationService)
                 .waitStrategy(() -> 1000)
+                .commandQueue(queue)
+                .commandRunner(runner)
+                .observable(consumerObservable)
                 .build();
         consumerStore = new InMemoryContractNegotiationStore();
         

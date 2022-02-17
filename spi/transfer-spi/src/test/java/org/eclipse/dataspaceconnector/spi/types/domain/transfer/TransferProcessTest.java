@@ -15,15 +15,21 @@
 package org.eclipse.dataspaceconnector.spi.types.domain.transfer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.UUID;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.DEPROVISIONING;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.DEPROVISIONING_REQ;
+import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.INITIAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -110,9 +116,9 @@ class TransferProcessTest {
         process.transitionInitial();
         process.transitionProvisioning(ResourceManifest.Builder.newInstance().build());
 
-        process.rollbackState(TransferProcessStates.INITIAL);
+        process.rollbackState(INITIAL);
 
-        assertEquals(TransferProcessStates.INITIAL.code(), process.getState());
+        assertEquals(INITIAL.code(), process.getState());
         assertEquals(1, process.getStateCount());
     }
 
@@ -129,7 +135,7 @@ class TransferProcessTest {
 
         ProvisionedResourceSet resourceSet = ProvisionedResourceSet.Builder.newInstance().build();
 
-        process =  process.toBuilder().provisionedResourceSet(resourceSet).build();
+        process = process.toBuilder().provisionedResourceSet(resourceSet).build();
 
         assertFalse(process.provisioningComplete());
 
@@ -138,12 +144,60 @@ class TransferProcessTest {
         assertTrue(process.provisioningComplete());
     }
 
+    @ParameterizedTest
+    @EnumSource(value = TransferProcessStates.class, names = { "COMPLETED", "ENDED", "ERROR" }, mode = EnumSource.Mode.EXCLUDE)
+    void verifyCancel_validStates(TransferProcessStates state) {
+        TransferProcess.Builder builder = TransferProcess.Builder.newInstance().id(UUID.randomUUID().toString());
+        builder.state(state.code());
+        var tp = builder.build();
+        tp.transitionCancelled();
+        assertThat(tp.getState()).isEqualTo(TransferProcessStates.CANCELLED.code());
+
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = TransferProcessStates.class, names = { "COMPLETED", "ENDED", "ERROR" }, mode = EnumSource.Mode.INCLUDE)
+    void verifyCancel_invalidStates(TransferProcessStates state) {
+        TransferProcess.Builder builder = TransferProcess.Builder.newInstance().id(UUID.randomUUID().toString());
+        builder.state(state.code());
+        var tp = builder.build();
+        assertThatThrownBy(tp::transitionCancelled).isInstanceOf(IllegalStateException.class);
+    }
+
     @Test
-    void should_pass_from_deprovisioning_request_to_deprovisioning() {
+    @DisplayName("Should pass from deprovisioning request to deprovisioning")
+    void deprovisioningChangeState() {
         TransferProcess process = TransferProcess.Builder.newInstance().id(UUID.randomUUID().toString()).state(DEPROVISIONING_REQ.code()).build();
 
         process.transitionDeprovisioning();
 
         assertThat(process.getState()).isEqualTo(DEPROVISIONING.code());
+    }
+
+    @Test
+    @DisplayName("Should considered provisioned when there are no definitions and no provisioned resource")
+    void provisionComplete_emptyManifestAndResources() {
+        var emptyManifest = ResourceManifest.Builder.newInstance().definitions(emptyList()).build();
+        var emptyResources = ProvisionedResourceSet.Builder.newInstance().resources(emptyList()).build();
+        TransferProcess process = TransferProcess.Builder.newInstance()
+                .id(UUID.randomUUID().toString()).resourceManifest(emptyManifest).provisionedResourceSet(emptyResources)
+                .build();
+
+        var provisioningComplete = process.provisioningComplete();
+
+        assertThat(provisioningComplete).isTrue();
+    }
+
+    @Test
+    @DisplayName("Should considered provisioned when there are no definitions and provisioned resource set is null")
+    void provisionComplete_noResources() {
+        var emptyManifest = ResourceManifest.Builder.newInstance().definitions(emptyList()).build();
+        TransferProcess process = TransferProcess.Builder.newInstance()
+                .id(UUID.randomUUID().toString()).resourceManifest(emptyManifest).provisionedResourceSet(null)
+                .build();
+
+        var provisioningComplete = process.provisioningComplete();
+
+        assertThat(provisioningComplete).isTrue();
     }
 }

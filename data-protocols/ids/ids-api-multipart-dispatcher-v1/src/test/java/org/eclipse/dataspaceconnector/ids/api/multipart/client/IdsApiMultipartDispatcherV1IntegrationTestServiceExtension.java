@@ -21,7 +21,6 @@ import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.PolicyType;
 import org.eclipse.dataspaceconnector.spi.asset.AssetIndex;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
-import org.eclipse.dataspaceconnector.spi.asset.Criterion;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.ConsumerContractNegotiationManager;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.ContractNegotiationManager;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.ProviderContractNegotiationManager;
@@ -35,6 +34,7 @@ import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
 import org.eclipse.dataspaceconnector.spi.message.MessageContext;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcher;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
+import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
@@ -45,6 +45,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.Contra
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiation;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractOfferRequest;
+import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.command.ContractNegotiationCommand;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDefinition;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
 import org.eclipse.dataspaceconnector.spi.types.domain.message.RemoteMessage;
@@ -122,14 +123,15 @@ class IdsApiMultipartDispatcherV1IntegrationTestServiceExtension implements Serv
         }
 
         @Override
-        public Stream<Asset> queryAssets(List<Criterion> criteria) {
-            return null;
+        public Stream<Asset> queryAssets(QuerySpec querySpec) {
+            throw new UnsupportedOperationException("Filtering/Paging not supported");
         }
 
         @Override
         public Asset findById(String assetId) {
             return assets.stream().filter(a -> a.getId().equals(assetId)).findFirst().orElse(null);
         }
+
     }
 
     private static class FakeContractOfferService implements ContractOfferService {
@@ -310,7 +312,7 @@ class IdsApiMultipartDispatcherV1IntegrationTestServiceExtension implements Serv
         public NegotiationResult declined(ClaimToken token, String negotiationId) {
             return NegotiationResult.success(fakeContractNegotiation());
         }
-
+    
         @Override
         public NegotiationResult requested(ClaimToken token, ContractOfferRequest request) {
             return NegotiationResult.success(fakeContractNegotiation());
@@ -324,6 +326,10 @@ class IdsApiMultipartDispatcherV1IntegrationTestServiceExtension implements Serv
         @Override
         public NegotiationResult consumerApproved(ClaimToken token, String correlationId, ContractAgreement agreement, String hash) {
             return NegotiationResult.success(fakeContractNegotiation());
+        }
+    
+        @Override
+        public void enqueueCommand(ContractNegotiationCommand command) {
         }
     }
 
@@ -347,6 +353,10 @@ class IdsApiMultipartDispatcherV1IntegrationTestServiceExtension implements Serv
         @Override
         public NegotiationResult declined(ClaimToken token, String negotiationId) {
             return NegotiationResult.success(fakeContractNegotiation());
+        }
+    
+        @Override
+        public void enqueueCommand(ContractNegotiationCommand command) {
         }
     }
 }

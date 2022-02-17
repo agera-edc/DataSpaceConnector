@@ -5,11 +5,12 @@ import org.eclipse.dataspaceconnector.boot.monitor.MonitorProvider;
 import org.eclipse.dataspaceconnector.boot.system.DefaultServiceExtensionContext;
 import org.eclipse.dataspaceconnector.boot.system.ExtensionLoader;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
-import org.eclipse.dataspaceconnector.spi.system.InjectionContainer;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckResult;
 import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckService;
+import org.eclipse.dataspaceconnector.spi.system.injection.InjectionContainer;
+import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,9 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static java.lang.Runtime.getRuntime;
 import static java.lang.String.format;
+import static org.eclipse.dataspaceconnector.boot.system.ExtensionLoader.loadTelemetry;
 
 /**
  * Base runtime class. During its {@code main()} method it instantiates a new {@code BaseRuntime} object that bootstraps
@@ -25,7 +28,7 @@ import static java.lang.String.format;
  * <ul>
  *     <li>{@link BaseRuntime#createTypeManager()}: instantiates a new {@link TypeManager}</li>
  *     <li>{@link BaseRuntime#createMonitor()} : instantiates a new {@link Monitor}</li>
- *     <li>{@link BaseRuntime#createContext(TypeManager, Monitor)}: creates a new {@link DefaultServiceExtensionContext} and invokes its {@link DefaultServiceExtensionContext#initialize()} method</li>
+ *     <li>{@link BaseRuntime#createContext(TypeManager, Monitor, Telemetry)}: creates a new {@link DefaultServiceExtensionContext} and invokes its {@link DefaultServiceExtensionContext#initialize()} method</li>
  *     <li>{@link BaseRuntime#initializeVault(ServiceExtensionContext)}: initializes the {@link org.eclipse.dataspaceconnector.spi.security.Vault} by
  *          calling {@link ExtensionLoader#loadVault(ServiceExtensionContext)} </li>
  *     <li>{@link BaseRuntime#createExtensions(ServiceExtensionContext)}: creates a list of {@code ServiceExtension} objects. By default, these are created through {@link ServiceExtensionContext#loadServiceExtensions()}</li>
@@ -56,7 +59,9 @@ public class BaseRuntime {
         monitor = createMonitor();
         MonitorProvider.setInstance(monitor);
 
-        var context = createContext(typeManager, monitor);
+        var telemetry = loadTelemetry();
+
+        var context = createContext(typeManager, monitor, telemetry);
         initializeContext(context);
 
 
@@ -65,7 +70,7 @@ public class BaseRuntime {
             initializeVault(context);
             List<InjectionContainer<ServiceExtension>> serviceExtensions = createExtensions(context);
             var seList = serviceExtensions.stream().map(InjectionContainer::getInjectionTarget).collect(Collectors.toList());
-            java.lang.Runtime.getRuntime().addShutdownHook(new Thread(() -> shutdown(seList, monitor)));
+            getRuntime().addShutdownHook(new Thread(() -> shutdown(seList, monitor)));
             bootExtensions(context, serviceExtensions);
 
             var healthCheckService = context.getService(HealthCheckService.class);
@@ -83,7 +88,7 @@ public class BaseRuntime {
     }
 
     /**
-     * Initializes the context. If {@link BaseRuntime#createContext(TypeManager, Monitor)} is overridden and the (custom) context
+     * Initializes the context. If {@link BaseRuntime#createContext(TypeManager, Monitor, Telemetry)} is overridden and the (custom) context
      * needs to be initialized, this method should be overridden as well.
      *
      * @param context The context.
@@ -111,7 +116,7 @@ public class BaseRuntime {
     /**
      * Starts all service extensions by invoking {@link ExtensionLoader#bootServiceExtensions(List, ServiceExtensionContext)}
      *
-     * @param context           The {@code ServiceExtensionContext} that is used in this runtime.
+     * @param context The {@code ServiceExtensionContext} that is used in this runtime.
      * @param serviceExtensions a list of extensions
      */
     protected void bootExtensions(ServiceExtensionContext context, List<InjectionContainer<ServiceExtension>> serviceExtensions) {
@@ -134,12 +139,12 @@ public class BaseRuntime {
      * this would likely need to be overridden.
      *
      * @param typeManager The TypeManager (for JSON de-/serialization)
-     * @param monitor     a Monitor
+     * @param monitor a Monitor
      * @return a {@code ServiceExtensionContext}
      */
     @NotNull
-    protected ServiceExtensionContext createContext(TypeManager typeManager, Monitor monitor) {
-        return new DefaultServiceExtensionContext(typeManager, monitor);
+    protected ServiceExtensionContext createContext(TypeManager typeManager, Monitor monitor, Telemetry telemetry) {
+        return new DefaultServiceExtensionContext(typeManager, monitor, telemetry);
     }
 
     /**
@@ -147,16 +152,16 @@ public class BaseRuntime {
      * forward this signal to all extensions through their {@link ServiceExtension#shutdown()} callback.
      *
      * @param serviceExtensions All extensions that should receive the shutdown signal.
-     * @param monitor           A monitor - should you need one.
+     * @param monitor A monitor - should you need one.
      */
     protected void shutdown(List<ServiceExtension> serviceExtensions, Monitor monitor) {
         var iter = serviceExtensions.listIterator(serviceExtensions.size());
         while (iter.hasPrevious()) {
             var extension = iter.previous();
             extension.shutdown();
-            monitor.info("Shutdown " + extension);
+            monitor.info("Shutdown " + extension.name());
         }
-        monitor.info("Connector shutdown complete");
+        monitor.info("Shutdown complete");
     }
 
     /**
