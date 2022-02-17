@@ -23,6 +23,6 @@ public class AzureBlobStoreSchema {
     public static final String TYPE = "AzureStorageBlobData";
     public static final String ACCOUNT_NAME = "account";
     public static final String CONTAINER_NAME = "container";
-    public static final String BLOB_NAME = "name";
+    public static final String BLOB_NAME = "blob";
     public static final String SHARED_KEY = "sharedKey";
 }
