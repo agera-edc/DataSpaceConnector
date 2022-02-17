@@ -89,16 +89,16 @@ Azure Blob can be copied between tenants using Java SDK. It requires creating a 
 
 ```java
 
-        // set permissions for the blob
-        BlobSasPermission permission = new BlobSasPermission()
-                .setReadPermission(true);
-        // define rule how long the permission is valid
-        BlobServiceSasSignatureValues sas = new BlobServiceSasSignatureValues(OffsetDateTime.now().plusDays(1), permission)
-                .setStartTime(OffsetDateTime.now());
-        // generate sas token
-        String sasToken = sourceBlobClient.generateSas(sas);
+// set permissions for the blob
+BlobSasPermission permission = new BlobSasPermission()
+    .setReadPermission(true);
+// define rule how long the permission is valid
+BlobServiceSasSignatureValues sas = new BlobServiceSasSignatureValues(OffsetDateTime.now().plusDays(1), permission)
+    .setStartTime(OffsetDateTime.now());
+// generate sas token
+String sasToken = sourceBlobClient.generateSas(sas);
         
-        String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
+String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
 
 ```
 
