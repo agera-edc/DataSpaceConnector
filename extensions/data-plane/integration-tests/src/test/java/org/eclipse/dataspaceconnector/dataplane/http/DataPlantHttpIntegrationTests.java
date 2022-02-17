@@ -92,7 +92,7 @@ public class DataPlantHttpIntegrationTests {
 
 
     @Test
-    public void httpSourceToHttpSink_success() {
+    public void transfer_success() {
         // Arrange
 
         // HTTP Source Request & Response
@@ -194,6 +194,41 @@ public class DataPlantHttpIntegrationTests {
                                 VerificationTimes.once()
                         )
         );
+
+    }
+
+    @Test
+    public void transfer_invalidInput_failure() {
+        // Arrange
+        // Create DataFlowRequest request to initiate transfer.
+        var invalidRequest = DataFlowRequest.Builder.newInstance()
+                .id(faker.internet().uuid())
+                .processId(faker.internet().uuid())
+                .sourceDataAddress(DataAddress.Builder.newInstance()
+                        .type(faker.lorem().word())
+                        .properties(Map.of(
+                                HttpDataSchema.ENDPOINT, DPF_HTTP_SOURCE_API_HOST,
+                                HttpDataSchema.NAME, DPF_HTTP_API_PART_NAME
+                        ))
+                        .build())
+                .destinationDataAddress(DataAddress.Builder.newInstance()
+                        .type(faker.lorem().word())
+                        .properties(Map.of(
+                                HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST
+                        ))
+                        .build())
+                .build();
+
+        // Act & Assert
+
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(invalidRequest)
+                .when()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
 
     }
 
