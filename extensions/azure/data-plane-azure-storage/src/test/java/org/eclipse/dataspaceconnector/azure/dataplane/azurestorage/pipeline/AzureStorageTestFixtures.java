@@ -82,8 +82,8 @@ public class AzureStorageTestFixtures {
         }
     }
 
-    static class ACustomException extends RuntimeException {
-        ACustomException(String message) {
+    static class TestCustomException extends RuntimeException {
+        TestCustomException(String message) {
             super(message);
         }
     }
