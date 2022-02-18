@@ -33,6 +33,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
+import org.mockserver.model.HttpRequest;
+import org.mockserver.model.HttpResponse;
 import org.mockserver.model.HttpStatusCode;
 import org.mockserver.model.MediaType;
 import org.mockserver.verify.VerificationTimes;
@@ -108,48 +110,30 @@ public class DataPlaneHttpIntegrationTests {
         dpfHttpSinkClientAndServer.reset();
     }
 
-
     @Test
     public void transfer_success() {
         // Arrange
 
         // HTTP Source Request & Response
-        var dpfSourceResponseBody = OBJECT_MAPPER.createObjectNode()
-                .put("data", UUID.randomUUID().toString());
+        var dpfSourceResponseBody = UUID.randomUUID().toString();
         dpfHttpSourceClientAndServer
                 .when(
-                        request()
-                                .withMethod(HttpMethod.GET.name())
-                                .withPath("/" + DPF_HTTP_API_PART_NAME),
+                        sourceRequestExpectation(),
                         once()
                 )
                 .respond(
-                        response()
-                                .withStatusCode(HttpStatusCode.OK_200.code())
-                                .withHeader(
-                                        new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                                MediaType.APPLICATION_JSON_UTF_8.toString())
-                                )
-                                .withBody(dpfSourceResponseBody.toString())
+                        sourceResponseExpectation(HttpStatusCode.OK_200, dpfSourceResponseBody)
                 );
 
 
         // HTTP Sink Request & Response
         dpfHttpSinkClientAndServer
                 .when(
-                        request()
-                                .withMethod(HttpMethod.POST.name())
-                                .withPath("/" + DPF_HTTP_API_PART_NAME)
-                                .withHeader(
-                                        new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                                MediaType.APPLICATION_OCTET_STREAM.toString())
-                                )
-                                .withBody(binary(dpfSourceResponseBody.toString().getBytes(StandardCharsets.UTF_8))),
+                        sinkRequestExpectation(dpfSourceResponseBody),
                         once()
                 )
                 .respond(
-                        response()
-                                .withStatusCode(HttpStatusCode.OK_200.code())
+                        sinkResponseExpectation(HttpStatusCode.OK_200)
                 );
 
         // Act & Assert
@@ -157,7 +141,7 @@ public class DataPlaneHttpIntegrationTests {
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(validDataFlowRequest())
+                .body(initiateTransferRequest())
                 .when()
                 .post(TRANSFER_PATH)
                 .then()
@@ -167,9 +151,7 @@ public class DataPlaneHttpIntegrationTests {
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSourceClientAndServer
                         .verify(
-                                request()
-                                        .withMethod(HttpMethod.GET.name())
-                                        .withPath("/" + DPF_HTTP_API_PART_NAME),
+                                sourceRequestExpectation(),
                                 VerificationTimes.once()
                         )
         );
@@ -178,14 +160,7 @@ public class DataPlaneHttpIntegrationTests {
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSinkClientAndServer
                         .verify(
-                                request()
-                                        .withMethod(HttpMethod.POST.name())
-                                        .withPath("/" + DPF_HTTP_API_PART_NAME)
-                                        .withHeader(
-                                                new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                                        MediaType.APPLICATION_OCTET_STREAM.toString())
-                                        )
-                                        .withBody(binary(dpfSourceResponseBody.toString().getBytes(StandardCharsets.UTF_8))),
+                                sinkRequestExpectation(dpfSourceResponseBody),
                                 VerificationTimes.once()
                         )
         );
@@ -193,29 +168,13 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Test to verify DPF transfer api layer validation is working as expected.
+     * Verify DPF transfer api layer validation is working as expected.
      */
     @Test
     public void transfer_invalidInput_failure() {
         // Arrange
-        // Request with invalid source and destination type to initiate transfer.
-        var invalidRequest = DataFlowRequest.Builder.newInstance()
-                .id(faker.internet().uuid())
-                .processId(faker.internet().uuid())
-                .sourceDataAddress(DataAddress.Builder.newInstance()
-                        .type(faker.lorem().word())
-                        .properties(Map.of(
-                                HttpDataSchema.ENDPOINT, DPF_HTTP_SOURCE_API_HOST,
-                                HttpDataSchema.NAME, DPF_HTTP_API_PART_NAME
-                        ))
-                        .build())
-                .destinationDataAddress(DataAddress.Builder.newInstance()
-                        .type(faker.lorem().word())
-                        .properties(Map.of(
-                                HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST
-                        ))
-                        .build())
-                .build();
+        // Request without processId to initiate transfer.
+        var invalidRequest = initiateTransferRequest().remove("processId");
 
         // Act & Assert
         // Initiate transfer
@@ -236,9 +195,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP Source Request & Error Response
         dpfHttpSourceClientAndServer
                 .when(
-                        request()
-                                .withMethod(HttpMethod.GET.name())
-                                .withPath("/" + DPF_HTTP_API_PART_NAME)
+                        sourceRequestExpectation()
                 )
                 .error(
                         error()
@@ -248,7 +205,7 @@ public class DataPlaneHttpIntegrationTests {
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(validDataFlowRequest())
+                .body(initiateTransferRequest())
                 .when()
                 .post(TRANSFER_PATH)
                 .then()
@@ -258,14 +215,13 @@ public class DataPlaneHttpIntegrationTests {
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSourceClientAndServer
                         .verify(
-                                request()
-                                        .withMethod(HttpMethod.GET.name())
-                                        .withPath("/" + DPF_HTTP_API_PART_NAME),
+                                sourceRequestExpectation(),
                                 VerificationTimes.atLeast(1)
                         )
         );
 
         // Verify zero interaction with HTTP Sink.
+        // TODO: Here it can be a race-condition. Need a dpf api to check status of transfer.
         dpfHttpSinkClientAndServer.verifyZeroInteractions();
     }
 
@@ -278,9 +234,7 @@ public class DataPlaneHttpIntegrationTests {
         // First two calls to HTTP Source returns a failure response.
         dpfHttpSourceClientAndServer
                 .when(
-                        request()
-                                .withMethod(HttpMethod.GET.name())
-                                .withPath("/" + DPF_HTTP_API_PART_NAME),
+                        sourceRequestExpectation(),
                         exactly(2)
                 )
                 .error(
@@ -289,23 +243,14 @@ public class DataPlaneHttpIntegrationTests {
                 );
 
         // Next call to HTTP Source returns a valid response.
-        var dpfSourceResponseBody = OBJECT_MAPPER.createObjectNode()
-                .put("data", UUID.randomUUID().toString());
+        var dpfSourceResponseBody = UUID.randomUUID().toString();
         dpfHttpSourceClientAndServer
                 .when(
-                        request()
-                                .withMethod(HttpMethod.GET.name())
-                                .withPath("/" + DPF_HTTP_API_PART_NAME),
+                        sourceRequestExpectation(),
                         once()
                 )
                 .respond(
-                        response()
-                                .withStatusCode(HttpStatusCode.OK_200.code())
-                                .withHeader(
-                                        new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                                MediaType.APPLICATION_JSON_UTF_8.toString())
-                                )
-                                .withBody(dpfSourceResponseBody.toString())
+                        sourceResponseExpectation(HttpStatusCode.OK_200, dpfSourceResponseBody)
                 );
 
         // Act & Assert
@@ -313,7 +258,7 @@ public class DataPlaneHttpIntegrationTests {
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(validDataFlowRequest())
+                .body(initiateTransferRequest())
                 .when()
                 .post(TRANSFER_PATH)
                 .then()
@@ -323,9 +268,7 @@ public class DataPlaneHttpIntegrationTests {
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSourceClientAndServer
                         .verify(
-                                request()
-                                        .withMethod(HttpMethod.GET.name())
-                                        .withPath("/" + DPF_HTTP_API_PART_NAME),
+                                sourceRequestExpectation(),
                                 VerificationTimes.exactly(3)
                         )
         );
@@ -334,20 +277,18 @@ public class DataPlaneHttpIntegrationTests {
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSinkClientAndServer
                         .verify(
-                                request()
-                                        .withMethod(HttpMethod.POST.name())
-                                        .withPath("/" + DPF_HTTP_API_PART_NAME)
-                                        .withHeader(
-                                                new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                                        MediaType.APPLICATION_OCTET_STREAM.toString())
-                                        )
-                                        .withBody(binary(dpfSourceResponseBody.toString().getBytes(StandardCharsets.UTF_8))),
+                                sinkRequestExpectation(dpfSourceResponseBody),
                                 VerificationTimes.once()
                         )
         );
     }
 
-    private ObjectNode validDataFlowRequest() {
+    /**
+     * Request payload to initiate DPF transfer.
+     *
+     * @return JSON object. see {@link ObjectNode}.
+     */
+    private ObjectNode initiateTransferRequest() {
         // Create valid dataflow request instance.
         var request = DataFlowRequest.Builder.newInstance()
                 .id(faker.internet().uuid())
@@ -374,8 +315,69 @@ public class DataPlaneHttpIntegrationTests {
         return requestJsonNode;
     }
 
+    /**
+     * RestAssured request specification with DPF API host as base URI.
+     *
+     * @return see {@link RequestSpecification}
+     */
     private RequestSpecification givenDpfRequest() {
         return given()
                 .baseUri(DPF_API_HOST);
+    }
+
+    /**
+     * Mock HTTP GET request expectation for source.
+     *
+     * @return see {@link HttpRequest}
+     */
+    private HttpRequest sourceRequestExpectation() {
+        return request()
+                .withMethod(HttpMethod.GET.name())
+                .withPath("/" + DPF_HTTP_API_PART_NAME);
+    }
+
+    /**
+     * Mock plain text response expectation from source.
+     *
+     * @param statusCode   Response status code.
+     * @param responseBody Response body.
+     * @return see {@link HttpResponse}
+     */
+    private HttpResponse sourceResponseExpectation(HttpStatusCode statusCode, String responseBody) {
+        return response()
+                .withStatusCode(statusCode.code())
+                .withHeader(
+                        new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                MediaType.PLAIN_TEXT_UTF_8.toString())
+                )
+                .withBody(responseBody);
+    }
+
+    /**
+     * Mock HTTP POST request expectation for sink.
+     *
+     * @param responseBody Request body.
+     * @return see {@link HttpRequest}
+     */
+    private HttpRequest sinkRequestExpectation(String responseBody) {
+        return request()
+                .withMethod(HttpMethod.POST.name())
+                .withPath("/" + DPF_HTTP_API_PART_NAME)
+                .withHeader(
+                        new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                MediaType.APPLICATION_OCTET_STREAM.toString())
+                )
+                .withBody(binary(responseBody.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    /**
+     * Mock response expectation from sink.
+     *
+     * @param statusCode Response status code.
+     * @return see {@link HttpResponse}
+     */
+    private HttpResponse sinkResponseExpectation(HttpStatusCode statusCode) {
+        return response()
+                .withStatusCode(statusCode.code());
     }
 }
