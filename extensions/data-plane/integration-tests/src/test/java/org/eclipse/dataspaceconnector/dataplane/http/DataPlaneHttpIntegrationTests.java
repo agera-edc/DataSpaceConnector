@@ -113,31 +113,26 @@ public class DataPlaneHttpIntegrationTests {
     @Test
     public void transfer_success() {
         // Arrange
-
         // HTTP Source Request & Response
         var dpfSourceResponseBody = UUID.randomUUID().toString();
         dpfHttpSourceClientAndServer
                 .when(
-                        sourceRequestExpectation(),
+                        givenGetRequest(),
                         once()
                 )
                 .respond(
-                        sourceResponseExpectation(HttpStatusCode.OK_200, dpfSourceResponseBody)
+                        withResponse(HttpStatusCode.OK_200, dpfSourceResponseBody)
                 );
-
-
         // HTTP Sink Request & Response
         dpfHttpSinkClientAndServer
                 .when(
-                        sinkRequestExpectation(dpfSourceResponseBody),
+                        givenPostRequest(dpfSourceResponseBody),
                         once()
                 )
                 .respond(
-                        sinkResponseExpectation(HttpStatusCode.OK_200)
+                        withResponse(HttpStatusCode.OK_200)
                 );
-
         // Act & Assert
-
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
@@ -151,20 +146,18 @@ public class DataPlaneHttpIntegrationTests {
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSourceClientAndServer
                         .verify(
-                                sourceRequestExpectation(),
+                                givenGetRequest(),
                                 VerificationTimes.once()
                         )
         );
-
         // Verify HTTP Sink server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSinkClientAndServer
                         .verify(
-                                sinkRequestExpectation(dpfSourceResponseBody),
+                                givenPostRequest(dpfSourceResponseBody),
                                 VerificationTimes.once()
                         )
         );
-
     }
 
     /**
@@ -175,7 +168,6 @@ public class DataPlaneHttpIntegrationTests {
         // Arrange
         // Request without processId to initiate transfer.
         var invalidRequest = initiateTransferRequest().remove("processId");
-
         // Act & Assert
         // Initiate transfer
         givenDpfRequest()
@@ -185,23 +177,20 @@ public class DataPlaneHttpIntegrationTests {
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
-
     }
 
     @Test
     public void transfer_sourceNotAvailable_noInteractionWithSink() {
         // Arrange
-
         // HTTP Source Request & Error Response
         dpfHttpSourceClientAndServer
                 .when(
-                        sourceRequestExpectation()
+                        givenGetRequest()
                 )
                 .error(
                         error()
                                 .withDropConnection(true)
                 );
-
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
@@ -210,16 +199,14 @@ public class DataPlaneHttpIntegrationTests {
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
-
         // Verify HTTP Source server called at lest once.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSourceClientAndServer
                         .verify(
-                                sourceRequestExpectation(),
+                                givenGetRequest(),
                                 VerificationTimes.atLeast(1)
                         )
         );
-
         // Verify zero interaction with HTTP Sink.
         // TODO: Here it can be a race-condition. Need a dpf api to check status of transfer.
         dpfHttpSinkClientAndServer.verifyZeroInteractions();
@@ -234,27 +221,24 @@ public class DataPlaneHttpIntegrationTests {
         // First two calls to HTTP Source returns a failure response.
         dpfHttpSourceClientAndServer
                 .when(
-                        sourceRequestExpectation(),
+                        givenGetRequest(),
                         exactly(2)
                 )
                 .error(
                         error()
                                 .withDropConnection(true)
                 );
-
         // Next call to HTTP Source returns a valid response.
         var dpfSourceResponseBody = UUID.randomUUID().toString();
         dpfHttpSourceClientAndServer
                 .when(
-                        sourceRequestExpectation(),
+                        givenGetRequest(),
                         once()
                 )
                 .respond(
-                        sourceResponseExpectation(HttpStatusCode.OK_200, dpfSourceResponseBody)
+                        withResponse(HttpStatusCode.OK_200, dpfSourceResponseBody)
                 );
-
         // Act & Assert
-
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
@@ -263,21 +247,19 @@ public class DataPlaneHttpIntegrationTests {
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
-
         // Verify HTTP Source server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSourceClientAndServer
                         .verify(
-                                sourceRequestExpectation(),
+                                givenGetRequest(),
                                 VerificationTimes.exactly(3)
                         )
         );
-
         // Verify HTTP Sink server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 dpfHttpSinkClientAndServer
                         .verify(
-                                sinkRequestExpectation(dpfSourceResponseBody),
+                                givenPostRequest(dpfSourceResponseBody),
                                 VerificationTimes.once()
                         )
         );
@@ -330,7 +312,7 @@ public class DataPlaneHttpIntegrationTests {
      *
      * @return see {@link HttpRequest}
      */
-    private HttpRequest sourceRequestExpectation() {
+    private HttpRequest givenGetRequest() {
         return request()
                 .withMethod(HttpMethod.GET.name())
                 .withPath("/" + DPF_HTTP_API_PART_NAME);
@@ -343,14 +325,19 @@ public class DataPlaneHttpIntegrationTests {
      * @param responseBody Response body.
      * @return see {@link HttpResponse}
      */
-    private HttpResponse sourceResponseExpectation(HttpStatusCode statusCode, String responseBody) {
-        return response()
-                .withStatusCode(statusCode.code())
-                .withHeader(
-                        new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                MediaType.PLAIN_TEXT_UTF_8.toString())
-                )
-                .withBody(responseBody);
+    private HttpResponse withResponse(HttpStatusCode statusCode, String responseBody) {
+        var response = response()
+                .withStatusCode(statusCode.code());
+
+        if (responseBody != null) {
+            response.withHeader(
+                            new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                    MediaType.PLAIN_TEXT_UTF_8.toString())
+                    )
+                    .withBody(responseBody);
+        }
+
+        return response;
     }
 
     /**
@@ -359,7 +346,7 @@ public class DataPlaneHttpIntegrationTests {
      * @param responseBody Request body.
      * @return see {@link HttpRequest}
      */
-    private HttpRequest sinkRequestExpectation(String responseBody) {
+    private HttpRequest givenPostRequest(String responseBody) {
         return request()
                 .withMethod(HttpMethod.POST.name())
                 .withPath("/" + DPF_HTTP_API_PART_NAME)
@@ -376,8 +363,7 @@ public class DataPlaneHttpIntegrationTests {
      * @param statusCode Response status code.
      * @return see {@link HttpResponse}
      */
-    private HttpResponse sinkResponseExpectation(HttpStatusCode statusCode) {
-        return response()
-                .withStatusCode(statusCode.code());
+    private HttpResponse withResponse(HttpStatusCode statusCode) {
+        return withResponse(statusCode, null);
     }
 }
