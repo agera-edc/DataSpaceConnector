@@ -14,6 +14,7 @@
  */
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
+import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.common.stream.EntitiesProcessor;
 import org.eclipse.dataspaceconnector.contract.common.ContractId;
 import org.eclipse.dataspaceconnector.spi.command.CommandProcessor;
@@ -29,6 +30,7 @@ import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistr
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
+import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreement;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreementRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiation;
@@ -46,7 +48,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.contract.common.ContractId.DEFINITION_PART;
@@ -75,7 +77,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     private CommandRunner<ContractNegotiationCommand> commandRunner;
     private CommandProcessor<ContractNegotiationCommand> commandProcessor;
     private Monitor monitor;
-    private Predicate<Boolean> isProcessed = it -> it;
+    private Telemetry telemetry;
 
     private ProviderContractNegotiationManagerImpl() {
     }
@@ -112,6 +114,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      * @return a {@link NegotiationResult}: OK, if successfully transitioned to declined;
      *         FATAL_ERROR, if no match found for Id.
      */
+    @WithSpan
     @Override
     public NegotiationResult declined(ClaimToken token, String correlationId) {
         var negotiation = findContractNegotiationById(correlationId);
@@ -152,6 +155,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      * @param request Container object containing all relevant request parameters.
      * @return a {@link NegotiationResult}: OK
      */
+    @WithSpan
     @Override
     public NegotiationResult requested(ClaimToken token, ContractOfferRequest request) {
         var negotiation = ContractNegotiation.Builder.newInstance()
@@ -161,6 +165,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
                 .counterPartyAddress(request.getConnectorAddress())
                 .protocol(request.getProtocol())
                 .type(ContractNegotiation.Type.PROVIDER)
+                .traceContext(telemetry.getCurrentTraceContext())
                 .build();
 
         negotiation.transitionRequested();
@@ -185,6 +190,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      * @param hash A hash of all previous contract offers.
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id; OK otherwise
      */
+    @WithSpan
     @Override
     public NegotiationResult offerReceived(ClaimToken token, String correlationId, ContractOffer offer, String hash) {
         var negotiation = negotiationStore.findForCorrelationId(correlationId);
@@ -272,10 +278,9 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     private void run() {
         while (active.get()) {
             try {
-                long providerOffering = onNegotiationsInState(PROVIDER_OFFERING).doProcess(this::processProviderOffering);
-                long declining = onNegotiationsInState(DECLINING).doProcess(this::processDeclining);
-                long confirming = onNegotiationsInState(CONFIRMING).doProcess(this::processConfirming);
-
+                long providerOffering = processNegotiationsInState(PROVIDER_OFFERING, this::processProviderOffering);
+                long declining = processNegotiationsInState(DECLINING, this::processDeclining);
+                long confirming = processNegotiationsInState(CONFIRMING, this::processConfirming);
                 long commandsProcessed = onCommands().doProcess(this::processCommand);
 
                 var totalProcessed = providerOffering + declining + confirming + commandsProcessed;
@@ -303,8 +308,9 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
         }
     }
 
-    private EntitiesProcessor<ContractNegotiation> onNegotiationsInState(ContractNegotiationStates state) {
-        return new EntitiesProcessor<>(() -> negotiationStore.nextForState(state.code(), batchSize));
+    private long processNegotiationsInState(ContractNegotiationStates state, Function<ContractNegotiation, Boolean> function) {
+        return new EntitiesProcessor<>(() -> negotiationStore.nextForState(state.code(), batchSize))
+                .doProcess(telemetry.contextPropagationMiddleware(function));
     }
 
     private EntitiesProcessor<ContractNegotiationCommand> onCommands() {
@@ -322,6 +328,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      *
      * @return true if processed, false elsewhere
      */
+    @WithSpan
     private boolean processProviderOffering(ContractNegotiation negotiation) {
         var currentOffer = negotiation.getLastContractOffer();
 
@@ -361,6 +368,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      *
      * @return true if processed, false elsewhere
      */
+    @WithSpan
     private boolean processDeclining(ContractNegotiation negotiation) {
         ContractRejection rejection = ContractRejection.Builder.newInstance()
                 .protocol(negotiation.getProtocol())
@@ -398,8 +406,8 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
      *
      * @return true if processed, false elsewhere
      */
-    @NotNull
-    private Boolean processConfirming(ContractNegotiation negotiation) {
+    @WithSpan
+    private boolean processConfirming(ContractNegotiation negotiation) {
         var retrievedAgreement = negotiation.getContractAgreement();
 
         ContractAgreement agreement;
@@ -479,6 +487,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
 
         private Builder() {
             manager = new ProviderContractNegotiationManagerImpl();
+            manager.telemetry = new Telemetry(); // default noop implementation
         }
 
         public static Builder newInstance() {
@@ -520,6 +529,11 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
             return this;
         }
 
+        public Builder telemetry(Telemetry telemetry) {
+            manager.telemetry = telemetry;
+            return this;
+        }
+
         public Builder observable(ContractNegotiationObservable observable) {
             manager.observable = observable;
             return this;
@@ -532,7 +546,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
             Objects.requireNonNull(manager.commandQueue, "commandQueue");
             Objects.requireNonNull(manager.commandRunner, "commandRunner");
             Objects.requireNonNull(manager.observable, "observable");
-
+            Objects.requireNonNull(manager.telemetry, "telemetry");
             manager.commandProcessor = new CommandProcessor<>(manager.commandQueue, manager.commandRunner, manager.monitor);
 
             return manager;

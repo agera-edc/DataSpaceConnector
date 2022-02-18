@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
+import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.common.stream.EntitiesProcessor;
 import org.eclipse.dataspaceconnector.spi.command.CommandProcessor;
 import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
@@ -27,6 +28,7 @@ import org.eclipse.dataspaceconnector.spi.proxy.ProxyEntryHandlerRegistry;
 import org.eclipse.dataspaceconnector.spi.response.ResponseStatus;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
+import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferInitiateResult;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
 import org.eclipse.dataspaceconnector.spi.transfer.flow.DataFlowManager;
@@ -54,6 +56,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
@@ -109,6 +112,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     private CommandRunner<TransferProcessCommand> commandRunner;
     private CommandProcessor<TransferProcessCommand> commandProcessor;
     private Monitor monitor;
+    private Telemetry telemetry;
 
     private TransferProcessManagerImpl() {
     }
@@ -138,6 +142,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
      * If a {@link org.eclipse.dataspaceconnector.spi.proxy.ProxyEntryHandler} is registered, the {@link ProxyEntry} is forwarded to it, and if no {@link org.eclipse.dataspaceconnector.spi.proxy.ProxyEntryHandler}
      * is registered, the {@link ProxyEntry} object is returned.
      */
+    @WithSpan
     @Override
     public TransferInitiateResult initiateConsumerRequest(DataRequest dataRequest) {
         if (dataRequest.isSync()) {
@@ -157,6 +162,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
      * The {@link DataProxyManager} checks if a {@link org.eclipse.dataspaceconnector.spi.proxy.DataProxy}
      * is registered for a particular request and if so, calls it.
      */
+    @WithSpan
     @Override
     public TransferInitiateResult initiateProviderRequest(DataRequest dataRequest) {
         if (dataRequest.isSync()) {
@@ -249,7 +255,8 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             return TransferInitiateResult.success(processId);
         }
         var id = randomUUID().toString();
-        var process = TransferProcess.Builder.newInstance().id(id).dataRequest(dataRequest).type(type).build();
+        var process = TransferProcess.Builder.newInstance().id(id).dataRequest(dataRequest).type(type)
+                .traceContext(telemetry.getCurrentTraceContext()).build();
         if (process.getState() == TransferProcessStates.UNSAVED.code()) {
             process.transitionInitial();
         }
@@ -308,6 +315,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
                 .dataRequest(dataRequest)
                 .state(COMPLETED.code())
                 .type(type)
+                .traceContext(telemetry.getCurrentTraceContext())
                 .build();
     }
 
@@ -334,12 +342,12 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     private void run() {
         while (active.get()) {
             try {
-                long initial = onTransfersInState(INITIAL).doProcess(this::processInitial);
-                long provisioned = onTransfersInState(PROVISIONED).doProcess(this::processProvisioned);
-                long ackRequested = onTransfersInState(REQUESTED_ACK).doProcess(this::processAckRequested);
-                long inProgress = onTransfersInState(IN_PROGRESS).doProcess(this::processInProgress);
-                long deprovisioningRequest = onTransfersInState(DEPROVISIONING_REQ).doProcess(this::processDeprovisioningRequest);
-                long deprovisioned = onTransfersInState(DEPROVISIONED).doProcess(this::processDeprovisioned);
+                long initial = processTransfersInState(INITIAL, this::processInitial);
+                long provisioned = processTransfersInState(PROVISIONED, this::processProvisioned);
+                long ackRequested = processTransfersInState(REQUESTED_ACK, this::processAckRequested);
+                long inProgress = processTransfersInState(IN_PROGRESS, this::processInProgress);
+                long deprovisioningRequest = processTransfersInState(DEPROVISIONING_REQ, this::processDeprovisioningRequest);
+                long deprovisioned = processTransfersInState(DEPROVISIONED, this::processDeprovisioned);
 
                 long commandsProcessed = onCommands().doProcess(this::processCommand);
 
@@ -367,8 +375,9 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
     }
 
-    private EntitiesProcessor<TransferProcess> onTransfersInState(TransferProcessStates state) {
-        return new EntitiesProcessor<>(() -> transferProcessStore.nextForState(state.code(), batchSize));
+    private long processTransfersInState(TransferProcessStates state, Function<TransferProcess, Boolean> function) {
+        var functionWithTraceContext = telemetry.contextPropagationMiddleware(function);
+        return new EntitiesProcessor<>(() -> transferProcessStore.nextForState(state.code(), batchSize)).doProcess(functionWithTraceContext);
     }
 
     private EntitiesProcessor<TransferProcessCommand> onCommands() {
@@ -379,6 +388,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         return commandProcessor.processCommandQueue(command);
     }
 
+    @WithSpan
     private boolean processDeprovisioned(TransferProcess process) {
         process.transitionEnded();
         transferProcessStore.update(process);
@@ -387,6 +397,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         return true;
     }
 
+    @WithSpan
     private boolean processDeprovisioningRequest(TransferProcess process) {
         process.transitionDeprovisioning();
         transferProcessStore.update(process);
@@ -405,6 +416,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         return true;
     }
 
+    @WithSpan
     private boolean processAckRequested(TransferProcess process) {
         if (!process.getDataRequest().isManagedResources() || (process.getProvisionedResourceSet() != null && !process.getProvisionedResourceSet().empty())) {
 
@@ -423,6 +435,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
     }
 
+    @WithSpan
     private boolean processInProgress(TransferProcess process) {
         if (process.getType() != CONSUMER) {
             return false;
@@ -452,6 +465,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
     }
 
+    @WithSpan
     private void transitionToCompleted(TransferProcess process) {
         process.transitionCompleted();
         monitor.debug("Process " + process.getId() + " is now " + COMPLETED);
@@ -465,6 +479,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
      * On a consumer, provisioning may entail setting up a data destination and supporting infrastructure. On a provider, provisioning is initiated when a request is received and
      * map involve preprocessing data or other operations.
      */
+    @WithSpan
     private boolean processInitial(TransferProcess process) {
         var manifest = manifestGenerator.generateResourceManifest(process);
         process.transitionProvisioning(manifest);
@@ -494,6 +509,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         return true;
     }
 
+    @WithSpan
     private void processProviderRequest(TransferProcess process, DataRequest dataRequest) {
         var response = dataFlowManager.initiate(dataRequest);
         if (response.succeeded()) {
@@ -519,6 +535,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         }
     }
 
+    @WithSpan
     private void sendConsumerRequest(TransferProcess process, DataRequest dataRequest) {
         process.transitionRequested();
         transferProcessStore.update(process);   // update before sending to accommodate synchronous transports; reliability will be managed by retry and idempotency
@@ -547,6 +564,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
         private Builder() {
             manager = new TransferProcessManagerImpl();
+            manager.telemetry = new Telemetry(); // default noop implementation
         }
 
         public static Builder newInstance() {
@@ -590,6 +608,11 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
         public Builder statusCheckerRegistry(StatusCheckerRegistry statusCheckerRegistry) {
             manager.statusCheckerRegistry = statusCheckerRegistry;
+            return this;
+        }
+
+        public Builder telemetry(Telemetry telemetry) {
+            manager.telemetry = telemetry;
             return this;
         }
 
@@ -640,7 +663,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             Objects.requireNonNull(manager.dataProxyManager, "DataProxyManager cannot be null!");
             Objects.requireNonNull(manager.proxyEntryHandlers, "ProxyEntryHandlerRegistry cannot be null!");
             Objects.requireNonNull(manager.observable, "Observable cannot be null");
-
+            Objects.requireNonNull(manager.telemetry, "Telemetry cannot be null");
             manager.commandProcessor = new CommandProcessor<>(manager.commandQueue, manager.commandRunner, manager.monitor);
 
             return manager;
