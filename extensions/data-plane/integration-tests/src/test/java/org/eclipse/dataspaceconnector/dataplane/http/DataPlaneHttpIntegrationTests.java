@@ -22,7 +22,8 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
-import org.eclipse.dataspaceconnector.dataplane.http.schema.HttpDataSchema;
+import org.eclipse.dataspaceconnector.dataplane.spi.schema.DataFlowRequestSchema;
+import org.eclipse.dataspaceconnector.dataplane.spi.schema.HttpDataSchema;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -50,6 +51,7 @@ import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
+import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
@@ -67,13 +69,15 @@ import static org.mockserver.stop.Stop.stopQuietly;
  */
 public class DataPlaneHttpIntegrationTests {
 
-    private static final int DPF_API_PORT = getFreePort();
+    private static final int DPF_PUBLIC_API_PORT = getFreePort();
+    private static final int DPF_CONTROL_API_PORT = getFreePort();
     private static final int DPF_HTTP_SOURCE_API_PORT = getFreePort();
     private static final int DPF_HTTP_SINK_API_PORT = getFreePort();
-    private static final String DPF_API_HOST = "http://localhost:" + DPF_API_PORT;
+    private static final String DPF_CONTROL_API_HOST = "http://localhost:" + DPF_CONTROL_API_PORT;
     private static final String DPF_HTTP_SOURCE_API_HOST = "http://localhost:" + DPF_HTTP_SOURCE_API_PORT;
     private static final String DPF_HTTP_SINK_API_HOST = "http://localhost:" + DPF_HTTP_SINK_API_PORT;
-    private static final String TRANSFER_PATH = "/api/transfer";
+    private static final String CONTROL_PATH = "/control";
+    private static final String TRANSFER_PATH = format("%s/transfer", CONTROL_PATH);
     private static final String EDC_TYPE = "edctype";
     private static final String DATA_FLOW_REQUEST_EDC_TYPE = "dataspaceconnector:dataflowrequest";
     private static final String DPF_HTTP_API_PART_NAME = "sample";
@@ -94,7 +98,11 @@ public class DataPlaneHttpIntegrationTests {
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":launchers:data-plane-server",
             "data-plane-server",
-            Map.of("web.http.control.port", String.valueOf(DPF_API_PORT)));
+            Map.of(
+                    "web.http.public.port", String.valueOf(DPF_PUBLIC_API_PORT),
+                    "web.http.control.port", String.valueOf(DPF_CONTROL_API_PORT),
+                    "web.http.control.path", CONTROL_PATH
+            ));
 
     @BeforeAll
     public static void setUp() {
@@ -147,6 +155,8 @@ public class DataPlaneHttpIntegrationTests {
                 .contentType(ContentType.JSON)
                 .body(transferRequestBody())
                 .when()
+                .log()
+                .all()
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
@@ -404,6 +414,7 @@ public class DataPlaneHttpIntegrationTests {
         var request = DataFlowRequest.Builder.newInstance()
                 .id(faker.internet().uuid())
                 .processId(faker.internet().uuid())
+                .properties(Map.of(DataFlowRequestSchema.METHOD, HttpMethod.GET.name()))
                 .sourceDataAddress(DataAddress.Builder.newInstance()
                         .type(HttpDataSchema.TYPE)
                         .properties(Map.of(
@@ -433,7 +444,7 @@ public class DataPlaneHttpIntegrationTests {
      */
     private RequestSpecification givenDpfRequest() {
         return given()
-                .baseUri(DPF_API_HOST);
+                .baseUri(DPF_CONTROL_API_HOST);
     }
 
     /**
