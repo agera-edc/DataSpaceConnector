@@ -13,7 +13,6 @@
  */
 package org.eclipse.dataspaceconnector.dataplane.spi.pipeline;
 
-import org.eclipse.dataspaceconnector.common.async.AsyncUtils;
 import org.eclipse.dataspaceconnector.common.stream.PartitionIterator;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
@@ -26,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static java.util.stream.Collectors.toList;
+import static org.eclipse.dataspaceconnector.common.async.AsyncUtils.asyncAllOf;
 import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.ERROR_RETRY;
 
 /**
@@ -43,12 +43,13 @@ public abstract class ParallelSink implements DataSink {
             var partitioned = PartitionIterator.streamOf(partStream, partitionSize);
             var futures = partitioned.map(parts -> supplyAsync(() -> transferParts(parts), executorService)).collect(toList());
             return futures.stream()
-                    .collect(AsyncUtils.asyncAllOf())
+                    .collect(asyncAllOf())
                     .thenApply(results -> {
-                        if (results.stream().anyMatch(AbstractResult::failed)) {
-                            return TransferResult.failure(ERROR_RETRY, "Error transferring data");
-                        }
-                        return TransferResult.success();
+                        return results.stream()
+                                .filter(AbstractResult::failed)
+                                .findFirst()
+                                .map(r -> TransferResult.failure(ERROR_RETRY, String.join(",", r.getFailureMessages())))
+                                .orElse(TransferResult.success());
                     })
                     .exceptionally(throwable -> TransferResult.failure(ERROR_RETRY, "Unhandled exception raised when transferring data: " + throwable.getMessage()));
         } catch (Exception e) {
