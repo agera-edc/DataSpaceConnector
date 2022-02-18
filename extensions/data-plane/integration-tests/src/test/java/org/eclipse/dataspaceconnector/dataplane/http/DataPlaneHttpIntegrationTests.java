@@ -32,6 +32,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
 import org.mockserver.model.HttpError;
@@ -44,6 +47,7 @@ import org.mockserver.verify.VerificationTimes;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -222,7 +226,7 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Validate if source is dropping connection intermittently than DPF server retries to fetch data.
+     * Validate if intermittently source is dropping connection than DPF server retries to fetch data.
      */
     @Test
     public void transfer_sourceTemporaryDropConnection_success() {
@@ -285,6 +289,42 @@ public class DataPlaneHttpIntegrationTests {
                                 VerificationTimes.once()
                         )
         );
+    }
+
+    @ParameterizedTest(name = "{index} {0}")
+    @MethodSource("provideCommonErrorCodes")
+    public void transfer_sourceErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
+        // Arrange
+        // HTTP Source returns error response.
+        httpSourceClientAndServer
+                .when(
+                        givenGetRequest(),
+                        once()
+                )
+                .respond(
+                        withResponse(httpStatusCode)
+                );
+
+        // Act & Assert
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(transferRequestBody())
+                .when()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
+        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
+        // Verify HTTP Source server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                httpSourceClientAndServer
+                        .verify(
+                                givenGetRequest(),
+                                VerificationTimes.once()
+                        )
+        );
+
+        httpSinkClientAndServer.verifyZeroInteractions();
     }
 
     /**
@@ -465,4 +505,22 @@ public class DataPlaneHttpIntegrationTests {
         return error()
                 .withDropConnection(true);
     }
+
+    /**
+     * Provides most common http error status codes.
+     *
+     * @return Http Error codes as {@link Stream} of {@link Arguments}.
+     */
+    private static Stream<Arguments> provideCommonErrorCodes() {
+        return Stream.of(
+                Arguments.of(HttpStatusCode.MOVED_PERMANENTLY_301.name(), HttpStatusCode.MOVED_PERMANENTLY_301),
+                Arguments.of(HttpStatusCode.FOUND_302.name(), HttpStatusCode.FOUND_302),
+                Arguments.of(HttpStatusCode.BAD_REQUEST_400.name(), HttpStatusCode.BAD_REQUEST_400),
+                Arguments.of(HttpStatusCode.UNAUTHORIZED_401.name(), HttpStatusCode.UNAUTHORIZED_401),
+                Arguments.of(HttpStatusCode.NOT_FOUND_404.name(), HttpStatusCode.NOT_FOUND_404),
+                Arguments.of(HttpStatusCode.INTERNAL_SERVER_ERROR_500.name(), HttpStatusCode.INTERNAL_SERVER_ERROR_500),
+                Arguments.of(HttpStatusCode.BAD_GATEWAY_502.name(), HttpStatusCode.BAD_GATEWAY_502)
+        );
+    }
+
 }
