@@ -23,7 +23,7 @@ Copy of a 1MB file from West Europe to East US 1 to 1.5 seconds.
 
 We have 2 solutions to transfer data from a blob to another blob.
 
-- Make a copy from blob to blob with the BlobClient.
+- Use the [BlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.blobclient?view=azure-java-stable) to trigger a copy from blob to blob.
 - Use the [BlockBlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient?view=azure-java-stable) to get a stream from blob to VM and transfer from VM to blob with another stream.
 
 Pros: Network I/O is only between the 2 storage accounts. The client does not need to download any data.
