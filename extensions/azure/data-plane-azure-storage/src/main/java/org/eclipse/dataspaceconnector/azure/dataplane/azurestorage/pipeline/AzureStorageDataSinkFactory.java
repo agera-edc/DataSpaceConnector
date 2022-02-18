@@ -25,6 +25,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import static java.lang.String.format;
@@ -58,8 +59,8 @@ public class AzureStorageDataSinkFactory implements DataSinkFactory {
         var dataAddress = request.getDestinationDataAddress();
         var properties = new HashMap<>(dataAddress.getProperties());
         try {
-            if (properties.remove(DataAddress.TYPE) != AzureBlobStoreSchema.TYPE) {
-                throw new IllegalArgumentException("Unexpected type");
+                if (!Objects.equals(properties.remove(DataAddress.TYPE) , AzureBlobStoreSchema.TYPE)) {
+                throw new IllegalArgumentException("Unexpected type ");
             }
             validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
             validateContainerName(properties.remove(AzureBlobStoreSchema.CONTAINER_NAME));

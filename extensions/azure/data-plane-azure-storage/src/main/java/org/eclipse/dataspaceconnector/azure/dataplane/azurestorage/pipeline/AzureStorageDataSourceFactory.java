@@ -26,6 +26,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateAccountName;
@@ -57,7 +58,7 @@ public class AzureStorageDataSourceFactory implements DataSourceFactory {
         var dataAddress = request.getSourceDataAddress();
         var properties = new HashMap<>(dataAddress.getProperties());
         try {
-            if (properties.remove(DataAddress.TYPE) != AzureBlobStoreSchema.TYPE) {
+            if (!Objects.equals(properties.remove(DataAddress.TYPE) , AzureBlobStoreSchema.TYPE)) {
                 throw new IllegalArgumentException("Unexpected type");
             }
             validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
