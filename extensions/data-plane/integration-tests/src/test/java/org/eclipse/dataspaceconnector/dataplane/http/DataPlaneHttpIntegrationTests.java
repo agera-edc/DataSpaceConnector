@@ -29,10 +29,12 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
+import org.mockserver.model.HttpError;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.HttpStatusCode;
@@ -69,6 +71,7 @@ public class DataPlaneHttpIntegrationTests {
     private static final String DPF_HTTP_SINK_API_HOST = "http://localhost:" + DPF_HTTP_SINK_API_PORT;
     private static final String TRANSFER_PATH = "/api/transfer";
     private static final String EDC_TYPE = "edctype";
+    private static final String DATA_FLOW_REQUEST_EDC_TYPE = "dataspaceconnector:dataflowrequest";
     private static final String DPF_HTTP_API_PART_NAME = "sample";
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -77,11 +80,11 @@ public class DataPlaneHttpIntegrationTests {
     /**
      * HTTP Source mock server.
      */
-    private static ClientAndServer dpfHttpSourceClientAndServer;
+    private static ClientAndServer httpSourceClientAndServer;
     /**
      * HTTP Sink mock server.
      */
-    private static ClientAndServer dpfHttpSinkClientAndServer;
+    private static ClientAndServer httpSinkClientAndServer;
 
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -91,14 +94,14 @@ public class DataPlaneHttpIntegrationTests {
 
     @BeforeAll
     public static void setUp() {
-        dpfHttpSourceClientAndServer = startClientAndServer(DPF_HTTP_SOURCE_API_PORT);
-        dpfHttpSinkClientAndServer = startClientAndServer(DPF_HTTP_SINK_API_PORT);
+        httpSourceClientAndServer = startClientAndServer(DPF_HTTP_SOURCE_API_PORT);
+        httpSinkClientAndServer = startClientAndServer(DPF_HTTP_SINK_API_PORT);
     }
 
     @AfterAll
     public static void tearDown() {
-        stopQuietly(dpfHttpSourceClientAndServer);
-        stopQuietly(dpfHttpSinkClientAndServer);
+        stopQuietly(httpSourceClientAndServer);
+        stopQuietly(httpSinkClientAndServer);
     }
 
     /**
@@ -106,37 +109,39 @@ public class DataPlaneHttpIntegrationTests {
      */
     @AfterEach
     public void resetMockServer() {
-        dpfHttpSourceClientAndServer.reset();
-        dpfHttpSinkClientAndServer.reset();
+        httpSourceClientAndServer.reset();
+        httpSinkClientAndServer.reset();
     }
 
     @Test
     public void transfer_success() {
         // Arrange
         // HTTP Source Request & Response
-        var dpfSourceResponseBody = UUID.randomUUID().toString();
-        dpfHttpSourceClientAndServer
+        var body = UUID.randomUUID().toString();
+        httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
                         once()
                 )
                 .respond(
-                        withResponse(HttpStatusCode.OK_200, dpfSourceResponseBody)
+                        withResponse(HttpStatusCode.OK_200, body)
                 );
+
         // HTTP Sink Request & Response
-        dpfHttpSinkClientAndServer
+        httpSinkClientAndServer
                 .when(
-                        givenPostRequest(dpfSourceResponseBody),
+                        givenPostRequest(body),
                         once()
                 )
                 .respond(
                         withResponse(HttpStatusCode.OK_200)
                 );
+
         // Act & Assert
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(initiateTransferRequest())
+                .body(transferRequestBody())
                 .when()
                 .post(TRANSFER_PATH)
                 .then()
@@ -144,17 +149,18 @@ public class DataPlaneHttpIntegrationTests {
 
         // Verify HTTP Source server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                dpfHttpSourceClientAndServer
+                httpSourceClientAndServer
                         .verify(
                                 givenGetRequest(),
                                 VerificationTimes.once()
                         )
         );
+
         // Verify HTTP Sink server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                dpfHttpSinkClientAndServer
+                httpSinkClientAndServer
                         .verify(
-                                givenPostRequest(dpfSourceResponseBody),
+                                givenPostRequest(body),
                                 VerificationTimes.once()
                         )
         );
@@ -167,7 +173,8 @@ public class DataPlaneHttpIntegrationTests {
     public void transfer_invalidInput_failure() {
         // Arrange
         // Request without processId to initiate transfer.
-        var invalidRequest = initiateTransferRequest().remove("processId");
+        var invalidRequest = transferRequestBody().remove("processId");
+
         // Act & Assert
         // Initiate transfer
         givenDpfRequest()
@@ -183,84 +190,166 @@ public class DataPlaneHttpIntegrationTests {
     public void transfer_sourceNotAvailable_noInteractionWithSink() {
         // Arrange
         // HTTP Source Request & Error Response
-        dpfHttpSourceClientAndServer
+        httpSourceClientAndServer
                 .when(
                         givenGetRequest()
                 )
                 .error(
-                        error()
-                                .withDropConnection(true)
+                        withDropConnection()
                 );
+
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(initiateTransferRequest())
+                .body(transferRequestBody())
                 .when()
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
+
         // Verify HTTP Source server called at lest once.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                dpfHttpSourceClientAndServer
+                httpSourceClientAndServer
                         .verify(
                                 givenGetRequest(),
                                 VerificationTimes.atLeast(1)
                         )
         );
+
         // Verify zero interaction with HTTP Sink.
         // TODO: Here it can be a race-condition. Need a dpf api to check status of transfer.
-        dpfHttpSinkClientAndServer.verifyZeroInteractions();
+        httpSinkClientAndServer.verifyZeroInteractions();
     }
 
     /**
-     * Validate if source is unavailable intermittently than DPF server retries to fetch data.
+     * Validate if source is dropping connection intermittently than DPF server retries to fetch data.
      */
     @Test
-    public void transfer_sourceTemporaryFailure_success() {
+    public void transfer_sourceTemporaryDropConnection_success() {
         // Arrange
         // First two calls to HTTP Source returns a failure response.
-        dpfHttpSourceClientAndServer
+        httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
                         exactly(2)
                 )
                 .error(
-                        error()
-                                .withDropConnection(true)
+                        withDropConnection()
                 );
+
         // Next call to HTTP Source returns a valid response.
-        var dpfSourceResponseBody = UUID.randomUUID().toString();
-        dpfHttpSourceClientAndServer
+        var body = UUID.randomUUID().toString();
+        httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
                         once()
                 )
                 .respond(
-                        withResponse(HttpStatusCode.OK_200, dpfSourceResponseBody)
+                        withResponse(HttpStatusCode.OK_200, body)
                 );
+
+        // HTTP Sink Request & Response
+        httpSinkClientAndServer
+                .when(
+                        givenPostRequest(body),
+                        once()
+                )
+                .respond(
+                        withResponse(HttpStatusCode.OK_200)
+                );
+
         // Act & Assert
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(initiateTransferRequest())
+                .body(transferRequestBody())
                 .when()
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
+
         // Verify HTTP Source server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                dpfHttpSourceClientAndServer
+                httpSourceClientAndServer
                         .verify(
                                 givenGetRequest(),
                                 VerificationTimes.exactly(3)
                         )
         );
+
         // Verify HTTP Sink server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                dpfHttpSinkClientAndServer
+                httpSinkClientAndServer
                         .verify(
-                                givenPostRequest(dpfSourceResponseBody),
+                                givenPostRequest(body),
                                 VerificationTimes.once()
+                        )
+        );
+    }
+
+    /**
+     * Validate if sink is dropping connection than DPF server retries to push data.
+     */
+    @Test
+    @Disabled
+    public void transfer_sinkNotAvailable_success() {
+        // Arrange
+        // HTTP Source Request & Response
+        var body = UUID.randomUUID().toString();
+        httpSourceClientAndServer
+                .when(
+                        givenGetRequest(),
+                        once()
+                )
+                .respond(
+                        withResponse(HttpStatusCode.OK_200, body)
+                );
+
+        // First two calls to HTTP sink returns a failure response.
+        httpSinkClientAndServer
+                .when(
+                        givenPostRequest(body),
+                        exactly(2)
+                )
+                .error(
+                        withDropConnection()
+                );
+
+        // Next call to HTTP sink returns a valid response.
+        httpSinkClientAndServer
+                .when(
+                        givenPostRequest(body),
+                        once()
+                )
+                .respond(
+                        withResponse(HttpStatusCode.OK_200)
+                );
+
+        // Act & Assert
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(transferRequestBody())
+                .when()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
+
+        // Verify HTTP Source server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                httpSourceClientAndServer
+                        .verify(
+                                givenGetRequest(),
+                                VerificationTimes.once()
+                        )
+        );
+
+        // Verify HTTP Sink server expectation.
+        await().atMost(10, SECONDS).untilAsserted(() ->
+                httpSinkClientAndServer
+                        .verify(
+                                givenPostRequest(body),
+                                VerificationTimes.exactly(3)
                         )
         );
     }
@@ -270,7 +359,7 @@ public class DataPlaneHttpIntegrationTests {
      *
      * @return JSON object. see {@link ObjectNode}.
      */
-    private ObjectNode initiateTransferRequest() {
+    private ObjectNode transferRequestBody() {
         // Create valid dataflow request instance.
         var request = DataFlowRequest.Builder.newInstance()
                 .id(faker.internet().uuid())
@@ -292,7 +381,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Add edctype to request
         var requestJsonNode = OBJECT_MAPPER.convertValue(request, ObjectNode.class);
-        requestJsonNode.put(EDC_TYPE, "dataspaceconnector:dataflowrequest");
+        requestJsonNode.put(EDC_TYPE, DATA_FLOW_REQUEST_EDC_TYPE);
 
         return requestJsonNode;
     }
@@ -308,7 +397,7 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Mock HTTP GET request expectation for source.
+     * Mock HTTP GET request for source.
      *
      * @return see {@link HttpRequest}
      */
@@ -319,7 +408,7 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Mock plain text response expectation from source.
+     * Mock plain text response from source.
      *
      * @param statusCode   Response status code.
      * @param responseBody Response body.
@@ -341,7 +430,7 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Mock HTTP POST request expectation for sink.
+     * Mock HTTP POST request for sink.
      *
      * @param responseBody Request body.
      * @return see {@link HttpRequest}
@@ -358,12 +447,22 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Mock response expectation from sink.
+     * Mock response from sink.
      *
      * @param statusCode Response status code.
      * @return see {@link HttpResponse}
      */
     private HttpResponse withResponse(HttpStatusCode statusCode) {
         return withResponse(statusCode, null);
+    }
+
+    /**
+     * Mock error response which to force the connection to be dropped without any response being returned.
+     *
+     * @return see {@link HttpError}
+     */
+    private HttpError withDropConnection() {
+        return error()
+                .withDropConnection(true);
     }
 }
