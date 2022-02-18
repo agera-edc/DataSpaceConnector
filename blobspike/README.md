@@ -5,12 +5,29 @@ We evaluated the possibility to copy a blob.
 ## Copy with Java SDK
 
 We evaluated the [Java azure storage client library](https://docs.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable) to copy blobs.
+The client triggers the copy from blob source to blob destination but does not download any data.
 
 ### Evaluate if copy can be done with client not handling data flow
 
 The blob client calls the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api) to [copy a blob](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url).
 The client does not need to download the blob. It only instructs the cloud to copy the blob from source to destination.
 The client [get the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties) by calling the REST API in order to know if the copy operation is finished.
+
+### Copy duration
+
+Copy of a 1GB file from West Europe to East US takes around 9 minutes. 
+Copy of a 256MB file from West Europe to East US takes 30 to 40 seconds.
+Copy of a 1MB file from West Europe to East US 1 to 1.5 seconds.
+
+## Evaluation of copy vs streaming
+
+We have 2 solutions to transfer data from a blob to another blob.
+- Make a copy from blob to blob with the beginCopy method.
+- Get a stream from blob to VM and transfer from VM to blob.
+
+Pros: Network I/O is only between the 2 storage accounts. The client does not need to download any data.
+Cons: The storage account you download the data from needs to be accessible from the internet. With the stream, the provider and the storage account 
+could be in common private network. Then, only the destination storage account would need to be accessible from the internet.
 
 ### Azure Blob Copy within same container
 
