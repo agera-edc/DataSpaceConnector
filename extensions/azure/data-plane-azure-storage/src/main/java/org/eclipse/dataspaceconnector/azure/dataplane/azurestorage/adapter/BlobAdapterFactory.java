@@ -19,6 +19,9 @@ import com.azure.storage.common.StorageSharedKeyCredential;
 
 import java.util.Objects;
 
+/**
+ * Factory class for {@link BlobAdapter}.
+ */
 public class BlobAdapterFactory {
     private final String blobstoreEndpoint;
 

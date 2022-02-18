@@ -20,6 +20,9 @@ import java.util.Base64;
 import java.util.regex.Pattern;
 
 
+/**
+ * Validates storage account resource names and keys.
+ */
 public class AzureStorageValidator {
     private static final Base64.Decoder DECODER = Base64.getDecoder();
 
@@ -45,6 +48,7 @@ public class AzureStorageValidator {
      * Checks if an account name is valid.
      *
      * @param accountName A String representing the account name to validate.
+     * @throws IllegalArgumentException if the string does not represent a valid account name.
      */
     public static void validateAccountName(String accountName) {
         checkLength(accountName, ACCOUNT, ACCOUNT_MIN_LENGTH, ACCOUNT_MAX_LENGTH);
@@ -58,6 +62,7 @@ public class AzureStorageValidator {
      * Checks if a container name is valid.
      *
      * @param containerName A String representing the container name to validate.
+     * @throws IllegalArgumentException if the string does not represent a valid container name.
      */
     public static void validateContainerName(String containerName) {
         if (!("$root".equals(containerName) || "$logs".equals(containerName) || "$web".equals(containerName))) {
@@ -73,6 +78,7 @@ public class AzureStorageValidator {
      * Checks if a blob name is valid.
      *
      * @param blobName A String representing the blob name to validate.
+     * @throws IllegalArgumentException if the string does not represent a valid blob name.
      */
     public static void validateBlobName(String blobName) {
         checkLength(blobName, BLOB, BLOB_MIN_LENGTH, BLOB_MAX_LENGTH);
@@ -93,6 +99,7 @@ public class AzureStorageValidator {
      * Checks if a storage account shared key is in the expected format.
      *
      * @param accountKey A String representing the shared key to validate.
+     * @throws IllegalArgumentException if the string does not represent a value encoded in the expected format.
      */
     public static void validateSharedKey(String accountKey) {
         if (StringUtils.isNullOrBlank(accountKey)) {

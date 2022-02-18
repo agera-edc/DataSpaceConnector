@@ -15,6 +15,11 @@
 package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema;
 
 
+import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
+
+/**
+ * Constants used in Azure Blob storage data address {@link DataAddress#getProperties() properties}.
+ */
 public class AzureBlobStoreSchema {
 
     private AzureBlobStoreSchema() {
