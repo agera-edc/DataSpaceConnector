@@ -144,7 +144,7 @@ class AzureDataSourceToDataSinkTests {
 
         TransferResult transferResult = dataSink.transfer(dataSource).get();
         assertThat(transferResult.failed()).isTrue();
-        assertThat(transferResult.getFailureMessages()).containsExactly("Error transferring data");
+        assertThat(transferResult.getFailureMessages()).containsExactly("Error reading Azure Storage blob");
     }
 
 

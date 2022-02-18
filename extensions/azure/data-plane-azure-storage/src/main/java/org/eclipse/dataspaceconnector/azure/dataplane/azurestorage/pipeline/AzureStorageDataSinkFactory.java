@@ -20,10 +20,17 @@ import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSinkFactory;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
+import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
+
+import static java.lang.String.format;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateAccountName;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateContainerName;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateSharedKey;
 
 /**
  * Instantiates {@link AzureStorageDataSink}s for requests whose source data type is {@link AzureBlobStoreSchema#TYPE}.
@@ -49,14 +56,19 @@ public class AzureStorageDataSinkFactory implements DataSinkFactory {
     @Override
     public @NotNull Result<Boolean> validate(DataFlowRequest request) {
         var dataAddress = request.getDestinationDataAddress();
-        if (dataAddress == null || !dataAddress.getProperties().containsKey(AzureBlobStoreSchema.ACCOUNT_NAME)) {
-            return Result.failure(String.format("Azure Blob data sink %s not provided for request %s", AzureBlobStoreSchema.ACCOUNT_NAME, request.getId()));
-        }
-        if (dataAddress == null || !dataAddress.getProperties().containsKey(AzureBlobStoreSchema.CONTAINER_NAME)) {
-            return Result.failure(String.format("Azure Blob data sink %s not provided for request %s", AzureBlobStoreSchema.CONTAINER_NAME, request.getId()));
-        }
-        if (dataAddress == null || !dataAddress.getProperties().containsKey(AzureBlobStoreSchema.SHARED_KEY)) {
-            return Result.failure(String.format("Azure Blob data sink %s not provided for request %s", AzureBlobStoreSchema.SHARED_KEY, request.getId()));
+        var properties = new HashMap<>(dataAddress.getProperties());
+        try {
+            if (properties.remove(DataAddress.TYPE) != AzureBlobStoreSchema.TYPE) {
+                throw new IllegalArgumentException("Unexpected type");
+            }
+            validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
+            validateContainerName(properties.remove(AzureBlobStoreSchema.CONTAINER_NAME));
+            validateSharedKey(properties.remove(AzureBlobStoreSchema.SHARED_KEY));
+            properties.keySet().stream().findAny().ifPresent(k -> {
+                throw new IllegalArgumentException(format("Unexpected property %s", k));
+            });
+        } catch (IllegalArgumentException e) {
+            return Result.failure(e.getMessage());
         }
         return VALID;
     }

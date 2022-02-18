@@ -12,12 +12,15 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline;
+package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage;
 
 import com.azure.core.util.BinaryData;
 import com.github.javafaker.Faker;
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
+import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSinkFactory;
+import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSourceFactory;
+import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
@@ -33,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createBlobName;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createContainerName;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.ACCOUNT_NAME;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.BLOB_NAME;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.CONTAINER_NAME;
@@ -40,13 +44,13 @@ import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.TYPE;
 import static org.mockito.Mockito.mock;
 
-@IntegrationTest
+// @IntegrationTest
 class AzureDataPlaneCopyIntegrationTest extends AbstractAzureBlobTest {
 
     static Faker faker = new Faker();
 
     RetryPolicy<Object> policy = new RetryPolicy<>().withMaxRetries(1);
-    String sinkContainerName = AzureStorageTestFixtures.createContainerName();
+    String sinkContainerName = createContainerName();
     String blobName = createBlobName();
     String content = faker.lorem().sentence();
     ExecutorService executor = Executors.newFixedThreadPool(2);

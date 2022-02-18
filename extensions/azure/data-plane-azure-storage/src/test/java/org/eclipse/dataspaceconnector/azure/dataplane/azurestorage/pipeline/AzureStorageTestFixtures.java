@@ -37,14 +37,14 @@ public class AzureStorageTestFixtures {
     }
 
     static String createAccountName() {
+        return faker.lorem().characters(3, 24, false, false);
+    }
+
+    public static String createContainerName() {
         return faker.lorem().characters(3, 40, false, false);
     }
 
-    static String createContainerName() {
-        return faker.lorem().characters(3, 40, false, false);
-    }
-
-    static String createBlobName() {
+    public static String createBlobName() {
         return faker.lorem().characters(3, 40, false, false);
     }
 
