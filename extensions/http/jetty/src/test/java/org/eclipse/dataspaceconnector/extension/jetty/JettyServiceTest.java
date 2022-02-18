@@ -25,6 +25,9 @@ import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.system.configuration.ConfigFactory;
+import org.eclipse.jetty.io.Connection;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.component.AbstractLifeCycle;
 import org.glassfish.jersey.internal.inject.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
@@ -33,14 +36,19 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 class JettyServiceTest {
     private JettyService jettyService;
@@ -103,6 +111,24 @@ class JettyServiceTest {
 
         assertThat(executeRequest("http://localhost:9191/another/test/resource").code()).isEqualTo(200);
         assertThat(executeRequest("http://localhost:7171/api/test/resource").code()).isEqualTo(200);
+    }
+
+    @Test
+    void verifyConnectorConfigurationCallback() {
+        var listener = new JettyListener();
+
+        var config = ConfigFactory.fromMap(Map.of("web.http.port", "7171")); //default port mapping
+        jettyService = new JettyService(JettyConfiguration.createFromConfig(null, null, config), monitor);
+        jettyService.addConnectorConfigurationCallback((c) -> c.addBean(listener));
+
+        var servletContainer = new ServletContainer(createTestResource());
+        jettyService.registerServlet("default", servletContainer);
+
+        jettyService.start();
+
+        assertThat(listener.getConnectionsOpened()).isEqualTo(0);
+        executeRequest("http://localhost:7171/api/test/resource");
+        assertThat(listener.getConnectionsOpened()).isEqualTo(1);
     }
 
     @Test
@@ -185,6 +211,24 @@ class JettyServiceTest {
         @Override
         protected void configure() {
             bind(testController).to(TestController.class);
+        }
+    }
+
+    private static class JettyListener extends AbstractLifeCycle implements Connection.Listener {
+
+        private final AtomicInteger connectionsOpened = new AtomicInteger();
+
+        @Override
+        public void onOpened(Connection connection) {
+            connectionsOpened.incrementAndGet();
+        }
+
+        @Override
+        public void onClosed(Connection connection) {
+        }
+
+        public int getConnectionsOpened() {
+            return connectionsOpened.intValue();
         }
     }
 }
