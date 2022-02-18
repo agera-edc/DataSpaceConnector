@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 
 public class AzureStorageValidator {
-    private static final Base64.Decoder decoder = Base64.getDecoder();
+    private static final Base64.Decoder DECODER = Base64.getDecoder();
 
     private static final int ACCOUNT_MIN_LENGTH = 3;
     private static final int ACCOUNT_MAX_LENGTH = 24;
@@ -99,7 +99,7 @@ public class AzureStorageValidator {
             throw new IllegalArgumentException(INVALID_KEY);
         }
         try {
-            decoder.decode(accountKey);
+            DECODER.decode(accountKey);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(INVALID_KEY);
         }
