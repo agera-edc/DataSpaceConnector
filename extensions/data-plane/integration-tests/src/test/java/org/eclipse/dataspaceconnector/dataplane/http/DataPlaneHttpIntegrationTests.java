@@ -146,7 +146,7 @@ public class DataPlaneHttpIntegrationTests {
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
-
+        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
         // Verify HTTP Source server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 httpSourceClientAndServer
@@ -207,6 +207,7 @@ public class DataPlaneHttpIntegrationTests {
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
 
+        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
         // Verify HTTP Source server called at lest once.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 httpSourceClientAndServer
@@ -217,7 +218,6 @@ public class DataPlaneHttpIntegrationTests {
         );
 
         // Verify zero interaction with HTTP Sink.
-        // TODO: Here it can be a race-condition. Need a dpf api to check status of transfer.
         httpSinkClientAndServer.verifyZeroInteractions();
     }
 
@@ -267,7 +267,7 @@ public class DataPlaneHttpIntegrationTests {
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
-
+        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
         // Verify HTTP Source server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 httpSourceClientAndServer
@@ -334,7 +334,7 @@ public class DataPlaneHttpIntegrationTests {
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
-
+        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
         // Verify HTTP Source server expectation.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 httpSourceClientAndServer
