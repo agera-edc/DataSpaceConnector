@@ -15,19 +15,19 @@ The client [get the blob properties](https://docs.microsoft.com/en-us/rest/api/s
 
 ### Copy duration
 
-Copy of a 1GB file from West Europe to East US takes around 9 minutes. 
+Copy of a 1GB file from West Europe to East US takes around 9 minutes.
 Copy of a 256MB file from West Europe to East US takes 30 to 40 seconds.
 Copy of a 1MB file from West Europe to East US 1 to 1.5 seconds.
 
 ## Evaluation of copy vs streaming
 
 We have 2 solutions to transfer data from a blob to another blob.
+
 - Make a copy from blob to blob with the beginCopy method.
 - Get a stream from blob to VM and transfer from VM to blob.
 
 Pros: Network I/O is only between the 2 storage accounts. The client does not need to download any data.
-Cons: The storage account you download the data from needs to be accessible from the internet. With the stream, the provider and the storage account 
-could be in common private network. Then, only the destination storage account would need to be accessible from the internet.
+Cons: The storage account you download the data from needs to be accessible from the internet. With the stream, the provider and the storage account could be in common private network. Then, only the destination storage account would need to be accessible from the internet.
 
 ### Azure Blob Copy within same container
 
@@ -68,9 +68,10 @@ while(!response.getStatus().isComplete()) {
 }
         
 ```
+
 Alternatively, we can also block the thread waiting for the completion using _waitForCompletion_ method.
 
-```java 
+```java
 
 var syncPoller = destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
 // Wait for polling to complete.
@@ -80,7 +81,8 @@ syncPoller.waitForCompletion(Duration.ofSeconds(5));
 
 ### Azure Blob Copy within different containers/different storage accounts within the same tenant/subscription
 
-To copy Azure Blob between containers within the same storage account as well as different storage accounts we can use BlobClients specifying their properties: 
+To copy Azure Blob between containers within the same storage account as well as different storage accounts we can use BlobClients specifying their properties:
+
 ```java
 
 // source blob client
@@ -100,7 +102,7 @@ BlobClient destBlobClient = new BlobClientBuilder()
 
 ### Azure Blob Copy between different Azure tenants/subscriptions
 
-##### Copy between tenants using Sas token
+#### Copy between tenants using Sas token
 
 Azure Blob can be copied between tenants using Java SDK. It requires creating a sas token to provide appropriate permissions to the blob.
 
