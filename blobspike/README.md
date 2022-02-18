@@ -5,7 +5,6 @@ We evaluated the possibility to copy a blob.
 ## Copy with Java SDK
 
 We evaluated the [Java azure storage client library](https://docs.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable) to copy blobs.
-The client triggers the copy from blob source to blob destination but does not download any data.
 
 ### Evaluate if copy can be done with client not handling data flow
 
@@ -23,8 +22,8 @@ Copy of a 1MB file from West Europe to East US 1 to 1.5 seconds.
 
 We have 2 solutions to transfer data from a blob to another blob.
 
-- Make a copy from blob to blob with the beginCopy method.
-- Get a stream from blob to VM and transfer from VM to blob.
+- Make a copy from blob to blob with the BlobClient.
+- Use the [BlockBlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient?view=azure-java-stable) to get a stream from blob to VM and transfer from VM to blob with another stream.
 
 Pros: Network I/O is only between the 2 storage accounts. The client does not need to download any data.
 Cons: The storage account you download the data from needs to be accessible from the internet. With the stream, the provider and the storage account could be in common private network. Then, only the destination storage account would need to be accessible from the internet.
