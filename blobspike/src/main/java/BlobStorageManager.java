@@ -1,7 +1,5 @@
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobClientBuilder;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import io.opentelemetry.extension.annotations.WithSpan;
@@ -35,63 +33,13 @@ public class BlobStorageManager {
 
             BlobInfo sourceBlob = new BlobInfo(sourceBlobName, sourceContainer, sourceConnectionString);
             BlobInfo destBlob = new BlobInfo(destBlobName, destContainer, destConnectionString);
-            // new BlobStorageManager().copyBlobWithinContainer(sourceBlob, destBlobName);
-            new BlobStorageManager().copyBlob(sourceBlob, destBlob);
-            // new BlobStorageManager().copyBlobUsingSasToken(sourceBlob, destBlob);
+            new BlobStorageManager().copyBlobUsingSasToken(sourceBlob, destBlob);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @WithSpan("copy_blob")
-    public void copyBlob(BlobInfo sourceBlob, BlobInfo destBlob) {
-        BlobContainerClient sourceContainerClient = new BlobContainerClientBuilder()
-                .connectionString(sourceBlob.storageAccountConnectionString)
-                .containerName(sourceBlob.containerName)
-                .buildClient();
-        BlobContainerClient destContainerClient = new BlobContainerClientBuilder()
-                .connectionString(destBlob.storageAccountConnectionString)
-                .containerName(destBlob.containerName)
-                .buildClient();
-
-        BlobClient sourceBlobClient = sourceContainerClient.getBlobClient(sourceBlob.blobName);
-        BlobClient destBlobClient = destContainerClient.getBlobClient(destBlob.blobName);
-        String source = sourceBlobClient.getBlobUrl();
-        // It will trigger a copy by calling the blob service REST API.
-        var syncPoller = destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
-        // It will check the blob properties to make sure the copy is finished.
-        syncPoller.waitForCompletion();
-
-        var sourceBlobContent = new ByteArrayOutputStream();
-        var destBlobContent = new ByteArrayOutputStream();
-        sourceBlobClient.download(sourceBlobContent);
-        destBlobClient.download(destBlobContent);
-        assertEquals(sourceBlobContent.toString(), destBlobContent.toString());
-    }
-
-    public void copyBlobWithinContainer(BlobInfo sourceBlob, String destinationBlobName) {
-        BlobContainerClient container = new BlobContainerClientBuilder()
-                .connectionString(sourceBlob.storageAccountConnectionString)
-                .containerName(sourceBlob.containerName)
-                .buildClient();
-
-        BlobClient sourceBlobClient = container.getBlobClient(sourceBlob.blobName);
-        BlobClient destBlobClient = container.getBlobClient(destinationBlobName);
-        String source = sourceBlobClient.getBlobUrl();
-
-        // It will trigger a copy by calling the blob service REST API.
-        var syncPoller = destBlobClient.beginCopy(source, Duration.ofSeconds(1L));
-
-        // It will check the blob properties to make sure the copy is finished.
-        syncPoller.waitForCompletion(Duration.ofSeconds(5));
-
-        var sourceBlobContent = new ByteArrayOutputStream();
-        var destBlobContent = new ByteArrayOutputStream();
-        sourceBlobClient.download(sourceBlobContent);
-        destBlobClient.download(destBlobContent);
-        assertEquals(sourceBlobContent.toString(), destBlobContent.toString());
-    }
-
     public void copyBlobUsingSasToken(BlobInfo sourceBlob, BlobInfo destBlob) {
 
         // source blob client
@@ -111,6 +59,7 @@ public class BlobStorageManager {
         String sasToken = sourceBlobClient.generateSas(sas);
 
         String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
+        System.out.println(sourceBlobUrl);
 
         // destination blob client
         BlobClient destBlobClient = new BlobClientBuilder()
@@ -119,9 +68,10 @@ public class BlobStorageManager {
                 .blobName(destBlob.blobName)
                 .buildClient();
 
-        // start copying
-        destBlobClient.beginCopy(sourceBlobUrl, Duration.ofSeconds(1L));
-
+        // start copying. It will trigger a copy by calling the blob service REST API.
+        var syncPoller = destBlobClient.beginCopy(sourceBlobUrl, Duration.ofSeconds(1L));
+        // wait for the copy to finish. It will check the blob properties to make sure the copy is finished.
+        syncPoller.waitForCompletion();
         // assert the blobs are the same
         var sourceBlobContent = new ByteArrayOutputStream();
         var destBlobContent = new ByteArrayOutputStream();
