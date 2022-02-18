@@ -14,7 +14,6 @@
 
 package org.eclipse.dataspaceconnector.extension.jetty;
 
-import io.micrometer.core.instrument.binder.jersey.server.MetricsApplicationEventListener;
 import io.micrometer.core.instrument.binder.jetty.JettyConnectionMetrics;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.system.Requires;
