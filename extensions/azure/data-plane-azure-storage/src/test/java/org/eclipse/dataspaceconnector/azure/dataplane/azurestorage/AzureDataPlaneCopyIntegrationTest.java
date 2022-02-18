@@ -44,7 +44,7 @@ import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.TYPE;
 import static org.mockito.Mockito.mock;
 
-// @IntegrationTest
+@IntegrationTest
 class AzureDataPlaneCopyIntegrationTest extends AbstractAzureBlobTest {
 
     static Faker faker = new Faker();
