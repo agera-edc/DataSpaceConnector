@@ -86,17 +86,27 @@ public class HttpDataSourceFactory implements DataSourceFactory {
         var queryParams = request.getProperties().get(QUERY_PARAMS);
 
         try {
-            return Result.success(HttpDataSource.Builder.newInstance()
+            var httpDataSourceBuilder = HttpDataSource.Builder.newInstance()
                     .httpClient(httpClient)
                     .sourceUrl(endpoint)
                     .name(name)
-                    .method(method)
-                    .header(authKey, authCode)
-                    .queryParams(queryParams)
+                    .method(method);
+
+            if (authKey != null && authCode != null) {
+                httpDataSourceBuilder.header(authKey, authCode);
+            }
+
+            if (queryParams != null) {
+                httpDataSourceBuilder.queryParams(queryParams);
+            }
+
+            httpDataSourceBuilder
                     .requestId(request.getId())
                     .retryPolicy(retryPolicy)
-                    .monitor(monitor)
-                    .build());
+                    .monitor(monitor);
+
+
+            return Result.success(httpDataSourceBuilder.build());
         } catch (Exception e) {
             return Result.failure("Failed to build HttpDataSource: " + e.getMessage());
         }
