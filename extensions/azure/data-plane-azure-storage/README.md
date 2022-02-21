@@ -2,7 +2,7 @@
 
 ### About this module
 
-This module contains can copy data to and from Azure Blob storage.
+This module contains a Data Plane extension to copy data to and from Azure Blob storage.
 
 When used as a source, it currently only supports copying a single blob.
 
