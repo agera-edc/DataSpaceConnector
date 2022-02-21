@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class AzureDataSourceToDataSinkTests {
+class AzureDataSourceToDataSinkTest {
     static Faker faker = new Faker();
     ExecutorService executor = Executors.newFixedThreadPool(2);
     Monitor monitor = mock(Monitor.class);

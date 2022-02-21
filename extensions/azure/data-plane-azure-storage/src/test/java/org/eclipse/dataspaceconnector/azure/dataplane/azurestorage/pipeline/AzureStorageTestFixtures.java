@@ -36,7 +36,7 @@ public class AzureStorageTestFixtures {
                 .destinationDataAddress(DataAddress.Builder.newInstance().type(type).build());
     }
 
-    static String createAccountName() {
+    public static String createAccountName() {
         return faker.lorem().characters(3, 24, false, false);
     }
 
@@ -48,7 +48,7 @@ public class AzureStorageTestFixtures {
         return faker.lorem().characters(3, 40, false, false);
     }
 
-    static String createSharedKey() {
+    public static String createSharedKey() {
         return faker.lorem().characters();
     }
 
