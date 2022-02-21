@@ -167,7 +167,7 @@ According to the documentation:
 
 ### Copy duration
 
-Copying 1 GB blob between storage accounts in different tenants we got much better results than copying using Java SDK.
+Copying 1 GB blob between storage accounts in different tenants we got much better results than copying using Java SDK. 
 
 Results:
 
@@ -185,3 +185,11 @@ When setting the variable to the value above 1000 the results were better.
 For copying between the same region ~ 2 seconds, for different regions ~ 6 seconds.
 
 AZCOPY_CONCURRENCY_VALUE can be also set to value `AUTO` which will cause the AzCopy to run automatic tuning process and picks the best value. 
+
+### Copying block blob in chunks
+
+The reason why the AZCopy is much faster than Azure Java SDK copy is that it uses REST API that allows to put the block blobs in chunks.
+More information about the Put Block From URL REST API used by AzCopy: [https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url](https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url). 
+
+To achieve te same results in Java we'd need to implement custom code to handle uploading blob blocks from the URL using methods from 
+BlockBlobClient/BlockBlobAsyncClient from Azure Java SDK.
