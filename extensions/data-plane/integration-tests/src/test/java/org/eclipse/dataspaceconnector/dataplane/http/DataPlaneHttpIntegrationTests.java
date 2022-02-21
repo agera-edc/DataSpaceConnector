@@ -73,6 +73,9 @@ import static org.mockserver.stop.Stop.stopQuietly;
  */
 public class DataPlaneHttpIntegrationTests {
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Faker faker = new Faker();
+
     private static final int DPF_PUBLIC_API_PORT = getFreePort();
     private static final int DPF_CONTROL_API_PORT = getFreePort();
     private static final int DPF_HTTP_SOURCE_API_PORT = getFreePort();
@@ -85,9 +88,9 @@ public class DataPlaneHttpIntegrationTests {
     private static final String EDC_TYPE = "edctype";
     private static final String DATA_FLOW_REQUEST_EDC_TYPE = "dataspaceconnector:dataflowrequest";
     private static final String DPF_HTTP_API_PART_NAME = "sample";
-
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final Faker faker = new Faker();
+    private static final String AUTH_HEADER_KEY = HttpHeaderNames.AUTHORIZATION.toString();
+    private static final String SOURCE_AUTH_VALUE = faker.lorem().word();
+    private static final String SINK_AUTH_VALUE = faker.lorem().word();
 
     /**
      * HTTP Source mock server.
@@ -479,6 +482,9 @@ public class DataPlaneHttpIntegrationTests {
 
         var requestProperties = new HashMap<String, String>();
         requestProperties.put(DataFlowRequestSchema.METHOD, HttpMethod.GET.name());
+        requestProperties.put(HttpDataSchema.AUTHENTICATION_KEY, AUTH_HEADER_KEY);
+        requestProperties.put(HttpDataSchema.AUTHENTICATION_CODE, SOURCE_AUTH_VALUE);
+
         if (!queryParams.isEmpty()) {
             requestProperties.put(DataFlowRequestSchema.QUERY_PARAMS, queryParams.entrySet()
                     .stream()
@@ -501,7 +507,9 @@ public class DataPlaneHttpIntegrationTests {
                 .destinationDataAddress(DataAddress.Builder.newInstance()
                         .type(HttpDataSchema.TYPE)
                         .properties(Map.of(
-                                HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST
+                                HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST,
+                                HttpDataSchema.AUTHENTICATION_KEY, AUTH_HEADER_KEY,
+                                HttpDataSchema.AUTHENTICATION_CODE, SINK_AUTH_VALUE
                         ))
                         .build())
                 .build();
@@ -550,6 +558,7 @@ public class DataPlaneHttpIntegrationTests {
 
         return request
                 .withMethod(HttpMethod.GET.name())
+                .withHeader(new Header(AUTH_HEADER_KEY, SOURCE_AUTH_VALUE))
                 .withPath("/" + DPF_HTTP_API_PART_NAME);
     }
 
@@ -585,9 +594,10 @@ public class DataPlaneHttpIntegrationTests {
         return request()
                 .withMethod(HttpMethod.POST.name())
                 .withPath("/" + DPF_HTTP_API_PART_NAME)
-                .withHeader(
+                .withHeaders(
                         new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                MediaType.APPLICATION_OCTET_STREAM.toString())
+                                MediaType.APPLICATION_OCTET_STREAM.toString()),
+                        new Header(AUTH_HEADER_KEY, SINK_AUTH_VALUE)
                 )
                 .withBody(binary(responseBody.getBytes(StandardCharsets.UTF_8)));
     }
