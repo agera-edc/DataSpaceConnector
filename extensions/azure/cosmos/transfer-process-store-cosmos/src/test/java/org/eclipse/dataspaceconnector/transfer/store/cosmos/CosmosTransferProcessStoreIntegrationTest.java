@@ -14,14 +14,11 @@
 
 package org.eclipse.dataspaceconnector.transfer.store.cosmos;
 
-import com.azure.cosmos.ConsistencyLevel;
-import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.CosmosScripts;
 import com.azure.cosmos.implementation.BadRequestException;
-import com.azure.cosmos.models.CosmosContainerResponse;
-import com.azure.cosmos.models.CosmosDatabaseResponse;
+import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.CosmosStoredProcedureProperties;
 import com.azure.cosmos.models.CosmosStoredProcedureRequestOptions;
@@ -29,6 +26,7 @@ import com.azure.cosmos.models.CosmosStoredProcedureResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import net.jodah.failsafe.RetryPolicy;
+import org.eclipse.dataspaceconnector.azure.testfixtures.CosmosTestClient;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.cosmos.azure.CosmosDbApiImpl;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -46,7 +44,6 @@ import org.junit.jupiter.api.Test;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -55,14 +52,12 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
 import static org.eclipse.dataspaceconnector.transfer.store.cosmos.TestHelper.createTransferProcess;
 
 @IntegrationTest
 class CosmosTransferProcessStoreIntegrationTest {
 
     private static final String TEST_ID = UUID.randomUUID().toString();
-    private static final String ACCOUNT_NAME = "cosmos-itest";
     private static final String DATABASE_NAME = "transferprocessstore-itest_" + TEST_ID;
     private static final String CONTAINER_PREFIX = "container_";
     private static CosmosContainer container;
@@ -74,42 +69,39 @@ class CosmosTransferProcessStoreIntegrationTest {
 
     @BeforeAll
     static void prepareCosmosClient() {
+        var client = CosmosTestClient.createClient();
+        var containerName = CONTAINER_PREFIX + UUID.randomUUID();
 
-        var key = propOrEnv("COSMOS_KEY", null);
-        if (key != null) {
-            var client = new CosmosClientBuilder()
-                    .key(key)
-                    .preferredRegions(Collections.singletonList("westeurope"))
-                    .consistencyLevel(ConsistencyLevel.SESSION)
-                    .endpoint("https://" + ACCOUNT_NAME + ".documents.azure.com:443/")
-                    .buildClient();
-
-            CosmosDatabaseResponse response = client.createDatabaseIfNotExists(DATABASE_NAME);
-            database = client.getDatabase(response.getProperties().getId());
-        }
+        var response = client.createDatabaseIfNotExists(DATABASE_NAME);
+        database = client.getDatabase(response.getProperties().getId());
+        var containerIfNotExists = database.createContainerIfNotExists(containerName, "/partitionKey");
+        container = database.getContainer(containerIfNotExists.getProperties().getId());
+        uploadStoredProcedure(container, "nextForState");
+        uploadStoredProcedure(container, "lease");
     }
 
     @AfterAll
     static void cleanup() {
         if (database != null) {
-            var response = database.delete();
-            assertThat(response.getStatusCode()).isBetween(200, 400);
+            var databaseDelete = database.delete();
+            assertThat(databaseDelete.getStatusCode()).isBetween(200, 400);
         }
     }
 
     @BeforeEach
     void setUp() {
-        var containerName = CONTAINER_PREFIX + UUID.randomUUID();
         assertThat(database).describedAs("CosmosDB database is null - did something go wrong during initialization?").isNotNull();
-        CosmosContainerResponse containerIfNotExists = database.createContainerIfNotExists(containerName, "/partitionKey");
-        container = database.getContainer(containerIfNotExists.getProperties().getId());
-        uploadStoredProcedure(container, "nextForState");
-        uploadStoredProcedure(container, "lease");
+
         typeManager = new TypeManager();
         typeManager.registerTypes(DataRequest.class);
         var retryPolicy = new RetryPolicy<>().withMaxRetries(5).withBackoff(1, 3, ChronoUnit.SECONDS);
         var cosmosDbApi = new CosmosDbApiImpl(container, false);
         store = new CosmosTransferProcessStore(cosmosDbApi, typeManager, partitionKey, connectorId, retryPolicy);
+    }
+
+    @AfterEach
+    void tearDown() {
+        container.deleteAllItemsByPartitionKey(new PartitionKey(partitionKey), new CosmosItemRequestOptions());
     }
 
     @Test
@@ -128,7 +120,6 @@ class CosmosTransferProcessStoreIntegrationTest {
             assertThat(doc.getLease()).isNull();
         });
     }
-
 
     @Test
     void create_processWithSameIdExists_shouldReplace() {
@@ -223,8 +214,6 @@ class CosmosTransferProcessStoreIntegrationTest {
         container.upsertItem(d1);
         container.upsertItem(d2);
 
-
-        //act
         assertThat(store.nextForState(TransferProcessStates.INITIAL.code(), 5)).isEmpty();
     }
 
@@ -333,7 +322,6 @@ class CosmosTransferProcessStoreIntegrationTest {
         doc.acquireLease(connectorId);
         container.upsertItem(doc);
 
-        //act
         tp.transitionProvisioning(ResourceManifest.Builder.newInstance().build());
         store.update(tp);
 
@@ -413,7 +401,6 @@ class CosmosTransferProcessStoreIntegrationTest {
         var tp = createTransferProcess("proc1");
         store.create(tp);
 
-        //invoke sproc
         List<Object> procedureParams = Arrays.asList(100, 5, connectorId);
         CosmosStoredProcedureRequestOptions options = new CosmosStoredProcedureRequestOptions();
         options.setPartitionKey(PartitionKey.NONE);
@@ -432,14 +419,7 @@ class CosmosTransferProcessStoreIntegrationTest {
 
     }
 
-    @AfterEach
-    void teardown() {
-        CosmosContainerResponse delete = container.delete();
-        assertThat(delete.getStatusCode()).isGreaterThanOrEqualTo(200).isLessThan(300);
-    }
-
-    private void uploadStoredProcedure(CosmosContainer container, String name) {
-        // upload stored procedure
+    private static void uploadStoredProcedure(CosmosContainer container, String name) {
         var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name + ".js");
         if (is == null) {
             throw new AssertionError("The input stream referring to the " + name + " file cannot be null!");
