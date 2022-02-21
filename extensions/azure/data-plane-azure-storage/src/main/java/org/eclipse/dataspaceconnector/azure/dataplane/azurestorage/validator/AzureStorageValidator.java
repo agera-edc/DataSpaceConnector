@@ -22,6 +22,9 @@ import java.util.regex.Pattern;
 
 /**
  * Validates storage account resource names and keys.
+ * <p>
+ * See <a href="https://docs.microsoft.com/rest/api/storageservices/naming-and-referencing-containers--blobs--and-metadata">
+ * Azure documentation</a>.
  */
 public class AzureStorageValidator {
     private static final Base64.Decoder DECODER = Base64.getDecoder();
