@@ -102,16 +102,16 @@ class AzureDataSourceToDataSinkTests {
     void transfer_WhenSourceFails_fails() throws Exception {
 
         // simulate source error
-        var ce = mock(BlobAdapter.class);
-        when(ce.getBlobName()).thenReturn(fakeSource.name);
-        when(ce.openInputStream()).thenThrow(new RuntimeException(errorMessage));
+        var blobAdapter = mock(BlobAdapter.class);
+        when(blobAdapter.getBlobName()).thenReturn(fakeSource.name);
+        when(blobAdapter.openInputStream()).thenThrow(new RuntimeException(errorMessage));
         var fakeSourceFactory = mock(BlobAdapterFactory.class);
         when(fakeSourceFactory.getBlobAdapter(
                 sourceAccountName,
                 sourceContainerName,
                 fakeSource.name,
                 sourceSharedKey
-        )).thenReturn(ce);
+        )).thenReturn(blobAdapter);
 
         var dataSource = AzureStorageDataSource.Builder.newInstance()
                 .accountName(sourceAccountName)
@@ -175,11 +175,11 @@ class AzureDataSourceToDataSinkTests {
                 .build();
 
         // sink endpoint raises an exception
-        var ce = mock(BlobAdapter.class);
-        when(ce.getOutputStream()).thenThrow(new RuntimeException());
+        var blobAdapter = mock(BlobAdapter.class);
+        when(blobAdapter.getOutputStream()).thenThrow(new RuntimeException());
         var fakeSinkFactory = mock(BlobAdapterFactory.class);
         when(fakeSinkFactory.getBlobAdapter(anyString(), anyString(), anyString(), anyString()))
-                .thenReturn(ce);
+                .thenReturn(blobAdapter);
 
         var dataSink = AzureStorageDataSink.Builder.newInstance()
                 .accountName(sinkAccountName)
