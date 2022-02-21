@@ -44,13 +44,11 @@ public abstract class ParallelSink implements DataSink {
             var futures = partitioned.map(parts -> supplyAsync(() -> transferParts(parts), executorService)).collect(toList());
             return futures.stream()
                     .collect(asyncAllOf())
-                    .thenApply(results -> {
-                        return results.stream()
-                                .filter(AbstractResult::failed)
-                                .findFirst()
-                                .map(r -> TransferResult.failure(ERROR_RETRY, String.join(",", r.getFailureMessages())))
-                                .orElse(TransferResult.success());
-                    })
+                    .thenApply(results -> results.stream()
+                            .filter(AbstractResult::failed)
+                            .findFirst()
+                            .map(r -> TransferResult.failure(ERROR_RETRY, String.join(",", r.getFailureMessages())))
+                            .orElse(TransferResult.success()))
                     .exceptionally(throwable -> TransferResult.failure(ERROR_RETRY, "Unhandled exception raised when transferring data: " + throwable.getMessage()));
         } catch (Exception e) {
             monitor.severe("Error processing data transfer request: " + requestId, e);
