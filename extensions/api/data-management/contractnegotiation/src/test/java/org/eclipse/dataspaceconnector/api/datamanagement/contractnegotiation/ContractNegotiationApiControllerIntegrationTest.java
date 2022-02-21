@@ -30,6 +30,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,7 +56,11 @@ class ContractNegotiationApiControllerIntegrationTest {
 
     @BeforeEach
     void setup() {
-        client = new OkHttpClient();
+        client = new OkHttpClient.Builder()
+                .connectTimeout(1, TimeUnit.MINUTES)
+                .writeTimeout(1, TimeUnit.MINUTES)
+                .readTimeout(1, TimeUnit.MINUTES)
+                .build();
     }
 
     @Test
