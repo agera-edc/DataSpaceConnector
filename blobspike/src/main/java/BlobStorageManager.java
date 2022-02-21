@@ -72,12 +72,6 @@ public class BlobStorageManager {
         var syncPoller = destBlobClient.beginCopy(sourceBlobUrl, Duration.ofSeconds(1L));
         // wait for the copy to finish. It will check the blob properties to make sure the copy is finished.
         syncPoller.waitForCompletion();
-        // assert the blobs are the same
-        var sourceBlobContent = new ByteArrayOutputStream();
-        var destBlobContent = new ByteArrayOutputStream();
-        sourceBlobClient.download(sourceBlobContent);
-        destBlobClient.download(destBlobContent);
-        assertEquals(sourceBlobContent.toString(), destBlobContent.toString());
     }
 
 }
