@@ -19,6 +19,7 @@ import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -45,4 +46,9 @@ public interface DataPlaneManager {
      * Performs a data transfer using the supplied data sink.
      */
     CompletableFuture<TransferResult> transfer(DataSink sink, DataFlowRequest request);
+
+    /**
+     * Provides transfer result.
+     */
+    Optional<TransferResult> transferResult(String processId);
 }

@@ -54,6 +54,7 @@ import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
@@ -85,6 +86,8 @@ public class DataPlaneHttpIntegrationTests {
     private static final String DPF_HTTP_SINK_API_HOST = "http://localhost:" + DPF_HTTP_SINK_API_PORT;
     private static final String CONTROL_PATH = "/control";
     private static final String TRANSFER_PATH = format("%s/transfer", CONTROL_PATH);
+    private static final String TRANSFER_RESULT_PATH = format("%s/transfer/{processId}", CONTROL_PATH);
+    private static final String PROCESS_ID = "processId";
     private static final String EDC_TYPE = "edctype";
     private static final String DATA_FLOW_REQUEST_EDC_TYPE = "dataspaceconnector:dataflowrequest";
     private static final String DPF_HTTP_API_PART_NAME = "sample";
@@ -106,8 +109,8 @@ public class DataPlaneHttpIntegrationTests {
             ":launchers:data-plane-server",
             "data-plane-server",
             Map.of(
-                    "web.http.public.port", String.valueOf(DPF_PUBLIC_API_PORT),
-                    "web.http.control.port", String.valueOf(DPF_CONTROL_API_PORT),
+                    "web.http.public.port", valueOf(DPF_PUBLIC_API_PORT),
+                    "web.http.control.port", valueOf(DPF_CONTROL_API_PORT),
                     "web.http.control.path", CONTROL_PATH
             ));
 
@@ -137,6 +140,7 @@ public class DataPlaneHttpIntegrationTests {
         // Arrange
         // HTTP Source Request & Response
         var body = faker.internet().uuid();
+        var processId = faker.internet().uuid();
         httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
@@ -158,31 +162,26 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(transferRequestBody())
-                .when()
-                .post(TRANSFER_PATH)
-                .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
-        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
-        // Verify HTTP Source server expectation.
+        initiateTransfer(processId);
+
+
+        // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSourceClientAndServer
-                        .verify(
-                                givenGetRequest(),
-                                VerificationTimes.once()
-                        )
+                validateTransferResult(processId)
         );
 
-        // Verify HTTP Sink server expectation.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSinkClientAndServer
-                        .verify(
-                                givenPostRequest(body),
-                                VerificationTimes.once()
-                        )
-        );
+        // Verify HTTP Source server called exactly once.
+        httpSourceClientAndServer
+                .verify(
+                        givenGetRequest(),
+                        VerificationTimes.once()
+                );
+        // Verify HTTP Sink server called exactly once.
+        httpSinkClientAndServer
+                .verify(
+                        givenPostRequest(body),
+                        VerificationTimes.once()
+                );
     }
 
     @Test
@@ -190,6 +189,7 @@ public class DataPlaneHttpIntegrationTests {
         // Arrange
         // HTTP Source Request & Response
         var body = faker.internet().uuid();
+        var processId = faker.internet().uuid();
         var queryParams = Map.of(
                 faker.lorem().word(), faker.internet().url(),
                 faker.lorem().word(), faker.lorem().word()
@@ -218,29 +218,29 @@ public class DataPlaneHttpIntegrationTests {
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(transferRequestBody(queryParams))
-                .when()
+                .body(transferRequestBody(processId, queryParams))
+        .when()
                 .post(TRANSFER_PATH)
-                .then()
+        .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
-        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
-        // Verify HTTP Source server expectation.
+
+        // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSourceClientAndServer
-                        .verify(
-                                givenGetRequest(),
-                                VerificationTimes.once()
-                        )
+                validateTransferResult(processId)
         );
 
-        // Verify HTTP Sink server expectation.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSinkClientAndServer
-                        .verify(
-                                givenPostRequest(body),
-                                VerificationTimes.once()
-                        )
-        );
+        // Verify HTTP Source server called exactly once.
+        httpSourceClientAndServer
+                .verify(
+                        givenGetRequest(),
+                        VerificationTimes.once()
+                );
+        // Verify HTTP Sink server called exactly once.
+        httpSinkClientAndServer
+                .verify(
+                        givenPostRequest(body),
+                        VerificationTimes.once()
+                );
     }
 
     /**
@@ -250,22 +250,24 @@ public class DataPlaneHttpIntegrationTests {
     public void transfer_invalidInput_failure() {
         // Arrange
         // Request without processId to initiate transfer.
-        var invalidRequest = transferRequestBody().remove("processId");
+        var processId = faker.internet().uuid();
+        var invalidRequest = transferRequestBody(processId).remove("processId");
 
         // Act & Assert
         // Initiate transfer
         givenDpfRequest()
                 .contentType(ContentType.JSON)
                 .body(invalidRequest)
-                .when()
+        .when()
                 .post(TRANSFER_PATH)
-                .then()
+        .then()
                 .assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
     }
 
     @Test
     public void transfer_sourceNotAvailable_noInteractionWithSink() {
         // Arrange
+        var processId = faker.internet().uuid();
         // HTTP Source Request & Error Response
         httpSourceClientAndServer
                 .when(
@@ -276,24 +278,18 @@ public class DataPlaneHttpIntegrationTests {
                 );
 
         // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(transferRequestBody())
-                .when()
-                .post(TRANSFER_PATH)
-                .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
+        initiateTransfer(processId);
 
-        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
-        // Verify HTTP Source server called at lest once.
+        // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSourceClientAndServer
-                        .verify(
-                                givenGetRequest(),
-                                VerificationTimes.atLeast(1)
-                        )
+                validateTransferResult(processId)
         );
-
+        // Verify HTTP Source server called at lest once.
+        httpSourceClientAndServer
+                .verify(
+                        givenGetRequest(),
+                        VerificationTimes.atLeast(1)
+                );
         // Verify zero interaction with HTTP Sink.
         httpSinkClientAndServer.verifyZeroInteractions();
     }
@@ -304,6 +300,7 @@ public class DataPlaneHttpIntegrationTests {
     @Test
     public void transfer_sourceTemporaryDropConnection_success() {
         // Arrange
+        var processId = faker.internet().uuid();
         // First two calls to HTTP Source returns a failure response.
         httpSourceClientAndServer
                 .when(
@@ -337,31 +334,24 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(transferRequestBody())
-                .when()
-                .post(TRANSFER_PATH)
-                .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
-        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
-        // Verify HTTP Source server expectation.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSourceClientAndServer
-                        .verify(
-                                givenGetRequest(),
-                                VerificationTimes.exactly(3)
-                        )
-        );
+        initiateTransfer(processId);
 
-        // Verify HTTP Sink server expectation.
+        // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSinkClientAndServer
-                        .verify(
-                                givenPostRequest(body),
-                                VerificationTimes.once()
-                        )
+                validateTransferResult(processId)
         );
+        // Verify HTTP Source server called exactly 3 times.
+        httpSourceClientAndServer
+                .verify(
+                        givenGetRequest(),
+                        VerificationTimes.exactly(3)
+                );
+        // Verify HTTP Sink server called exactly once.
+        httpSinkClientAndServer
+                .verify(
+                        givenPostRequest(body),
+                        VerificationTimes.once()
+                );
     }
 
     /**
@@ -371,6 +361,7 @@ public class DataPlaneHttpIntegrationTests {
     @MethodSource("provideCommonErrorCodes")
     public void transfer_sourceErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
         // Arrange
+        var processId = faker.internet().uuid();
         // HTTP Source returns error response.
         httpSourceClientAndServer
                 .when(
@@ -383,23 +374,19 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(transferRequestBody())
-                .when()
-                .post(TRANSFER_PATH)
-                .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
-        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
-        // Verify HTTP Source server expectation.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSourceClientAndServer
-                        .verify(
-                                givenGetRequest(),
-                                VerificationTimes.once()
-                        )
-        );
+        initiateTransfer(processId);
 
+        // Wait for transfer to be completed.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                validateTransferResult(processId)
+        );
+        // Verify HTTP Source server called exactly once.
+        httpSourceClientAndServer
+                .verify(
+                        givenGetRequest(),
+                        VerificationTimes.once()
+                );
+        // Verify sink never called.
         httpSinkClientAndServer.verifyZeroInteractions();
     }
 
@@ -410,6 +397,7 @@ public class DataPlaneHttpIntegrationTests {
     @MethodSource("provideCommonErrorCodes")
     public void transfer_sinkErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
         // Arrange
+        var processId = faker.internet().uuid();
         // HTTP Source Request & Response
         var body = faker.internet().uuid();
         httpSourceClientAndServer
@@ -433,48 +421,45 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(transferRequestBody())
-                .when()
-                .post(TRANSFER_PATH)
-                .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
-        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
-        // Verify HTTP Source server expectation.
+        initiateTransfer(processId);
+
+        // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSourceClientAndServer
-                        .verify(
-                                givenGetRequest(),
-                                VerificationTimes.once()
-                        )
+                validateTransferResult(processId)
         );
 
-        // Verify HTTP Sink server expectation.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                httpSinkClientAndServer
-                        .verify(
-                                givenPostRequest(body),
-                                VerificationTimes.once()
-                        )
-        );
+        // Verify HTTP Source server called exactly once.
+        httpSourceClientAndServer
+                .verify(
+                        givenGetRequest(),
+                        VerificationTimes.once()
+                );
+        // Verify HTTP Sink server called exactly once.
+        httpSinkClientAndServer
+                .verify(
+                        givenPostRequest(body),
+                        VerificationTimes.once()
+                );
     }
 
     /**
      * Request payload to initiate DPF transfer.
      *
+     * @param processId ProcessID of transfer.See {@link DataFlowRequest}
      * @return JSON object. see {@link ObjectNode}.
      */
-    private ObjectNode transferRequestBody() {
-        return transferRequestBody(Collections.emptyMap());
+    private ObjectNode transferRequestBody(String processId) {
+        return transferRequestBody(processId, Collections.emptyMap());
     }
 
     /**
      * Request payload with query params to initiate DPF transfer.
      *
+     * @param processId   ProcessID of transfer.See {@link DataFlowRequest}
+     * @param queryParams Query params name and value as key-value entries.
      * @return JSON object. see {@link ObjectNode}.
      */
-    private ObjectNode transferRequestBody(Map<String, String> queryParams) {
+    private ObjectNode transferRequestBody(String processId, Map<String, String> queryParams) {
 
         var requestProperties = new HashMap<String, String>();
         requestProperties.put(DataFlowRequestSchema.METHOD, HttpMethod.GET.name());
@@ -491,7 +476,7 @@ public class DataPlaneHttpIntegrationTests {
         // Create valid dataflow request instance.
         var request = DataFlowRequest.Builder.newInstance()
                 .id(faker.internet().uuid())
-                .processId(faker.internet().uuid())
+                .processId(processId)
                 .properties(requestProperties)
                 .sourceDataAddress(DataAddress.Builder.newInstance()
                         .type(HttpDataSchema.TYPE)
@@ -508,6 +493,7 @@ public class DataPlaneHttpIntegrationTests {
                                 HttpDataSchema.AUTHENTICATION_CODE, SINK_AUTH_VALUE
                         ))
                         .build())
+                .trackable(true)
                 .build();
 
         // Add edctype to request
@@ -525,6 +511,35 @@ public class DataPlaneHttpIntegrationTests {
     private RequestSpecification givenDpfRequest() {
         return given()
                 .baseUri(DPF_CONTROL_API_HOST);
+    }
+
+    /**
+     * Initiate a transfer and assert if response is HTTP OK.
+     *
+     * @param processId ProcessID of transfer. See {@link DataFlowRequest}
+     */
+    private void initiateTransfer(String processId) {
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(transferRequestBody(processId))
+        .when()
+                .post(TRANSFER_PATH)
+        .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
+    }
+
+    /**
+     * Validate if transfer from source to sink was successful.
+     *
+     * @param processId ProcessID of transfer. See {@link DataFlowRequest}
+     */
+    private void validateTransferResult(String processId) {
+        givenDpfRequest()
+                .pathParam(PROCESS_ID, processId)
+        .when()
+                .get(TRANSFER_RESULT_PATH)
+        .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
     }
 
     /**

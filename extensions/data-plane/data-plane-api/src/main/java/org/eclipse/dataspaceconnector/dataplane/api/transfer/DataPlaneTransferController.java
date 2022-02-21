@@ -15,14 +15,20 @@
 package org.eclipse.dataspaceconnector.dataplane.api.transfer;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 
+import java.util.Map;
+
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.dataplane.api.common.ResponseFunctions.validationError;
 import static org.eclipse.dataspaceconnector.dataplane.api.common.ResponseFunctions.validationErrors;
@@ -52,5 +58,26 @@ public class DataPlaneTransferController {
         }
         dataPlaneManager.initiateTransfer(request);
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{processId}")
+    public Response transferResult(@PathParam("processId") String processId) {
+        //TODO : Include error details for error response.
+        return dataPlaneManager.transferResult(processId)
+                .map(
+                        result -> {
+                            var responseBuilder = Response.status(OK);
+                            if (result.succeeded()) {
+                                responseBuilder.entity(Map.of("status", "success"));
+                            } else {
+                                responseBuilder.entity(Map.of("status", "error"));
+                            }
+
+                            return responseBuilder.build();
+                        }
+                ).orElse(
+                        Response.status(NOT_FOUND).build()
+                );
     }
 }
