@@ -84,7 +84,7 @@ syncPoller.waitForCompletion(Duration.ofSeconds(5));
 
 ### Azure Blob Copy within different containers/different storage accounts within the same tenant/subscription
 
-To copy Azure Blob between containers within the same storage account as well as different storage accounts we can use BlobClients specifying their properties:
+To copy Azure Blob between containers we can use BlobClients specifying their properties:
 
 ```java
 
@@ -124,7 +124,7 @@ String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
 
 ```
 
-### Evaluate Integration testing approach (when actual storage instance is needed Azurite is preferred over cloud infra)
+### Evaluate Integration testing approach
 
 The integration tests can be done with the help of Azurite.
 We can run a container and specify the storage accounts name and its key in AZURITE_ACCOUNTS as below:
@@ -138,7 +138,7 @@ For example, you can specify the account-name and the account-key in the connect
 
 `DefaultEndpointsProtocol=http;AccountName=<account-name>;AccountKey=<account-key>;BlobEndpoint=http://127.0.0.1:10000/<account-name>;QueueEndpoint=http://127.0.0.1:10001/<account-name>;`
 
-### Evaluate observability of copy-in-place operations and make sure it is traceable
+### Evaluate observability of copy operations and make sure it is traceable
 
 The blob storage library uses reactor-netty for network I/O. It is [supported by open telemetry](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/022914139e0d7156e98efca382397663ed247bde/instrumentation/reactor/reactor-netty).
 That's why we can see the HTTP calls corresponding to the blob copy.
@@ -146,14 +146,14 @@ That's why we can see the HTTP calls corresponding to the blob copy.
 ![Jaeger screenshot blob copy](./jaeger-blob-copy.png)
 
 The HTTP PUT corresponds to the [blob copy](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url). 
-The HTTP HEAD corresponds to the [get blob property](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties). When the SyncPoller evaluates if the blob copy is finished by checking the blob properties.
+The HTTP HEAD corresponds to the SyncPoller [getting the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties).
 
-## AZ copy 
+## AZ copy
 
 Using [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-blobs-copy) we can copy blob between different storage accounts.
 The SAS token needs to be used at the end of source url but destination url doesn't need one if you are logged in into AzCopy using `azcopy login`.
 
-Additionally, [assigning the appropriate](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-authorize-azure-active-directory#verify-role-assignments) role to the destination Storage account might be necessary (Storage Blob Data Owner).
+Additionally, [assigning the appropriate role](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-authorize-azure-active-directory#verify-role-assignments) to the destination Storage account might be necessary (Storage Blob Data Owner).
 
 ```bash
  azcopy cp "https://[srcaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]" "https://[destaccount].blob.core.windows.net/[container]/[path/to/blob]"
@@ -192,7 +192,7 @@ AZCOPY_CONCURRENCY_VALUE can be also set to value `AUTO` which will cause the Az
 ### Copying block blob in chunks
 
 The reason why the AZCopy is much faster than Azure Java SDK copy is that it uses REST API that allows to put the block blobs in chunks.
-More information about the Put Block From URL REST API used by AzCopy: [https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url](https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url). 
+More information about the PUT Block From URL REST API used by AzCopy: [https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url](https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url). 
 
-To achieve te same results in Java we'd need to implement custom code to handle uploading blob blocks from the URL using methods from 
+To achieve the same results in Java we'd need to implement custom code to handle uploading blob blocks from the URL using methods from 
 BlockBlobClient/BlockBlobAsyncClient from Azure Java SDK.
