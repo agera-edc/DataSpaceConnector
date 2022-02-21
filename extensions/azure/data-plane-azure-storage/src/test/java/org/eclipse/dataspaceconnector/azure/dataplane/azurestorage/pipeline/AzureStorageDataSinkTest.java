@@ -21,15 +21,8 @@ import java.util.concurrent.Executors;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.TestCustomException;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createAccountName;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createBlobName;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createContainerName;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createRequest;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.createSharedKey;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.*;
+import static org.mockito.Mockito.*;
 
 class AzureStorageDataSinkTest {
 
@@ -86,15 +79,12 @@ class AzureStorageDataSinkTest {
                 blobName,
                 sharedKey))
                 .thenThrow(exception);
-        assertThatTransferPartsFails(part, "Error writing Azure Storage blob",
-                format("Error creating blob for %s on account %s", blobName, accountName));
+        assertThatTransferPartsFails(part, "Error creating blob for %s on account %s", blobName, accountName);
     }
 
     @Test
     void transferParts_whenWriteFails_fails() {
         when(destination.getOutputStream()).thenThrow(exception);
-        assertThatTransferPartsFails(part, "Error writing Azure Storage blob",
-                format("Error creating blob for %s on account %s", blobName, accountName));
     }
 
 
@@ -104,8 +94,7 @@ class AzureStorageDataSinkTest {
         Part part = mock(Part.class);
         when(part.openStream()).thenThrow(exception);
         when(part.name()).thenReturn(blobName);
-        assertThatTransferPartsFails(part, "Error reading Azure Storage blob",
-                format("Error reading blob %s", blobName));
+        assertThatTransferPartsFails(part, "Error reading blob %s", blobName);
     }
 
     @Test
@@ -115,14 +104,14 @@ class AzureStorageDataSinkTest {
         Part part = mock(Part.class);
         when(part.openStream()).thenReturn(input);
         when(part.name()).thenReturn(blobName);
-        assertThatTransferPartsFails(part, "Error copying Azure Storage blob",
-                format("Error transferring blob for %s on account %s", blobName, accountName));
+        assertThatTransferPartsFails(part, "Error transferring blob for %s on account %s", blobName, accountName);
     }
 
-    private void assertThatTransferPartsFails(Part part, String failureMessage, String logMessage) {
+    private void assertThatTransferPartsFails(Part part, String logMessage, Object... args) {
+        String message = format(logMessage, args);
         var result = dataSink.transferParts(List.of(part));
         assertThat(result.failed()).isTrue();
-        assertThat(result.getFailureMessages()).containsExactly(failureMessage);
-        verify(monitor).severe(logMessage, exception);
+        assertThat(result.getFailureMessages()).containsExactly(message);
+        verify(monitor).severe(message, exception);
     }
 }

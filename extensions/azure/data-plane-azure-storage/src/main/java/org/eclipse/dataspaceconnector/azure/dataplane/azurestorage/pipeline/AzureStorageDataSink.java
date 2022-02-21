@@ -46,25 +46,23 @@ public class AzureStorageDataSink extends ParallelSink {
                     try {
                         input.transferTo(output);
                     } catch (Exception e) {
-                        return errorResult(format("Error transferring blob for %s on account %s", blobName, accountName),
-                                "Error copying Azure Storage blob", e);
+                        return getTransferResult(e, "Error transferring blob for %s on account %s", blobName, accountName);
                     }
                 } catch (Exception e) {
-                    return errorResult(format("Error creating blob for %s on account %s", blobName, accountName),
-                            "Error writing Azure Storage blob", e);
+                    return getTransferResult(e, "Error creating blob for %s on account %s", blobName, accountName);
                 }
             } catch (Exception e) {
-                return errorResult(format("Error reading blob %s", blobName),
-                        "Error reading Azure Storage blob", e);
+                return getTransferResult(e, "Error reading blob %s", blobName);
             }
         }
         return TransferResult.success();
     }
 
     @NotNull
-    private TransferResult errorResult(String logMessage, String errorMessage, Exception e) {
-        monitor.severe(logMessage, e);
-        return TransferResult.failure(ERROR_RETRY, errorMessage);
+    private TransferResult getTransferResult(Exception e, String logMessage, Object... args) {
+        String message = format(logMessage, args);
+        monitor.severe(message, e);
+        return TransferResult.failure(ERROR_RETRY, message);
     }
 
     private AzureStorageDataSink() {
