@@ -6,7 +6,7 @@ We evaluated the possibility to copy a blob.
 
 We evaluated the [Java azure storage client library](https://docs.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable) to copy blobs.
 
-### Evaluate if copy can be done with client not handling data flow
+### Evaluate if copy can be done from source to destination, with the client not handling any data flow
 
 The Java blob is on top of the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api).
 The client calls [an endpoint](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url) to trigger the copy of a blob.
@@ -23,11 +23,11 @@ Copy of a 1MB file from West Europe to East US 1 to 1.5 seconds.
 
 We have 2 solutions to transfer data from a blob to another blob.
 
-- Use the [BlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.blobclient?view=azure-java-stable) to trigger a copy from blob to blob.
+- Use the [BlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.blobclient?view=azure-java-stable) to trigger a copy of source blob to destination blob.
 - Use the [BlockBlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient?view=azure-java-stable) to get a stream from blob to VM and transfer from VM to blob with another stream.
 
-Pros: Network I/O is only between the 2 storage accounts. The client does not need to download any data.
-Cons: The storage account you download the data from needs to be accessible from the internet. With the stream, the provider and the storage account could be in common private network. Then, only the destination storage account would need to be accessible from the internet.
+Pros: During the copy, Network I/O is only between the 2 storage accounts. The client does not need to download any data.
+Cons: The storage account you download the data from needs to be accessible from the internet. With the stream, the provider and the storage account could be in the same private network. Then, only the destination storage account would need to be accessible from the internet.
 
 ### Azure Blob Copy within same container
 
