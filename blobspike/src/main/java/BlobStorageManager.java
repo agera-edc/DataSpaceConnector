@@ -4,15 +4,12 @@ import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import io.opentelemetry.extension.annotations.WithSpan;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class BlobStorageManager {
