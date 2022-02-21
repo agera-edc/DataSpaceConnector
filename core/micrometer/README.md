@@ -6,7 +6,7 @@ This extension uses the [Micrometer](https://micrometer.io/) metrics library to 
 
 The following properties can use used to configure the metrics that this extension will collect:
 
-- "metrics.enabled": enables/disables metrics collection. Default is "true".
-- "metrics.system.enabled": enables/disables collection of system metrics (class loader, memory, garbage collection, processor and thread metrics)
-- "metrics.okhttp.enabled": enables disables collection of metrics for the OkHttp client
-- "metrics.executor.enabled": enables disables collection of metrics for the instrumented ExecutorServices (at the moment only the one used in `HealthCheckService`)
+- `metrics.enabled`: enables/disables metrics collection. Default is "true".
+- `metrics.system.enabled`: enables/disables collection of system metrics (class loader, memory, garbage collection, processor and thread metrics)
+- `metrics.okhttp.enabled`: enables disables collection of metrics for the OkHttp client
+- `metrics.executor.enabled`: enables disables collection of metrics for the instrumented ExecutorServices (at the moment only the one used in `HealthCheckService`)
