@@ -46,7 +46,6 @@ import org.mockserver.verify.VerificationTimes;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -128,7 +127,7 @@ public class DataPlaneHttpIntegrationTests {
     public void transfer_success() {
         // Arrange
         // HTTP Source Request & Response
-        var body = UUID.randomUUID().toString();
+        var body = faker.internet().uuid();
         httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
@@ -251,7 +250,7 @@ public class DataPlaneHttpIntegrationTests {
                 );
 
         // Next call to HTTP Source returns a valid response.
-        var body = UUID.randomUUID().toString();
+        var body = faker.internet().uuid();
         httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
@@ -300,6 +299,9 @@ public class DataPlaneHttpIntegrationTests {
         );
     }
 
+    /**
+     * Validate DPF doesn't retry to fetch the data if receives error response from http source.
+     */
     @ParameterizedTest(name = "{index} {0}")
     @MethodSource("provideCommonErrorCodes")
     public void transfer_sourceErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
@@ -336,6 +338,9 @@ public class DataPlaneHttpIntegrationTests {
         httpSinkClientAndServer.verifyZeroInteractions();
     }
 
+    /**
+     * Validate DPF doesn't retry to deliver the data if receives error response from http sink.
+     */
     @ParameterizedTest(name = "{index} {0}")
     @MethodSource("provideCommonErrorCodes")
     public void transfer_sinkErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
