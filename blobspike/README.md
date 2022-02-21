@@ -15,19 +15,22 @@ In order to know if the copy is finished, the client needs to [get the blob prop
 
 ### Copy duration
 
-Copy of a 1GB file from West Europe to East US takes around 9 minutes.
-Copy of a 256MB file from West Europe to East US takes 30 to 40 seconds.
-Copy of a 1MB file from West Europe to East US 1 to 1.5 seconds.
+We tested copy between 2 containers in different tenants. The source blob was in West Europe and the destination in East US.
+
+- 1GB: 9 minutes.
+- 256MB: 30 to 40 seconds.
+- 1MB: 1 to 1.5 seconds.
 
 ## Evaluation of copy vs streaming
 
 We have 2 solutions to transfer data from a blob to another blob.
 
-- Use the [BlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.blobclient?view=azure-java-stable) to trigger a copy of source blob to destination blob.
+- Use the [BlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.blobclient?view=azure-java-stable) beginCopy to trigger a copy of source blob to destination blob.
 - Use the [BlockBlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient?view=azure-java-stable) to get a stream from blob to VM and transfer from VM to blob with another stream.
 
-Pros: During the copy, Network I/O is only between the 2 storage accounts. The client does not need to download any data.
-Cons: The storage account you download the data from needs to be accessible from the internet. With the stream, the provider and the storage account could be in the same private network. Then, only the destination storage account would need to be accessible from the internet.
+Pros and cons to use beginCopy in EDC:
+- Pros: During the copy, Network I/O is only between the 2 storage accounts. The client does not need to download any data.
+- Cons: The source storage account needs to be accessible from the internet. With the stream, the provider and the source storage account could be in the same private network. Then, only the destination storage account would need to be accessible from the internet.
 
 ### Azure Blob Copy within same container
 
@@ -69,7 +72,7 @@ while(!response.getStatus().isComplete()) {
         
 ```
 
-Alternatively, we can also block the thread waiting for the completion using _waitForCompletion_ method.
+Alternatively, we can use the _waitForCompletion_ method.
 
 ```java
 
@@ -142,7 +145,7 @@ That's why we can see the HTTP calls corresponding to the blob copy.
 
 ![Jaeger screenshot blob copy](./jaeger-blob-copy.png)
 
-The HTTP PUT corresponds to the [blob copy](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url).  
+The HTTP PUT corresponds to the [blob copy](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url). 
 The HTTP HEAD corresponds to the [get blob property](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties). When the SyncPoller evaluates if the blob copy is finished by checking the blob properties.
 
 ## AZ copy 
@@ -184,4 +187,4 @@ When setting the variable to the value above 1000 the results were better.
 
 For copying between the same region ~ 2 seconds, for different regions ~ 6 seconds.
 
-AZCOPY_CONCURRENCY_VALUE can be also set to value `AUTO` which will cause the AzCopy to run automatic tuning process and picks the best value. 
+AZCOPY_CONCURRENCY_VALUE can be also set to value `AUTO` which will cause the AzCopy to run automatic tuning process and picks the best value.
