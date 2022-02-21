@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -144,9 +145,8 @@ class AzureDataSourceToDataSinkTest {
 
         TransferResult transferResult = dataSink.transfer(dataSource).get();
         assertThat(transferResult.failed()).isTrue();
-        assertThat(transferResult.getFailureMessages()).containsExactly("Error reading Azure Storage blob");
+        assertThat(transferResult.getFailureMessages()).containsExactly(format("Error reading blob %s", fakeSource.name));
     }
-
 
     /**
      * Verifies an exception thrown by the sink endpoint is handled correctly.
