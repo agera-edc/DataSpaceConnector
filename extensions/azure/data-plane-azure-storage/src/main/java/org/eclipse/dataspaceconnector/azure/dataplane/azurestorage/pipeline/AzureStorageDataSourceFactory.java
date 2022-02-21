@@ -59,6 +59,7 @@ public class AzureStorageDataSourceFactory implements DataSourceFactory {
         var properties = new HashMap<>(dataAddress.getProperties());
         try {
             if (!Objects.equals(properties.remove(DataAddress.TYPE) , AzureBlobStoreSchema.TYPE)) {
+                // should never happen because of routing mechanism
                 throw new IllegalArgumentException("Unexpected type");
             }
             validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));

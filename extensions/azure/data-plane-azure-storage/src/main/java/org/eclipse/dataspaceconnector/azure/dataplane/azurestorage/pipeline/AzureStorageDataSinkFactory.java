@@ -29,9 +29,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateAccountName;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateContainerName;
-import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateSharedKey;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.*;
 
 /**
  * Instantiates {@link AzureStorageDataSink}s for requests whose source data type is {@link AzureBlobStoreSchema#TYPE}.
@@ -59,8 +57,9 @@ public class AzureStorageDataSinkFactory implements DataSinkFactory {
         var dataAddress = request.getDestinationDataAddress();
         var properties = new HashMap<>(dataAddress.getProperties());
         try {
-                if (!Objects.equals(properties.remove(DataAddress.TYPE) , AzureBlobStoreSchema.TYPE)) {
-                throw new IllegalArgumentException("Unexpected type ");
+            if (!Objects.equals(properties.remove(DataAddress.TYPE), AzureBlobStoreSchema.TYPE)) {
+                // should never happen because of routing mechanism
+                throw new IllegalArgumentException("Unexpected type");
             }
             validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
             validateContainerName(properties.remove(AzureBlobStoreSchema.CONTAINER_NAME));
