@@ -42,6 +42,7 @@ import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 import org.mockserver.model.HttpStatusCode;
 import org.mockserver.model.MediaType;
+import org.mockserver.model.Parameters;
 import org.mockserver.verify.VerificationTimes;
 
 import java.nio.charset.StandardCharsets;
@@ -63,6 +64,7 @@ import static org.mockserver.model.BinaryBody.binary;
 import static org.mockserver.model.HttpError.error;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.model.KeyMatchStyle.MATCHING_KEY;
 import static org.mockserver.model.Parameter.param;
 import static org.mockserver.stop.Stop.stopQuietly;
 
@@ -544,7 +546,7 @@ public class DataPlaneHttpIntegrationTests {
                 .map(entry -> param(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
-        request.withQueryStringParameters(paramsList);
+        request.withQueryStringParameters(new Parameters(paramsList).withKeyMatchStyle(MATCHING_KEY));
 
         return request
                 .withMethod(HttpMethod.GET.name())
