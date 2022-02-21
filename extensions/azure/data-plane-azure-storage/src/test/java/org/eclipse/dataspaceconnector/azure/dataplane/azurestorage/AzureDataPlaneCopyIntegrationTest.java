@@ -20,7 +20,6 @@ import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSinkFactory;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSourceFactory;
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
@@ -63,14 +62,14 @@ class AzureDataPlaneCopyIntegrationTest extends AbstractAzureBlobTest {
 
     @Test
     void transfer_success() {
-        blobServiceClient1.getBlobContainerClient(container1Name)
+        blobServiceClient1.getBlobContainerClient(account1ContainerName)
                 .getBlobClient(blobName)
                 .upload(BinaryData.fromString(content));
 
         var source = DataAddress.Builder.newInstance()
                 .type(TYPE)
                 .property(ACCOUNT_NAME, account1Name)
-                .property(CONTAINER_NAME, container1Name)
+                .property(CONTAINER_NAME, account1ContainerName)
                 .property(BLOB_NAME, blobName)
                 .property(SHARED_KEY, account1Key)
                 .build();
