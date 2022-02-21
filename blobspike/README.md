@@ -123,6 +123,18 @@ String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
 
 ### Evaluate Integration testing approach (when actual storage instance is needed Azurite is preferred over cloud infra)
 
+The integration tests can be done with the help of Azurite.
+We can run a container and specify the storage accounts information in AZURITE_ACCOUNTS as below:
+
+```bash
+docker run -p 10000:10000 -e "AZURITE_ACCOUNTS=account1:key1;account2:key2" mcr.microsoft.com/azure-storage/azurite
+```
+
+Then, the connectionStrings of the storage accounts can be used for the integration tests. You can specify the account-name and the account-key in the connectionString:
+
+`DefaultEndpointsProtocol=http;AccountName=<account-name>;AccountKey=<account-key>;BlobEndpoint=http://127.0.0.1:10000/<account-name>;QueueEndpoint=http://127.0.0.1:10001/<account-name>;`
+
+
 ### Evaluate observability of copy-in-place operations and make sure it is traceable
 
 The blob storage library uses reactor-netty for network I/O. It is [supported by open telemetry](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/022914139e0d7156e98efca382397663ed247bde/instrumentation/reactor/reactor-netty).
