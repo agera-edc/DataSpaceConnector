@@ -83,12 +83,7 @@ public class AzureStorageValidator {
     public static void validateBlobName(String blobName) {
         checkLength(blobName, BLOB, BLOB_MIN_LENGTH, BLOB_MAX_LENGTH);
 
-        int slashCount = 0;
-        for (int i = 0; i < blobName.length(); i++) {
-            if (blobName.charAt(i) == '/') {
-                slashCount++;
-            }
-        }
+        var slashCount = blobName.chars().filter(ch -> ch == '/').count();
 
         if (slashCount >= 254) {
             throw new IllegalArgumentException(TOO_MANY_PATH_SEGMENTS);
