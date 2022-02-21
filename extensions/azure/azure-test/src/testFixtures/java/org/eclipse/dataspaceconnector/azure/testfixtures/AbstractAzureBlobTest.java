@@ -39,18 +39,18 @@ public abstract class AbstractAzureBlobTest {
     protected final String account2Key = "key2";
     protected BlobServiceClient blobServiceClient1;
     protected BlobServiceClient blobServiceClient2;
-    protected String container1Name;
+    protected String account1ContainerName;
     protected List<Runnable> containerCleanup = new ArrayList<>();
     protected String testRunId = UUID.randomUUID().toString();
 
     @BeforeEach
     public void setupClient() {
-        container1Name = "storage-container-" + testRunId;
+        account1ContainerName = "storage-container-" + testRunId;
 
         blobServiceClient1 = getBlobServiceClient(account1Name, account1Key);
         blobServiceClient2 = getBlobServiceClient(account2Name, account2Key);
 
-        createContainer(blobServiceClient1, container1Name);
+        createContainer(blobServiceClient1, account1ContainerName);
     }
 
     @NotNull
@@ -89,7 +89,7 @@ public abstract class AbstractAzureBlobTest {
     }
 
     protected void putBlob(String name, File file) {
-        blobServiceClient1.getBlobContainerClient(container1Name)
+        blobServiceClient1.getBlobContainerClient(account1ContainerName)
                 .getBlobClient(name)
                 .uploadFromFile(file.getAbsolutePath(), true);
     }
