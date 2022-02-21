@@ -75,7 +75,7 @@ import static org.mockserver.stop.Stop.stopQuietly;
 public class DataPlaneHttpIntegrationTests {
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final Faker faker = new Faker();
+    private static final Faker FAKER = new Faker();
 
     private static final int DPF_PUBLIC_API_PORT = getFreePort();
     private static final int DPF_CONTROL_API_PORT = getFreePort();
@@ -92,8 +92,8 @@ public class DataPlaneHttpIntegrationTests {
     private static final String DATA_FLOW_REQUEST_EDC_TYPE = "dataspaceconnector:dataflowrequest";
     private static final String DPF_HTTP_API_PART_NAME = "sample";
     private static final String AUTH_HEADER_KEY = HttpHeaderNames.AUTHORIZATION.toString();
-    private static final String SOURCE_AUTH_VALUE = faker.lorem().word();
-    private static final String SINK_AUTH_VALUE = faker.lorem().word();
+    private static final String SOURCE_AUTH_VALUE = FAKER.lorem().word();
+    private static final String SINK_AUTH_VALUE = FAKER.lorem().word();
 
     /**
      * HTTP Source mock server.
@@ -139,8 +139,8 @@ public class DataPlaneHttpIntegrationTests {
     public void transfer_success() {
         // Arrange
         // HTTP Source Request & Response
-        var body = faker.internet().uuid();
-        var processId = faker.internet().uuid();
+        var body = FAKER.internet().uuid();
+        var processId = FAKER.internet().uuid();
         httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
@@ -188,11 +188,11 @@ public class DataPlaneHttpIntegrationTests {
     public void transfer_WithSourceQueryParams_Success() {
         // Arrange
         // HTTP Source Request & Response
-        var body = faker.internet().uuid();
-        var processId = faker.internet().uuid();
+        var body = FAKER.internet().uuid();
+        var processId = FAKER.internet().uuid();
         var queryParams = Map.of(
-                faker.lorem().word(), faker.internet().url(),
-                faker.lorem().word(), faker.lorem().word()
+                FAKER.lorem().word(), FAKER.internet().url(),
+                FAKER.lorem().word(), FAKER.lorem().word()
         );
 
         httpSourceClientAndServer
@@ -250,7 +250,7 @@ public class DataPlaneHttpIntegrationTests {
     public void transfer_invalidInput_failure() {
         // Arrange
         // Request without processId to initiate transfer.
-        var processId = faker.internet().uuid();
+        var processId = FAKER.internet().uuid();
         var invalidRequest = transferRequestBody(processId).remove("processId");
 
         // Act & Assert
@@ -267,7 +267,7 @@ public class DataPlaneHttpIntegrationTests {
     @Test
     public void transfer_sourceNotAvailable_noInteractionWithSink() {
         // Arrange
-        var processId = faker.internet().uuid();
+        var processId = FAKER.internet().uuid();
         // HTTP Source Request & Error Response
         httpSourceClientAndServer
                 .when(
@@ -300,7 +300,7 @@ public class DataPlaneHttpIntegrationTests {
     @Test
     public void transfer_sourceTemporaryDropConnection_success() {
         // Arrange
-        var processId = faker.internet().uuid();
+        var processId = FAKER.internet().uuid();
         // First two calls to HTTP Source returns a failure response.
         httpSourceClientAndServer
                 .when(
@@ -312,7 +312,7 @@ public class DataPlaneHttpIntegrationTests {
                 );
 
         // Next call to HTTP Source returns a valid response.
-        var body = faker.internet().uuid();
+        var body = FAKER.internet().uuid();
         httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
@@ -361,7 +361,7 @@ public class DataPlaneHttpIntegrationTests {
     @MethodSource("provideCommonErrorCodes")
     public void transfer_sourceErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
         // Arrange
-        var processId = faker.internet().uuid();
+        var processId = FAKER.internet().uuid();
         // HTTP Source returns error response.
         httpSourceClientAndServer
                 .when(
@@ -397,9 +397,9 @@ public class DataPlaneHttpIntegrationTests {
     @MethodSource("provideCommonErrorCodes")
     public void transfer_sinkErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
         // Arrange
-        var processId = faker.internet().uuid();
+        var processId = FAKER.internet().uuid();
         // HTTP Source Request & Response
-        var body = faker.internet().uuid();
+        var body = FAKER.internet().uuid();
         httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
@@ -475,7 +475,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Create valid dataflow request instance.
         var request = DataFlowRequest.Builder.newInstance()
-                .id(faker.internet().uuid())
+                .id(FAKER.internet().uuid())
                 .processId(processId)
                 .properties(requestProperties)
                 .sourceDataAddress(DataAddress.Builder.newInstance()
