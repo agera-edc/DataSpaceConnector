@@ -162,8 +162,6 @@ public class DataPlaneHttpIntegrationTests {
                 .contentType(ContentType.JSON)
                 .body(transferRequestBody())
                 .when()
-                .log()
-                .all()
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
@@ -222,8 +220,6 @@ public class DataPlaneHttpIntegrationTests {
                 .contentType(ContentType.JSON)
                 .body(transferRequestBody(queryParams))
                 .when()
-                .log()
-                .all()
                 .post(TRANSFER_PATH)
                 .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
