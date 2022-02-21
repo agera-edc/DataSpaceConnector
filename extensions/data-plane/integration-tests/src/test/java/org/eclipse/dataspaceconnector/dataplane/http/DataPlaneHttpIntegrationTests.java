@@ -45,7 +45,10 @@ import org.mockserver.model.MediaType;
 import org.mockserver.verify.VerificationTimes;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
@@ -60,6 +63,7 @@ import static org.mockserver.model.BinaryBody.binary;
 import static org.mockserver.model.HttpError.error;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.model.Parameter.param;
 import static org.mockserver.stop.Stop.stopQuietly;
 
 /**
@@ -152,6 +156,66 @@ public class DataPlaneHttpIntegrationTests {
         givenDpfRequest()
                 .contentType(ContentType.JSON)
                 .body(transferRequestBody())
+                .when()
+                .log()
+                .all()
+                .post(TRANSFER_PATH)
+                .then()
+                .assertThat().statusCode(HttpStatus.SC_OK);
+        // TODO: Assertions can be a race-condition. Need a dpf api to check transfer process is completed.
+        // Verify HTTP Source server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                httpSourceClientAndServer
+                        .verify(
+                                givenGetRequest(),
+                                VerificationTimes.once()
+                        )
+        );
+
+        // Verify HTTP Sink server expectation.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                httpSinkClientAndServer
+                        .verify(
+                                givenPostRequest(body),
+                                VerificationTimes.once()
+                        )
+        );
+    }
+
+    @Test
+    public void transfer_WithSourceQueryParams_Success() {
+        // Arrange
+        // HTTP Source Request & Response
+        var body = faker.internet().uuid();
+        var queryParams = Map.of(
+                faker.lorem().word(), faker.internet().url(),
+                faker.lorem().word(), faker.lorem().word()
+        );
+
+        httpSourceClientAndServer
+                .when(
+                        givenGetRequest(queryParams),
+                        once()
+                )
+                .respond(
+                        withResponse(HttpStatusCode.OK_200, body)
+                );
+
+        // HTTP Sink Request & Response
+        httpSinkClientAndServer
+                .when(
+                        givenPostRequest(body),
+                        once()
+                )
+                .respond(
+                        withResponse(HttpStatusCode.OK_200)
+                );
+
+        // Act & Assert
+        // Initiate transfer
+        givenDpfRequest()
+                .contentType(ContentType.JSON)
+                .body(transferRequestBody(queryParams))
                 .when()
                 .log()
                 .all()
@@ -401,11 +465,30 @@ public class DataPlaneHttpIntegrationTests {
      * @return JSON object. see {@link ObjectNode}.
      */
     private ObjectNode transferRequestBody() {
+        return transferRequestBody(Collections.emptyMap());
+    }
+
+    /**
+     * Request payload with query params to initiate DPF transfer.
+     *
+     * @return JSON object. see {@link ObjectNode}.
+     */
+    private ObjectNode transferRequestBody(Map<String, String> queryParams) {
+
+        var requestProperties = new HashMap<String, String>();
+        requestProperties.put(DataFlowRequestSchema.METHOD, HttpMethod.GET.name());
+        if (!queryParams.isEmpty()) {
+            requestProperties.put(DataFlowRequestSchema.QUERY_PARAMS, queryParams.entrySet()
+                    .stream()
+                    .map(entry -> entry.getKey() + "=" + entry.getValue())
+                    .collect(Collectors.joining("&")));
+        }
+
         // Create valid dataflow request instance.
         var request = DataFlowRequest.Builder.newInstance()
                 .id(faker.internet().uuid())
                 .processId(faker.internet().uuid())
-                .properties(Map.of(DataFlowRequestSchema.METHOD, HttpMethod.GET.name()))
+                .properties(requestProperties)
                 .sourceDataAddress(DataAddress.Builder.newInstance()
                         .type(HttpDataSchema.TYPE)
                         .properties(Map.of(
@@ -444,7 +527,26 @@ public class DataPlaneHttpIntegrationTests {
      * @return see {@link HttpRequest}
      */
     private HttpRequest givenGetRequest() {
-        return request()
+        return givenGetRequest(Collections.emptyMap());
+    }
+
+    /**
+     * Mock HTTP GET request with query params for source.
+     *
+     * @return see {@link HttpRequest}
+     */
+    private HttpRequest givenGetRequest(Map<String, String> queryParams) {
+
+        var request = request();
+
+        var paramsList = queryParams.entrySet()
+                .stream()
+                .map(entry -> param(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+
+        request.withQueryStringParameters(paramsList);
+
+        return request
                 .withMethod(HttpMethod.GET.name())
                 .withPath("/" + DPF_HTTP_API_PART_NAME);
     }
