@@ -145,7 +145,7 @@ That's why we can see the HTTP calls corresponding to the blob copy.
 The HTTP PUT corresponds to the [blob copy](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url).  
 The HTTP HEAD corresponds to the [get blob property](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties). When the SyncPoller evaluates if the blob copy is finished by checking the blob properties.
 
-## AZ copy (TODO if Java SDK not concluent)
+## AZ copy 
 
 Using [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-blobs-copy) we can copy blob between different storage accounts.
 The SAS token needs to be used at the end of source url but destination url doesn't need one if you are logged in into AzCopy using `azcopy login`.
@@ -153,14 +153,35 @@ The SAS token needs to be used at the end of source url but destination url does
 Additionally, [assigning the appropriate](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-authorize-azure-active-directory#verify-role-assignments) role to the destination Storage account might be necessary (Storage Blob Data Owner).
 
 ```bash
-azcopy cp "https://[srcaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]" "https://[destaccount].blob.core.windows.net/[container]/[path/to/blob]"
+`azcopy cp "https://[srcaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]" "https://[destaccount].blob.core.windows.net/[container]/[path/to/blob]"
 ```
 
 Alternatively we can use SAS tokens for both source and destination urls.
 
 ```bash
-azcopy cp "https://[srcaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]" "https://[destaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]"
+`azcopy cp "https://[srcaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]" "https://[destaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]"
 ```
 
 According to the documentation:
 > AzCopy uses server-to-server APIs, so data is copied directly between storage servers. These copy operations don't use the network bandwidth of your computer.
+
+### Copy duration
+
+Copying 1 GB blob between storage accounts in different tenants we got much better results than copying using Java SDK.
+
+Results:
+
+- 1 GB blob between different tenants, storage accounts in the same region (East US) - up to 8 seconds
+- 1 GB blob between the tenant in US East and West Europe - up to 12 seconds.
+
+AzCopy offers an option to [increase the number of concurrent requests](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-optimize#increase-the-number-of-concurrent-requests) by setting the AZCOPY_CONCURRENCY_VALUE env variable.
+
+By default AZCOPY_CONCURRENCY_VALUE has value 256. According to the documentation:
+
+> If you're copying blobs between storage accounts, consider setting the value of the AZCOPY_CONCURRENCY_VALUE environment variable to a value greater than 1000
+
+When setting the variable to the value above 1000 the results were better.
+
+For copying between the same region ~ 2 seconds, for different regions ~ 6 seconds.
+
+AZCOPY_CONCURRENCY_VALUE can be also set to value `AUTO` which will cause the AzCopy to run automatic tuning process and picks the best value. 
