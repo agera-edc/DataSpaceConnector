@@ -171,17 +171,15 @@ public class DataPlaneHttpIntegrationTests {
         );
 
         // Verify HTTP Source server called exactly once.
-        httpSourceClientAndServer
-                .verify(
-                        givenGetRequest(),
-                        VerificationTimes.once()
-                );
+        httpSourceClientAndServer.verify(
+                givenGetRequest(),
+                VerificationTimes.once()
+        );
         // Verify HTTP Sink server called exactly once.
-        httpSinkClientAndServer
-                .verify(
-                        givenPostRequest(body),
-                        VerificationTimes.once()
-                );
+        httpSinkClientAndServer.verify(
+                givenPostRequest(body),
+                VerificationTimes.once()
+        );
     }
 
     @Test
@@ -219,9 +217,9 @@ public class DataPlaneHttpIntegrationTests {
         givenDpfRequest()
                 .contentType(ContentType.JSON)
                 .body(transferRequestBody(processId, queryParams))
-        .when()
+                .when()
                 .post(TRANSFER_PATH)
-        .then()
+                .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
 
         // Wait for transfer to be completed.
@@ -230,17 +228,15 @@ public class DataPlaneHttpIntegrationTests {
         );
 
         // Verify HTTP Source server called exactly once.
-        httpSourceClientAndServer
-                .verify(
-                        givenGetRequest(),
-                        VerificationTimes.once()
-                );
+        httpSourceClientAndServer.verify(
+                givenGetRequest(),
+                VerificationTimes.once()
+        );
         // Verify HTTP Sink server called exactly once.
-        httpSinkClientAndServer
-                .verify(
-                        givenPostRequest(body),
-                        VerificationTimes.once()
-                );
+        httpSinkClientAndServer.verify(
+                givenPostRequest(body),
+                VerificationTimes.once()
+        );
     }
 
     /**
@@ -258,9 +254,9 @@ public class DataPlaneHttpIntegrationTests {
         givenDpfRequest()
                 .contentType(ContentType.JSON)
                 .body(invalidRequest)
-        .when()
+                .when()
                 .post(TRANSFER_PATH)
-        .then()
+                .then()
                 .assertThat().statusCode(HttpStatus.SC_BAD_REQUEST);
     }
 
@@ -285,11 +281,10 @@ public class DataPlaneHttpIntegrationTests {
                 validateTransferResult(processId)
         );
         // Verify HTTP Source server called at lest once.
-        httpSourceClientAndServer
-                .verify(
-                        givenGetRequest(),
-                        VerificationTimes.atLeast(1)
-                );
+        httpSourceClientAndServer.verify(
+                givenGetRequest(),
+                VerificationTimes.atLeast(1)
+        );
         // Verify zero interaction with HTTP Sink.
         httpSinkClientAndServer.verifyZeroInteractions();
     }
@@ -341,17 +336,15 @@ public class DataPlaneHttpIntegrationTests {
                 validateTransferResult(processId)
         );
         // Verify HTTP Source server called exactly 3 times.
-        httpSourceClientAndServer
-                .verify(
-                        givenGetRequest(),
-                        VerificationTimes.exactly(3)
-                );
+        httpSourceClientAndServer.verify(
+                givenGetRequest(),
+                VerificationTimes.exactly(3)
+        );
         // Verify HTTP Sink server called exactly once.
-        httpSinkClientAndServer
-                .verify(
-                        givenPostRequest(body),
-                        VerificationTimes.once()
-                );
+        httpSinkClientAndServer.verify(
+                givenPostRequest(body),
+                VerificationTimes.once()
+        );
     }
 
     /**
@@ -381,11 +374,10 @@ public class DataPlaneHttpIntegrationTests {
                 validateTransferResult(processId)
         );
         // Verify HTTP Source server called exactly once.
-        httpSourceClientAndServer
-                .verify(
-                        givenGetRequest(),
-                        VerificationTimes.once()
-                );
+        httpSourceClientAndServer.verify(
+                givenGetRequest(),
+                VerificationTimes.once()
+        );
         // Verify sink never called.
         httpSinkClientAndServer.verifyZeroInteractions();
     }
@@ -429,17 +421,15 @@ public class DataPlaneHttpIntegrationTests {
         );
 
         // Verify HTTP Source server called exactly once.
-        httpSourceClientAndServer
-                .verify(
-                        givenGetRequest(),
-                        VerificationTimes.once()
-                );
+        httpSourceClientAndServer.verify(
+                givenGetRequest(),
+                VerificationTimes.once()
+        );
         // Verify HTTP Sink server called exactly once.
-        httpSinkClientAndServer
-                .verify(
-                        givenPostRequest(body),
-                        VerificationTimes.once()
-                );
+        httpSinkClientAndServer.verify(
+                givenPostRequest(body),
+                VerificationTimes.once()
+        );
     }
 
     /**
@@ -522,9 +512,9 @@ public class DataPlaneHttpIntegrationTests {
         givenDpfRequest()
                 .contentType(ContentType.JSON)
                 .body(transferRequestBody(processId))
-        .when()
+                .when()
                 .post(TRANSFER_PATH)
-        .then()
+                .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
     }
 
@@ -536,9 +526,9 @@ public class DataPlaneHttpIntegrationTests {
     private void validateTransferResult(String processId) {
         givenDpfRequest()
                 .pathParam(PROCESS_ID, processId)
-        .when()
+                .when()
                 .get(TRANSFER_RESULT_PATH)
-        .then()
+                .then()
                 .assertThat().statusCode(HttpStatus.SC_OK);
     }
 
