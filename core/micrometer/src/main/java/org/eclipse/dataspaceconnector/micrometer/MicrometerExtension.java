@@ -14,6 +14,8 @@
 
 package org.eclipse.dataspaceconnector.micrometer;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
@@ -27,8 +29,6 @@ import org.eclipse.dataspaceconnector.spi.system.BaseExtension;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
-
-import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @BaseExtension
 @Provides({EventListener.class, ExecutorInstrumentationImplementation.class})
@@ -50,38 +50,41 @@ public class MicrometerExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
+        MeterRegistry registry = Metrics.globalRegistry;
+        context.registerService(MeterRegistry.class, registry);
+
         var enableMetrics = Boolean.valueOf(context.getSetting(ENABLE_METRICS, "true"));
         var enableSystemMetrics = Boolean.valueOf(context.getSetting(ENABLE_SYSTEM_METRICS, "true"));
         var enableOkHttpMetrics = Boolean.valueOf(context.getSetting(ENABLE_OKHTTP_METRICS, "true"));
         var enableExecutorMetrics = Boolean.valueOf(context.getSetting(ENABLE_EXECUTOR_METRICS, "true"));
 
         if (enableMetrics && enableSystemMetrics) {
-            enableSystemMetrics();
+            enableSystemMetrics(registry);
         }
 
         if (enableMetrics && enableOkHttpMetrics) {
-            enableOkHttpMetrics(context);
+            enableOkHttpMetrics(context, registry);
         }
 
         if (enableMetrics && enableExecutorMetrics) {
-            enableExecutorMetrics(context);
+            enableExecutorMetrics(context, registry);
         }
     }
 
-    private void enableSystemMetrics() {
-        new ClassLoaderMetrics().bindTo(globalRegistry);
-        new JvmMemoryMetrics().bindTo(globalRegistry);
-        new JvmGcMetrics().bindTo(globalRegistry);
-        new ProcessorMetrics().bindTo(globalRegistry);
-        new JvmThreadMetrics().bindTo(globalRegistry);
+    private void enableSystemMetrics(MeterRegistry registry) {
+        new ClassLoaderMetrics().bindTo(registry);
+        new JvmMemoryMetrics().bindTo(registry);
+        new JvmGcMetrics().bindTo(registry);
+        new ProcessorMetrics().bindTo(registry);
+        new JvmThreadMetrics().bindTo(registry);
     }
 
-    private void enableOkHttpMetrics(ServiceExtensionContext context) {
-        var listener = OkHttpMetricsEventListener.builder(globalRegistry, "okhttp.requests").build();
+    private void enableOkHttpMetrics(ServiceExtensionContext context, MeterRegistry registry) {
+        var listener = OkHttpMetricsEventListener.builder(registry, "okhttp.requests").build();
         context.registerService(EventListener.class, listener);
     }
 
-    private void enableExecutorMetrics(ServiceExtensionContext context) {
-        context.registerService(ExecutorInstrumentationImplementation.class, new MicrometerExecutorInstrumentation());
+    private void enableExecutorMetrics(ServiceExtensionContext context, MeterRegistry registry) {
+        context.registerService(ExecutorInstrumentationImplementation.class, new MicrometerExecutorInstrumentation(registry));
     }
 }

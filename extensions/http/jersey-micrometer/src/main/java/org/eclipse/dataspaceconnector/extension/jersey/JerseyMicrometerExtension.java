@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.extension.jersey;
 
-import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.jersey.server.DefaultJerseyTagsProvider;
 import io.micrometer.core.instrument.binder.jersey.server.MetricsApplicationEventListener;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
@@ -22,7 +22,6 @@ import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.system.Requires;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
-import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 
 /**
  * An extension that register a Micrometer {@link MetricsApplicationEventListener} into Jersey to
@@ -52,12 +51,11 @@ public class JerseyMicrometerExtension implements ServiceExtension {
     }
 
     private void enableJerseyControllerMetrics(ServiceExtensionContext context) {
-        TypeManager typeManager = context.getTypeManager();
-
         var webService = context.getService(WebService.class);
+        var registry = context.getService(MeterRegistry.class);
 
         webService.registerResource(new MetricsApplicationEventListener(
-                Metrics.globalRegistry,
+                registry,
                 new DefaultJerseyTagsProvider(),
                 /* metricName = */ "jersey",
                 /* autoTimeRequests = */ true));

@@ -76,7 +76,6 @@ scrape_configs:
 At startup, we run the following code:
 
 ```java
-        var registry = Metrics.globalRegistry;
         new ClassLoaderMetrics().bindTo(registry);
         new JvmMemoryMetrics().bindTo(registry);
         new JvmGcMetrics().bindTo(registry);
@@ -96,7 +95,7 @@ An `OkHttpClient` instance is globally confirmed in the `:core:base` module. We 
 
 ```java
  OkHttpClient client = new OkHttpClient.Builder()
-                .eventListener(OkHttpMetricsEventListener.builder(Metrics.globalRegistry, "okhttp.requests").build())
+                .eventListener(OkHttpMetricsEventListener.builder(registry, "okhttp.requests").build())
 ```
 
 This yields count and duration histogram metrics, tagged by target URL.
@@ -108,7 +107,7 @@ This yields count and duration histogram metrics, tagged by target URL.
 Jetty is the HTTP server and servlet container used in EDC to expose HTTP endpoints. [Micrometer natively integrates with Jetty](https://github.com/micrometer-metrics/micrometer/tree/main/micrometer-core/src/main/java/io/micrometer/core/instrument/binder/jetty), although the integration is not documented. We referred to [Spring Boot code](https://github.com/spring-projects/spring-boot/blob/ce6b12a02480f77ead612834123ba640509649c9/spring-boot-project/spring-boot-actuator/src/main/java/org/springframework/boot/actuate/metrics/web/jetty/JettyConnectionMetricsBinder.java#L49) to understand how to achieve integration:
 
 ```java
-JettyConnectionMetrics.addToAllConnectors(server, Metrics.globalRegistry);
+JettyConnectionMetrics.addToAllConnectors(server, registry);
 ```
 
 This yields the count of connections, as well as counters and histograms of inbound and outbound bytes:
@@ -121,7 +120,7 @@ Jersey is the REST framework used in EDC to provide JAX-RS (JSR-370) endpoints (
 
 ```java
             resourceConfig.register(new MetricsApplicationEventListener(
-                    Metrics.globalRegistry,
+                    registry,
                     new DefaultJerseyTagsProvider(),
                     /* metricName = */ "jersey",
                     /* autoTimeRequests = */ true));

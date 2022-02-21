@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.micrometer;
 
-import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import org.eclipse.dataspaceconnector.core.executor.ExecutorInstrumentationImplementation;
 
@@ -27,13 +27,19 @@ import java.util.concurrent.ScheduledExecutorService;
  * size and execution timings.
  */
 public class MicrometerExecutorInstrumentation implements ExecutorInstrumentationImplementation {
+    private final MeterRegistry registry;
+
+    public MicrometerExecutorInstrumentation(MeterRegistry registry) {
+        this.registry = registry;
+    }
+
     @Override
     public ScheduledExecutorService instrument(ScheduledExecutorService target, String name) {
-        return ExecutorServiceMetrics.monitor(Metrics.globalRegistry, target, name);
+        return ExecutorServiceMetrics.monitor(registry, target, name);
     }
 
     @Override
     public ExecutorService instrument(ExecutorService target, String name) {
-        return ExecutorServiceMetrics.monitor(Metrics.globalRegistry, target, name);
+        return ExecutorServiceMetrics.monitor(registry, target, name);
     }
 }
