@@ -32,7 +32,7 @@ public interface DataSource {
      */
     interface Part extends AutoCloseable {
 
-        public static final long SIZE_UNKNOWN = -1;
+        long SIZE_UNKNOWN = -1;
 
         /**
          * The part name.
