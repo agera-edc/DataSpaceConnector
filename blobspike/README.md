@@ -124,16 +124,16 @@ String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
 ### Evaluate Integration testing approach (when actual storage instance is needed Azurite is preferred over cloud infra)
 
 The integration tests can be done with the help of Azurite.
-We can run a container and specify the storage accounts information in AZURITE_ACCOUNTS as below:
+We can run a container and specify the storage accounts name and its key in AZURITE_ACCOUNTS as below:
 
 ```bash
 docker run -p 10000:10000 -e "AZURITE_ACCOUNTS=account1:key1;account2:key2" mcr.microsoft.com/azure-storage/azurite
 ```
 
-Then, the connectionStrings of the storage accounts can be used for the integration tests. You can specify the account-name and the account-key in the connectionString:
+Then, according credentials can be used in the tests.
+For example, you can specify the account-name and the account-key in the connectionString:
 
 `DefaultEndpointsProtocol=http;AccountName=<account-name>;AccountKey=<account-key>;BlobEndpoint=http://127.0.0.1:10000/<account-name>;QueueEndpoint=http://127.0.0.1:10001/<account-name>;`
-
 
 ### Evaluate observability of copy-in-place operations and make sure it is traceable
 
@@ -148,7 +148,7 @@ The HTTP HEAD corresponds to the [get blob property](https://docs.microsoft.com/
 ## AZ copy (TODO if Java SDK not concluent)
 
 Using [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-blobs-copy) we can copy blob between different storage accounts.
-The SAS token needs to be used at the end of source url but destination url doesn't need one if you are logged in into AzCopy using `azcopy login`. 
+The SAS token needs to be used at the end of source url but destination url doesn't need one if you are logged in into AzCopy using `azcopy login`.
 
 Additionally, [assigning the appropriate](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-authorize-azure-active-directory#verify-role-assignments) role to the destination Storage account might be necessary (Storage Blob Data Owner).
 
