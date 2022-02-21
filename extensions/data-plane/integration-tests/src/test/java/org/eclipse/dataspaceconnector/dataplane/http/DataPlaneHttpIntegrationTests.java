@@ -30,7 +30,6 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -337,15 +336,12 @@ public class DataPlaneHttpIntegrationTests {
         httpSinkClientAndServer.verifyZeroInteractions();
     }
 
-    /**
-     * Validate if sink is dropping connection than DPF server retries to push data.
-     */
-    @Test
-    @Disabled
-    public void transfer_sinkNotAvailable_success() {
+    @ParameterizedTest(name = "{index} {0}")
+    @MethodSource("provideCommonErrorCodes")
+    public void transfer_sinkErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
         // Arrange
         // HTTP Source Request & Response
-        var body = UUID.randomUUID().toString();
+        var body = faker.internet().uuid();
         httpSourceClientAndServer
                 .when(
                         givenGetRequest(),
@@ -355,24 +351,14 @@ public class DataPlaneHttpIntegrationTests {
                         withResponse(HttpStatusCode.OK_200, body)
                 );
 
-        // First two calls to HTTP sink returns a failure response.
-        httpSinkClientAndServer
-                .when(
-                        givenPostRequest(body),
-                        exactly(2)
-                )
-                .error(
-                        withDropConnection()
-                );
-
-        // Next call to HTTP sink returns a valid response.
+        // HTTP sink returns error response.
         httpSinkClientAndServer
                 .when(
                         givenPostRequest(body),
                         once()
                 )
                 .respond(
-                        withResponse(HttpStatusCode.OK_200)
+                        withResponse(httpStatusCode)
                 );
 
         // Act & Assert
@@ -395,11 +381,11 @@ public class DataPlaneHttpIntegrationTests {
         );
 
         // Verify HTTP Sink server expectation.
-        await().atMost(10, SECONDS).untilAsserted(() ->
+        await().atMost(30, SECONDS).untilAsserted(() ->
                 httpSinkClientAndServer
                         .verify(
                                 givenPostRequest(body),
-                                VerificationTimes.exactly(3)
+                                VerificationTimes.once()
                         )
         );
     }
