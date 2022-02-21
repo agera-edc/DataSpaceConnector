@@ -26,7 +26,6 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.Objects;
 
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateAccountName;
@@ -58,15 +57,11 @@ public class AzureStorageDataSourceFactory implements DataSourceFactory {
         var dataAddress = request.getSourceDataAddress();
         var properties = new HashMap<>(dataAddress.getProperties());
         try {
-            if (!Objects.equals(properties.remove(DataAddress.TYPE), AzureBlobStoreSchema.TYPE)) {
-                // should never happen because of routing mechanism
-                throw new IllegalArgumentException("Unexpected type");
-            }
             validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
             validateContainerName(properties.remove(AzureBlobStoreSchema.CONTAINER_NAME));
             validateBlobName(properties.remove(AzureBlobStoreSchema.BLOB_NAME));
             validateSharedKey(properties.remove(AzureBlobStoreSchema.SHARED_KEY));
-            properties.keySet().stream().findAny().ifPresent(k -> {
+            properties.keySet().stream().filter(k -> !DataAddress.TYPE.equals(k)).findFirst().ifPresent(k -> {
                 throw new IllegalArgumentException(format("Unexpected property %s", k));
             });
         } catch (IllegalArgumentException e) {
@@ -93,10 +88,5 @@ public class AzureStorageDataSourceFactory implements DataSourceFactory {
                 .retryPolicy(retryPolicy)
                 .monitor(monitor)
                 .build();
-    }
-
-    private class ExpectationException extends Throwable {
-        public ExpectationException(Result<Object> failure) {
-        }
     }
 }
