@@ -7,6 +7,9 @@ jobs:
   Azure-Blobstorage-Integration-Test:
     runs-on: ubuntu-latest
 
+    env:
+      RUN_INTEGRATION_TEST: true
+
     services:
       azurite:
         image: mcr.microsoft.com/azure-storage/azurite
@@ -23,64 +26,44 @@ jobs:
           java-version: '11'
 
       - name: Object Storage StatusChecker Test
-        env:
-          RUN_INTEGRATION_TEST: true
         run: ./gradlew extensions:azure:blobstorage:blob-provision:check
 
   Azure-CosmosDB-Integration-Test:
-    # Seems like cosmosdb emulator runs only on ubuntu 18.04: https://github.com/microsoft/azure-pipelines-tasks/issues/15865
-    runs-on: ubuntu-18.04
+    runs-on: windows-2019
+
+    env:
+      RUN_INTEGRATION_TEST: true
 
     steps:
-      - run: echo "IP_ADDRESS=$(ip addr | grep 'inet ' | grep -Fv 127.0.0.1 | awk '{print $2}' | head -n 1 | cut -d/ -f1)" >> $GITHUB_ENV
-      - run: echo "IP Address = $IP_ADDRESS"
-      - run: |
-          docker run -d -p 8081:8081 -p 10251:10251 -p 10252:10252 -p 10253:10253 -p 10254:10254 --name=test-linux-emulator \
-            -m 3g --cpus=2.0 \
-            -e AZURE_COSMOS_EMULATOR_PARTITION_COUNT=1 -e AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=$IP_ADDRESS \
-            -it mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
-
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+
+      - uses: actions/setup-java@v2
         with:
+          distribution: 'temurin'
           java-version: '11'
 
-      - name: Set cosmos certificate as key for tests
+      - name: Setup Gradle cache
+        uses: gradle/gradle-build-action@v2
+
+      - name: Launch Cosmos DB Emulator
         run: |
-          echo "Wait until CosmosDB is ready"
-          while [[ "$(curl -s -k -i -w "%{http_code}" -o /dev/null https://$IP_ADDRESS:8081/_explorer/emulator.pem)" != "200" ]]; do sleep 1; done
-
-          echo "Get CosmosDB certificate"
-          curl -k https://$IP_ADDRESS:8081/_explorer/emulator.pem >> certificate
-
-          echo "COSMOS_CERT=$PWD/certificate" >> $GITHUB_ENV
-          docker ps
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
+          Start-CosmosDbEmulator
 
       - name: CosmosDB Transfer Process Store Test
-        env:
-          RUN_INTEGRATION_TEST: true
-        run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:check
+        run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:test
 
       - name: Cosmos-based Asset Index test
-        env:
-          RUN_INTEGRATION_TEST: true
-        run: ./gradlew extensions:azure:cosmos:assetindex-cosmos:check
+        run: ./gradlew extensions:azure:cosmos:assetindex-cosmos:test
 
       - name: Cosmos-based FCN Directory test
-        env:
-          RUN_INTEGRATION_TEST: true
-        run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:check
+        run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:test
 
       - name: Cosmos-based ContractDefinitionStore Test
-        env:
-          RUN_INTEGRATION_TEST: true
-        run: ./gradlew extensions:azure:cosmos:contract-definition-store-cosmos:check
+        run: ./gradlew extensions:azure:cosmos:contract-definition-store-cosmos:test
 
       - name: Cosmos-based ContractNegotiationStore Test
-        env:
-          RUN_INTEGRATION_TEST: true
-        run: ./gradlew extensions:azure:cosmos:contract-negotiation-store-cosmos:check
+        run: ./gradlew extensions:azure:cosmos:contract-negotiation-store-cosmos:test
 
   Aws-Integration-Test:
     runs-on: ubuntu-latest
