@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -235,7 +235,11 @@ public class JerseyRestServiceTest {
     private Response executeRequest(String url) {
 
         try {
-            var client = new OkHttpClient.Builder().build();
+            var client = new OkHttpClient.Builder()
+                    .connectTimeout(1, TimeUnit.MINUTES)
+                    .writeTimeout(1, TimeUnit.MINUTES)
+                    .readTimeout(1, TimeUnit.MINUTES)
+                    .build();
             var request = new Request.Builder().url(url).build();
             return client.newCall(request).execute();
         } catch (IOException e) {
