@@ -8,7 +8,7 @@ We evaluated the [Java azure storage client library](https://docs.microsoft.com/
 
 ### Evaluate if copy can be done from source to destination, with the client not handling any data flow
 
-The Java blob is on top of the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api).
+The Java Azure Storage Blob client library is on top of the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api).
 The client calls [an endpoint](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url) to trigger the copy of a blob.
 The client receives an answer, the copy is then done asynchronously.
 In order to know if the copy is finished, the client needs to [get the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties) by calling the REST API in order to know if the copy operation is finished.
