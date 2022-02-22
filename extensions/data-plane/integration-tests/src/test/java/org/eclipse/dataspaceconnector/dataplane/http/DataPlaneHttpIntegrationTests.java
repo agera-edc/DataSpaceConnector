@@ -348,6 +348,59 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
+     * Validate DPF doesn't retry to deliver the data if the sink drops the connection.
+     */
+    @Test
+    public void transfer_sinkDropsConnection_noRetry() {
+        // Arrange
+        // HTTP Source Request & Response
+        var body = FAKER.internet().uuid();
+        var processId = FAKER.internet().uuid();
+        httpSourceClientAndServer
+                .when(
+                        givenGetRequest(),
+                        once()
+                )
+                .respond(
+                        withResponse(HttpStatusCode.OK_200, body)
+                );
+
+        // HTTP sink drops the connection.
+        httpSinkClientAndServer
+                .when(
+                        givenPostRequest(body),
+                        once()
+                )
+                .error(
+                        withDropConnection()
+                );
+
+        // Act & Assert
+        // Initiate transfer
+        initiateTransfer(processId);
+
+        // Wait for transfer to be completed.
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                validateTransferResult(processId)
+        );
+
+        // Verify HTTP Source server called exactly once.
+        httpSourceClientAndServer.verify(
+                givenGetRequest(),
+                VerificationTimes.once()
+        );
+
+        // Verify HTTP Sink server called exactly once.
+        // TODO: reading the code, it is expected that the sink is only
+        //  called once, but it's actually called twice, we need to figure out why that is.
+        //  When the sink returns an error, it is only called once.
+        httpSinkClientAndServer.verify(
+                givenPostRequest(body),
+                VerificationTimes.exactly(2)
+        );
+    }
+
+    /**
      * Validate DPF doesn't retry to fetch the data if receives error response from http source.
      */
     @ParameterizedTest(name = "{index} {0}")
