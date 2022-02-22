@@ -32,7 +32,9 @@ Pros and cons to use beginCopy in EDC:
 - Pros: During the copy, Network I/O is only between the 2 storage accounts. The client does not need to download any data.
 - Cons: The source storage account needs to be accessible from the internet. With the stream, the provider and the source storage account could be in the same private network. Then, only the destination storage account would need to be accessible from the internet.
 
-### Azure Blob Copy within same container
+### Code samples
+
+#### Azure Blob Copy within same container
 
 To copy Azure Blob within the same container using Azure Java SDK we can use BlobContainerClient.
 
@@ -82,7 +84,7 @@ syncPoller.waitForCompletion(Duration.ofSeconds(5));
         
 ```
 
-### Azure Blob Copy within different containers/different storage accounts within the same tenant/subscription
+#### Azure Blob Copy within different containers/different storage accounts within the same tenant/subscription
 
 To copy Azure Blob between containers we can use BlobClients specifying their properties:
 
@@ -103,9 +105,9 @@ BlobClient destBlobClient = new BlobClientBuilder()
     .buildClient();
 ```
 
-### Azure Blob Copy between different Azure tenants/subscriptions
+#### Azure Blob Copy between different Azure tenants/subscriptions
 
-#### Copy between tenants using Sas token
+##### Copy between tenants using Sas token
 
 Azure Blob can be copied between tenants using Java SDK. It requires creating a sas token to provide appropriate permissions to the blob.
 
