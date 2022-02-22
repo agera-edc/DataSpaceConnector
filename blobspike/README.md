@@ -1,4 +1,4 @@
-# Azure Blob Storage Copy
+# Azure Blob Storage Copy Spike
 
 We evaluated the possibility to copy a blob.
 
@@ -6,7 +6,7 @@ We evaluated the possibility to copy a blob.
 
 We evaluated the [Java azure storage client library](https://docs.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable) to copy blobs.
 
-### Evaluate if copy can be done from source to destination, with the client not handling any data flow
+### Evaluate server side copy
 
 The Java Azure Storage Blob client library is on top of the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api).
 The client calls [an endpoint](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url) to trigger the copy of a blob.
