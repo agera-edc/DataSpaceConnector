@@ -1,15 +1,10 @@
 name: Integration Tests
 
-on:
-  push:
-    branches: [ main ]
-  pull_request_target:
+on: [ push, pull_request ]
 
 jobs:
 
-  Azure-Integration-Test:
-    # run only on upstream repo
-    if: github.repository_owner == 'eclipse-dataspaceconnector'
+  Azure-Blobstorage-Integration-Test:
     runs-on: ubuntu-latest
 
     services:
@@ -32,34 +27,59 @@ jobs:
           RUN_INTEGRATION_TEST: true
         run: ./gradlew extensions:azure:blobstorage:blob-provision:check
 
+  Azure-CosmosDB-Integration-Test:
+    # Seems like cosmosdb emulator runs only on ubuntu 18.04: https://github.com/microsoft/azure-pipelines-tasks/issues/15865
+    runs-on: ubuntu-18.04
+
+    steps:
+      - run: echo "IP_ADDRESS=$(ip addr | grep 'inet ' | grep -Fv 127.0.0.1 | awk '{print $2}' | head -n 1 | cut -d/ -f1)" >> $GITHUB_ENV
+      - run: echo "IP Address = $IP_ADDRESS"
+      - run: |
+          docker run -d -p 8081:8081 -p 10251:10251 -p 10252:10252 -p 10253:10253 -p 10254:10254 --name=test-linux-emulator \
+            -m 3g --cpus=2.0 \
+            -e AZURE_COSMOS_EMULATOR_PARTITION_COUNT=1 -e AZURE_COSMOS_EMULATOR_IP_ADDRESS_OVERRIDE=$IP_ADDRESS \
+            -it mcr.microsoft.com/cosmosdb/linux/azure-cosmos-emulator
+
+      - uses: actions/checkout@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+
+      - name: Set cosmos certificate as key for tests
+        run: |
+          echo "Wait until CosmosDB is ready"
+          while [[ "$(curl -s -k -i -w "%{http_code}" -o /dev/null https://$IP_ADDRESS:8081/_explorer/emulator.pem)" != "200" ]]; do sleep 1; done
+
+          echo "Get CosmosDB certificate"
+          curl -k https://$IP_ADDRESS:8081/_explorer/emulator.pem >> certificate
+
+          echo "COSMOS_CERT=$PWD/certificate" >> $GITHUB_ENV
+          docker ps
+
       - name: CosmosDB Transfer Process Store Test
         env:
           RUN_INTEGRATION_TEST: true
-          COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
         run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:check
 
       - name: Cosmos-based Asset Index test
         env:
           RUN_INTEGRATION_TEST: true
-          COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
         run: ./gradlew extensions:azure:cosmos:assetindex-cosmos:check
 
       - name: Cosmos-based FCN Directory test
         env:
           RUN_INTEGRATION_TEST: true
-          COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
         run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:check
 
       - name: Cosmos-based ContractDefinitionStore Test
         env:
           RUN_INTEGRATION_TEST: true
-          COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
         run: ./gradlew extensions:azure:cosmos:contract-definition-store-cosmos:check
 
       - name: Cosmos-based ContractNegotiationStore Test
         env:
           RUN_INTEGRATION_TEST: true
-          COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
         run: ./gradlew extensions:azure:cosmos:contract-negotiation-store-cosmos:check
 
   Aws-Integration-Test:
