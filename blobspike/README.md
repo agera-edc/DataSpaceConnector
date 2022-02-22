@@ -1,3 +1,5 @@
+[TOC]
+
 # Azure Blob Storage Copy Spike
 
 We evaluated the possibility to copy a blob.
