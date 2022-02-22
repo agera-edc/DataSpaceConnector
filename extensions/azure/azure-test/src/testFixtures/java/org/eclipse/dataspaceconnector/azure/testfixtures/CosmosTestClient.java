@@ -10,6 +10,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
@@ -59,8 +61,17 @@ public interface CosmosTestClient {
                 keystore.store(output, keystorePassword);
             }
 
+            var newKeystorePath = Files.createTempFile(null, null);
+            try (var output = new FileOutputStream(newKeystorePath.toFile())) {
+                keystore.store(output, keystorePassword);
+            }
+            System.setProperty("javax.net.ssl.trustStore", newKeystorePath.toString());
+
+            // Seems to be a fixed value: https://github.com/Azure/azure-cosmos-db-emulator-docker
+            String masterKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+
             return new CosmosClientBuilder()
-                    .key("C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==")
+                    .key(masterKey)
                     .endpoint(endpoint)
                     .buildClient();
 
