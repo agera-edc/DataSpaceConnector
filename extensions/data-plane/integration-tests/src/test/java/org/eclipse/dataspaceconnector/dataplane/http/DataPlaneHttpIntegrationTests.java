@@ -33,9 +33,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.Header;
 import org.mockserver.model.HttpError;
@@ -51,7 +48,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static java.lang.String.format;
@@ -403,91 +399,6 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Validate DPF doesn't retry to fetch the data if receives error response from http source.
-     */
-    @ParameterizedTest(name = "{index} {0}")
-    @MethodSource("provideCommonErrorCodes")
-    public void transfer_sourceErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
-        // Arrange
-        var processId = FAKER.internet().uuid();
-        // HTTP Source returns error response.
-        httpSourceClientAndServer
-                .when(
-                        getRequest(),
-                        once()
-                )
-                .respond(
-                        withResponse(httpStatusCode)
-                );
-
-        // Act & Assert
-        // Initiate transfer
-        initiateTransfer(processId);
-
-        // Wait for transfer to be completed.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                validateTransferResult(processId)
-        );
-        // Verify HTTP Source server called exactly once.
-        httpSourceClientAndServer.verify(
-                getRequest(),
-                VerificationTimes.once()
-        );
-        // Verify sink never called.
-        httpSinkClientAndServer.verifyZeroInteractions();
-    }
-
-    /**
-     * Validate DPF doesn't retry to deliver the data if receives error response from http sink.
-     */
-    @ParameterizedTest(name = "{index} {0}")
-    @MethodSource("provideCommonErrorCodes")
-    public void transfer_sinkErrorResponse_failure(String name, HttpStatusCode httpStatusCode) {
-        // Arrange
-        var processId = FAKER.internet().uuid();
-        // HTTP Source Request & Response
-        var body = FAKER.internet().uuid();
-        httpSourceClientAndServer
-                .when(
-                        getRequest(),
-                        once()
-                )
-                .respond(
-                        withResponse(HttpStatusCode.OK_200, body)
-                );
-
-        // HTTP sink returns error response.
-        httpSinkClientAndServer
-                .when(
-                        postRequest(body),
-                        once()
-                )
-                .respond(
-                        withResponse(httpStatusCode)
-                );
-
-        // Act & Assert
-        // Initiate transfer
-        initiateTransfer(processId);
-
-        // Wait for transfer to be completed.
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                validateTransferResult(processId)
-        );
-
-        // Verify HTTP Source server called exactly once.
-        httpSourceClientAndServer.verify(
-                getRequest(),
-                VerificationTimes.once()
-        );
-        // Verify HTTP Sink server called exactly once.
-        httpSinkClientAndServer.verify(
-                postRequest(body),
-                VerificationTimes.once()
-        );
-    }
-
-    /**
      * Request payload to initiate DPF transfer.
      *
      * @param processId ProcessID of transfer.See {@link DataFlowRequest}
@@ -678,22 +589,4 @@ public class DataPlaneHttpIntegrationTests {
         return error()
                 .withDropConnection(true);
     }
-
-    /**
-     * Provides most common http error status codes.
-     *
-     * @return Http Error codes as {@link Stream} of {@link Arguments}.
-     */
-    private static Stream<Arguments> provideCommonErrorCodes() {
-        return Stream.of(
-                Arguments.of(HttpStatusCode.MOVED_PERMANENTLY_301.name(), HttpStatusCode.MOVED_PERMANENTLY_301),
-                Arguments.of(HttpStatusCode.FOUND_302.name(), HttpStatusCode.FOUND_302),
-                Arguments.of(HttpStatusCode.BAD_REQUEST_400.name(), HttpStatusCode.BAD_REQUEST_400),
-                Arguments.of(HttpStatusCode.UNAUTHORIZED_401.name(), HttpStatusCode.UNAUTHORIZED_401),
-                Arguments.of(HttpStatusCode.NOT_FOUND_404.name(), HttpStatusCode.NOT_FOUND_404),
-                Arguments.of(HttpStatusCode.INTERNAL_SERVER_ERROR_500.name(), HttpStatusCode.INTERNAL_SERVER_ERROR_500),
-                Arguments.of(HttpStatusCode.BAD_GATEWAY_502.name(), HttpStatusCode.BAD_GATEWAY_502)
-        );
-    }
-
 }

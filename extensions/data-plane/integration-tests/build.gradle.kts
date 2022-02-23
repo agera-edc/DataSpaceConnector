@@ -20,7 +20,6 @@ val jupiterVersion: String by project
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:${jupiterVersion}")
     testImplementation("io.rest-assured:rest-assured:4.5.0")
     testImplementation("org.assertj:assertj-core:3.22.0")
     testImplementation("org.awaitility:awaitility:4.1.1")
