@@ -100,7 +100,6 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
         return store.getState(processId);
     }
 
-
     private void run() {
         while (active.get()) {
             DataFlowRequest request = null;
