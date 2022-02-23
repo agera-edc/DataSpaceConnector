@@ -155,13 +155,13 @@ public class DataPlaneHttpIntegrationTests {
                         once()
                 )
                 .respond(
-                        withOk200Response()
+                        withResponse()
                 );
 
         // Act & Assert
         // Initiate transfer
         initiateTransfer(transferRequestPayload(processId));
-        
+
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 fetchTransferState(processId)
@@ -206,7 +206,7 @@ public class DataPlaneHttpIntegrationTests {
                         once()
                 )
                 .respond(
-                        withOk200Response()
+                        withResponse()
                 );
 
         // Act & Assert
@@ -315,7 +315,7 @@ public class DataPlaneHttpIntegrationTests {
                         once()
                 )
                 .respond(
-                        withOk200Response()
+                        withResponse()
                 );
 
         // Act & Assert
@@ -524,28 +524,6 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Mock plain text response from source.
-     *
-     * @param statusCode   Response status code.
-     * @param responseBody Response body.
-     * @return see {@link HttpResponse}
-     */
-    private HttpResponse withResponse(HttpStatusCode statusCode, String responseBody) {
-        var response = response()
-                .withStatusCode(statusCode.code());
-
-        if (responseBody != null) {
-            response.withHeader(
-                            new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
-                                    MediaType.PLAIN_TEXT_UTF_8.toString())
-                    )
-                    .withBody(responseBody);
-        }
-
-        return response;
-    }
-
-    /**
      * Mock HTTP POST request for sink.
      *
      * @param responseBody Request body.
@@ -568,8 +546,30 @@ public class DataPlaneHttpIntegrationTests {
      *
      * @return see {@link HttpResponse}
      */
-    private HttpResponse withOk200Response() {
+    private HttpResponse withResponse() {
         return withResponse(HttpStatusCode.OK_200, null);
+    }
+
+    /**
+     * Mock plain text response from source.
+     *
+     * @param statusCode   Response status code.
+     * @param responseBody Response body.
+     * @return see {@link HttpResponse}
+     */
+    private HttpResponse withResponse(HttpStatusCode statusCode, String responseBody) {
+        var response = response()
+                .withStatusCode(statusCode.code());
+
+        if (responseBody != null) {
+            response.withHeader(
+                            new Header(HttpHeaderNames.CONTENT_TYPE.toString(),
+                                    MediaType.PLAIN_TEXT_UTF_8.toString())
+                    )
+                    .withBody(responseBody);
+        }
+
+        return response;
     }
 
     /**
