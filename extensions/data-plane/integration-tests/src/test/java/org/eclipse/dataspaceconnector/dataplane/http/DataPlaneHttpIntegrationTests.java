@@ -160,9 +160,8 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        initiateTransfer(processId);
-
-
+        initiateTransfer(transferRequestPayload(processId));
+        
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
                 fetchTransferState(processId)
@@ -212,13 +211,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        givenDpfRequest()
-                .contentType(ContentType.JSON)
-                .body(transferRequestBody(processId, queryParams))
-                .when()
-                .post(TRANSFER_PATH)
-                .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
+        initiateTransfer(transferRequestPayload(processId, queryParams));
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
@@ -245,7 +238,7 @@ public class DataPlaneHttpIntegrationTests {
         // Arrange
         // Request without processId to initiate transfer.
         var processId = FAKER.internet().uuid();
-        var invalidRequest = transferRequestBody(processId).remove("processId");
+        var invalidRequest = transferRequestPayload(processId).remove("processId");
 
         // Act & Assert
         // Initiate transfer
@@ -272,7 +265,7 @@ public class DataPlaneHttpIntegrationTests {
                 );
 
         // Initiate transfer
-        initiateTransfer(processId);
+        initiateTransfer(transferRequestPayload(processId));
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
@@ -327,7 +320,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        initiateTransfer(processId);
+        initiateTransfer(transferRequestPayload(processId));
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
@@ -375,7 +368,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Act & Assert
         // Initiate transfer
-        initiateTransfer(processId);
+        initiateTransfer(transferRequestPayload(processId));
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
@@ -404,8 +397,8 @@ public class DataPlaneHttpIntegrationTests {
      * @param processId ProcessID of transfer.See {@link DataFlowRequest}
      * @return JSON object. see {@link ObjectNode}.
      */
-    private ObjectNode transferRequestBody(String processId) {
-        return transferRequestBody(processId, Collections.emptyMap());
+    private ObjectNode transferRequestPayload(String processId) {
+        return transferRequestPayload(processId, Collections.emptyMap());
     }
 
     /**
@@ -415,7 +408,7 @@ public class DataPlaneHttpIntegrationTests {
      * @param queryParams Query params name and value as key-value entries.
      * @return JSON object. see {@link ObjectNode}.
      */
-    private ObjectNode transferRequestBody(String processId, Map<String, String> queryParams) {
+    private ObjectNode transferRequestPayload(String processId, Map<String, String> queryParams) {
 
         var requestProperties = new HashMap<String, String>();
         requestProperties.put(DataFlowRequestSchema.METHOD, HttpMethod.GET.name());
@@ -472,12 +465,12 @@ public class DataPlaneHttpIntegrationTests {
     /**
      * Initiate a transfer and assert if response is HTTP OK.
      *
-     * @param processId ProcessID of transfer. See {@link DataFlowRequest}
+     * @param payload Request payload.
      */
-    private void initiateTransfer(String processId) {
+    private void initiateTransfer(Object payload) {
         givenDpfRequest()
                 .contentType(ContentType.JSON)
-                .body(transferRequestBody(processId))
+                .body(payload)
                 .when()
                 .post(TRANSFER_PATH)
                 .then()
