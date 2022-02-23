@@ -145,7 +145,7 @@ public class DataPlaneHttpIntegrationTests {
         var processId = FAKER.internet().uuid();
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest(),
+                        getRequest(),
                         once()
                 )
                 .respond(
@@ -155,7 +155,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP Sink Request & Response
         httpSinkClientAndServer
                 .when(
-                        givenPostRequest(body),
+                        postRequest(body),
                         once()
                 )
                 .respond(
@@ -174,12 +174,12 @@ public class DataPlaneHttpIntegrationTests {
 
         // Verify HTTP Source server called exactly once.
         httpSourceClientAndServer.verify(
-                givenGetRequest(),
+                getRequest(),
                 VerificationTimes.once()
         );
         // Verify HTTP Sink server called exactly once.
         httpSinkClientAndServer.verify(
-                givenPostRequest(body),
+                postRequest(body),
                 VerificationTimes.once()
         );
     }
@@ -197,7 +197,7 @@ public class DataPlaneHttpIntegrationTests {
 
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest(queryParams),
+                        getRequest(queryParams),
                         once()
                 )
                 .respond(
@@ -207,7 +207,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP Sink Request & Response
         httpSinkClientAndServer
                 .when(
-                        givenPostRequest(body),
+                        postRequest(body),
                         once()
                 )
                 .respond(
@@ -231,12 +231,12 @@ public class DataPlaneHttpIntegrationTests {
 
         // Verify HTTP Source server called exactly once.
         httpSourceClientAndServer.verify(
-                givenGetRequest(),
+                getRequest(),
                 VerificationTimes.once()
         );
         // Verify HTTP Sink server called exactly once.
         httpSinkClientAndServer.verify(
-                givenPostRequest(body),
+                postRequest(body),
                 VerificationTimes.once()
         );
     }
@@ -269,7 +269,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP Source Request & Error Response
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest()
+                        getRequest()
                 )
                 .error(
                         withDropConnection()
@@ -284,7 +284,7 @@ public class DataPlaneHttpIntegrationTests {
         );
         // Verify HTTP Source server called at lest once.
         httpSourceClientAndServer.verify(
-                givenGetRequest(),
+                getRequest(),
                 VerificationTimes.atLeast(1)
         );
         // Verify zero interaction with HTTP Sink.
@@ -301,7 +301,7 @@ public class DataPlaneHttpIntegrationTests {
         // First two calls to HTTP Source returns a failure response.
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest(),
+                        getRequest(),
                         exactly(2)
                 )
                 .error(
@@ -312,7 +312,7 @@ public class DataPlaneHttpIntegrationTests {
         var body = FAKER.internet().uuid();
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest(),
+                        getRequest(),
                         once()
                 )
                 .respond(
@@ -322,7 +322,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP Sink Request & Response
         httpSinkClientAndServer
                 .when(
-                        givenPostRequest(body),
+                        postRequest(body),
                         once()
                 )
                 .respond(
@@ -339,12 +339,12 @@ public class DataPlaneHttpIntegrationTests {
         );
         // Verify HTTP Source server called exactly 3 times.
         httpSourceClientAndServer.verify(
-                givenGetRequest(),
+                getRequest(),
                 VerificationTimes.exactly(3)
         );
         // Verify HTTP Sink server called exactly once.
         httpSinkClientAndServer.verify(
-                givenPostRequest(body),
+                postRequest(body),
                 VerificationTimes.once()
         );
     }
@@ -360,7 +360,7 @@ public class DataPlaneHttpIntegrationTests {
         var processId = FAKER.internet().uuid();
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest(),
+                        getRequest(),
                         once()
                 )
                 .respond(
@@ -370,7 +370,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP sink drops the connection.
         httpSinkClientAndServer
                 .when(
-                        givenPostRequest(body),
+                        postRequest(body),
                         once()
                 )
                 .error(
@@ -388,7 +388,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Verify HTTP Source server called exactly once.
         httpSourceClientAndServer.verify(
-                givenGetRequest(),
+                getRequest(),
                 VerificationTimes.once()
         );
 
@@ -397,7 +397,7 @@ public class DataPlaneHttpIntegrationTests {
         //  called once, but it's actually called twice, we need to figure out why that is.
         //  When the sink returns an error, it is only called once.
         httpSinkClientAndServer.verify(
-                givenPostRequest(body),
+                postRequest(body),
                 VerificationTimes.exactly(2)
         );
     }
@@ -413,7 +413,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP Source returns error response.
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest(),
+                        getRequest(),
                         once()
                 )
                 .respond(
@@ -430,7 +430,7 @@ public class DataPlaneHttpIntegrationTests {
         );
         // Verify HTTP Source server called exactly once.
         httpSourceClientAndServer.verify(
-                givenGetRequest(),
+                getRequest(),
                 VerificationTimes.once()
         );
         // Verify sink never called.
@@ -449,7 +449,7 @@ public class DataPlaneHttpIntegrationTests {
         var body = FAKER.internet().uuid();
         httpSourceClientAndServer
                 .when(
-                        givenGetRequest(),
+                        getRequest(),
                         once()
                 )
                 .respond(
@@ -459,7 +459,7 @@ public class DataPlaneHttpIntegrationTests {
         // HTTP sink returns error response.
         httpSinkClientAndServer
                 .when(
-                        givenPostRequest(body),
+                        postRequest(body),
                         once()
                 )
                 .respond(
@@ -477,12 +477,12 @@ public class DataPlaneHttpIntegrationTests {
 
         // Verify HTTP Source server called exactly once.
         httpSourceClientAndServer.verify(
-                givenGetRequest(),
+                getRequest(),
                 VerificationTimes.once()
         );
         // Verify HTTP Sink server called exactly once.
         httpSinkClientAndServer.verify(
-                givenPostRequest(body),
+                postRequest(body),
                 VerificationTimes.once()
         );
     }
@@ -593,8 +593,8 @@ public class DataPlaneHttpIntegrationTests {
      *
      * @return see {@link HttpRequest}
      */
-    private HttpRequest givenGetRequest() {
-        return givenGetRequest(Collections.emptyMap());
+    private HttpRequest getRequest() {
+        return getRequest(Collections.emptyMap());
     }
 
     /**
@@ -602,7 +602,7 @@ public class DataPlaneHttpIntegrationTests {
      *
      * @return see {@link HttpRequest}
      */
-    private HttpRequest givenGetRequest(Map<String, String> queryParams) {
+    private HttpRequest getRequest(Map<String, String> queryParams) {
 
         var request = request();
 
@@ -647,7 +647,7 @@ public class DataPlaneHttpIntegrationTests {
      * @param responseBody Request body.
      * @return see {@link HttpRequest}
      */
-    private HttpRequest givenPostRequest(String responseBody) {
+    private HttpRequest postRequest(String responseBody) {
         return request()
                 .withMethod(HttpMethod.POST.name())
                 .withPath("/" + DPF_HTTP_API_PART_NAME)
