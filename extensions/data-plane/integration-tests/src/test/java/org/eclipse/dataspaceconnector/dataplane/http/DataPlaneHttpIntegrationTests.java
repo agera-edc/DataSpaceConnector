@@ -26,7 +26,6 @@ import org.eclipse.dataspaceconnector.dataplane.spi.schema.DataFlowRequestSchema
 import org.eclipse.dataspaceconnector.dataplane.spi.schema.HttpDataSchema;
 import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore.State;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
-import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -55,6 +54,8 @@ import static java.lang.String.valueOf;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
+import static org.eclipse.dataspaceconnector.dataplane.http.HttpTestFixtures.createDataAddress;
+import static org.eclipse.dataspaceconnector.dataplane.http.HttpTestFixtures.createRequest;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.matchers.Times.exactly;
@@ -422,27 +423,24 @@ public class DataPlaneHttpIntegrationTests {
                     .collect(Collectors.joining("&")));
         }
 
+        var sourceDataAddress = createDataAddress(
+                HttpDataSchema.TYPE,
+                Map.of(
+                        HttpDataSchema.ENDPOINT, DPF_HTTP_SOURCE_API_HOST,
+                        HttpDataSchema.NAME, DPF_HTTP_API_PART_NAME
+                )).build();
+
+        var destinationDataAddress = createDataAddress(
+                HttpDataSchema.TYPE,
+                Map.of(
+                        HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST,
+                        HttpDataSchema.AUTHENTICATION_KEY, AUTH_HEADER_KEY,
+                        HttpDataSchema.AUTHENTICATION_CODE, SINK_AUTH_VALUE
+                )).build();
+
         // Create valid dataflow request instance.
-        var request = DataFlowRequest.Builder.newInstance()
-                .id(FAKER.internet().uuid())
+        var request = createRequest(requestProperties, sourceDataAddress, destinationDataAddress)
                 .processId(processId)
-                .properties(requestProperties)
-                .sourceDataAddress(DataAddress.Builder.newInstance()
-                        .type(HttpDataSchema.TYPE)
-                        .properties(Map.of(
-                                HttpDataSchema.ENDPOINT, DPF_HTTP_SOURCE_API_HOST,
-                                HttpDataSchema.NAME, DPF_HTTP_API_PART_NAME
-                        ))
-                        .build())
-                .destinationDataAddress(DataAddress.Builder.newInstance()
-                        .type(HttpDataSchema.TYPE)
-                        .properties(Map.of(
-                                HttpDataSchema.ENDPOINT, DPF_HTTP_SINK_API_HOST,
-                                HttpDataSchema.AUTHENTICATION_KEY, AUTH_HEADER_KEY,
-                                HttpDataSchema.AUTHENTICATION_CODE, SINK_AUTH_VALUE
-                        ))
-                        .build())
-                .trackable(true)
                 .build();
 
         // Add edctype to request

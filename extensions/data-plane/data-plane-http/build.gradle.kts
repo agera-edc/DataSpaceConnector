@@ -18,6 +18,7 @@ val rsApi: String by project
 
 plugins {
     `java-library`
+    `java-test-fixtures`
 }
 
 dependencies {
@@ -25,6 +26,8 @@ dependencies {
     implementation(project(":common:util"))
     implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
     implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
+    testFixturesImplementation("com.github.javafaker:javafaker:1.0.2")
+    testFixturesImplementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
 }
 
 publishing {
