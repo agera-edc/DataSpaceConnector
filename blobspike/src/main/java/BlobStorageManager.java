@@ -2,6 +2,7 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobClientBuilder;
 import com.azure.storage.blob.models.BlobRange;
 import com.azure.storage.blob.models.Block;
+import com.azure.storage.blob.models.BlockList;
 import com.azure.storage.blob.models.BlockListType;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
@@ -13,8 +14,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
 
 
 public class BlobStorageManager {
@@ -35,8 +38,8 @@ public class BlobStorageManager {
 
             BlobInfo sourceBlob = new BlobInfo(sourceBlobName, sourceContainer, sourceConnectionString);
             BlobInfo destBlob = new BlobInfo(destBlobName, destContainer, destConnectionString);
-            new BlobStorageManager().copyBlobUsingSasToken(sourceBlob, destBlob);
-            // new BlobStorageManager().copyByBlock(sourceBlob, destBlob);
+            // new BlobStorageManager().copyBlobUsingSasToken(sourceBlob, destBlob);
+            new BlobStorageManager().copyByBlock(sourceBlob, destBlob);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -104,10 +107,19 @@ public class BlobStorageManager {
                 .blobName(destBlob.blobName)
                 .buildClient().getBlockBlobClient();
 
-        var blockIds = sourceBlobClient.getBlockBlobClient().listBlocks(BlockListType.COMMITTED).getCommittedBlocks()
-                .parallelStream().map(Block::getName).collect(Collectors.toList());
+        List<Block> blockList = sourceBlobClient.getBlockBlobClient().listBlocks(BlockListType.COMMITTED).getCommittedBlocks();
+        var blockIds = blockList
+                .stream().map(Block::getName).collect(Collectors.toList());
 
-        blockIds.forEach(block ->  destBlobClient.stageBlockFromUrl(block, sourceBlobUrl, new BlobRange(0)));
+        long offset = 0;
+        for (int i = 0; i < blockList.size(); i++) {
+            Block block = blockList.get(i);
+            long sizeLong = block.getSizeLong();
+            System.out.println("Block " + i + " size bytes:" + sizeLong);
+            destBlobClient.stageBlockFromUrl(block.getName(), sourceBlobUrl, new BlobRange(offset, sizeLong));
+            System.out.println("Block " + i + " staged.");
+            offset = offset + sizeLong;
+        }
 
         destBlobClient.commitBlockList(blockIds);
     }
