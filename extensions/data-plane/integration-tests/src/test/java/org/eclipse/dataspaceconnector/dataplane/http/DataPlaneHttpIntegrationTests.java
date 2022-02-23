@@ -155,7 +155,7 @@ public class DataPlaneHttpIntegrationTests {
                         once()
                 )
                 .respond(
-                        withResponse(HttpStatusCode.OK_200)
+                        withOk200Response()
                 );
 
         // Act & Assert
@@ -165,7 +165,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                validateTransferResult(processId)
+                fetchTransferState(processId)
         );
 
         // Verify HTTP Source server called exactly once.
@@ -207,7 +207,7 @@ public class DataPlaneHttpIntegrationTests {
                         once()
                 )
                 .respond(
-                        withResponse(HttpStatusCode.OK_200)
+                        withOk200Response()
                 );
 
         // Act & Assert
@@ -222,7 +222,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                validateTransferResult(processId)
+                fetchTransferState(processId)
         );
 
         // Verify HTTP Source server called exactly once.
@@ -276,7 +276,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                validateTransferResult(processId)
+                fetchTransferState(processId)
         );
         // Verify HTTP Source server called at lest once.
         httpSourceClientAndServer.verify(
@@ -322,7 +322,7 @@ public class DataPlaneHttpIntegrationTests {
                         once()
                 )
                 .respond(
-                        withResponse(HttpStatusCode.OK_200)
+                        withOk200Response()
                 );
 
         // Act & Assert
@@ -331,7 +331,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                validateTransferResult(processId)
+                fetchTransferState(processId)
         );
         // Verify HTTP Source server called exactly 3 times.
         httpSourceClientAndServer.verify(
@@ -379,7 +379,7 @@ public class DataPlaneHttpIntegrationTests {
 
         // Wait for transfer to be completed.
         await().atMost(30, SECONDS).untilAsserted(() ->
-                validateTransferResult(processId)
+                fetchTransferState(processId)
         );
 
         // Verify HTTP Source server called exactly once.
@@ -485,11 +485,11 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Validate if transfer from source to sink is completed.
+     * Fetch transfer state and assert if transfer is completed.
      *
      * @param processId ProcessID of transfer. See {@link DataFlowRequest}
      */
-    private void validateTransferResult(String processId) {
+    private void fetchTransferState(String processId) {
         givenDpfRequest()
                 .pathParam(PROCESS_ID, processId)
                 .when()
@@ -571,13 +571,12 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Mock response from sink.
+     * Mock http OK response from sink.
      *
-     * @param statusCode Response status code.
      * @return see {@link HttpResponse}
      */
-    private HttpResponse withResponse(HttpStatusCode statusCode) {
-        return withResponse(statusCode, null);
+    private HttpResponse withOk200Response() {
+        return withResponse(HttpStatusCode.OK_200, null);
     }
 
     /**
