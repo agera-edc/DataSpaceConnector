@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.response.ResponseStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -23,16 +24,23 @@ class ParallelSinkTest {
     Faker faker = new Faker();
     Monitor monitor = mock(Monitor.class);
     ExecutorService executor = Executors.newFixedThreadPool(2);
-    String requestId = UUID.randomUUID().toString();
+    String dataSourceName = faker.lorem().word();
+    String dataSourceContent = faker.lorem().characters();
+    String errorMessage = faker.lorem().sentence();
+
+    FakeParallelSink fakeSink;
+
+    @BeforeEach
+    void setup() {
+        fakeSink = new FakeParallelSink();
+        fakeSink.monitor = monitor;
+        fakeSink.executorService = executor;
+        fakeSink.requestId = UUID.randomUUID().toString();
+    }
 
     @Test
-    void transfer() {
-        var fakeSink = FakeParallelSink.Builder.newInstance()
-                .monitor(monitor)
-                .executorService(executor)
-                .requestId(requestId)
-                .build();
-        var dataSource = new InputStreamDataSource(faker.lorem().word(), new ByteArrayInputStream(faker.lorem().characters().getBytes()));
+    void transfer_succeeds() {
+        var dataSource = new InputStreamDataSource(dataSourceName, new ByteArrayInputStream(dataSourceContent.getBytes()));
 
         assertThat(fakeSink.transfer(dataSource)).succeedsWithin(500, TimeUnit.MILLISECONDS)
                 .satisfies(transferResult -> assertThat(transferResult.succeeded()).isTrue());
@@ -41,54 +49,40 @@ class ParallelSinkTest {
     }
 
     @Test
-    void transfer_whenExceptionOpeningPartStream() {
-        var fakeSink = FakeParallelSink.Builder.newInstance()
-                .monitor(monitor)
-                .executorService(executor)
-                .requestId(requestId)
-                .build();
+    void transfer_whenExceptionOpeningPartStream_fails() {
         var dataSourceMock = mock(DataSource.class);
 
-        when(dataSourceMock.openPartStream()).thenThrow(new RuntimeException(faker.lorem().sentence()));
+        when(dataSourceMock.openPartStream()).thenThrow(new RuntimeException(errorMessage));
 
         assertThat(fakeSink.transfer(dataSourceMock)).succeedsWithin(500, TimeUnit.MILLISECONDS)
             .satisfies(transferResult -> assertThat(transferResult.failed()).isTrue())
             .satisfies(transferResult -> assertThat(transferResult.getFailureMessages()).containsExactly("Error processing data transfer request"));
-
-        assertThat(fakeSink.parts).isNull();
     }
 
     @Test
-    void transfer_whenFailureDuringTransfer() {
-        var errorMessage = faker.lorem().sentence();
-        var fakeSink = FakeParallelSink.Builder.newInstance()
-                .monitor(monitor)
-                .executorService(executor)
-                .requestId(requestId)
-                .transferResultSupplier(() -> TransferResult.failure(ResponseStatus.FATAL_ERROR, errorMessage))
-                .build();
-        var dataSource = new InputStreamDataSource(faker.lorem().word(), new ByteArrayInputStream(faker.lorem().characters().getBytes()));
+    void transfer_whenFailureDuringTransfer_fails() {
+        fakeSink.transferResultSupplier = () -> TransferResult.failure(ResponseStatus.FATAL_ERROR, errorMessage);
+
+        var dataSource = new InputStreamDataSource(dataSourceName, new ByteArrayInputStream(dataSourceContent.getBytes()));
 
         assertThat(fakeSink.transfer(dataSource)).succeedsWithin(500, TimeUnit.MILLISECONDS)
             .satisfies(transferResult -> assertThat(transferResult.failed()).isTrue())
+                .satisfies(transferResult -> assertThat(transferResult.getFailure().status()).isEqualTo(ResponseStatus.ERROR_RETRY))
             .satisfies(transferResult -> assertThat(transferResult.getFailureMessages()).containsExactly(errorMessage));
 
         assertThat(fakeSink.parts).containsExactly(dataSource);
     }
 
     @Test
-    void transfer_whenExceptionDuringTransfer() {
-        var errorMessage = faker.lorem().sentence();
-        var fakeSink = FakeParallelSink.Builder.newInstance()
-                .monitor(monitor)
-                .executorService(executor)
-                .requestId(requestId)
-                .transferResultSupplier(() -> { throw new RuntimeException(errorMessage); } )
-                .build();
-        var dataSource = new InputStreamDataSource(faker.lorem().word(), new ByteArrayInputStream(faker.lorem().characters().getBytes()));
+    void transfer_whenExceptionDuringTransfer_fails() {
+        fakeSink.transferResultSupplier = () -> {
+            throw new RuntimeException(errorMessage);
+        };
+        var dataSource = new InputStreamDataSource(dataSourceName, new ByteArrayInputStream(dataSourceContent.getBytes()));
 
         assertThat(fakeSink.transfer(dataSource)).succeedsWithin(500, TimeUnit.MILLISECONDS)
                 .satisfies(transferResult -> assertThat(transferResult.failed()).isTrue())
+                .satisfies(transferResult -> assertThat(transferResult.getFailure().status()).isEqualTo(ResponseStatus.ERROR_RETRY))
                 .satisfies(transferResult -> assertThat(transferResult.getFailureMessages())
                         .containsExactly("Unhandled exception raised when transferring data: java.lang.RuntimeException: " + errorMessage));
 
@@ -104,26 +98,6 @@ class ParallelSinkTest {
         protected TransferResult transferParts(List<DataSource.Part> parts) {
             this.parts = parts;
             return transferResultSupplier.get();
-        }
-
-        public static class Builder extends ParallelSink.Builder<Builder, FakeParallelSink> {
-
-            public static Builder newInstance() {
-                Builder builder = new Builder();
-                return builder;
-            }
-
-            public Builder transferResultSupplier(Supplier<TransferResult> transferResultSupplier) {
-                sink.transferResultSupplier = transferResultSupplier;
-                return this;
-            }
-
-            protected void validate() {
-            }
-
-            private Builder() {
-                super(new FakeParallelSink());
-            }
         }
     }
 }
