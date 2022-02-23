@@ -24,6 +24,7 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 import org.eclipse.dataspaceconnector.dataplane.spi.schema.DataFlowRequestSchema;
 import org.eclipse.dataspaceconnector.dataplane.spi.schema.HttpDataSchema;
+import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore.State;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -58,6 +59,7 @@ import static java.lang.String.valueOf;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.matchers.Times.exactly;
 import static org.mockserver.matchers.Times.once;
@@ -582,7 +584,8 @@ public class DataPlaneHttpIntegrationTests {
                 .when()
                 .get(TRANSFER_RESULT_PATH)
                 .then()
-                .assertThat().statusCode(HttpStatus.SC_OK);
+                .assertThat().statusCode(HttpStatus.SC_OK)
+                .body(containsString(State.COMPLETED.name()));
     }
 
     /**

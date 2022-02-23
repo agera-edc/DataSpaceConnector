@@ -18,23 +18,19 @@ import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSink;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
+import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore;
+import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore.State;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult.failure;
-import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.ERROR_RETRY;
 
 /**
  * Default data manager implementation.
@@ -54,7 +50,7 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
     private ExecutorService executorService;
 
     private AtomicBoolean active = new AtomicBoolean();
-    private Map<String, TransferResult> transferResult = new ConcurrentHashMap<>();
+    private DataPlaneStore store;
 
     public void start() {
         queue = new ArrayBlockingQueue<>(queueCapacity);
@@ -86,6 +82,7 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
 
     public void initiateTransfer(DataFlowRequest dataRequest) {
         queue.add(dataRequest);
+        store.received(dataRequest.getProcessId());
     }
 
     @Override
@@ -99,8 +96,8 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
     }
 
     @Override
-    public Optional<TransferResult> transferResult(String processId) {
-        return Optional.ofNullable(transferResult.get(processId));
+    public State transferState(String processId) {
+        return store.getState(processId);
     }
 
 
@@ -115,12 +112,8 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                 final var polledRequest = request;
                 pipelineService.transfer(request).whenComplete((result, exception) -> {
                     if (polledRequest.isTrackable()) {
-                        // TODO use a persistent storage
-                        if (exception != null) {
-                            transferResult.put(polledRequest.getProcessId(), failure(ERROR_RETRY, exception.getMessage()));
-                        } else {
-                            transferResult.put(polledRequest.getProcessId(), result);
-                        }
+                        // TODO persist TransferResult or error details
+                        store.completed(polledRequest.getProcessId());
                     }
                 });
             } catch (InterruptedException e) {
@@ -132,9 +125,9 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                     monitor.severe("Unable to dequeue data request", e);
                 } else {
                     monitor.severe("Error processing data request: " + request.getProcessId(), e);
-                    transferResult.put(request.getProcessId(), failure(ERROR_RETRY, e.getMessage()));
+                    // TODO persist error details
+                    store.completed(request.getProcessId());
                 }
-                // TODO mark request in error
             }
         }
     }
@@ -168,6 +161,11 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
 
         public Builder waitTimeout(long waitTimeout) {
             manager.waitTimeout = waitTimeout;
+            return this;
+        }
+
+        public Builder store(DataPlaneStore store) {
+            manager.store = store;
             return this;
         }
 

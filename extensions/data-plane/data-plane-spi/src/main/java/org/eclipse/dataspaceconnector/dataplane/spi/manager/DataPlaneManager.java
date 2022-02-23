@@ -16,10 +16,10 @@ package org.eclipse.dataspaceconnector.dataplane.spi.manager;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSink;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
+import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore.State;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -48,7 +48,7 @@ public interface DataPlaneManager {
     CompletableFuture<TransferResult> transfer(DataSink sink, DataFlowRequest request);
 
     /**
-     * Provides transfer result.
+     * Provides transfer state.
      */
-    Optional<TransferResult> transferResult(String processId);
+    State transferState(String processId);
 }
