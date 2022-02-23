@@ -574,7 +574,7 @@ public class DataPlaneHttpIntegrationTests {
     }
 
     /**
-     * Validate if transfer from source to sink was successful.
+     * Validate if transfer from source to sink is completed.
      *
      * @param processId ProcessID of transfer. See {@link DataFlowRequest}
      */
