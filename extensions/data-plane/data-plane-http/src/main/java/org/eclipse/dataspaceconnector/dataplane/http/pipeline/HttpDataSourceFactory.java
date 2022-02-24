@@ -84,9 +84,12 @@ public class HttpDataSourceFactory implements DataSourceFactory {
         }
         var httpDataSourceBuilder = HttpDataSource.Builder.newInstance()
                 .httpClient(httpClient)
+                .requestId(request.getId())
                 .sourceUrl(endpoint)
                 .name(name)
-                .method(method);
+                .method(method)
+                .retryPolicy(retryPolicy)
+                .monitor(monitor);
         try {
 
             if (authKey != null && authCode != null) {
@@ -97,12 +100,7 @@ public class HttpDataSourceFactory implements DataSourceFactory {
             if (queryParams != null) {
                 httpDataSourceBuilder.queryParams(queryParams);
             }
-
-            httpDataSourceBuilder
-                    .requestId(request.getId())
-                    .retryPolicy(retryPolicy)
-                    .monitor(monitor);
-
+            
             return Result.success(httpDataSourceBuilder.build());
         } catch (Exception e) {
             return Result.failure("Failed to build HttpDataSource: " + e.getMessage());
