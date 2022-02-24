@@ -100,7 +100,7 @@ public class HttpDataSourceFactory implements DataSourceFactory {
             if (queryParams != null) {
                 httpDataSourceBuilder.queryParams(queryParams);
             }
-            
+
             return Result.success(httpDataSourceBuilder.build());
         } catch (Exception e) {
             return Result.failure("Failed to build HttpDataSource: " + e.getMessage());

@@ -17,15 +17,20 @@ plugins {
 }
 
 val jupiterVersion: String by project
+val restAssured: String by project
+val assertj: String by project
+val awaitility: String by project
+val faker: String by project
+val httpMockServer: String by project
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
-    testImplementation("io.rest-assured:rest-assured:4.5.0")
-    testImplementation("org.assertj:assertj-core:3.22.0")
-    testImplementation("org.awaitility:awaitility:4.1.1")
-    testImplementation("com.github.javafaker:javafaker:1.0.2")
-    testImplementation("org.mock-server:mockserver-netty:5.12.0:shaded")
-    testImplementation("org.mock-server:mockserver-client-java:5.12.0:shaded")
+    testImplementation("io.rest-assured:rest-assured:${restAssured}")
+    testImplementation("org.assertj:assertj-core:${assertj}")
+    testImplementation("org.awaitility:awaitility:${awaitility}")
+    testImplementation("com.github.javafaker:javafaker:${faker}")
+    testImplementation("org.mock-server:mockserver-netty:${httpMockServer}:shaded")
+    testImplementation("org.mock-server:mockserver-client-java:${httpMockServer}:shaded")
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))

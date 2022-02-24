@@ -15,6 +15,7 @@
 val okHttpVersion: String by project
 val jodahFailsafeVersion: String by project
 val rsApi: String by project
+val faker: String by project
 
 plugins {
     `java-library`
@@ -26,7 +27,7 @@ dependencies {
     implementation(project(":common:util"))
     implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
     implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
-    testFixturesImplementation("com.github.javafaker:javafaker:1.0.2")
+    testFixturesImplementation("com.github.javafaker:javafaker:${faker}")
     testFixturesImplementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
 }
 
