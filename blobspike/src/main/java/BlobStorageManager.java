@@ -1,9 +1,6 @@
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobClientBuilder;
 import com.azure.storage.blob.models.BlobRange;
-import com.azure.storage.blob.models.Block;
-import com.azure.storage.blob.models.BlockList;
-import com.azure.storage.blob.models.BlockListType;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -12,11 +9,10 @@ import io.opentelemetry.extension.annotations.WithSpan;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 
@@ -39,7 +35,7 @@ public class BlobStorageManager {
             BlobInfo sourceBlob = new BlobInfo(sourceBlobName, sourceContainer, sourceConnectionString);
             BlobInfo destBlob = new BlobInfo(destBlobName, destContainer, destConnectionString);
             // new BlobStorageManager().copyBlobUsingSasToken(sourceBlob, destBlob);
-            new BlobStorageManager().copyByBlock(sourceBlob, destBlob);
+            new BlobStorageManager().copyByBlock2(sourceBlob, destBlob);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -105,24 +101,30 @@ public class BlobStorageManager {
                 .connectionString(destBlob.storageAccountConnectionString)
                 .containerName(destBlob.containerName)
                 .blobName(destBlob.blobName)
-                .buildClient().getBlockBlobClient();
+                .buildClient()
+                .getBlockBlobClient();
 
-        List<Block> blockList = sourceBlobClient.getBlockBlobClient().listBlocks(BlockListType.COMMITTED).getCommittedBlocks();
-        var blockIds = blockList
-                .stream().map(Block::getName).collect(Collectors.toList());
+        var sourceSize = sourceBlobClient.getProperties().getBlobSize();
+        ArrayList<String> blockIds = new ArrayList<>();
 
-        long offset = 0;
-        for (int i = 0; i < blockList.size(); i++) {
-            Block block = blockList.get(i);
-            long sizeLong = block.getSizeLong();
-            System.out.println("Block " + i + " size bytes:" + sizeLong);
-            destBlobClient.stageBlockFromUrl(block.getName(), sourceBlobUrl, new BlobRange(offset, sizeLong));
-            System.out.println("Block " + i + " staged.");
-            offset = offset + sizeLong;
-        }
+        var blockSize = 8 * 1024 * 1024;
+        buildRanges(sourceSize, blockSize).parallelStream()
+                .forEach(range -> {
+                    var blockId = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+                    destBlobClient.stageBlockFromUrl(blockId, sourceBlobUrl, range);
+                });
 
         destBlobClient.commitBlockList(blockIds);
     }
 
+    private List<BlobRange> buildRanges(long blobSize, long blockSize) {
+        var offset = 0;
+        List<BlobRange> ranges = new ArrayList<>();
+        while (offset < blobSize) {
+            ranges.add(new BlobRange(offset, Math.min(blockSize, blobSize - offset)));
+            offset += blockSize;
+        }
+        return ranges;
+    }
 }
 
