@@ -109,12 +109,12 @@ public class BlobStorageManager {
         ArrayList<String> blockIds = new ArrayList<>();
 
         var blockSize = 8 * 1024 * 1024;
-        buildRanges(sourceSize, blockSize).parallelStream()
+        var blobRanges = buildRanges(sourceSize, blockSize);
+        blobRanges.parallelStream()
                 .forEach(range -> {
                     // BlockId of the destination block
                     var blockId = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
                     destBlobClient.stageBlockFromUrl(blockId, sourceBlobUrl, range);
-
                 });
 
         destBlobClient.commitBlockList(blockIds);
