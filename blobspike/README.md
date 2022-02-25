@@ -1,17 +1,17 @@
 # Azure Blob Storage Copy Spike
 
-We evaluated the possibility to copy a blob.
+We evaluated server side copy.
 
 ## Copy with Java SDK
 
-We evaluated the [Java azure storage client library](https://docs.microsoft.com/en-us/java/api/overview/azure/storage-blob-readme?view=azure-java-stable) to copy blobs.
+We evaluated the [Java azure storage client library](https://docs.microsoft.com/java/api/overview/azure/storage-blob-readme?view=azure-java-stable) to copy blobs.
 
 ### Evaluate server side copy
 
-The Java Azure Storage Blob client library is on top of the [Blob service REST API](https://docs.microsoft.com/en-us/rest/api/storageservices/blob-service-rest-api).
-The client calls [an endpoint](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url) to trigger the copy of a blob.
+The Java Azure Storage Blob client library is on top of the [Blob service REST API](https://docs.microsoft.com/rest/api/storageservices/blob-service-rest-api).
+The client calls [an endpoint](https://docs.microsoft.com/rest/api/storageservices/copy-blob-from-url) to trigger the copy of a blob.
 The client receives an answer, the copy is then done asynchronously.
-In order to know if the copy is finished, the client needs to [get the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties) by calling the REST API in order to know if the copy operation is finished.
+In order to know if the copy is finished, the client needs to [get the blob properties](https://docs.microsoft.com/rest/api/storageservices/get-blob-properties) by calling the REST API in order to know if the copy operation is finished.
 
 ### Copy duration
 
@@ -25,8 +25,8 @@ We tested copy between 2 containers in different tenants. The source blob was in
 
 We have 2 solutions to transfer data from a blob to another blob.
 
-- Use the [BlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.blobclient?view=azure-java-stable) beginCopy to trigger a copy of source blob to destination blob.
-- Use the [BlockBlobClient](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient?view=azure-java-stable) to get a stream from blob to VM and transfer from VM to blob with another stream.
+- Use the [BlobClient](https://docs.microsoft.com/java/api/com.azure.storage.blob.blobclient?view=azure-java-stable) beginCopy to trigger a copy of source blob to destination blob.
+- Use the [BlockBlobClient](https://docs.microsoft.com/java/api/com.azure.storage.blob.specialized.blockblobclient?view=azure-java-stable) to get a stream from blob to VM and transfer from VM to blob with another stream.
 
 Pros and cons to use beginCopy in EDC:
 - Pros: During the copy, Network I/O is only between the 2 storage accounts. The client does not need to download any data.
@@ -147,15 +147,15 @@ That's why we can see the HTTP calls corresponding to the blob copy.
 
 ![Jaeger screenshot blob copy](./jaeger-blob-copy.png)
 
-The HTTP PUT corresponds to the [blob copy](https://docs.microsoft.com/en-us/rest/api/storageservices/copy-blob-from-url). 
-The HTTP HEAD corresponds to the SyncPoller [getting the blob properties](https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties).
+The HTTP PUT corresponds to the [blob copy](https://docs.microsoft.com/rest/api/storageservices/copy-blob-from-url). 
+The HTTP HEAD corresponds to the SyncPoller [getting the blob properties](https://docs.microsoft.com/rest/api/storageservices/get-blob-properties).
 
 ## AZ copy
 
-Using [AzCopy](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-blobs-copy) we can copy blob between different storage accounts.
+Using [AzCopy](https://docs.microsoft.com/azure/storage/common/storage-use-azcopy-blobs-copy) we can copy blob between different storage accounts.
 The SAS token needs to be used at the end of source url but destination url doesn't need one if you are logged in into AzCopy using `azcopy login`.
 
-Additionally, [assigning the appropriate role](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-authorize-azure-active-directory#verify-role-assignments) to the destination Storage account might be necessary (Storage Blob Data Owner).
+Additionally, [assigning the appropriate role](https://docs.microsoft.com/azure/storage/common/storage-use-azcopy-authorize-azure-active-directory#verify-role-assignments) to the destination Storage account might be necessary (Storage Blob Data Owner).
 
 ```bash
  azcopy cp "https://[srcaccount].blob.core.windows.net/[container]/[path/to/blob]?[SAS]" "https://[destaccount].blob.core.windows.net/[container]/[path/to/blob]"
@@ -179,7 +179,7 @@ Results:
 - 1 GB blob between different tenants, storage accounts in the same region (East US) - up to 8 seconds
 - 1 GB blob between the tenant in US East and West Europe - up to 12 seconds.
 
-AzCopy offers an option to [increase the number of concurrent requests](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azcopy-optimize#increase-the-number-of-concurrent-requests) by setting the AZCOPY_CONCURRENCY_VALUE env variable.
+AzCopy offers an option to [increase the number of concurrent requests](https://docs.microsoft.com/azure/storage/common/storage-use-azcopy-optimize#increase-the-number-of-concurrent-requests) by setting the AZCOPY_CONCURRENCY_VALUE env variable.
 
 By default AZCOPY_CONCURRENCY_VALUE has value 256. According to the documentation:
 
@@ -194,7 +194,7 @@ AZCOPY_CONCURRENCY_VALUE can be also set to value `AUTO` which will cause the Az
 ### Copying block blob in chunks
 
 The reason why the AZCopy is much faster than Azure Java SDK copy is that it uses REST API that allows to put the block blobs in chunks.
-More information about the PUT Block From URL REST API used by AzCopy: [https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url](https://docs.microsoft.com/en-us/rest/api/storageservices/put-block-from-url). 
+More information about the PUT Block From URL REST API used by AzCopy: [https://docs.microsoft.com/rest/api/storageservices/put-block-from-url](https://docs.microsoft.com/rest/api/storageservices/put-block-from-url). 
 
 To achieve the same results in Java we'd need to implement custom code to handle uploading blob blocks from the URL using methods from 
 BlockBlobClient/BlockBlobAsyncClient from Azure Java SDK.
