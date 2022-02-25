@@ -18,6 +18,7 @@ import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSinkFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSourceFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
+import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.TransferService;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -36,6 +37,7 @@ import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.FATAL_E
  * Default pipeline service implementation.
  */
 public class PipelineServiceImpl implements PipelineService {
+    private List<TransferService> transferServices = new ArrayList<>();
     private List<DataSourceFactory> sourceFactories = new ArrayList<>();
     private List<DataSinkFactory> sinkFactories = new ArrayList<>();
 
@@ -68,6 +70,11 @@ public class PipelineServiceImpl implements PipelineService {
 
     @Override
     public CompletableFuture<TransferResult> transfer(DataFlowRequest request) {
+        var transferService = getTransferService(request);
+        // If a transfer service can handle this request, delegate it. (Otherwise manage it with streams)
+        if (transferService != null) {
+            return transferService.transfer(request);
+        }
         var sourceFactory = getSourceFactory(request);
         if (sourceFactory == null) {
             return noSourceFactory(request);
@@ -102,6 +109,11 @@ public class PipelineServiceImpl implements PipelineService {
     }
 
     @Override
+    public void registerTransferService(TransferService transferService) {
+        transferServices.add(transferService);
+    }
+
+    @Override
     public void registerFactory(DataSourceFactory factory) {
         sourceFactories.add(factory);
     }
@@ -109,6 +121,11 @@ public class PipelineServiceImpl implements PipelineService {
     @Override
     public void registerFactory(DataSinkFactory factory) {
         sinkFactories.add(factory);
+    }
+
+    @Nullable
+    private TransferService getTransferService(DataFlowRequest request) {
+        return transferServices.stream().filter(s -> s.canHandle(request)).findFirst().orElse(null);
     }
 
     @Nullable

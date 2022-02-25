@@ -44,6 +44,8 @@ public interface PipelineService {
      */
     CompletableFuture<TransferResult> transfer(DataSink sink, DataFlowRequest request);
 
+    void registerTransferService(TransferService transferService);
+
     /**
      * Registers a factory for creating data sources.
      */
