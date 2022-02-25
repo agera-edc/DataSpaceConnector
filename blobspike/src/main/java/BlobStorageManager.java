@@ -35,7 +35,7 @@ public class BlobStorageManager {
             BlobInfo sourceBlob = new BlobInfo(sourceBlobName, sourceContainer, sourceConnectionString);
             BlobInfo destBlob = new BlobInfo(destBlobName, destContainer, destConnectionString);
             // new BlobStorageManager().copyBlobUsingSasToken(sourceBlob, destBlob);
-            new BlobStorageManager().copyByBlock2(sourceBlob, destBlob);
+            new BlobStorageManager().copyByBlock(sourceBlob, destBlob);
 
         } catch (IOException e) {
             e.printStackTrace();
