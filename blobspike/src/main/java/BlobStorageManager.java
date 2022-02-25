@@ -78,6 +78,7 @@ public class BlobStorageManager {
 
     @WithSpan("copy by blocks")
     public void copyByBlock(BlobInfo sourceBlob, BlobInfo destBlob) {
+        System.out.println("Start " + java.time.LocalDateTime.now());
         // source blob client
         BlobClient sourceBlobClient = new BlobClientBuilder()
                 .connectionString(sourceBlob.storageAccountConnectionString)
@@ -117,6 +118,7 @@ public class BlobStorageManager {
                 });
 
         destBlobClient.commitBlockList(blockIds);
+        System.out.println("End " + java.time.LocalDateTime.now());
     }
 
     /*
