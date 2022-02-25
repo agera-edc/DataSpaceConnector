@@ -110,18 +110,26 @@ public class BlobStorageManager {
         var blockSize = 8 * 1024 * 1024;
         buildRanges(sourceSize, blockSize).parallelStream()
                 .forEach(range -> {
+                    // BlockId of the destination block
                     var blockId = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
                     destBlobClient.stageBlockFromUrl(blockId, sourceBlobUrl, range);
+
                 });
 
         destBlobClient.commitBlockList(blockIds);
     }
 
+    /*
+    * Given the size of a blob, return the list of blob ranges to cut the blob into equal parts.
+    * The last block can have a different size.
+    * */
     private List<BlobRange> buildRanges(long blobSize, long blockSize) {
         var offset = 0;
         List<BlobRange> ranges = new ArrayList<>();
         while (offset < blobSize) {
-            ranges.add(new BlobRange(offset, Math.min(blockSize, blobSize - offset)));
+            // Block size will be of size `blobSize - offset` if it is the last block of the blob.
+            var currentBlockSize = Math.min(blockSize, blobSize - offset);
+            ranges.add(new BlobRange(offset, currentBlockSize));
             offset += blockSize;
         }
         return ranges;
