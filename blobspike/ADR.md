@@ -2,7 +2,7 @@
 
 ## Copy with Java SDK
 
-The most optimal strategy to copy blobs on server side is to copy the blob by blocks in parallel.
+The optimal strategy to copy blobs on server side is to copy the blob by blocks in parallel.
 The size of the block is configurable. The parallelization is not handled by the client but should be handled the logic on top of it.
 In order to achieve that, call [stageBlockFromUrl](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient.stageblockfromurl?view=azure-java-stable) for each block to copy.
 Once blocks are successfully written, call [commitBlockList](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient.commitblocklist?view=azure-java-stable).
