@@ -14,6 +14,7 @@
 package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage;
 
 import net.jodah.failsafe.RetryPolicy;
+import org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory.pipeline.AzureDataFactoryTransferService;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSinkFactory;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSourceFactory;
@@ -53,6 +54,9 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
         var monitor = context.getMonitor();
 
         var blobAdapterFactory = new BlobAdapterFactory(blobstoreEndpoint);
+
+        var transferService = new AzureDataFactoryTransferService(monitor);
+        pipelineService.registerTransferService(transferService);
 
         var sourceFactory = new AzureStorageDataSourceFactory(blobAdapterFactory, retryPolicy, monitor);
         pipelineService.registerFactory(sourceFactory);
