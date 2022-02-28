@@ -1,9 +1,6 @@
 name: Integration Tests
 
-on:
-  push:
-    branches: [ main ]
-  pull_request_target:
+on: [ push, pull_request ]
 
 jobs:
 
@@ -36,9 +33,7 @@ jobs:
         run: ./gradlew extensions:azure:blobstorage:blob-provision:check
 
   Azure-CosmosDB-Integration-Test:
-    # run only on upstream repo (requires secret access)
-    if: github.repository_owner == 'eclipse-dataspaceconnector'
-    runs-on: ubuntu-latest
+    runs-on: windows-2019
 
     env:
       RUN_INTEGRATION_TEST: true
@@ -51,7 +46,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-          cache: 'gradle'
+
+      - name: Setup Gradle cache
+        uses: gradle/gradle-build-action@v2
+
 
       - name: CosmosDB Transfer Process Store Test
         run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:test
