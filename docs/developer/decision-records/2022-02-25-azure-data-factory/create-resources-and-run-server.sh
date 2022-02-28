@@ -8,7 +8,7 @@ set -euxo pipefail
 # It then runs a DPF service configured with credentials to write secrets to AKV and run pipelines in ADF
 
 # Create a service principal to be used by the DPF server to connect to ADF and AKV
-test -s secrets || az ad sp create-for-rbac --skip-assignment > secrets
+test -s secrets || az ad sp create-for-rbac --skip-assignment -o json > secrets
 appId=$(jq -r .appId secrets)
 tenant=$(jq -r .tenant secrets)
 password=$(jq -r .password secrets)
