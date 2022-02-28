@@ -17,12 +17,15 @@ plugins {
 }
 
 val jupiterVersion: String by project
+val restAssured: String by project
+val assertj: String by project
+val awaitility: String by project
 
 dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
-    testImplementation("io.rest-assured:rest-assured:4.5.0")
-    testImplementation("org.assertj:assertj-core:3.22.0")
-    testImplementation("org.awaitility:awaitility:4.1.1")
+    testImplementation("io.rest-assured:rest-assured:${restAssured}")
+    testImplementation("org.assertj:assertj-core:${assertj}")
+    testImplementation("org.awaitility:awaitility:${awaitility}")
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))

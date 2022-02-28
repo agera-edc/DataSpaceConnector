@@ -14,14 +14,11 @@
 
 package org.eclipse.dataspaceconnector.transfer.store.cosmos;
 
-import com.azure.cosmos.ConsistencyLevel;
-import com.azure.cosmos.CosmosClientBuilder;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.CosmosScripts;
 import com.azure.cosmos.implementation.BadRequestException;
-import com.azure.cosmos.models.CosmosContainerResponse;
-import com.azure.cosmos.models.CosmosDatabaseResponse;
+import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.CosmosItemResponse;
 import com.azure.cosmos.models.CosmosStoredProcedureProperties;
 import com.azure.cosmos.models.CosmosStoredProcedureRequestOptions;
@@ -29,8 +26,9 @@ import com.azure.cosmos.models.CosmosStoredProcedureResponse;
 import com.azure.cosmos.models.PartitionKey;
 import com.azure.cosmos.util.CosmosPagedIterable;
 import net.jodah.failsafe.RetryPolicy;
+import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApiImpl;
+import org.eclipse.dataspaceconnector.azure.testfixtures.CosmosTestClient;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
-import org.eclipse.dataspaceconnector.cosmos.azure.CosmosDbApiImpl;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
@@ -42,11 +40,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -55,14 +53,12 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
 import static org.eclipse.dataspaceconnector.transfer.store.cosmos.TestHelper.createTransferProcess;
 
 @IntegrationTest
 class CosmosTransferProcessStoreIntegrationTest {
 
     private static final String TEST_ID = UUID.randomUUID().toString();
-    private static final String ACCOUNT_NAME = "cosmos-itest";
     private static final String DATABASE_NAME = "transferprocessstore-itest_" + TEST_ID;
     private static final String CONTAINER_PREFIX = "container_";
     private static CosmosContainer container;
@@ -74,42 +70,39 @@ class CosmosTransferProcessStoreIntegrationTest {
 
     @BeforeAll
     static void prepareCosmosClient() {
+        var client = CosmosTestClient.createClient();
+        var containerName = CONTAINER_PREFIX + UUID.randomUUID();
 
-        var key = propOrEnv("COSMOS_KEY", null);
-        if (key != null) {
-            var client = new CosmosClientBuilder()
-                    .key(key)
-                    .preferredRegions(Collections.singletonList("westeurope"))
-                    .consistencyLevel(ConsistencyLevel.SESSION)
-                    .endpoint("https://" + ACCOUNT_NAME + ".documents.azure.com:443/")
-                    .buildClient();
-
-            CosmosDatabaseResponse response = client.createDatabaseIfNotExists(DATABASE_NAME);
-            database = client.getDatabase(response.getProperties().getId());
-        }
+        var response = client.createDatabaseIfNotExists(DATABASE_NAME);
+        database = client.getDatabase(response.getProperties().getId());
+        var containerIfNotExists = database.createContainerIfNotExists(containerName, "/partitionKey");
+        container = database.getContainer(containerIfNotExists.getProperties().getId());
+        uploadStoredProcedure(container, "nextForState");
+        uploadStoredProcedure(container, "lease");
     }
 
     @AfterAll
     static void cleanup() {
         if (database != null) {
-            var response = database.delete();
-            assertThat(response.getStatusCode()).isBetween(200, 400);
+            var databaseDelete = database.delete();
+            assertThat(databaseDelete.getStatusCode()).isBetween(200, 400);
         }
     }
 
     @BeforeEach
     void setUp() {
-        var containerName = CONTAINER_PREFIX + UUID.randomUUID();
         assertThat(database).describedAs("CosmosDB database is null - did something go wrong during initialization?").isNotNull();
-        CosmosContainerResponse containerIfNotExists = database.createContainerIfNotExists(containerName, "/partitionKey");
-        container = database.getContainer(containerIfNotExists.getProperties().getId());
-        uploadStoredProcedure(container, "nextForState");
-        uploadStoredProcedure(container, "lease");
+
         typeManager = new TypeManager();
         typeManager.registerTypes(DataRequest.class);
         var retryPolicy = new RetryPolicy<>().withMaxRetries(5).withBackoff(1, 3, ChronoUnit.SECONDS);
         var cosmosDbApi = new CosmosDbApiImpl(container, false);
         store = new CosmosTransferProcessStore(cosmosDbApi, typeManager, partitionKey, connectorId, retryPolicy);
+    }
+
+    @AfterEach
+    void tearDown() {
+        container.deleteAllItemsByPartitionKey(new PartitionKey(partitionKey), new CosmosItemRequestOptions());
     }
 
     @Test
@@ -128,7 +121,6 @@ class CosmosTransferProcessStoreIntegrationTest {
             assertThat(doc.getLease()).isNull();
         });
     }
-
 
     @Test
     void create_processWithSameIdExists_shouldReplace() {
@@ -177,8 +169,7 @@ class CosmosTransferProcessStoreIntegrationTest {
 
         store.create(tp);
         store.create(tp2);
-        CosmosItemResponse<Object> response = container.readItem(id2, new PartitionKey(partitionKey), Object.class);
-        TransferProcessDocument item = convert(response.getItem());
+        TransferProcessDocument item = readDocument(id2);
         item.acquireLease("test-leaser");
         container.upsertItem(item);
 
@@ -190,20 +181,20 @@ class CosmosTransferProcessStoreIntegrationTest {
     }
 
     @Test
-    void nextForState_selfCanLeaseAgain() {
+    void nextForState_selfCannotLeaseAgain() {
         var tp1 = createTransferProcess("process1", TransferProcessStates.INITIAL);
         var doc = new TransferProcessDocument(tp1, partitionKey);
         doc.acquireLease(connectorId);
-        var originalTs = doc.getLease().getLeasedAt();
+        var originalTimestamp = doc.getLease().getLeasedAt();
         container.upsertItem(doc);
 
         var result = store.nextForState(TransferProcessStates.INITIAL.code(), 5);
-        assertThat(result).hasSize(1);
+        assertThat(result).isEmpty();
 
         var updatedDoc = readDocument(tp1.getId());
-        assertThat(updatedDoc.getLease().getLeasedAt()).isNotEqualTo(originalTs);
+        assertThat(updatedDoc.getLease().getLeasedAt()).isEqualTo(originalTimestamp);
         assertThat(doc.getLease().getLeasedBy()).isEqualTo(connectorId);
-        assertThat(doc.getLease().getLeaseDuration()).isEqualTo(60);
+        assertThat(doc.getLease().getLeaseDuration()).isEqualTo(60000L);
 
     }
 
@@ -223,8 +214,6 @@ class CosmosTransferProcessStoreIntegrationTest {
         container.upsertItem(d1);
         container.upsertItem(d2);
 
-
-        //act
         assertThat(store.nextForState(TransferProcessStates.INITIAL.code(), 5)).isEmpty();
     }
 
@@ -259,6 +248,79 @@ class CosmosTransferProcessStoreIntegrationTest {
         var processes = store.nextForState(TransferProcessStates.INITIAL.code(), 3);
         assertThat(processes).hasSize(3);
     }
+
+    @Test
+    @DisplayName("Verifies that calling nextForState locks the TP for any subsequent calls")
+    void nextForState_locksEntity() {
+        var tp = createTransferProcess("test-id", TransferProcessStates.IN_PROGRESS);
+        var doc = new TransferProcessDocument(tp, partitionKey);
+
+        container.upsertItem(doc);
+        var result = store.nextForState(TransferProcessStates.IN_PROGRESS.code(), 5);
+        assertThat(result).hasSize(1).containsExactly(tp);
+
+        //make sure the lease is acquired
+        var leasedDoc = readDocument(tp.getId());
+        assertThat(leasedDoc.getLease()).isNotNull();
+
+        assertThat(leasedDoc.getLease().getLeasedBy()).isEqualTo(connectorId);
+        assertThat(leasedDoc.getLease().getLeaseDuration()).isEqualTo(60_000L);
+        assertThat(leasedDoc.getLease().getLeasedAt()).isGreaterThan(0);
+
+        //make sure a subsequent call does not return the TP
+        assertThat(store.nextForState(TransferProcessStates.IN_PROGRESS.code(), 5)).isEmpty();
+
+        //make sure that findById still returns the entity
+        assertThat(store.find(tp.getId())).isEqualTo(tp);
+    }
+
+    @Test
+    @DisplayName("Verify that the lease on a TP is cleared by an update")
+    void nextForState_verifyUpdateClearsLease() {
+        var tp = createTransferProcess("test-id", TransferProcessStates.IN_PROGRESS);
+        var doc = new TransferProcessDocument(tp, partitionKey);
+
+        var initialTimestamp = tp.getStateTimestamp();
+
+        container.upsertItem(doc);
+        var result = store.nextForState(TransferProcessStates.IN_PROGRESS.code(), 5);
+        assertThat(result).hasSize(1);
+
+        //make sure the lease is acquired
+        var leasedDoc = readDocument(tp.getId());
+        assertThat(leasedDoc.getLease()).isNotNull();
+
+        // make sure the next state update clears the lease
+        tp.transitionCompleted();
+        tp.updateStateTimestamp();
+        store.update(tp);
+
+        var updatedDocument = readDocument(tp.getId());
+        assertThat(updatedDocument.getLease()).isNull();
+        assertThat(updatedDocument.getWrappedInstance().getStateTimestamp()).isNotEqualTo(initialTimestamp);
+        assertThat(updatedDocument.getWrappedInstance().getState()).isEqualTo(TransferProcessStates.COMPLETED.code());
+    }
+
+    @Test
+    @DisplayName("Verify that a leased entity can still be deleted")
+    void nextForState_verifyDelete() {
+        var tp = createTransferProcess("test-id", TransferProcessStates.IN_PROGRESS);
+        var doc = new TransferProcessDocument(tp, partitionKey);
+
+        var initialTimestamp = tp.getStateTimestamp();
+
+        container.upsertItem(doc);
+        var result = store.nextForState(TransferProcessStates.IN_PROGRESS.code(), 5);
+        assertThat(result).hasSize(1);
+
+        //make sure the lease is acquired
+        var leasedDoc = readDocument(tp.getId());
+        assertThat(leasedDoc.getLease()).isNotNull();
+
+        store.delete(tp.getId());
+        assertThat(container.readAllItems(new PartitionKey(partitionKey), Object.class)).isEmpty();
+    }
+
 
     @Test
     void find() {
@@ -333,7 +395,6 @@ class CosmosTransferProcessStoreIntegrationTest {
         doc.acquireLease(connectorId);
         container.upsertItem(doc);
 
-        //act
         tp.transitionProvisioning(ResourceManifest.Builder.newInstance().build());
         store.update(tp);
 
@@ -413,7 +474,6 @@ class CosmosTransferProcessStoreIntegrationTest {
         var tp = createTransferProcess("proc1");
         store.create(tp);
 
-        //invoke sproc
         List<Object> procedureParams = Arrays.asList(100, 5, connectorId);
         CosmosStoredProcedureRequestOptions options = new CosmosStoredProcedureRequestOptions();
         options.setPartitionKey(PartitionKey.NONE);
@@ -432,14 +492,7 @@ class CosmosTransferProcessStoreIntegrationTest {
 
     }
 
-    @AfterEach
-    void teardown() {
-        CosmosContainerResponse delete = container.delete();
-        assertThat(delete.getStatusCode()).isGreaterThanOrEqualTo(200).isLessThan(300);
-    }
-
-    private void uploadStoredProcedure(CosmosContainer container, String name) {
-        // upload stored procedure
+    private static void uploadStoredProcedure(CosmosContainer container, String name) {
         var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name + ".js");
         if (is == null) {
             throw new AssertionError("The input stream referring to the " + name + " file cannot be null!");
