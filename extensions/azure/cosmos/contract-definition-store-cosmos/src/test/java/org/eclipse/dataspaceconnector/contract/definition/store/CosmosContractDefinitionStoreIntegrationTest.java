@@ -48,7 +48,7 @@ public class CosmosContractDefinitionStoreIntegrationTest {
     private TypeManager typeManager;
     private CosmosContractDefinitionStore store;
 
-    private static final String PARTITION_KEY_NEW = "test-ap-id1-new";
+    private static final String PARTITION_KEY_AFTER_UPDATE = "test-ap-id1-new";
 
     @BeforeAll
     static void prepareCosmosClient() {
@@ -81,7 +81,7 @@ public class CosmosContractDefinitionStoreIntegrationTest {
     @AfterEach
     void tearDown() {
         container.deleteAllItemsByPartitionKey(new PartitionKey(PARTITION_KEY), new CosmosItemRequestOptions());
-        container.deleteAllItemsByPartitionKey(new PartitionKey(PARTITION_KEY_NEW), new CosmosItemRequestOptions());
+        container.deleteAllItemsByPartitionKey(new PartitionKey(PARTITION_KEY_AFTER_UPDATE), new CosmosItemRequestOptions());
     }
 
     @Test
@@ -299,7 +299,7 @@ public class CosmosContractDefinitionStoreIntegrationTest {
         // modify the object
         var modifiedDef = ContractDefinition.Builder.newInstance().id(def.getId())
                 .contractPolicy(Policy.Builder.newInstance().id("test-cp-id-new").build())
-                .accessPolicy(Policy.Builder.newInstance().id(PARTITION_KEY_NEW).build())
+                .accessPolicy(Policy.Builder.newInstance().id(PARTITION_KEY_AFTER_UPDATE).build())
                 .selectorExpression(AssetSelectorExpression.Builder.newInstance().whenEquals("somekey", "someval").build())
                 .build();
 
