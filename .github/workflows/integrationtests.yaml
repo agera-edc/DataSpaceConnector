@@ -37,7 +37,6 @@ jobs:
 
     env:
       RUN_INTEGRATION_TEST: true
-      COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
 
     steps:
       - uses: actions/checkout@v2
@@ -50,6 +49,10 @@ jobs:
       - name: Setup Gradle cache
         uses: gradle/gradle-build-action@v2
 
+      - name: Launch Cosmos DB Emulator
+        run: |
+          Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
+          Start-CosmosDbEmulator -Timeout 1200
 
       - name: CosmosDB Transfer Process Store Test
         run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:test
