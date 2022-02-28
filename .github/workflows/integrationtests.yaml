@@ -49,6 +49,7 @@ jobs:
       - name: Setup Gradle cache
         uses: gradle/gradle-build-action@v2
 
+      # Cosmos DB Emulator is preinstalled on GitHub Actions workers
       - name: Launch Cosmos DB Emulator
         run: |
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
