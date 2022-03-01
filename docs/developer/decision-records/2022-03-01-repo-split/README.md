@@ -4,9 +4,10 @@ Currently, the EDC codebase is stored in a monorepo in Github where core modules
 
 As more contributors join the project and more vendor-specific implementations are added to the codebase, the drawbacks of a monorepo become apparent:
 
-- A new version of an API forces an immediate adaptation of all implementing modules. This requires coordination among several teams, ultimately slowing down the development cycle.
+- A new version of an SPI forces an immediate adaptation of all implementing modules. This requires coordination among several teams, ultimately slowing down the development cycle.
 - A new version of a module or extension requires a full EDC release, even for small fixes.
-- The full test suite is always run for any change. Having separate smaller modules will improve CI performance.
+- The full test suite is always run for any change. Having separate smaller modules will improve CI performance. -> separate parallel pipelines, gradle parallel build in monorepo possible too
+- 
 
 ## Monorepo/ Multirepo comparison
 
@@ -28,7 +29,8 @@ As more contributors join the project and more vendor-specific implementations a
 EDC defines a series of core APIs in the [spi](../../../../spi) module. Implementations for these APIs are provided by using extensions. An example of this is `TransferProcessStore` in the `transfer-spi` core module with available implementations `InMemoryTransferProcessStore` in the `transfer-store-memory` extension, and a `CosmosTransferProcessStore` in the `transfer-process-store-cosmos` extension.
 
 ```
-<EDC Core>
+<EDC>
+    |_ <InMemory Extensions>
     |_ <Azure Extensions>
     |_ <AWS Extensions>
     |_ <Google Extensions>
@@ -37,4 +39,21 @@ EDC defines a series of core APIs in the [spi](../../../../spi) module. Implemen
 Vendor splits are meaningful whenever there is at least a default implementation that can be used in EDC core to perform testing (for instance an in-memory version of a store like `InMemoryTransferProcessStore`).
 
 
+### By domains (microservices)
 
+<EDC Core>
+    |_ <In Memory Extensions>
+    |_ <Azure Extensions>
+    |_ <AWS Extensions>
+<DPF>
+    |_
+```
+
+## TBD
+
+-> multirepo lacking real world implementations: hard to understand
+-> multirepo requires CI for implementing extensions to run?
+-> lifecycle of a change with multirepo
+-> leasing mechanism in Cosmos => tests with in memory impl not good enough
+-> conformance tests in core, to be reused in the implementing extensions to verify behaviour
+-> define possible next steps: improve in memory impls to match what Azure impls do and add tests
