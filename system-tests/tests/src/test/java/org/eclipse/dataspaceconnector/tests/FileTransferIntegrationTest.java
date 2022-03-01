@@ -61,7 +61,7 @@ class FileTransferIntegrationTest {
             "provider",
             Map.of(
                     "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
-                    "edc.samples.04.asset.path", PROVIDER_ASSET_PATH,
+                    "edc.test.asset.path", PROVIDER_ASSET_PATH,
                     "ids.webhook.address", PROVIDER_CONNECTOR_HOST));
 
     @Test
