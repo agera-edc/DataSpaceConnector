@@ -6,7 +6,7 @@ The optimal strategy to copy blobs on server side is to copy the blob by blocks 
 The size of the block is configurable. The parallelization is not handled by the client but should be handled the logic on top of it.
 In order to achieve that, call [stageBlockFromUrl](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient.stageblockfromurl?view=azure-java-stable) for each block to copy.
 Once blocks are successfully written, call [commitBlockList](https://docs.microsoft.com/en-us/java/api/com.azure.storage.blob.specialized.blockblobclient.commitblocklist?view=azure-java-stable).
-This will create the blob composed ot the blocks.
+This will create the blob composed of the blocks.
 Note that a Java data movement library is in design process now. This solution is proposed because the library is not available now.
 
 For example:
