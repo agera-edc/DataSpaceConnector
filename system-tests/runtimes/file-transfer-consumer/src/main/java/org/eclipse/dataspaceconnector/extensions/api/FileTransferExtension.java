@@ -38,7 +38,7 @@ import java.nio.file.Path;
 public class FileTransferExtension implements ServiceExtension {
 
     public static final String USE_POLICY = "use-eu";
-    private static final String EDC_ASSET_PATH = "edc.samples.04.asset.path";
+    private static final String EDC_ASSET_PATH = "edc.test.asset.path";
     @Inject
     private DataFlowManager dataFlowMgr;
     @Inject
