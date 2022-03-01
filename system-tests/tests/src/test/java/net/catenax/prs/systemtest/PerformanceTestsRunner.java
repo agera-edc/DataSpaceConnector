@@ -1,6 +1,7 @@
 package net.catenax.prs.systemtest;
 
 import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import org.apache.http.HttpStatus;
@@ -14,15 +15,15 @@ import static io.gatling.javaapi.core.CoreDsl.doWhileDuring;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.samples.FileTransferIntegrationTest.CONSUMER_CONNECTOR_HOST;
-import static org.eclipse.dataspaceconnector.samples.FileTransferIntegrationTest.PROVIDER_CONNECTOR_HOST;
-import static org.eclipse.dataspaceconnector.samples.FileTransferTestUtils.CONNECTOR_ADDRESS_PARAM;
-import static org.eclipse.dataspaceconnector.samples.FileTransferTestUtils.CONTRACT_NEGOTIATION_PATH;
+import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.CONSUMER_CONNECTOR_HOST;
+import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.PROVIDER_CONNECTOR_HOST;
+import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.CONNECTOR_ADDRESS_PARAM;
+import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.CONTRACT_NEGOTIATION_PATH;
 
 public class PerformanceTestsRunner extends Simulation {
 
     HttpProtocolBuilder httpProtocol = http
-            .baseUrl(PROVIDER_CONNECTOR_HOST)
+            .baseUrl(CONSUMER_CONNECTOR_HOST)
             .acceptHeader("*/*")
             .contentTypeHeader("application/json");
 
@@ -34,7 +35,7 @@ public class PerformanceTestsRunner extends Simulation {
                             .body(InputStreamBody(
                                     s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))
                             ))
-                            .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", CONSUMER_CONNECTOR_HOST))
+                            .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
                             .check(status().is(HttpStatus.SC_OK))
                             .check(bodyString()
                                     .notNull()
@@ -46,7 +47,7 @@ public class PerformanceTestsRunner extends Simulation {
                     .group("waitForCompletion").on(
                             doWhileDuring(session -> session.getInt("status") != 200, Duration.ofSeconds(30))
                                     .on(exec(http("Get status")
-                                            .get(session -> String.format("/datarequest/%s/state", session.getString("contractNegotiationRequestId")))
+                                            .get(session -> getContractNegotiationRequestId(session))
                                             .check(status().is(HttpStatus.SC_OK))
                                             .check(
                                                     jmesPath("id").is(session -> session.getString("contractNegotiationRequestId")),
@@ -55,6 +56,11 @@ public class PerformanceTestsRunner extends Simulation {
                                             )
                                     )
                                             .pause(Duration.ofSeconds(1)))));
+
+    private String getContractNegotiationRequestId(Session session) {
+        String contractNegotiationRequestId = format("/datarequest/%s/state", session.getString("contractNegotiationRequestId"));
+        return contractNegotiationRequestId;
+    }
 
     {
         setUp(scenarioBuilder.injectOpen(atOnceUsers(10))).protocols(httpProtocol);
