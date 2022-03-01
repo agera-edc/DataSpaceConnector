@@ -1,4 +1,4 @@
-package net.catenax.prs.systemtest;
+package org.eclipse.dataspaceconnector.tests;
 
 import io.gatling.app.Gatling;
 import io.gatling.core.config.GatlingPropertiesBuilder;

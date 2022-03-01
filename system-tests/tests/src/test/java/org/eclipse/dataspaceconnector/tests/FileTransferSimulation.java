@@ -1,4 +1,4 @@
-package net.catenax.prs.systemtest;
+package org.eclipse.dataspaceconnector.tests;
 
 import com.github.javafaker.Faker;
 import io.gatling.javaapi.core.Simulation;
@@ -14,28 +14,27 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static java.lang.String.format;
-import static net.catenax.prs.systemtest.GatlingUtils.endlesslyWith;
+import static org.eclipse.dataspaceconnector.tests.GatlingUtils.endlesslyWith;
 import static org.apache.http.HttpStatus.SC_OK;
-import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.*;
 
-public abstract class PerformanceSimulation extends Simulation {
+public abstract class FileTransferSimulation extends Simulation {
+
+    public static final String PROVIDER_ASSET_NAME = "test-document";
+    private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
+    private static final String DESTINATION_PARAM = "destination";
+    private static final String CONTRACT_ID_PARAM = "contractId";
+    private static final String API_KEY_HEADER = "X-Api-Key";
+
 
     private Faker faker = new Faker();
 
-    PerformanceSimulation(String consumerUrl, String providerUrl, String destinationPath, String apiKey, int users, int times) {
-        /*
-        client.setConsumerUrl(CONSUMER_CONNECTOR_HOST);
-        client.setProviderUrl(PROVIDER_CONNECTOR_HOST);
-        client.setDestinationPath(CONSUMER_ASSET_PATH);
-        client.setApiKey(API_KEY_CONTROL_AUTH);
-         */
-
+    protected FileTransferSimulation(String consumerUrl, String providerUrl, String destinationPath, String apiKey, int users, int times) {
         String connectorAddress = format("%s/api/ids/multipart", providerUrl);
         var scenarioBuilder = scenario("Contract negotiation and data transfer.")
                 .repeat(times)
                 .on(exec(
                                 http("Contract negotiation")
-                                        .post(CONTRACT_NEGOTIATION_PATH)
+                                        .post("/api/negotiation")
                                         .body(InputStreamBody(s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))))
                                         .header(CONTENT_TYPE, "application/json")
                                         .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)

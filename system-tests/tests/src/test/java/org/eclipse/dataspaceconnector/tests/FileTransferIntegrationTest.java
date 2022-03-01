@@ -14,15 +14,10 @@
 
 package org.eclipse.dataspaceconnector.tests;
 
-import io.gatling.app.Gatling;
-import io.gatling.core.config.GatlingPropertiesBuilder;
-import io.gatling.javaapi.core.Simulation;
-import net.catenax.prs.systemtest.PerformanceTestsRunner;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,16 +25,13 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.lang.String.format;
-import static net.catenax.prs.systemtest.GatlingUtils.runGatling;
+import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
+import static org.eclipse.dataspaceconnector.tests.FileTransferSimulation.PROVIDER_ASSET_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
-import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.PROVIDER_ASSET_NAME;
 
 
-/**
- * System Test for Sample 04.0-file-transfer
- */
 public class FileTransferIntegrationTest {
     public static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
 
@@ -77,21 +69,11 @@ public class FileTransferIntegrationTest {
         var fileContent = "FileTransfer-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
-        /*
         // Act
-        var client = new FileTransferTestUtils();
-        client.setConsumerUrl(CONSUMER_CONNECTOR_HOST);
-        client.setProviderUrl(PROVIDER_CONNECTOR_HOST);
-        client.setDestinationPath(CONSUMER_ASSET_PATH);
-        client.setApiKey(API_KEY_CONTROL_AUTH);
-
-        var contractAgreementId = client.negotiateContractAgreement();
-        client.performFileTransfer(contractAgreementId);
-        */
-        runGatling(PerformanceTestsRunner.class);
+        runGatling(FileTransferLocalSimulation.class);
 
         // Assert
-        var copiedFilePath = Path.of(CONSUMER_ASSET_PATH + File.separator);
+        var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
         assertThat(copiedFilePath)
                 .withFailMessage("Destination file %s not created", copiedFilePath)
                 .exists();
@@ -99,7 +81,5 @@ public class FileTransferIntegrationTest {
         assertThat(actualFileContent)
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(fileContent);
-
     }
-
 }
