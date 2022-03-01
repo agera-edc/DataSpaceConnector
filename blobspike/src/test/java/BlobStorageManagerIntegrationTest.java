@@ -1,4 +1,7 @@
-import com.azure.storage.blob.*;
+import com.azure.storage.blob.BlobClient;
+import com.azure.storage.blob.BlobClientBuilder;
+import com.azure.storage.blob.BlobServiceClient;
+import com.azure.storage.blob.BlobServiceClientBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +33,7 @@ public class BlobStorageManagerIntegrationTest {
     }
 
     @Test
-    public void BlobStorageManagerTest() {
+    public void blobStorageManagerTest() {
         var connectionString1 = getConnectionString("account1", "key1");
         var connectionString2 = getConnectionString("account2", "key2");
         BlobInfo sourceBlob = new BlobInfo("blob1", "container1", connectionString1);
