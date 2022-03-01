@@ -16,12 +16,24 @@ package org.eclipse.dataspaceconnector.extensions.api;
 
 import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.ConsumerContractNegotiationManager;
+import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 
 public class ApiEndpointExtension implements ServiceExtension {
+    @Inject
+    WebService webService;
+
+    @Inject
+    TransferProcessManager processManager;
+
+    @Inject
+    ConsumerContractNegotiationManager negotiationManager;
+
+    @Inject
+    TransferProcessStore transferProcessStore;
 
     @Override
     public String name() {
@@ -30,10 +42,6 @@ public class ApiEndpointExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        var webService = context.getService(WebService.class);
-        var processManager = context.getService(TransferProcessManager.class);
-        var negotiationManager = context.getService(ConsumerContractNegotiationManager.class);
-        var transferProcessStore = context.getService(TransferProcessStore.class);
         webService.registerResource(new ConsumerApiController(context.getMonitor(), processManager, negotiationManager, transferProcessStore));
     }
 }

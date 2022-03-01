@@ -22,11 +22,6 @@ plugins {
 val rsApi: String by project
 
 dependencies {
-    api(project(":spi"))
-    implementation(project(":common:util"))
-
-    api("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
-
     implementation(project(":core"))
 
     implementation(project(":extensions:in-memory:assetindex-memory"))
@@ -42,6 +37,11 @@ dependencies {
     implementation(project(":extensions:api:control"))
 
     implementation(project(":data-protocols:ids"))
+
+    api(project(":spi"))
+    implementation(project(":common:util"))
+
+    api("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
 }
 
 application {
