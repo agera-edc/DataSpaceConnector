@@ -103,7 +103,7 @@ public class FileTransferIntegrationTest {
     static void runGatling(Class<? extends Simulation> simulation) {
         var props = new GatlingPropertiesBuilder();
         props.simulationClass(simulation.getCanonicalName());
-        props.resultsDirectory("target/gatling");
+        props.resultsDirectory("build/gatling");
         Gatling.fromMap(props.build());
     }
 }
