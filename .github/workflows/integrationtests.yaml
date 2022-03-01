@@ -41,7 +41,7 @@ jobs:
           cache: 'gradle'
 
       - name: Integration Tests
-        run: ./gradlew clean check -DincludeTags="IntegrationTest" -DexcludeTags="azure-cosmos-db,FileTransferAsClient"
+        run: ./gradlew clean test -DincludeTags="IntegrationTest" -DexcludeTags="azure-cosmos-db,FileTransferAsClient"
 
   Azure-CosmosDB-Integration-Test:
     runs-on: windows-2019
@@ -64,5 +64,5 @@ jobs:
           Start-CosmosDbEmulator -Timeout 1200
 
       - name: Azure CosmosDB Tests
-        run: ./gradlew check -DincludeTags="azure-cosmos-db"
+        run: ./gradlew clean test -DincludeTags="azure-cosmos-db"
 
