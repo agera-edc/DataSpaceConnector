@@ -70,7 +70,7 @@ The `AzureDataFactoryTransferService` provisions the AKV secrets and ADF pipelin
 
 The implementation of a DPF transfer was straightforward using the ADF SDK. Run details are available using a UI. In this test run, a 100 MiB blob was copied in 9 seconds with 10 resp. 12 parallel connections on the source and destinations, and the data was verified using checksums.
 
-![ADF run](/Users/algattik/IdeaProjects/DataSpaceConnector/docs/developer/decision-records/2022-03-01-serverless-transfers/adf-run-details.png)
+![ADF run](adf-run-details.png)
 
 ### Deployment
 
