@@ -4,6 +4,7 @@ import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 
 import java.time.Duration;
 import java.util.Objects;
@@ -41,8 +42,7 @@ public class PerformanceTestsRunner extends Simulation {
                             // Verify ContractNegotiation is CONFIRMED
                             .exec(session -> session.set("status", -1))
                             .group("waitForCompletion").on(
-                                    doWhileDuring(session -> session.getInt("status") !=
-                                                    ContractNegotiationStates.CONFIRMED.code()
+                                    doWhileDuring(session -> session.getString("contractAgreementId") == null
                                             , Duration.ofSeconds(30))
                                             .on(exec(http("Get status")
                                                             .get(session -> format("/api/control/negotiation/%s", session.getString("contractNegotiationRequestId")))
@@ -74,16 +74,24 @@ public class PerformanceTestsRunner extends Simulation {
                                                     .notNull()
                                                     .saveAs("transferProcessId"))
                             )
-                    /*
+                            .exec(session -> session.set("status", -1))
+                            // Verify file transfer is completed and file contents
+                            .group("waitForTransferCompletion").on(
+                                    doWhileDuring(session -> session.getInt("status") !=
+                                                    TransferProcessStates.COMPLETED.code()
+                                            , Duration.ofSeconds(30))
+                                            .on(exec(http("Get transfer status")
+                                                            .get(session -> format("/api/transfer/%s", session.getString("transferProcessId")))
+                                                            .check(status().is(SC_OK))
+                                                            .check(
+                                                                    jmesPath("id").is(session -> session.getString("transferProcessId")),
+                                                                    jmesPath("state").saveAs("status")
+                                                            )
+                                                    )
+                                                            .pause(Duration.ofSeconds(1))
+                                            )
 
-        // Verify file transfer is completed and file contents
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                fetchTransfer(transferProcessId)
-                        .body("id", equalTo(transferProcessId))
-                        .body("state", equalTo(TransferProcessStates.COMPLETED.code())
-                        ));
-    }
-                     */
+                            )
             );
 
     {
