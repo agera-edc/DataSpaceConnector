@@ -186,6 +186,6 @@ include(":samples:05-file-transfer-cloud:api")
 include(":samples:05-file-transfer-cloud:data-seeder")
 include(":samples:05-file-transfer-cloud:transfer-file")
 
-include(":system-tests:launchers:file-transfer-provider")
-include(":system-tests:launchers:file-transfer-consumer")
+include(":system-tests:runtimes:file-transfer-provider")
+include(":system-tests:runtimes:file-transfer-consumer")
 include(":system-tests:tests")
