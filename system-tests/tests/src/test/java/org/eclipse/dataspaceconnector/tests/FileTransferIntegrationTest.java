@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.samples;
+package org.eclipse.dataspaceconnector.tests;
 
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
-import static org.eclipse.dataspaceconnector.samples.FileTransferTestUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.PROVIDER_ASSET_NAME;
 
 
 /**

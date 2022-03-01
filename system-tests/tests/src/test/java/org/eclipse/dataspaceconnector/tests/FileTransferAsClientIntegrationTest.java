@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.samples;
+package org.eclipse.dataspaceconnector.tests;
 
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Test;
