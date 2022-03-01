@@ -11,7 +11,7 @@ dir=$(dirname $0)
 # Build and install Consumer and Provider connectors
 
 for target in consumer provider; do
-  docker build -t $target --build-arg JAR=samples/04.0-file-transfer/$target/build/libs/$target.jar -f launchers/generic/Dockerfile .
+  docker build -t $target --build-arg JAR=system-tests/launchers/file-transfer-$target/build/libs/$target.jar -f launchers/generic/Dockerfile .
   helm upgrade --install -f $dir/values-$target.yaml $target resources/charts/dataspace-connector
 done
 
