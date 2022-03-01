@@ -34,17 +34,17 @@ import static org.eclipse.dataspaceconnector.samples.FileTransferTestUtils.PROVI
 /**
  * System Test for Sample 04.0-file-transfer
  */
-class FileTransferIntegrationTest {
-    static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
+public class FileTransferIntegrationTest {
+    public static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
 
-    static final String CONSUMER_ASSET_PATH = tempDirectory();
-    static final int CONSUMER_CONNECTOR_PORT = getFreePort();
-    static final String CONSUMER_CONNECTOR_HOST = "http://localhost:" + CONSUMER_CONNECTOR_PORT;
+    public static final String CONSUMER_ASSET_PATH = tempDirectory();
+    public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
+    public static final String CONSUMER_CONNECTOR_HOST = "http://localhost:" + CONSUMER_CONNECTOR_PORT;
 
-    static final int PROVIDER_CONNECTOR_PORT = getFreePort();
-    static final String PROVIDER_CONNECTOR_HOST = "http://localhost:" + PROVIDER_CONNECTOR_PORT;
+    public static final int PROVIDER_CONNECTOR_PORT = getFreePort();
+    public static final String PROVIDER_CONNECTOR_HOST = "http://localhost:" + PROVIDER_CONNECTOR_PORT;
 
-    static final String API_KEY_CONTROL_AUTH = "password";
+    public static final String API_KEY_CONTROL_AUTH = "password";
 
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(

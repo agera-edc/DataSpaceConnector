@@ -37,19 +37,19 @@ public class FileTransferTestUtils {
 
     public static final String PROVIDER_ASSET_NAME = "test-document";
 
-    private static final String CONTRACT_NEGOTIATION_PATH = "/api/negotiation";
-    private static final String CONTRACT_AGREEMENT_PATH = "/api/control/negotiation/{contractNegotiationRequestId}";
-    private static final String TRANSFER_PATH = "/api/transfer/{transferId}";
-    private static final String FILE_TRANSFER_PATH = "/api/file/{filename}";
+    public static final String CONTRACT_NEGOTIATION_PATH = "/api/negotiation";
+    public static final String CONTRACT_AGREEMENT_PATH = "/api/control/negotiation/{contractNegotiationRequestId}";
+    public static final String TRANSFER_PATH = "/api/transfer/{transferId}";
+    public static final String FILE_TRANSFER_PATH = "/api/file/{filename}";
 
-    private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
-    private static final String CONTRACT_NEGOTIATION_REQUEST_ID_PARAM = "contractNegotiationRequestId";
-    private static final String TRANSFER_ID_PARAM = "transferId";
-    private static final String DESTINATION_PARAM = "destination";
-    private static final String CONTRACT_ID_PARAM = "contractId";
-    private static final String FILE_NAME_PARAM = "filename";
+    public static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
+    public static final String CONTRACT_NEGOTIATION_REQUEST_ID_PARAM = "contractNegotiationRequestId";
+    public static final String TRANSFER_ID_PARAM = "transferId";
+    public static final String DESTINATION_PARAM = "destination";
+    public static final String CONTRACT_ID_PARAM = "contractId";
+    public static final String FILE_NAME_PARAM = "filename";
 
-    private static final String API_KEY_HEADER = "X-Api-Key";
+    public static final String API_KEY_HEADER = "X-Api-Key";
 
     private String consumerUrl;
     private String providerUrl;
