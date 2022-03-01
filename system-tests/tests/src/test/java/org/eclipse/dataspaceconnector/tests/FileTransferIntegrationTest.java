@@ -22,6 +22,7 @@ import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,6 +30,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.lang.String.format;
+import static net.catenax.prs.systemtest.GatlingUtils.runGatling;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
@@ -41,7 +43,7 @@ import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.PROVIDE
 public class FileTransferIntegrationTest {
     public static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
 
-    public static final String CONSUMER_ASSET_PATH = tempDirectory() + "/out";
+    public static final String CONSUMER_ASSET_PATH = tempDirectory();
     public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
     public static final String CONSUMER_CONNECTOR_HOST = "http://localhost:" + CONSUMER_CONNECTOR_PORT;
 
@@ -89,7 +91,7 @@ public class FileTransferIntegrationTest {
         runGatling(PerformanceTestsRunner.class);
 
         // Assert
-        var copiedFilePath = Path.of(CONSUMER_ASSET_PATH);
+        var copiedFilePath = Path.of(CONSUMER_ASSET_PATH + File.separator);
         assertThat(copiedFilePath)
                 .withFailMessage("Destination file %s not created", copiedFilePath)
                 .exists();
@@ -100,10 +102,4 @@ public class FileTransferIntegrationTest {
 
     }
 
-    static void runGatling(Class<? extends Simulation> simulation) {
-        var props = new GatlingPropertiesBuilder();
-        props.simulationClass(simulation.getCanonicalName());
-        props.resultsDirectory("build/gatling");
-        Gatling.fromMap(props.build());
-    }
 }
