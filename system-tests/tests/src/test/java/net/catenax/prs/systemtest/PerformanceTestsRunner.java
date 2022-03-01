@@ -3,7 +3,6 @@ package net.catenax.prs.systemtest;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
-import org.apache.http.HttpStatus;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 
 import java.time.Duration;
@@ -14,8 +13,7 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static java.lang.String.format;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
+import static org.apache.http.HttpStatus.SC_OK;
 import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.*;
 import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.*;
 
@@ -32,9 +30,9 @@ public class PerformanceTestsRunner extends Simulation {
                                     .body(InputStreamBody(
                                             s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))
                                     ))
-                                    .header(CONTENT_TYPE,"application/json")
+                                    .header(CONTENT_TYPE, "application/json")
                                     .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
-                                    .check(status().is(HttpStatus.SC_OK))
+                                    .check(status().is(SC_OK))
                                     .check(bodyString()
                                             .notNull()
                                             .saveAs("contractNegotiationRequestId"))
@@ -49,7 +47,7 @@ public class PerformanceTestsRunner extends Simulation {
                                             .on(exec(http("Get status")
                                                             .get(session -> format("/api/control/negotiation/%s", session.getString("contractNegotiationRequestId")))
                                                             .header(API_KEY_HEADER, API_KEY_CONTROL_AUTH)
-                                                            .check(status().is(HttpStatus.SC_OK))
+                                                            .check(status().is(SC_OK))
                                                             .check(
                                                                     jmesPath("id").is(session -> session.getString("contractNegotiationRequestId")),
                                                                     jmesPath("state").saveAs("status")
@@ -65,26 +63,18 @@ public class PerformanceTestsRunner extends Simulation {
                                             )
 
                             )
-                            .
-                    exec(
-                            http("Contract negotiation")
-                                    .post(format("/api/file/%s", PROVIDER_ASSET_NAME))
-                                    .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
-                                    .queryParam(DESTINATION_PARAM, destinationPath)
-                                    .queryParam(CONTRACT_ID_PARAM, s -> s.getString("contractAgreementId"))
-                                    .check(status().is(HttpStatus.SC_OK))
-                                    .check(bodyString()
-                                            .notNull()
-                                            .saveAs("contractNegotiationRequestId"))
-                    )
+                            .exec(
+                                    http("Initiate transfer")
+                                            .post(format("/api/file/%s", PROVIDER_ASSET_NAME))
+                                            .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
+                                            .queryParam(DESTINATION_PARAM, CONSUMER_ASSET_PATH)
+                                            .queryParam(CONTRACT_ID_PARAM, s -> s.getString("contractAgreementId"))
+                                            .check(status().is(SC_OK))
+                                            .check(bodyString()
+                                                    .notNull()
+                                                    .saveAs("transferProcessId"))
+                            )
                     /*
-                        .when()
-                        .then()
-                        .assertThat().statusCode(HttpStatus.SC_OK)
-                        .extract().asString();
-
-        // Verify TransferProcessId
-        assertThat(transferProcessId).isNotNull();
 
         // Verify file transfer is completed and file contents
         await().atMost(30, SECONDS).untilAsserted(() ->
