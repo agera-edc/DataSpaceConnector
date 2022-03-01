@@ -70,14 +70,14 @@ The `AzureDataFactoryTransferService` provisions the AKV secrets and ADF pipelin
 
 The implementation of a DPF transfer was straightforward using the ADF SDK. Run details are available using a UI. In this test run, a 100 MiB blob was copied in 9 seconds with 10 resp. 12 parallel connections on the source and destinations, and the data was verified using checksums.
 
-![ADF run](/Users/algattik/IdeaProjects/DataSpaceConnector/docs/developer/decision-records/2022-02-25-azure-data-factory/adf-run-details.png)
+![ADF run](/Users/algattik/IdeaProjects/DataSpaceConnector/docs/developer/decision-records/2022-03-01-serverless-transfers/adf-run-details.png)
 
 ### Deployment
 
 Run the following script to deploy Azure resources. Resource names can be adapted by editing the script.
 
 ```bash
-docs/developer/decision-records/2022-02-25-azure-data-factory/create-resources-and-run-server.sh
+docs/developer/decision-records/2022-03-01-serverless-transfers/create-resources-and-run-server.sh
 ```
 
 Once the DPF server is running, all resources have been deployed.
