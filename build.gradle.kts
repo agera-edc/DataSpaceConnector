@@ -152,7 +152,9 @@ allprojects {
 
 
     tasks.withType<Test> {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeTags("integrationTest")
+        }
     }
     tasks.withType<Test> {
         testLogging {
