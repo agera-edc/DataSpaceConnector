@@ -26,3 +26,10 @@ blobRanges.parallelStream()
 
 destBlobClient.commitBlockList(blockIds);
 ```
+
+Note: Consider using [BlockBlobAsyncClient](https://azuresdkartifacts.blob.core.windows.net/azure-sdk-for-java/staging/apidocs/com/azure/storage/blob/BlockBlobAsyncClient.html) and 
+methods:
+- [stageBlockFromURLWithResponse](https://azuresdkartifacts.blob.core.windows.net/azure-sdk-for-java/staging/apidocs/com/azure/storage/blob/BlockBlobAsyncClient.html#stageBlockFromURLWithResponse-java.lang.String-java.net.URL-com.azure.storage.blob.models.BlobRange-byte:A-com.azure.storage.blob.models.LeaseAccessConditions-com.azure.storage.blob.models.SourceModifiedAccessConditions-)
+- [commitBlockListWithResponse](https://azuresdkartifacts.blob.core.windows.net/azure-sdk-for-java/staging/apidocs/com/azure/storage/blob/BlockBlobAsyncClient.html#commitBlockListWithResponse-java.util.List-com.azure.storage.blob.models.BlobHTTPHeaders-com.azure.storage.blob.models.Metadata-com.azure.storage.blob.models.AccessTier-com.azure.storage.blob.models.BlobAccessConditions-)
+
+to handle errors.

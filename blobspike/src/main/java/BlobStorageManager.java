@@ -103,7 +103,7 @@ public class BlobStorageManager {
 
         String sourceBlobUrl = sourceBlobClient.getBlobUrl() + "?" + sasToken;
 
-        // destination blob client
+        // destination blob client (consider using BlockBlobAsyncClient)
         BlockBlobClient destBlobClient = new BlobClientBuilder()
                 .connectionString(destBlob.storageAccountConnectionString)
                 .containerName(destBlob.containerName)
