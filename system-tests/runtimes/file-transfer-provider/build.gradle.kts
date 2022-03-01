@@ -43,8 +43,6 @@ dependencies {
     implementation(project(":extensions:iam:iam-mock"))
 
     implementation(project(":data-protocols:ids"))
-
-    implementation(project(":samples:04.0-file-transfer:transfer-file"))
 }
 
 application {
