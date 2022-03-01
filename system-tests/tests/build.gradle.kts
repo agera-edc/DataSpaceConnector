@@ -30,9 +30,8 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
-    testRuntimeOnly(project(":system-tests:provider"))
-    testRuntimeOnly(project(":system-tests:consumer"))
-
+    testRuntimeOnly(project(":system-tests:launchers:file-transfer-provider"))
+    testRuntimeOnly(project(":system-tests:launchers:file-transfer-consumer"))
 }
 
 tasks.getByName<Test>("test") {
