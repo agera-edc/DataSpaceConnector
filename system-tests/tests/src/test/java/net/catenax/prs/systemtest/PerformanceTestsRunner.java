@@ -58,7 +58,7 @@ public class PerformanceTestsRunner extends Simulation {
                                             .pause(Duration.ofSeconds(1)))));
 
     private String getContractNegotiationRequestId(Session session) {
-        String contractNegotiationRequestId = format("/datarequest/%s/state", session.getString("contractNegotiationRequestId"));
+        String contractNegotiationRequestId = format("/api/control/negotiation/%s", session.getString("contractNegotiationRequestId"));
         return contractNegotiationRequestId;
     }
 
