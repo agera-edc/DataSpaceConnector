@@ -140,12 +140,12 @@ jobs:
           ./minikube start --wait all
 
       - name: Build JARs
-        run: ./gradlew system-tests:launchers:file-transfer-consumer:shadowJar system-tests:launchers:file-transfer-provider:shadowJar --no-daemon
+        run: ./gradlew samples:04.0-file-transfer:consumer:shadowJar samples:04.0-file-transfer:provider:shadowJar --no-daemon
 
       - name: Test
         run: |
           eval $(minikube -p minikube docker-env)
-          system-tests/minikube/minikube-test.sh
+          samples/04.0-file-transfer/integration-tests/minikube/minikube-test.sh
 
       - name: Kubernetes logs
         if: always()
