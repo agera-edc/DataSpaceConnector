@@ -28,14 +28,14 @@ done the same way as in the previous samples.
 Build EDC consumer and provider runtime JAR files:
 
 ```bash
-./gradlew samples:04.0-file-transfer:consumer:build
-./gradlew samples:04.0-file-transfer:provider:build
-````
+./gradlew system-tests:launchers:file-transfer-consumer:build
+./gradlew system-tests:launchers:file-transfer-provider:build
+```
 
 Run tests:
 
 ```bash
-samples/04.0-file-transfer/integration-tests/minikube/minikube-test.sh
+system-tests/minikube/minikube-test.sh
 ```
 
 Note: on certain Mac platforms, the `minikube service` commands run within the script hangs during execution. If that happens consider using a different minikube driver, such as Parallels or VirtualBox.
