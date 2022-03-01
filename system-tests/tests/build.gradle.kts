@@ -21,6 +21,7 @@ val restAssured: String by project
 val assertj: String by project
 val awaitility: String by project
 val gatlingVersion: String by project
+val faker: String by project
 
 dependencies {
     testImplementation("io.gatling:gatling-http-java:${gatlingVersion}")
@@ -29,6 +30,7 @@ dependencies {
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
     testImplementation("org.assertj:assertj-core:${assertj}")
     testImplementation("org.awaitility:awaitility:${awaitility}")
+    testImplementation("com.github.javafaker:javafaker:${faker}")
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))

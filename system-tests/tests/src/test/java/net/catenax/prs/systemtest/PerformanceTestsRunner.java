@@ -1,13 +1,18 @@
 package net.catenax.prs.systemtest;
 
+import com.github.javafaker.Faker;
 import io.gatling.javaapi.core.ScenarioBuilder;
+import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 
 import java.time.Duration;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.http;
@@ -23,14 +28,13 @@ public class PerformanceTestsRunner extends Simulation {
     HttpProtocolBuilder httpProtocol = http
             .baseUrl(CONSUMER_CONNECTOR_HOST);
 
+    private Faker faker = new Faker();
     protected ScenarioBuilder scenarioBuilder = scenario("Contract negotiation and data transfer.")
             .repeat(1)
             .on(exec(
                             http("Contract negotiation")
                                     .post(CONTRACT_NEGOTIATION_PATH)
-                                    .body(InputStreamBody(
-                                            s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))
-                                    ))
+                                    .body(InputStreamBody(s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))))
                                     .header(CONTENT_TYPE, "application/json")
                                     .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
                                     .check(status().is(SC_OK))
@@ -42,8 +46,8 @@ public class PerformanceTestsRunner extends Simulation {
                             // Verify ContractNegotiation is CONFIRMED
                             .exec(session -> session.set("status", -1))
                             .group("waitForCompletion").on(
-                                    doWhileDuring(session -> session.getString("contractAgreementId") == null
-                                            , Duration.ofSeconds(30))
+                                    doWhileDuring(session -> session.getString("contractAgreementId") == null,
+                                            Duration.ofSeconds(30))
                                             .on(exec(http("Get status")
                                                             .get(session -> format("/api/control/negotiation/%s", session.getString("contractNegotiationRequestId")))
                                                             .header(API_KEY_HEADER, API_KEY_CONTROL_AUTH)
@@ -59,15 +63,16 @@ public class PerformanceTestsRunner extends Simulation {
                                                                     jmesPath("contractAgreement.id").notNull().saveAs("contractAgreementId")
                                                             )
                                                     )
-                                                            .pause(Duration.ofSeconds(1))
+                                                    .pace(Duration.ofSeconds(1))
                                             )
 
                             )
+                            .feed(new EndlessIterator<>(() -> Map.of("fileName", faker.lorem().characters(20, 40))))
                             .exec(
                                     http("Initiate transfer")
                                             .post(format("/api/file/%s", PROVIDER_ASSET_NAME))
                                             .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
-                                            .queryParam(DESTINATION_PARAM, CONSUMER_ASSET_PATH)
+                                            .queryParam(DESTINATION_PARAM, s -> getFileName(s))
                                             .queryParam(CONTRACT_ID_PARAM, s -> s.getString("contractAgreementId"))
                                             .check(status().is(SC_OK))
                                             .check(bodyString()
@@ -77,9 +82,8 @@ public class PerformanceTestsRunner extends Simulation {
                             .exec(session -> session.set("status", -1))
                             // Verify file transfer is completed and file contents
                             .group("waitForTransferCompletion").on(
-                                    doWhileDuring(session -> session.getInt("status") !=
-                                                    TransferProcessStates.COMPLETED.code()
-                                            , Duration.ofSeconds(30))
+                                    doWhileDuring(session -> session.getInt("status") != TransferProcessStates.COMPLETED.code(),
+                                            Duration.ofSeconds(30))
                                             .on(exec(http("Get transfer status")
                                                             .get(session -> format("/api/transfer/%s", session.getString("transferProcessId")))
                                                             .check(status().is(SC_OK))
@@ -88,13 +92,36 @@ public class PerformanceTestsRunner extends Simulation {
                                                                     jmesPath("state").saveAs("status")
                                                             )
                                                     )
-                                                            .pause(Duration.ofSeconds(1))
+                                                    .pace(Duration.ofSeconds(1))
                                             )
 
                             )
             );
 
+    private String getFileName(Session s) {
+        String fileName = format(CONSUMER_ASSET_PATH + "/%s", s.getString("fileName"));
+        return fileName;
+    }
+
     {
         setUp(scenarioBuilder.injectOpen(atOnceUsers(10))).protocols(httpProtocol);
+    }
+
+    private static class EndlessIterator<T> implements Iterator<T> {
+        private final Supplier<T> supplier;
+
+        private EndlessIterator(Supplier<T> supplier) {
+            this.supplier = supplier;
+        }
+
+        @Override
+        public boolean hasNext() {
+            return true;
+        }
+
+        @Override
+        public T next() {
+            return supplier.get();
+        }
     }
 }
