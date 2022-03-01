@@ -152,8 +152,38 @@ allprojects {
 
 
     tasks.withType<Test> {
-        useJUnitPlatform {
-            excludeTags("IntegrationTest")
+
+        var includeTags: Array<String> = emptyArray();
+        var excludeTags: Array<String> = emptyArray();
+        val includeTagProperty = System.getProperty("includeTags");
+        val excludeTagProperty = System.getProperty("excludeTags");
+
+        if (includeTagProperty != null && excludeTagProperty != null) {
+
+            includeTags = includeTagProperty.split(",").toTypedArray();
+            excludeTags = excludeTagProperty.split(",").toTypedArray();
+            useJUnitPlatform {
+                includeTags(*includeTags)
+                excludeTags(*excludeTags)
+            }
+
+        } else if (includeTagProperty != null) {
+
+            includeTags = includeTagProperty.split(",").toTypedArray();
+            useJUnitPlatform {
+                includeTags(*includeTags)
+            }
+
+        } else if (excludeTagProperty != null) {
+
+            excludeTags = excludeTagProperty.split(",").toTypedArray();
+            useJUnitPlatform {
+                excludeTags(*excludeTags)
+            }
+        } else {
+            useJUnitPlatform {
+                excludeTags("IntegrationTest")
+            }
         }
     }
     tasks.withType<Test> {
