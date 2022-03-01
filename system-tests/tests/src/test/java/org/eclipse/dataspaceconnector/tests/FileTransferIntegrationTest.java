@@ -41,7 +41,7 @@ import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.PROVIDE
 public class FileTransferIntegrationTest {
     public static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
 
-    public static final String CONSUMER_ASSET_PATH = tempDirectory();
+    public static final String CONSUMER_ASSET_PATH = tempDirectory() + "/out";
     public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
     public static final String CONSUMER_CONNECTOR_HOST = "http://localhost:" + CONSUMER_CONNECTOR_PORT;
 
@@ -70,12 +70,12 @@ public class FileTransferIntegrationTest {
 
     @Test
     public void transferFile_success() throws Exception {
-        /*
         // Arrange
         // Create a file with test data on provider file system.
         var fileContent = "FileTransfer-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
+        /*
         // Act
         var client = new FileTransferTestUtils();
         client.setConsumerUrl(CONSUMER_CONNECTOR_HOST);
@@ -85,9 +85,11 @@ public class FileTransferIntegrationTest {
 
         var contractAgreementId = client.negotiateContractAgreement();
         client.performFileTransfer(contractAgreementId);
+        */
+        runGatling(PerformanceTestsRunner.class);
 
         // Assert
-        var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
+        var copiedFilePath = Path.of(CONSUMER_ASSET_PATH);
         assertThat(copiedFilePath)
                 .withFailMessage("Destination file %s not created", copiedFilePath)
                 .exists();
@@ -96,8 +98,6 @@ public class FileTransferIntegrationTest {
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(fileContent);
 
-         */
-        runGatling(PerformanceTestsRunner.class);
     }
 
     static void runGatling(Class<? extends Simulation> simulation) {

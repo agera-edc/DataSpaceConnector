@@ -2,7 +2,6 @@ package net.catenax.prs.systemtest;
 
 import com.github.javafaker.Faker;
 import io.gatling.javaapi.core.ScenarioBuilder;
-import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.core.Simulation;
 import io.gatling.javaapi.http.HttpProtocolBuilder;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
@@ -63,7 +62,7 @@ public class PerformanceTestsRunner extends Simulation {
                                                                     jmesPath("contractAgreement.id").notNull().saveAs("contractAgreementId")
                                                             )
                                                     )
-                                                    .pace(Duration.ofSeconds(1))
+                                                            .pace(Duration.ofSeconds(1))
                                             )
 
                             )
@@ -72,7 +71,7 @@ public class PerformanceTestsRunner extends Simulation {
                                     http("Initiate transfer")
                                             .post(format("/api/file/%s", PROVIDER_ASSET_NAME))
                                             .queryParam(CONNECTOR_ADDRESS_PARAM, format("%s/api/ids/multipart", PROVIDER_CONNECTOR_HOST))
-                                            .queryParam(DESTINATION_PARAM, s -> getFileName(s))
+                                            .queryParam(DESTINATION_PARAM, s -> format(CONSUMER_ASSET_PATH, s.getString("fileName"))) // TODO %s
                                             .queryParam(CONTRACT_ID_PARAM, s -> s.getString("contractAgreementId"))
                                             .check(status().is(SC_OK))
                                             .check(bodyString()
@@ -92,19 +91,20 @@ public class PerformanceTestsRunner extends Simulation {
                                                                     jmesPath("state").saveAs("status")
                                                             )
                                                     )
-                                                    .pace(Duration.ofSeconds(1))
+                                                            .pace(Duration.ofSeconds(1))
                                             )
 
                             )
             );
 
-    private String getFileName(Session s) {
-        String fileName = format(CONSUMER_ASSET_PATH + "/%s", s.getString("fileName"));
-        return fileName;
-    }
-
     {
-        setUp(scenarioBuilder.injectOpen(atOnceUsers(10))).protocols(httpProtocol);
+        setUp(scenarioBuilder
+                .injectOpen(atOnceUsers(10)))
+                .protocols(httpProtocol)
+                .assertions(
+                        global().responseTime().max().lt(50),
+                        global().successfulRequests().percent().gt(95.0)
+                );
     }
 
     private static class EndlessIterator<T> implements Iterator<T> {
