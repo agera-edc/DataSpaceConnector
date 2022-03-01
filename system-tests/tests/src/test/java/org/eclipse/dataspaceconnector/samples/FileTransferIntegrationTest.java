@@ -14,6 +14,10 @@
 
 package org.eclipse.dataspaceconnector.samples;
 
+import io.gatling.app.Gatling;
+import io.gatling.core.config.GatlingPropertiesBuilder;
+import io.gatling.javaapi.core.Simulation;
+import net.catenax.prs.systemtest.PerformanceTestsRunner;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -66,6 +70,7 @@ public class FileTransferIntegrationTest {
 
     @Test
     public void transferFile_success() throws Exception {
+        /*
         // Arrange
         // Create a file with test data on provider file system.
         var fileContent = "Sample04-test-" + UUID.randomUUID();
@@ -90,5 +95,15 @@ public class FileTransferIntegrationTest {
         assertThat(actualFileContent)
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(fileContent);
+
+         */
+        runGatling(PerformanceTestsRunner.class);
+    }
+
+    static void runGatling(Class<? extends Simulation> simulation) {
+        var props = new GatlingPropertiesBuilder();
+        props.simulationClass(simulation.getCanonicalName());
+        props.resultsDirectory("target/gatling");
+        Gatling.fromMap(props.build());
     }
 }
