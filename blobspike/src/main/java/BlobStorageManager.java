@@ -1,6 +1,8 @@
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobClientBuilder;
 import com.azure.storage.blob.models.BlobRange;
+import com.azure.storage.blob.models.Block;
+import com.azure.storage.blob.models.BlockListType;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
 import com.azure.storage.blob.specialized.BlockBlobClient;
@@ -11,12 +13,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class BlobStorageManager {
 
@@ -80,7 +84,7 @@ public class BlobStorageManager {
 
     @WithSpan("copy by blocks")
     public void copyByBlock(BlobInfo sourceBlob, BlobInfo destBlob) {
-        System.out.println("Start " + java.time.LocalDateTime.now());
+        var start = Instant.now();
         // source blob client
         BlobClient sourceBlobClient = new BlobClientBuilder()
                 .connectionString(sourceBlob.storageAccountConnectionString)
@@ -118,10 +122,12 @@ public class BlobStorageManager {
                     // BlockId of the destination block
                     var blockId = Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
                     destBlobClient.stageBlockFromUrl(blockId, sourceBlobUrl, range);
+                    blockIds.add(blockId);
                 });
 
         destBlobClient.commitBlockList(blockIds);
-        System.out.println("End " + java.time.LocalDateTime.now());
+        var end = Instant.now().minusMillis(start.toEpochMilli());
+        System.out.println("End: " + end.toEpochMilli() + "ms");
     }
 
     /*
