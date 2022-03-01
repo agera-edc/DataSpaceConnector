@@ -110,6 +110,7 @@ public class BlobStorageManager {
         var sourceSize = sourceBlobClient.getProperties().getBlobSize();
         ArrayList<String> blockIds = new ArrayList<>();
 
+        // this size is chosen because block sizes of 8 * 1024 * 1024=8388608 bytes are used by AzCopy
         var blockSize = 8 * 1024 * 1024;
         var blobRanges = buildRanges(sourceSize, blockSize);
         blobRanges.parallelStream()
