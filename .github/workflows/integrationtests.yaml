@@ -30,6 +30,9 @@ jobs:
           - ${{ github.workspace }}/extensions/iam/daps/src/test/resources/keys:/opt/keys
 
     steps:
+      - name: reset permissions to permit checkout (because the omejdn volumes)
+        run: sudo chown -R $USER:$USER ${{ github.workspace }}
+        
       - uses: actions/checkout@v2
       - uses: actions/setup-java@v2
         with:
