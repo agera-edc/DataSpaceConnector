@@ -19,11 +19,11 @@ plugins {
     id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
-val jupiterVersion: String by project
 val rsApi: String by project
 
 dependencies {
     api(project(":spi"))
+    implementation(project(":common:util"))
     implementation(project(":core:transfer"))
     implementation(project(":extensions:in-memory:assetindex-memory"))
     api(project(":extensions:dataloading"))
