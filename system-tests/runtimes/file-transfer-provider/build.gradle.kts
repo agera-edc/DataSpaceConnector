@@ -24,6 +24,7 @@ val rsApi: String by project
 
 dependencies {
     api(project(":spi"))
+    implementation(project(":common:util"))
     implementation(project(":core:transfer"))
     implementation(project(":extensions:in-memory:assetindex-memory"))
     api(project(":extensions:dataloading"))
