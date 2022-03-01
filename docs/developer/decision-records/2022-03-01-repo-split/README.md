@@ -1,5 +1,13 @@
 # EDC Repository Split
 
+Currently, the EDC codebase is stored in a monorepo in Github where core modules coexist with vendor-specific extensions. This strategy allows for flexibility especially during the initial phase of development where bigger application-wide refactorings are common. Integration tests spanning several extensions are easy to write and help to reduce the likelihood of a regression within a certain module affecting other modules. 
+
+As more contributors join the project and more vendor-specific implementations are added to the codebase, the drawbacks of a monorepo become apparent:
+
+- A new version of an API forces an immediate adaptation of all implementing modules. This requires coordination among several teams, ultimately slowing down the development cycle.
+- A new version of a module or extension requires a full EDC release, even for small fixes.
+- The full test suite is always run for any change. Having separate smaller modules will improve CI performance.
+
 ## Monorepo/ Multirepo comparison
 
 | Monorepo         | Multirepo     | Choice for EDC |
