@@ -20,3 +20,21 @@ As more contributors join the project and more vendor-specific implementations a
 | Introducing breaking changes slows the development cycle | Breaking changes are released as a new version, do not slow down development cycles of other libraries | Multirepo <br> Libraries can have different speeds of development cycles. |
 | Heavy codebase | Multiple lightweight codebases  | Multirepo |
 | Lower barriers of entry (everything in one place) to understand the project | Contributing is easier (forking, no need to understand the whole repo) | Multirepo </br>No need to understand the whole repository to contribute. |
+
+## EDC multirepo strategy
+
+### By vendor
+
+EDC defines a series of core APIs in the [spi](../../../../spi) module. Implementations for these APIs are provided by using extensions. An example of this is `TransferProcessStore` in the `transfer-spi` core module with available implementations `InMemoryTransferProcessStore` in the `transfer-store-memory` extension, and a `CosmosTransferProcessStore` in the `transfer-process-store-cosmos` extension.
+
+```
+<EDC Core>
+    |_ <Azure Extensions>
+    |_ <AWS Extensions>
+    |_ <Google Extensions>
+```
+
+Vendor splits are meaningful whenever there is at least a default implementation that can be used in EDC core to perform testing (for instance an in-memory version of a store like `InMemoryTransferProcessStore`).
+
+
+
