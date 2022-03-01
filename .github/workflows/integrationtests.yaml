@@ -26,17 +26,11 @@ jobs:
           java-version: '11'
           cache: 'gradle'
 
-      - name: Data Plane Azure Storage Test
-        run: ./gradlew extensions:azure:data-plane-azure-storage:check
-
-      - name: Object Storage StatusChecker Test
-        run: ./gradlew extensions:azure:blobstorage:blob-provision:check
+      - name: Azure Storage Test
+        run: ./gradlew check -DincludeTags="azure-storage"
 
   Azure-CosmosDB-Integration-Test:
     runs-on: windows-2019
-
-    env:
-      RUN_INTEGRATION_TEST: true
 
     steps:
       - uses: actions/checkout@v2
@@ -55,20 +49,8 @@ jobs:
           Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"
           Start-CosmosDbEmulator -Timeout 1200
 
-      - name: CosmosDB Transfer Process Store Test
-        run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:test
-
-      - name: Cosmos-based Asset Index test
-        run: ./gradlew extensions:azure:cosmos:assetindex-cosmos:test
-
-      - name: Cosmos-based FCN Directory test
-        run: ./gradlew extensions:azure:cosmos:transfer-process-store-cosmos:test
-
-      - name: Cosmos-based ContractDefinitionStore Test
-        run: ./gradlew extensions:azure:cosmos:contract-definition-store-cosmos:test
-
-      - name: Cosmos-based ContractNegotiationStore Test
-        run: ./gradlew extensions:azure:cosmos:contract-negotiation-store-cosmos:test
+      - name: CosmosDB Tests
+        run: ./gradlew check -DincludeTags="azure-cosmos-db"
 
   Aws-Integration-Test:
     runs-on: ubuntu-latest
@@ -91,10 +73,9 @@ jobs:
 
       - name: AWS S3 StatusChecker Test
         env:
-          RUN_INTEGRATION_TEST: true
           S3_ACCESS_KEY_ID: root
           S3_SECRET_ACCESS_KEY: password
-        run: ./gradlew extensions:aws:s3:s3-provision:check
+        run: ./gradlew extensions:aws:s3:s3-provision:check -DincludeTags="aws-s3"
 
   Daps-Integration-Test:
     runs-on: ubuntu-latest
@@ -113,6 +94,4 @@ jobs:
           java-version: '11'
 
       - name: Daps Integration Test
-        env:
-          RUN_INTEGRATION_TEST: true
-        run: ./gradlew clean extensions:iam:daps:check
+        run: ./gradlew clean check -DincludeTags="Daps"

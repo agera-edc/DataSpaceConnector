@@ -29,6 +29,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -45,6 +46,7 @@ import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunc
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateNegotiation;
 
 @IntegrationTest
+@Tag("azure-cosmos-db")
 class CosmosContractNegotiationStoreIntegrationTest {
     public static final String CONNECTOR_ID = "test-connector";
     private static final String TEST_ID = UUID.randomUUID().toString();

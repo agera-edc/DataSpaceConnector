@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.temporal.ChronoUnit;
@@ -39,6 +40,7 @@ import static org.eclipse.dataspaceconnector.contract.definition.store.TestFunct
 import static org.eclipse.dataspaceconnector.contract.definition.store.TestFunctions.generateDocument;
 
 @IntegrationTest
+@Tag("azure-cosmos-db")
 public class CosmosContractDefinitionStoreIntegrationTest {
     private static final String TEST_ID = UUID.randomUUID().toString();
     private static final String DATABASE_NAME = "connector-itest-" + TEST_ID;

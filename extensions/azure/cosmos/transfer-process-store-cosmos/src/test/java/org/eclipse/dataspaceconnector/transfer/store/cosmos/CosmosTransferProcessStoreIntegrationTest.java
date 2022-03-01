@@ -41,6 +41,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.temporal.ChronoUnit;
@@ -56,6 +57,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.eclipse.dataspaceconnector.transfer.store.cosmos.TestHelper.createTransferProcess;
 
 @IntegrationTest
+@Tag("azure-cosmos-db")
 class CosmosTransferProcessStoreIntegrationTest {
 
     private static final String TEST_ID = UUID.randomUUID().toString();

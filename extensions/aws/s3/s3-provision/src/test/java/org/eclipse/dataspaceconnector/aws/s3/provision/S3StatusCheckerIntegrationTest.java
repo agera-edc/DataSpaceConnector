@@ -23,7 +23,6 @@ import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 
@@ -41,7 +40,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @IntegrationTest
-@Tag("aws-s3")
 class S3StatusCheckerIntegrationTest extends AbstractS3Test {
 
     public static final int ONE_MINUTE_MILLIS = 1000 * 60;
