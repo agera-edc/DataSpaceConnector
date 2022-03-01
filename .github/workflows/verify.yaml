@@ -140,7 +140,7 @@ jobs:
           ./minikube start --wait all
 
       - name: Build JARs
-        run: ./gradlew system-tests:launchers:file-transfer-consumer:shadowJar system-tests:launchers:file-transfer-provider:shadowJar --no-daemon
+        run: ./gradlew system-tests:runtimes:file-transfer-consumer:shadowJar system-tests:runtimes:file-transfer-provider:shadowJar --no-daemon
 
       - name: Test
         run: |

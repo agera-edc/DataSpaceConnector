@@ -23,6 +23,13 @@ val jupiterVersion: String by project
 val rsApi: String by project
 
 dependencies {
+    api(project(":spi"))
+    implementation(project(":core:transfer"))
+    implementation(project(":extensions:in-memory:assetindex-memory"))
+    api(project(":extensions:dataloading"))
+
+    implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
+
     implementation(project(":core"))
 
     implementation(project(":extensions:in-memory:assetindex-memory"))

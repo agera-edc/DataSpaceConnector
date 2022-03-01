@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.samples;
+package org.eclipse.dataspaceconnector.tests;
 
 import io.restassured.http.ContentType;
 import io.restassured.response.ValidatableResponse;
