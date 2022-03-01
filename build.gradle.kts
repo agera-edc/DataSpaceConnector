@@ -18,6 +18,7 @@ plugins {
     checkstyle
     jacoco
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
+    id("com.adarshr.test-logger") version "3.2.0"
 }
 
 repositories {
