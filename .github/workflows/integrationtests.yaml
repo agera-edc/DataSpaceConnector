@@ -40,8 +40,8 @@ jobs:
           java-version: '11'
           cache: 'gradle'
 
-      - name: Azure Storage Tests
-        run: ./gradlew check -DincludeTags="IntegrationTest" -DexcludeTags="azure-cosmos-db,FileTransferAsClient"
+      - name: Integration Tests
+        run: ./gradlew clean check -DincludeTags="IntegrationTest" -DexcludeTags="azure-cosmos-db,FileTransferAsClient"
 
   Azure-CosmosDB-Integration-Test:
     runs-on: windows-2019
