@@ -23,7 +23,21 @@ val jupiterVersion: String by project
 val rsApi: String by project
 
 dependencies {
-    implementation(project(":samples:04.0-file-transfer:provider"))
+    implementation(project(":core"))
+
+    implementation(project(":extensions:in-memory:assetindex-memory"))
+    implementation(project(":extensions:in-memory:transfer-store-memory"))
+    implementation(project(":extensions:in-memory:negotiation-store-memory"))
+    implementation(project(":extensions:in-memory:contractdefinition-store-memory"))
+
+    implementation(project(":extensions:api:observability"))
+
+    implementation(project(":extensions:filesystem:configuration-fs"))
+    implementation(project(":extensions:iam:iam-mock"))
+
+    implementation(project(":data-protocols:ids"))
+
+    implementation(project(":samples:04.0-file-transfer:transfer-file"))
 }
 
 application {
