@@ -17,8 +17,7 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.CONSUMER_CONNECTOR_HOST;
 import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.PROVIDER_CONNECTOR_HOST;
-import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.CONNECTOR_ADDRESS_PARAM;
-import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.CONTRACT_NEGOTIATION_PATH;
+import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.*;
 
 public class PerformanceTestsRunner extends Simulation {
 
@@ -48,6 +47,7 @@ public class PerformanceTestsRunner extends Simulation {
                             doWhileDuring(session -> session.getInt("status") != 200, Duration.ofSeconds(30))
                                     .on(exec(http("Get status")
                                             .get(session -> getContractNegotiationRequestId(session))
+                                            .header(API_KEY_HEADER, apiKey)
                                             .check(status().is(HttpStatus.SC_OK))
                                             .check(
                                                     jmesPath("id").is(session -> session.getString("contractNegotiationRequestId")),
