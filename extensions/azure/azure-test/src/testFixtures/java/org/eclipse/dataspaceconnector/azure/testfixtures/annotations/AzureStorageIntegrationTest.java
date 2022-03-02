@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @IntegrationTest
-@Tag("azure-cosmos-db-integration-test")
+@Tag("azure-storage-integration-test")
 public @interface AzureStorageIntegrationTest {
 }

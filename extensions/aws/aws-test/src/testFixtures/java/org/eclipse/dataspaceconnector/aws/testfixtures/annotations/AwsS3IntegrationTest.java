@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @IntegrationTest
-@Tag("azure-cosmos-db-integration-test")
+@Tag("aws-s3-integration-test")
 public @interface AwsS3IntegrationTest {
 }
