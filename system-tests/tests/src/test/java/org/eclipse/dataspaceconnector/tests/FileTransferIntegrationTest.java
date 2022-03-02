@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.samples;
+package org.eclipse.dataspaceconnector.tests;
 
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
-import static org.eclipse.dataspaceconnector.samples.FileTransferTestUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.tests.FileTransferTestUtils.PROVIDER_ASSET_NAME;
 
 
 /**
@@ -48,7 +48,7 @@ class FileTransferIntegrationTest {
 
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
-            ":samples:04.0-file-transfer:consumer",
+            ":system-tests:runtimes:file-transfer-consumer",
             "consumer",
             Map.of(
                     "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
@@ -57,18 +57,18 @@ class FileTransferIntegrationTest {
 
     @RegisterExtension
     static EdcRuntimeExtension provider = new EdcRuntimeExtension(
-            ":samples:04.0-file-transfer:provider",
+            ":system-tests:runtimes:file-transfer-provider",
             "provider",
             Map.of(
                     "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
-                    "edc.samples.04.asset.path", PROVIDER_ASSET_PATH,
+                    "edc.test.asset.path", PROVIDER_ASSET_PATH,
                     "ids.webhook.address", PROVIDER_CONNECTOR_HOST));
 
     @Test
     public void transferFile_success() throws Exception {
         // Arrange
         // Create a file with test data on provider file system.
-        var fileContent = "Sample04-test-" + UUID.randomUUID();
+        var fileContent = "FileTransfer-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         // Act
