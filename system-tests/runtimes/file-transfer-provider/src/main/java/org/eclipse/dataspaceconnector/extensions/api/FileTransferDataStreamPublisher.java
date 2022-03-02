@@ -44,10 +44,19 @@ public class FileTransferDataStreamPublisher implements DataStreamPublisher {
 
         // verify destination path
         var destinationPath = Path.of(destination.getProperty("path"));
-        if (!destinationPath.toFile().isDirectory()) {
-            return Result.failure("Destination path " + destinationPath + " is not a directory!");
+        if (!destinationPath.toFile().exists()) { //interpret as directory
+            monitor.debug("Destination path " + destinationPath + " does not exist, will attempt to create");
+            try {
+                Files.createDirectory(destinationPath);
+                monitor.debug("Successfully created destination path " + destinationPath);
+            } catch (IOException e) {
+                String message = "Error creating directory: " + e.getMessage();
+                monitor.severe(message);
+                return Result.failure(message);
+            }
+        } else if (destinationPath.toFile().isDirectory()) {
+            destinationPath = Path.of(destinationPath.toString(), sourceFileName);
         }
-        destinationPath = Path.of(destinationPath.toString(), sourceFileName);
 
         try {
             Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
