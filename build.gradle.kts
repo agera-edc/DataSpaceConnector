@@ -173,9 +173,7 @@ allprojects {
                 excludeTags(*excludeTags)
             }
         } else {
-            useJUnitPlatform {
-                excludeTags("integration-test")
-            }
+            useJUnitPlatform()
         }
     }
 
