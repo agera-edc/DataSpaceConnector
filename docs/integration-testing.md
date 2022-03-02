@@ -25,8 +25,8 @@ eventually we might want to write an integration test that uses a CosmosDB test 
 
 ## Coding Guidelines
 
-An integration test is annotated with `@IntegrationTest`, which causes the test runner to ignore it unless the
-`RUN_INTEGRATION_TEST` environment variable is set to `true`.
+An integration test should have an annotation e.g.`@IntegrationTest, @AzureCosmosDbIntegrationTest` which causes the test runner to ignore it unless the
+`RUN_INTEGRATION_TEST` environment variable is set to `true` and also categorize them using [Junit Tags](https://junit.org/junit5/docs/current/user-guide/#writing-tests-tagging-and-filtering). This categorization is important because it allows us to run only the integration tests we need to run e.g. `./gradlew check -DincludeTags="azure-cosmos-db-integration-test"`
 
 All integration tests should have the `"...IntegrationTest"` postfix to distinguish them clearly from unit tests. They
 should reside in the same package as unit tests because all tests should maintain package consistency to their test
@@ -53,7 +53,7 @@ any residue before and after the test.
 ## Running them locally
 
 The JUnit runner won't pick up integration tests unless the `RUN_INTEGRATION_TEST` environment variable is set to `true`
-. Also, don't forget to define any credentials that are needed.
+. Also, don't forget to define any credentials that are needed and if you need to run specific integration tests then it can be achieved by passing the `includeTags` parameter to the `gradlew` command e.g. `./gradlew check -DincludeTags="azure-cosmos-db-integration-test"`.
 
 Cosmos DB integration tests are run by default against a locally running [Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator). You can also use an instance of Cosmos DB running in Azure, in which case you should set the `COSMOS_KEY` environment variable.
 
@@ -64,8 +64,7 @@ every "technology" should have its own job, every test should go into a step.
 
 For example let's assume we've implemented a Postgres-based Asset Index, then the integration tests for that should go
 into a "Postgres" `job`, and every module that adds a test (here: `extensions:postgres:assetindex`) should go into its
-own
-`step`. Let's also make sure that the code is checked out before and integration tests only run on the upstream repo.
+own `step`. Let's also make sure that the code is checked out before and integration tests only run on the upstream repo.
 
 ```yaml
 jobs:
@@ -102,7 +101,7 @@ jobs:
           RUN_INTEGRATION_TEST: true
           POSTGRES_USER: ${{ secrets.POSTGRES_USERNAME }}
           POSTGRES_PWD: ${{ secrets.POSTGRES_PASSWORD }}
-        run: ./gradlew extensions:postgres:assetindex:check
+        run: ./gradlew -p extensions/postgres/assetindex check -DincludeTags="postgres-integration-test"
 ```
 
 It is important to note that the secrets (here: `POSTGRES_USERNAME` and `POSTGRES_PASSWORD`) must be defined within the
