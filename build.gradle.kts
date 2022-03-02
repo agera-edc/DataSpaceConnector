@@ -150,34 +150,25 @@ allprojects {
         }
     }
 
-
-
     tasks.withType<Test> {
 
-        var includeTags: Array<String> = emptyArray();
-        var excludeTags: Array<String> = emptyArray();
         val includeTagProperty = System.getProperty("includeTags");
         val excludeTagProperty = System.getProperty("excludeTags");
 
-        if (includeTagProperty != null && excludeTagProperty != null) {
+        val includeTags: Array<String> = includeTagProperty?.split(",")?.toTypedArray() ?: emptyArray();
+        val excludeTags: Array<String> = excludeTagProperty?.split(",")?.toTypedArray() ?: emptyArray();
 
-            includeTags = includeTagProperty.split(",").toTypedArray();
-            excludeTags = excludeTagProperty.split(",").toTypedArray();
+        if (includeTags.isNotEmpty() && excludeTags.isNotEmpty()) {
             useJUnitPlatform {
                 includeTags(*includeTags)
                 excludeTags(*excludeTags)
             }
-
-        } else if (includeTagProperty != null) {
-
-            includeTags = includeTagProperty.split(",").toTypedArray();
+        } else if (includeTags.isNotEmpty()) {
             useJUnitPlatform {
                 includeTags(*includeTags)
             }
 
-        } else if (excludeTagProperty != null) {
-
-            excludeTags = excludeTagProperty.split(",").toTypedArray();
+        } else if (excludeTags.isNotEmpty()) {
             useJUnitPlatform {
                 excludeTags(*excludeTags)
             }
@@ -187,6 +178,7 @@ allprojects {
             }
         }
     }
+
     tasks.withType<Test> {
         testLogging {
             events("failed")
