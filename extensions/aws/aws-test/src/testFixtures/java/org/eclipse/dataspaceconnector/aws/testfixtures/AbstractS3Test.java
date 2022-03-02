@@ -14,10 +14,10 @@
 
 package org.eclipse.dataspaceconnector.aws.testfixtures;
 
+import org.eclipse.dataspaceconnector.aws.testfixtures.annotations.AwsS3IntegrationTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
@@ -47,7 +47,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * Base class for tests that need an S3 bucket created and deleted on every test run.
  */
-@Tag("aws-s3")
+@AwsS3IntegrationTest
 public abstract class AbstractS3Test {
 
     protected static final String REGION = System.getProperty("it.aws.region", Region.US_EAST_1.id());
