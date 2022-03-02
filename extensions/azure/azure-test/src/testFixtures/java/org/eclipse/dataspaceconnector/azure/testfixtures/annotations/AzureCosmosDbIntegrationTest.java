@@ -15,5 +15,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @IntegrationTest
 @Tag("azure-cosmos-db-integration-test")
-public @interface AzureCosmosDBIntegrationTest {
+public @interface AzureCosmosDbIntegrationTest {
 }
