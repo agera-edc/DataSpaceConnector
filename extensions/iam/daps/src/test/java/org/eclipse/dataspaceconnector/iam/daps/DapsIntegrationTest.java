@@ -38,9 +38,8 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@IntegrationTest
 @ExtendWith(EdcExtension.class)
-@Tag("Daps")
+@org.eclipse.dataspaceconnector.iam.daps.annotations.DapsIntegrationTest
 class DapsIntegrationTest {
 
     private static final String AUDIENCE_IDS_CONNECTORS_ALL = "idsc:IDS_CONNECTORS_ALL";

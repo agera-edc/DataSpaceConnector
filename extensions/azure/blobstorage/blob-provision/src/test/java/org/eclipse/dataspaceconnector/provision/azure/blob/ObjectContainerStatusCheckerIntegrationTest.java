@@ -18,7 +18,6 @@ import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApiImpl;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -36,7 +35,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@IntegrationTest
 class ObjectContainerStatusCheckerIntegrationTest extends AbstractAzureBlobTest {
 
     private File helloTxt;

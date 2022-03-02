@@ -24,7 +24,7 @@ import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.assetindex.azure.model.AssetDocument;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApiImpl;
 import org.eclipse.dataspaceconnector.azure.testfixtures.CosmosTestClient;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
+import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureCosmosDBIntegrationTest;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
@@ -35,7 +35,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -47,8 +46,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@IntegrationTest
-@Tag("azure-cosmos-db")
+@AzureCosmosDBIntegrationTest
 class CosmosAssetIndexIntegrationTest {
     private static final String TEST_ID = UUID.randomUUID().toString();
     private static final String DATABASE_NAME = "connector-itest-" + TEST_ID;

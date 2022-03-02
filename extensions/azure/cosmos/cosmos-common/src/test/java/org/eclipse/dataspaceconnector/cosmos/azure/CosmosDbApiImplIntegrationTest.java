@@ -8,12 +8,11 @@ import com.azure.cosmos.models.CosmosItemRequestOptions;
 import com.azure.cosmos.models.PartitionKey;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApiImpl;
 import org.eclipse.dataspaceconnector.azure.testfixtures.CosmosTestClient;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
+import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureCosmosDBIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -22,8 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@IntegrationTest
-@Tag("azure-cosmos-db")
+@AzureCosmosDBIntegrationTest
 class CosmosDbApiImplIntegrationTest {
 
     public static final String PARTITION_KEY = "partitionKey";

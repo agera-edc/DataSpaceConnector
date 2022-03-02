@@ -13,7 +13,7 @@ import com.azure.cosmos.models.PartitionKey;
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApiImpl;
 import org.eclipse.dataspaceconnector.azure.testfixtures.CosmosTestClient;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
+import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureCosmosDBIntegrationTest;
 import org.eclipse.dataspaceconnector.contract.negotiation.store.model.ContractNegotiationDocument;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -29,7 +29,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -45,8 +44,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateDocument;
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateNegotiation;
 
-@IntegrationTest
-@Tag("azure-cosmos-db")
+@AzureCosmosDBIntegrationTest
 class CosmosContractNegotiationStoreIntegrationTest {
     public static final String CONNECTOR_ID = "test-connector";
     private static final String TEST_ID = UUID.randomUUID().toString();
