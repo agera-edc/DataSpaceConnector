@@ -19,6 +19,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
 
+/**
+ * Runs {@see FileTransferAsClientSimulation}.
+ */
 @IntegrationTest
 public class FileTransferAsClientIntegrationTest {
 

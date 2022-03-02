@@ -8,6 +8,10 @@ import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.C
 import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.CONSUMER_CONNECTOR_HOST;
 import static org.eclipse.dataspaceconnector.tests.FileTransferIntegrationTest.PROVIDER_CONNECTOR_HOST;
 
+/**
+ * Runs a single iteration of {@see FileTransferSimulation}, getting settings from
+ * {@see FileTransferIntegrationTest}.
+ */
 public class FileTransferLocalSimulation extends FileTransferSimulation {
 
     public FileTransferLocalSimulation() {

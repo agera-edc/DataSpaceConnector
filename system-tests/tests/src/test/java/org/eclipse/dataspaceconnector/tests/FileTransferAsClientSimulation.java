@@ -9,6 +9,9 @@ import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
 import static io.gatling.javaapi.core.CoreDsl.global;
 import static io.gatling.javaapi.http.HttpDsl.http;
 
+/**
+ * Runs a single iteration of {@see FileTransferSimulation}, getting settings from environment variables.
+ */
 public class FileTransferAsClientSimulation extends FileTransferSimulation {
 
     private Faker faker = new Faker();

@@ -3,14 +3,15 @@ package org.eclipse.dataspaceconnector.tests;
 import com.github.javafaker.Faker;
 import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
+import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
-import java.util.Objects;
 
-import static io.gatling.javaapi.core.CoreDsl.InputStreamBody;
+import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.bodyString;
 import static io.gatling.javaapi.core.CoreDsl.doWhileDuring;
 import static io.gatling.javaapi.core.CoreDsl.exec;
@@ -24,6 +25,9 @@ import static java.lang.String.format;
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.eclipse.dataspaceconnector.tests.GatlingUtils.endlesslyWith;
 
+/**
+ * Gatling simulation for performing contract negotiation and file transfer.
+ */
 public abstract class FileTransferSimulation extends Simulation {
 
     public static final String DESCRIPTION = "[Contract negotiation and file transfer]";
@@ -38,8 +42,20 @@ public abstract class FileTransferSimulation extends Simulation {
 
     protected final ScenarioBuilder scenarioBuilder;
 
+    /**
+     * @param providerUrl     URL for the Provider API, as accessed from the Consumer runtime.
+     * @param destinationPath File copy destination path. If it includes the character sequence {@code %s}, that sequence is replaced with a random string in each iteration.
+     * @param apiKey          Consumer runtime API Key.
+     * @param times           Number of repetitions.
+     */
     protected FileTransferSimulation(String providerUrl, String destinationPath, String apiKey, int times) {
         String connectorAddress = format("%s/api/ids/multipart", providerUrl);
+        String body;
+        try {
+            body = new String(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json").readAllBytes());
+        } catch (IOException e) {
+            throw new EdcException(e);
+        }
         scenarioBuilder = scenario(DESCRIPTION)
                 .repeat(times)
                 .on(
@@ -47,7 +63,7 @@ public abstract class FileTransferSimulation extends Simulation {
                                 .on(exec(
                                         http("Contract negotiation")
                                                 .post("/api/negotiation")
-                                                .body(InputStreamBody(s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))))
+                                                .body(StringBody(body))
                                                 .header(CONTENT_TYPE, "application/json")
                                                 .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)
                                                 .check(status().is(SC_OK))
@@ -86,7 +102,7 @@ public abstract class FileTransferSimulation extends Simulation {
                                         http("Initiate transfer")
                                                 .post(format("/api/file/%s", PROVIDER_ASSET_NAME))
                                                 .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)
-                                                .queryParam(DESTINATION_PARAM, s -> format(destinationPath, s.getString("fileName"))) // TODO %s
+                                                .queryParam(DESTINATION_PARAM, s -> format(destinationPath, s.getString("fileName")))
                                                 .queryParam(CONTRACT_ID_PARAM, s -> s.getString("contractAgreementId"))
                                                 .check(status().is(SC_OK))
                                                 .check(bodyString()
