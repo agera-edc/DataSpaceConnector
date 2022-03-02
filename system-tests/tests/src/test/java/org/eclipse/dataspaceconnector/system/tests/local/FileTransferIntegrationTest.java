@@ -12,9 +12,10 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.tests;
+package org.eclipse.dataspaceconnector.system.tests.local;
 
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
+import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -28,8 +29,8 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
-import static org.eclipse.dataspaceconnector.tests.FileTransferSimulationUtils.PROVIDER_ASSET_NAME;
-import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
+import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 
 
 public class FileTransferIntegrationTest {

@@ -1,4 +1,4 @@
-package org.eclipse.dataspaceconnector.tests;
+package org.eclipse.dataspaceconnector.system.tests.utils;
 
 import io.gatling.app.Gatling;
 import io.gatling.core.config.GatlingPropertiesBuilder;

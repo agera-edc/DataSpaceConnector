@@ -12,12 +12,13 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.tests;
+package org.eclipse.dataspaceconnector.system.tests.remote;
 
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
+import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.junit.jupiter.api.Test;
 
-import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
+import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 
 /**
  * Runs {@see FileTransferAsClientSimulation}.

@@ -1,4 +1,4 @@
-package org.eclipse.dataspaceconnector.tests;
+package org.eclipse.dataspaceconnector.system.tests.utils;
 
 import com.github.javafaker.Faker;
 import io.gatling.javaapi.core.ChainBuilder;
@@ -7,8 +7,10 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.Cont
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.bodyString;
@@ -21,7 +23,7 @@ import static io.gatling.javaapi.http.HttpDsl.status;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static java.lang.String.format;
 import static org.apache.http.HttpStatus.SC_OK;
-import static org.eclipse.dataspaceconnector.tests.GatlingUtils.endlesslyWith;
+import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.endlesslyWith;
 
 /**
  * Utility methods for building a Gatling simulation for performing contract negotiation and file transfer.
@@ -32,8 +34,10 @@ public abstract class FileTransferSimulationUtils {
     }
 
     public static final String DESCRIPTION = "[Contract negotiation and file transfer]";
+    public static final String OFFER_FILE = "contractoffer.json";
 
     public static final String PROVIDER_ASSET_NAME = "test-document";
+
     private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
     private static final String DESTINATION_PARAM = "destination";
     private static final String CONTRACT_ID_PARAM = "contractId";
@@ -48,11 +52,12 @@ public abstract class FileTransferSimulationUtils {
      * @param destinationPath File copy destination path. If it includes the character sequence {@code %s}, that sequence is replaced with a random string in each iteration.
      * @param apiKey          Consumer runtime API Key.
      */
-    protected static ChainBuilder contractNegotiationAndFileTransfer(String providerUrl, String destinationPath, String apiKey) {
+    public static ChainBuilder contractNegotiationAndFileTransfer(String providerUrl, String destinationPath, String apiKey) {
         String connectorAddress = format("%s/api/ids/multipart", providerUrl);
         String body;
         try {
-            body = new String(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json").readAllBytes());
+            InputStream offerFileData = Thread.currentThread().getContextClassLoader().getResourceAsStream(OFFER_FILE);
+            body = new String(Objects.requireNonNull(offerFileData, OFFER_FILE + " not found").readAllBytes());
         } catch (IOException e) {
             throw new EdcException(e);
         }
