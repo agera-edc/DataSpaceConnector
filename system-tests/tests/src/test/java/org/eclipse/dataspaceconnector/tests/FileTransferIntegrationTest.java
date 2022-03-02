@@ -28,7 +28,7 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
-import static org.eclipse.dataspaceconnector.tests.FileTransferSimulation.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.tests.FileTransferSimulationUtils.PROVIDER_ASSET_NAME;
 import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
 
 
@@ -67,7 +67,7 @@ public class FileTransferIntegrationTest {
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         // Act
-        runGatling(FileTransferLocalSimulation.class, FileTransferLocalSimulation.DESCRIPTION);
+        runGatling(FileTransferLocalSimulation.class, FileTransferSimulationUtils.DESCRIPTION);
 
         // Assert
         var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
