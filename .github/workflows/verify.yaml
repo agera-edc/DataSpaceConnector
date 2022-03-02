@@ -39,7 +39,7 @@ jobs:
         if: always()
         with:
           name: Gatling reports
-          path: '**/build/gatling/**'
+          path: '**/build/reports/gatling/**'
 
   Sanity-Check:
     runs-on: ubuntu-latest

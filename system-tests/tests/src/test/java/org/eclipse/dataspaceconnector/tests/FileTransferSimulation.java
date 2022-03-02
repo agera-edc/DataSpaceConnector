@@ -40,7 +40,7 @@ public abstract class FileTransferSimulation extends Simulation {
 
     protected FileTransferSimulation(String providerUrl, String destinationPath, String apiKey, int times) {
         String connectorAddress = format("%s/api/ids/multipart", providerUrl);
-        scenarioBuilder = scenario("Contract negotiation and data transfer.")
+        scenarioBuilder = scenario(DESCRIPTION)
                 .repeat(times)
                 .on(
                         group("Contract negotiation")
