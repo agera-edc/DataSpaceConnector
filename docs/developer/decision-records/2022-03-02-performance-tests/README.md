@@ -10,9 +10,9 @@ We plan to expand the scale of Gatling tests in order to test load, concurrency 
 
 We will perform load testing of the application in order to:
 
--   Ensure application performance degrades gracefully as concurrency increases.
--   Measure response times for the main queries and operations on a regular basis to detect performance degradation.
--   Provide reusable harness for EDC integrators to validate that their application meets SLAs.
+- Ensure application performance degrades gracefully as concurrency increases.
+- Measure response times for the main queries and operations on a regular basis to detect performance degradation.
+- Provide reusable harness for EDC integrators to validate that their application meets SLAs.
 
 ## Rationale
 
@@ -44,11 +44,10 @@ Thanks to its sophisticated DSL and tree structure, it allows measuring. For exa
 
 Gatling could be run through a [Gradle plugin](https://gatling.io/docs/gatling/reference/current/extensions/gradle_plugin/). For our needs, it is sufficient to run it from a JUnit test.
 
-Gatling produces a detailed HTML report that can be archived as an artifact. 
+Gatling produces a detailed HTML report that can be archived as an artifact.
 
 ![Gatling report](gatling.png)
 
 The HTML report provides multiple sections and interactive charts, such as the one below.
 
 ![Gatling percentiles](gatling-percentiles.png)
-
