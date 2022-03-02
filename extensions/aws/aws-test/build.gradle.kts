@@ -24,7 +24,7 @@ val jupiterVersion: String by project
 dependencies {
     api(project(":spi"))
 
-    testFixturesImplementation(testFixtures(project(":common:util")))
+    testFixturesImplementation(project(":common:util"))
 
     testFixturesApi("software.amazon.awssdk:s3:${awsVersion}")
 

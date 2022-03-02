@@ -30,6 +30,7 @@ export CONSUMER_URL=$(minikube service --url consumer-dataspace-connector)
 export PROVIDER_URL="http://provider-dataspace-connector"
 export DESTINATION_PATH="/tmp/destination-file-$RANDOM"
 export API_KEY="password"
+export RUN_INTEGRATION_TEST="true"
 
 ./gradlew :samples:04.0-file-transfer:integration-tests:test --tests org.eclipse.dataspaceconnector.samples.FileTransferAsClientIntegrationTest
 

@@ -18,7 +18,6 @@ plugins {
     checkstyle
     jacoco
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
-    id("com.adarshr.test-logger") version "3.2.0"
 }
 
 repositories {
@@ -151,26 +150,13 @@ allprojects {
     }
 
     tasks.withType<Test> {
-
+        // Execute specific tests by specifying junit tags on command-line -DincludeTags="tag-name"
         val includeTagProperty = System.getProperty("includeTags");
-        val excludeTagProperty = System.getProperty("excludeTags");
-
         val includeTags: Array<String> = includeTagProperty?.split(",")?.toTypedArray() ?: emptyArray();
-        val excludeTags: Array<String> = excludeTagProperty?.split(",")?.toTypedArray() ?: emptyArray();
 
-        if (includeTags.isNotEmpty() && excludeTags.isNotEmpty()) {
+        if (includeTags.isNotEmpty()) {
             useJUnitPlatform {
                 includeTags(*includeTags)
-                excludeTags(*excludeTags)
-            }
-        } else if (includeTags.isNotEmpty()) {
-            useJUnitPlatform {
-                includeTags(*includeTags)
-            }
-
-        } else if (excludeTags.isNotEmpty()) {
-            useJUnitPlatform {
-                excludeTags(*excludeTags)
             }
         } else {
             useJUnitPlatform()
