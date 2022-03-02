@@ -43,7 +43,7 @@ public abstract class FileTransferSimulationUtils {
     private static final String CONTRACT_ID_PARAM = "contractId";
     private static final String API_KEY_HEADER = "X-Api-Key";
 
-    private static final Faker faker = new Faker();
+    private static final Faker FAKER = new Faker();
 
     /**
      * Gatling chain for performing contract negotiation and file transfer.
@@ -101,7 +101,7 @@ public abstract class FileTransferSimulationUtils {
                                 )
 
                 )
-                .feed(endlesslyWith(() -> Map.of("fileName", faker.lorem().characters(20, 40))))
+                .feed(endlesslyWith(() -> Map.of("fileName", FAKER.lorem().characters(20, 40))))
                 .group("Initiate transfer")
                 .on(exec(
                         // Initiate a file transfer
