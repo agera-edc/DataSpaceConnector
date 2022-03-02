@@ -24,6 +24,6 @@ public class FileTransferAsClientIntegrationTest {
 
     @Test
     public void performFileTransfer() {
-        runGatling(FileTransferAsClientSimulation.class);
+        runGatling(FileTransferAsClientSimulation.class, FileTransferAsClientSimulation.DESCRIPTION);
     }
 }

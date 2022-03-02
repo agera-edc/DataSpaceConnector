@@ -70,7 +70,7 @@ public class FileTransferIntegrationTest {
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         // Act
-        runGatling(FileTransferLocalSimulation.class);
+        runGatling(FileTransferLocalSimulation.class, FileTransferLocalSimulation.DESCRIPTION);
 
         // Assert
         var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));

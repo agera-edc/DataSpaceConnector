@@ -11,10 +11,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class GatlingUtils {
 
-    public static void runGatling(Class<? extends Simulation> simulation) {
+    public static void runGatling(Class<? extends Simulation> simulation, String description) {
         var props = new GatlingPropertiesBuilder();
         props.simulationClass(simulation.getCanonicalName());
         props.resultsDirectory("build/gatling");
+        props.runDescription(description);
 
         var statusCode = Gatling.fromMap(props.build());
 

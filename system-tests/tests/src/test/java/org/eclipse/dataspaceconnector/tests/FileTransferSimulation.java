@@ -15,10 +15,12 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.tests.GatlingUtils.endlesslyWith;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.eclipse.dataspaceconnector.tests.GatlingUtils.endlesslyWith;
 
 public abstract class FileTransferSimulation extends Simulation {
+
+    public static final String DESCRIPTION = "Contract negotiation and file transfer";
 
     public static final String PROVIDER_ASSET_NAME = "test-document";
     private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
@@ -34,21 +36,23 @@ public abstract class FileTransferSimulation extends Simulation {
         String connectorAddress = format("%s/api/ids/multipart", providerUrl);
         scenarioBuilder = scenario("Contract negotiation and data transfer.")
                 .repeat(times)
-                .on(exec(
-                                http("Contract negotiation")
-                                        .post("/api/negotiation")
-                                        .body(InputStreamBody(s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))))
-                                        .header(CONTENT_TYPE, "application/json")
-                                        .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)
-                                        .check(status().is(SC_OK))
-                                        .check(bodyString()
-                                                .notNull()
-                                                .saveAs("contractNegotiationRequestId"))
-                        )
+                .on(
+                        group("Contract negotiation")
+                                .on(exec(
+                                        http("Contract negotiation")
+                                                .post("/api/negotiation")
+                                                .body(InputStreamBody(s -> Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("contractoffer.json"))))
+                                                .header(CONTENT_TYPE, "application/json")
+                                                .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)
+                                                .check(status().is(SC_OK))
+                                                .check(bodyString()
+                                                        .notNull()
+                                                        .saveAs("contractNegotiationRequestId"))
+                                ))
                                 // Call status endpoint every second, till it gives a 200 status code.
                                 // Verify ContractNegotiation is CONFIRMED
                                 .exec(session -> session.set("status", -1))
-                                .group("waitForCompletion").on(
+                                .group("Wait for agreement").on(
                                         doWhileDuring(session -> session.getString("contractAgreementId") == null,
                                                 Duration.ofSeconds(30))
                                                 .on(exec(http("Get status")
@@ -71,7 +75,8 @@ public abstract class FileTransferSimulation extends Simulation {
 
                                 )
                                 .feed(endlesslyWith(() -> Map.of("fileName", faker.lorem().characters(20, 40))))
-                                .exec(
+                                .group("Initiate transfer")
+                                .on(exec(
                                         http("Initiate transfer")
                                                 .post(format("/api/file/%s", PROVIDER_ASSET_NAME))
                                                 .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)
@@ -81,10 +86,10 @@ public abstract class FileTransferSimulation extends Simulation {
                                                 .check(bodyString()
                                                         .notNull()
                                                         .saveAs("transferProcessId"))
-                                )
+                                ))
                                 .exec(session -> session.set("status", -1))
                                 // Verify file transfer is completed and file contents
-                                .group("waitForTransferCompletion").on(
+                                .group("Wait for transfer").on(
                                         doWhileDuring(session -> session.getInt("status") != TransferProcessStates.COMPLETED.code(),
                                                 Duration.ofSeconds(30))
                                                 .on(exec(http("Get transfer status")
