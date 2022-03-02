@@ -1,6 +1,7 @@
 package org.eclipse.dataspaceconnector.tests;
 
 import com.github.javafaker.Faker;
+import io.gatling.javaapi.core.ScenarioBuilder;
 import io.gatling.javaapi.core.Simulation;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
@@ -24,13 +25,14 @@ public abstract class FileTransferSimulation extends Simulation {
     private static final String DESTINATION_PARAM = "destination";
     private static final String CONTRACT_ID_PARAM = "contractId";
     private static final String API_KEY_HEADER = "X-Api-Key";
+    protected final ScenarioBuilder scenarioBuilder;
 
 
     private Faker faker = new Faker();
 
-    protected FileTransferSimulation(String consumerUrl, String providerUrl, String destinationPath, String apiKey, int users, int times) {
+    protected FileTransferSimulation(String providerUrl, String destinationPath, String apiKey, int times) {
         String connectorAddress = format("%s/api/ids/multipart", providerUrl);
-        var scenarioBuilder = scenario("Contract negotiation and data transfer.")
+        scenarioBuilder = scenario("Contract negotiation and data transfer.")
                 .repeat(times)
                 .on(exec(
                                 http("Contract negotiation")
@@ -99,14 +101,6 @@ public abstract class FileTransferSimulation extends Simulation {
                                 )
                 );
 
-        setUp(scenarioBuilder
-                .injectOpen(atOnceUsers(users)))
-                .protocols(http
-                        .baseUrl(consumerUrl))
-                .assertions(
-                        global().responseTime().max().lt(50),
-                        global().successfulRequests().percent().is(100.0)
-                );
     }
 
 }

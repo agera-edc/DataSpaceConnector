@@ -7,13 +7,20 @@ import io.gatling.javaapi.core.Simulation;
 import java.util.Iterator;
 import java.util.function.Supplier;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class GatlingUtils {
 
     public static void runGatling(Class<? extends Simulation> simulation) {
         var props = new GatlingPropertiesBuilder();
         props.simulationClass(simulation.getCanonicalName());
         props.resultsDirectory("build/gatling");
-        Gatling.fromMap(props.build());
+
+        var statusCode = Gatling.fromMap(props.build());
+
+        assertThat(statusCode)
+                .withFailMessage("Gatling Simulation failed")
+                .isEqualTo(0);
     }
 
     public static <T> Iterator<T> endlesslyWith(Supplier<T> supplier) {
