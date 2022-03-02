@@ -17,28 +17,16 @@ package org.eclipse.dataspaceconnector.tests;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Objects;
+import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
 
 /**
- * Client application for performing a file transfer
+ * Runs {@see FileTransferAsClientSimulation}.
  */
 @IntegrationTest
 public class FileTransferAsClientIntegrationTest {
 
     @Test
     public void performFileTransfer() {
-
-        var client = new FileTransferTestUtils();
-        client.setConsumerUrl(get("CONSUMER_URL"));
-        client.setProviderUrl(get("PROVIDER_URL"));
-        client.setDestinationPath(get("DESTINATION_PATH"));
-        client.setApiKey(get("API_KEY"));
-
-        var contractAgreementId = client.negotiateContractAgreement();
-        client.performFileTransfer(contractAgreementId);
-    }
-
-    private static String get(String value) {
-        return Objects.requireNonNull(System.getenv(value), "Environment variable " + value + " not set");
+        runGatling(FileTransferAsClientSimulation.class, FileTransferSimulationUtils.DESCRIPTION);
     }
 }
