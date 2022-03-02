@@ -10,7 +10,13 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 
-import static io.gatling.javaapi.core.CoreDsl.*;
+import static io.gatling.javaapi.core.CoreDsl.InputStreamBody;
+import static io.gatling.javaapi.core.CoreDsl.bodyString;
+import static io.gatling.javaapi.core.CoreDsl.doWhileDuring;
+import static io.gatling.javaapi.core.CoreDsl.exec;
+import static io.gatling.javaapi.core.CoreDsl.group;
+import static io.gatling.javaapi.core.CoreDsl.jmesPath;
+import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
@@ -20,17 +26,17 @@ import static org.eclipse.dataspaceconnector.tests.GatlingUtils.endlesslyWith;
 
 public abstract class FileTransferSimulation extends Simulation {
 
-    public static final String DESCRIPTION = "Contract negotiation and file transfer";
+    public static final String DESCRIPTION = "[Contract negotiation and file transfer]";
 
     public static final String PROVIDER_ASSET_NAME = "test-document";
     private static final String CONNECTOR_ADDRESS_PARAM = "connectorAddress";
     private static final String DESTINATION_PARAM = "destination";
     private static final String CONTRACT_ID_PARAM = "contractId";
     private static final String API_KEY_HEADER = "X-Api-Key";
+
+    private static final Faker faker = new Faker();
+
     protected final ScenarioBuilder scenarioBuilder;
-
-
-    private Faker faker = new Faker();
 
     protected FileTransferSimulation(String providerUrl, String destinationPath, String apiKey, int times) {
         String connectorAddress = format("%s/api/ids/multipart", providerUrl);

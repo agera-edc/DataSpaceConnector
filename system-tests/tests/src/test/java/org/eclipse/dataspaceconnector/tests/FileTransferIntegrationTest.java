@@ -25,11 +25,11 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
-import static org.eclipse.dataspaceconnector.tests.FileTransferSimulation.PROVIDER_ASSET_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
+import static org.eclipse.dataspaceconnector.tests.FileTransferSimulation.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.tests.GatlingUtils.runGatling;
 
 
 public class FileTransferIntegrationTest {
@@ -38,12 +38,6 @@ public class FileTransferIntegrationTest {
     public static final String CONSUMER_ASSET_PATH = tempDirectory();
     public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
     public static final String CONSUMER_CONNECTOR_HOST = "http://localhost:" + CONSUMER_CONNECTOR_PORT;
-
-    public static final int PROVIDER_CONNECTOR_PORT = getFreePort();
-    public static final String PROVIDER_CONNECTOR_HOST = "http://localhost:" + PROVIDER_CONNECTOR_PORT;
-
-    public static final String API_KEY_CONTROL_AUTH = "password";
-
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":system-tests:runtimes:file-transfer-consumer",
@@ -52,7 +46,8 @@ public class FileTransferIntegrationTest {
                     "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
                     "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
                     "ids.webhook.address", CONSUMER_CONNECTOR_HOST));
-
+    public static final int PROVIDER_CONNECTOR_PORT = getFreePort();
+    public static final String PROVIDER_CONNECTOR_HOST = "http://localhost:" + PROVIDER_CONNECTOR_PORT;
     @RegisterExtension
     static EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":system-tests:runtimes:file-transfer-provider",
@@ -61,6 +56,7 @@ public class FileTransferIntegrationTest {
                     "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
                     "edc.test.asset.path", PROVIDER_ASSET_PATH,
                     "ids.webhook.address", PROVIDER_CONNECTOR_HOST));
+    public static final String API_KEY_CONTROL_AUTH = "password";
 
     @Test
     public void transferFile_success() throws Exception {
