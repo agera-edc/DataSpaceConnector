@@ -24,7 +24,7 @@ jobs:
           cache: 'gradle'
 
       - name: Azure Storage Test
-        run: ./gradlew check -DincludeTags="azure-storage-integration-test"
+        run: ./gradlew extensions:azure:check -DincludeTags="azure-storage-integration-test"
 
   Azure-CosmosDB-Integration-Test:
     runs-on: windows-2019
@@ -47,7 +47,7 @@ jobs:
           Start-CosmosDbEmulator -Timeout 1200
 
       - name: Azure CosmosDB Test
-        run: ./gradlew check -DincludeTags="azure-cosmos-db-integration-test"
+        run: ./gradlew extensions:azure:cosmos:check -DincludeTags="azure-cosmos-db-integration-test"
 
   Aws-Integration-Test:
     runs-on: ubuntu-latest
@@ -72,7 +72,7 @@ jobs:
         env:
           S3_ACCESS_KEY_ID: root
           S3_SECRET_ACCESS_KEY: password
-        run: ./gradlew check -DincludeTags="aws-s3-integration-test"
+        run: ./gradlew extensions:aws:s3:check -DincludeTags="aws-s3-integration-test"
 
   Daps-Integration-Test:
     runs-on: ubuntu-latest
@@ -93,4 +93,4 @@ jobs:
       - name: Daps Integration Test
         env:
           RUN_INTEGRATION_TEST: true
-        run: ./gradlew clean check -DincludeTags="daps-integration-test"
+        run: ./gradlew clean extensions:iam:daps:check -DincludeTags="daps-integration-test"
