@@ -17,7 +17,6 @@ import static org.eclipse.dataspaceconnector.tests.FileTransferSimulationUtils.c
  * Runs a single iteration of contract negotiation and file transfer, getting settings from environment variables.
  */
 public class FileTransferAsClientSimulation extends Simulation {
-    
 
     private Faker faker = new Faker();
 
