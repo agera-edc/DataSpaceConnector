@@ -14,18 +14,21 @@ As more contributors join the project and more vendor-specific implementations a
 |---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
 | Easier to do Application wide refactoring                                             | Easier to do small refactorings of modules/libraries                                                    |
 | More difficult to break functionality </br>(they are visible and can be solved early) | Easy to break the functionality, but breaking changes can be released (new version)                     | 
-| Central code management (easier to navigate the code)                                 | Not easy to locate the code/debug (need for searching in multiple repos)                                |                              |
+| Central code management (easier to navigate the code)                                 | Not easy to locate the code/debug (need for searching in multiple repos)                                |
 | Easier to share and maintain one Development culture (style guides etc.)              | Working autonomously on the library code (different development cultures)                               | 
 | Slow CI builds                                                                        | Faster CI builds                                                                                        | 
 | Introducing breaking changes slows the development cycle                              | Breaking changes are released as a new version, do not slow down development cycles of other libraries  |
 | Heavyweight codebase                                                                  | Multiple lightweight codebases                                                                          |
 | Lower barriers of entry (everything in one place) to understand the project           | Contributing is easier (forking, no need to understand the whole repo)                                  |
+| Good white box testing because all projects are testable together                     | Good black box testing because each project is testable separately, and verifiable independently        |
 
 ## EDC multirepo strategy
 
 ### By vendor
 
-EDC defines a series of core APIs in the [spi](../../../../spi) module. Implementations for these APIs are provided by using extensions. An example of this is `TransferProcessStore` in the `transfer-spi` core module with available implementations `InMemoryTransferProcessStore` in the `transfer-store-memory` extension, and a `CosmosTransferProcessStore` in the `transfer-process-store-cosmos` extension. This option involves splitting a repo for each vendor providing an implementation for core SPI interfaces: 
+EDC defines a series of core APIs in the [spi](../../../../spi) module. Implementations for these APIs are provided by using extensions. 
+An example of this is `TransferProcessStore` in the `transfer-spi` core module with available implementations `InMemoryTransferProcessStore` in the `transfer-store-memory` extension, and a `CosmosTransferProcessStore` in the `transfer-process-store-cosmos` extension. 
+This option involves splitting a repo for each vendor providing an implementation for core SPI interfaces: 
 
 ```
 <EDC> (in EDC repo)
@@ -67,3 +70,27 @@ Important considerations:
 
 -> lifecycle of a change with multirepo
 -> define possible next steps: improve in memory impls to match what Azure impls do and add tests
+
+
+### Dependency analysis
+
+This section shows if there are any blockers or tightly coupled dependencies that can have impact on the repo split process (for the current state of the 
+repository).
+
+It uses Intellij Dependency Matrix tool (Code -> Analyse Code -> Dependency Matrix).
+
+#### By domains (microservices)
+
+Currently only microservice in the repository is DPF. There aro no dependencies in the core modules that depend on data-plane or its extensions.
+
+Below dependency matrix shows azure -> data-plane-azure-storage uses data-plane. Both will be a part of new repo in this scenario.
+
+![Dependency matrix](dependency_matrix_1.png)
+
+#### By vendors
+
+Dependency that would need to be solved to extract Azure as a separate repo:
+
+Azure events-config is used in iam->decentralized-identity->registration-service.
+
+![Dependency matrix](dependency_matrix_2.png)
