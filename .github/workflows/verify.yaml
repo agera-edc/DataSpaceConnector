@@ -35,6 +35,11 @@ jobs:
       - name: CodeCov
         uses: codecov/codecov-action@v2
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Gatling reports
+          path: '**/build/gatling/**'
+
   Sanity-Check:
     runs-on: ubuntu-latest
     steps:
