@@ -26,7 +26,7 @@ eventually we might want to write an integration test that uses a CosmosDB test 
 ## Coding Guidelines
 
 An integration test should have an annotation e.g.`@IntegrationTest, @AzureCosmosDbIntegrationTest` which causes the test runner to ignore it unless the
-`RUN_INTEGRATION_TEST` environment variable is set to `true` and also categorize them using [Junit Tags](https://junit.org/junit5/docs/current/user-guide/#writing-tests-tagging-and-filtering). This categorization is important because it allows us to run only the integration tests we need to run e.g. `./gradlew check -DincludeTags="azure-cosmos-db-integration-test"`
+`RUN_INTEGRATION_TEST` environment variable is set to `true` and also categorize them using [Junit Tags](https://junit.org/junit5/docs/current/user-guide/#writing-tests-tagging-and-filtering). This categorization is important because it allows us discover and executed specific set of integration tests.
 
 All integration tests should have the `"...IntegrationTest"` postfix to distinguish them clearly from unit tests. They
 should reside in the same package as unit tests because all tests should maintain package consistency to their test
@@ -53,7 +53,11 @@ any residue before and after the test.
 ## Running them locally
 
 The JUnit runner won't pick up integration tests unless the `RUN_INTEGRATION_TEST` environment variable is set to `true`
-. Also, don't forget to define any credentials that are needed and if you need to run specific integration tests then it can be achieved by passing the `includeTags` parameter to the `gradlew` command e.g. `./gradlew check -DincludeTags="azure-cosmos-db-integration-test"`.
+. Also, don't forget to define any credentials that are needed and if you need to run specific integration tests then it can be achieved by passing the `includeTags` parameter to the `gradlew` command:
+
+```bash
+./gradlew check -DincludeTags="azure-cosmos-db-integration-test"
+```
 
 Cosmos DB integration tests are run by default against a locally running [Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator). You can also use an instance of Cosmos DB running in Azure, in which case you should set the `COSMOS_KEY` environment variable.
 
