@@ -83,7 +83,10 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
 
     @Override
     public Result<Boolean> validate(DataFlowRequest dataRequest) {
-        return pipelineService.validate(dataRequest);
+        var transferService = resolveTransferService(dataRequest);
+        return transferService != null ?
+                transferService.validate(dataRequest) :
+                Result.failure("Cannot handle this request");
     }
 
     public void initiateTransfer(DataFlowRequest dataRequest) {
