@@ -22,17 +22,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Transfers data from a source to a sink.
  */
-public interface PipelineService {
-
-    /**
-     * Determines if the request is valid.
-     */
-    Result<Boolean> validate(DataFlowRequest request);
-
-    /**
-     * Transfers data associated with the request.
-     */
-    CompletableFuture<TransferResult> transfer(DataFlowRequest request);
+public interface PipelineService extends TransferService {
 
     /**
      * Transfers data using the supplied data source.
@@ -43,8 +33,6 @@ public interface PipelineService {
      * Transfers data using the supplied data sink.
      */
     CompletableFuture<TransferResult> transfer(DataSink sink, DataFlowRequest request);
-
-    void registerTransferService(TransferService transferService);
 
     /**
      * Registers a factory for creating data sources.

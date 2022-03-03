@@ -18,6 +18,7 @@ import org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory.pipeline.
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSinkFactory;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSourceFactory;
+import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
@@ -36,6 +37,9 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
 
     @Inject
     private PipelineService pipelineService;
+
+    @Inject
+    private DataPlaneManager dataPlaneManager;
 
     @EdcSetting
     public static final String EDC_BLOBSTORE_ENDPOINT = "edc.blobstore.endpoint";
@@ -56,7 +60,7 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
         var blobAdapterFactory = new BlobAdapterFactory(blobstoreEndpoint);
 
         var transferService = new AzureDataFactoryTransferService(monitor);
-        pipelineService.registerTransferService(transferService);
+        dataPlaneManager.registerTransferService(transferService);
 
         var sourceFactory = new AzureStorageDataSourceFactory(blobAdapterFactory, retryPolicy, monitor);
         pipelineService.registerFactory(sourceFactory);
