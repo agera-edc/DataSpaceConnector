@@ -150,12 +150,12 @@ allprojects {
     }
 
     tasks.withType<Test> {
-        // Execute all type of test e.g. -DRunUnitAndIntegrationTest="true"
-        val runUnitAndIntegrationTest: String = System.getProperty("RunUnitAndIntegrationTest", "false");
-        if (runUnitAndIntegrationTest == "true") {
+        // Target all type of test e.g. -DRunAllTest="true"
+        val runAllTest: String = System.getProperty("RunAllTest", "false");
+        if (runAllTest == "true") {
             useJUnitPlatform()
         } else {
-            // Execute specific set of tests by specifying junit tags on command-line e.g. -DIncludeTags="tag-name1,tag-name2"
+            // Target specific set of tests by specifying junit tags on command-line e.g. -DIncludeTags="tag-name1,tag-name2"
             val includeTagProperty = System.getProperty("IncludeTags");
             val includeTags: Array<String> = includeTagProperty?.split(",")?.toTypedArray() ?: emptyArray();
 
