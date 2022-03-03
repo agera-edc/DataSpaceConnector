@@ -68,10 +68,24 @@ To simulate the development cycle with a split repo, we have copied the EDC repo
 
 Splitting the repo required removing the vendor extension from the core repo into a separate one, and changing the gradle build to refer to released artefact versions within a [GitHub Packages](https://github.com/orgs/agera-edc/packages?repo_name=DataSpaceConnector-Core) repository. Artefacts were previously published into this repository using the [publish](https://github.com/agera-edc/DataSpaceConnector-Core/actions/workflows/publish.yaml) workflow.
 
-TBD: mention how test fixtures are declared as dependencies?
+The documentation about [publishing test fixtures](https://docs.gradle.org/current/userguide/java_testing.html#publishing_test_fixtures) says that
+fixtures published using `java-test-fixtures` plugin are published alongside the regular artifacts.
+
+Therefore, libraries, that in monorepo were declared as below:
+
+```kotlin
+    testImplementation(testFixtures(project(":common:util")))
+```
+in EDC Azure Extensions need to be declared using `:test-fixtures` postfix.
+
+```kotlin
+    testImplementation("org.eclipse.dataspaceconnector:common-util:${edcCoreVersion}:test-fixtures")
+```
+
 
 ### Scenario 1: code change spanning across core and vendor repositories
 
+#### Local development
 TBD
 
 ### Scenario 2: code change within a vendor repository (bugfix)
