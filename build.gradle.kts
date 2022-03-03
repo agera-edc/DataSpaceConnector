@@ -150,17 +150,23 @@ allprojects {
     }
 
     tasks.withType<Test> {
-        // Execute specific tests by specifying junit tags on command-line e.g. -DincludeTags="tag-name1,tag-name2"
-        val includeTagProperty = System.getProperty("includeTags");
-        val includeTags: Array<String> = includeTagProperty?.split(",")?.toTypedArray() ?: emptyArray();
-
-        if (includeTags.isNotEmpty()) {
-            useJUnitPlatform {
-                includeTags(*includeTags)
-            }
+        // Execute all type of test e.g. -DRunUnitAndIntegrationTest="true"
+        val runUnitAndIntegrationTest: String = System.getProperty("RunUnitAndIntegrationTest", "false");
+        if (runUnitAndIntegrationTest == "true") {
+            useJUnitPlatform()
         } else {
-            useJUnitPlatform {
-                excludeTags("integration-test")
+            // Execute specific set of tests by specifying junit tags on command-line e.g. -DIncludeTags="tag-name1,tag-name2"
+            val includeTagProperty = System.getProperty("IncludeTags");
+            val includeTags: Array<String> = includeTagProperty?.split(",")?.toTypedArray() ?: emptyArray();
+
+            if (includeTags.isNotEmpty()) {
+                useJUnitPlatform {
+                    includeTags(*includeTags)
+                }
+            } else {
+                useJUnitPlatform {
+                    excludeTags("integration-test")
+                }
             }
         }
     }
