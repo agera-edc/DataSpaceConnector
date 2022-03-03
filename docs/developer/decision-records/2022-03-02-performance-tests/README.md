@@ -20,7 +20,7 @@ Load/concurrency tests should be developed and regularly exercised (even when no
 
 We preferred to use a tool allowing writing tests in Java, to reduce learning curves and allows reusing any Java code that might be written in the future to help use the client API (e.g. for authentication).
 
-We wanted to avoid having to write tests in one framework for functional testing and in another framework for performance testing. Valid performance tests should include detailed assertions, hence cover the scope of functional tests.
+We want to avoid having to write tests in one framework for functional testing and in another framework for performance testing. Valid performance tests should include detailed assertions, hence cover the scope of functional tests.
 
 [JMeter](https://jmeter.apache.org/) was considered as an alternative given its popularity and flexibility. The learning curve for JMeter is quite steep, and XML-based test definition is hard to read, especially in PRs. [Gatling](https://github.com/gatling/gatling) is an open-source tool that has been gaining popularity and is now mature.
 
