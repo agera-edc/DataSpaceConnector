@@ -116,9 +116,8 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                 }
                 final var polledRequest = request;
 
-                // var transferServices = resolve transfer_services_which_can_handle(request);
-                var possibleServices = transferServices.stream().filter(s -> s.canHandle(polledRequest));
-                var transferService = transferServiceSelectionStrategy.chooseTransferService(possibleServices);
+                // TODO move out of queue
+                TransferService transferService = resolveTransferService(polledRequest);
                 if (transferService == null) {
                     // TODO persist error details
                     store.completed(polledRequest.getProcessId());
@@ -144,6 +143,11 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                 }
             }
         }
+    }
+
+    private TransferService resolveTransferService(DataFlowRequest polledRequest) {
+        var possibleServices = transferServices.stream().filter(s -> s.canHandle(polledRequest));
+        return transferServiceSelectionStrategy.chooseTransferService(possibleServices);
     }
 
     public void registerTransferService(TransferService transferService) {

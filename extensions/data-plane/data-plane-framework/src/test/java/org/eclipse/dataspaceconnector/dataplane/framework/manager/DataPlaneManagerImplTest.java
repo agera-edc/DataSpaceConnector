@@ -14,7 +14,7 @@
 package org.eclipse.dataspaceconnector.dataplane.framework.manager;
 
 import org.eclipse.dataspaceconnector.dataplane.framework.store.InMemoryDataPlaneStore;
-import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
+import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.TransferService;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DataPlaneManagerImplTest {
-    private PipelineService pipelineService;
+    private TransferService transferService;
     private DataPlaneManagerImpl dataPlaneManager;
 
     /**
@@ -44,7 +44,7 @@ class DataPlaneManagerImplTest {
 
         var latch = new CountDownLatch(1);
 
-        when(pipelineService.transfer(isA(DataFlowRequest.class))).thenAnswer(i -> {
+        when(transferService.transfer(isA(DataFlowRequest.class))).thenAnswer(i -> {
             latch.countDown();
             return completedFuture(Result.success("ok"));
         });
@@ -59,7 +59,7 @@ class DataPlaneManagerImplTest {
 
         dataPlaneManager.stop();
 
-        verify(pipelineService, times(1)).transfer(isA(DataFlowRequest.class));
+        verify(transferService, times(1)).transfer(isA(DataFlowRequest.class));
     }
 
     /**
@@ -69,7 +69,7 @@ class DataPlaneManagerImplTest {
     void verifyWorkDispatchError() throws InterruptedException {
         var latch = new CountDownLatch(1);
 
-        when(pipelineService.transfer(isA(DataFlowRequest.class)))
+        when(transferService.transfer(isA(DataFlowRequest.class)))
                 .thenAnswer(i -> {
                     throw new RuntimeException("Test exception");
                 }).thenAnswer((i -> {
@@ -88,21 +88,21 @@ class DataPlaneManagerImplTest {
 
         dataPlaneManager.stop();
 
-        verify(pipelineService, times(2)).transfer(isA(DataFlowRequest.class));
+        verify(transferService, times(2)).transfer(isA(DataFlowRequest.class));
     }
 
     @BeforeEach
     void setUp() {
-        pipelineService = mock(PipelineService.class);
+        transferService = mock(TransferService.class);
         var monitor = mock(Monitor.class);
 
         dataPlaneManager = DataPlaneManagerImpl.Builder.newInstance()
                 .queueCapacity(100)
                 .workers(1)
                 .waitTimeout(10)
-                .pipelineService(pipelineService)
                 .store(new InMemoryDataPlaneStore(10))
                 .monitor(monitor).build();
+        dataPlaneManager.registerTransferService(transferService);
     }
 
     private DataFlowRequest createRequest() {
