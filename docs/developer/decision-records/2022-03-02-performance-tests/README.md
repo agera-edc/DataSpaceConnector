@@ -40,7 +40,7 @@ private ScenarioBuilder scn = scenario("Contract negotiation and data transfer."
     }
 ```
 
-Thanks to its sophisticated DSL and tree structure, it allows measuring. For example, it allows repeatedly polling for contract negotiation completion, while capturing both the metrics of single poll requests and of overall loop completion.
+Thanks to its sophisticated DSL and tree structure, it allows measuring. For example, it allows repeatedly polling for contract negotiation completion while capturing both the metrics of single poll requests and of overall loop completion.
 
 Gatling could be run through a [Gradle plugin](https://gatling.io/docs/gatling/reference/current/extensions/gradle_plugin/). For our needs, it is sufficient to run it from a JUnit test.
 
