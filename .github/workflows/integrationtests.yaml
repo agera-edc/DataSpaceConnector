@@ -29,6 +29,9 @@ jobs:
       - name: Data Plane Azure Storage Test
         run: ./gradlew extensions:azure:data-plane-azure-storage:check
 
+      - name: Data Plane Azure Data Factory Test
+        run: ./gradlew extensions:azure:data-plane-azure-data-factory:check
+
       - name: Object Storage StatusChecker Test
         run: ./gradlew extensions:azure:blobstorage:blob-provision:check
 
