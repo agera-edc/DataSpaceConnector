@@ -16,7 +16,7 @@ We will perform load testing of the application in order to:
 
 ## Rationale
 
-Load/concurrency tests should be developed and regularly exercised, even when no significant load is expected on an application, as they can help identify logical or configuration errors, that could otherwise manifest themselves in hard to reproduce ways. Conversely, if performance does not significantly degrade even under high load, it can indicate that the provisioned resources might be scaled down in order to save costs.
+Load/concurrency tests should be developed and regularly exercised (even when no significant load is expected on an application) as they can help identify logical or configuration errors that could otherwise manifest themselves in hard to reproduce ways. Conversely, if performance does not significantly degrade even under high load, it can indicate that the provisioned resources might be scaled down in order to save costs.
 
 We preferred to use a tool allowing writing tests in Java, to reduce learning curves and allows reusing any Java code that might be written in the future to help use the client API (e.g. for authentication).
 
