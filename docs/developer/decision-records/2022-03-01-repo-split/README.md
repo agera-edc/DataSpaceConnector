@@ -86,7 +86,13 @@ in EDC Azure Extensions need to be declared using `:test-fixtures` postfix.
 ### Scenario 1: code change spanning across core and vendor repositories
 
 #### Local development
-TBD
+
+Publishing snapshot versions to local maven repositories can be useful for local development of changes spanning across core and vendor repositories.
+
+1. Change is made in EDC Core repository.
+2. Developer publishes a snapshot locally using e.g. `./gradlew publishToMavenLocal` command.
+3. New version should be visible locally in the EDC Azure Extensions repository after refreshing gradle dependencies.
+   - Note that repo that picks up libraries from local maven should have added `mavenLocal()` to the list of repositories in gradle configuration.
 
 ### Scenario 2: code change within a vendor repository (bugfix)
 
