@@ -51,6 +51,7 @@ public class FileTransferIntegrationTest {
                     "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
                     "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
                     "ids.webhook.address", CONSUMER_CONNECTOR_HOST));
+
     @RegisterExtension
     static EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":system-tests:runtimes:file-transfer-provider",
