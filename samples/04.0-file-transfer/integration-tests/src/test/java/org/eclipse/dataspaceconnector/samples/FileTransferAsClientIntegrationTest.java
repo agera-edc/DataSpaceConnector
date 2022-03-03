@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.samples;
 
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
+import org.eclipse.dataspaceconnector.samples.annotations.FileTransferIntegrationTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * Client application for performing a file transfer
  */
-@IntegrationTest
+@FileTransferIntegrationTest
 public class FileTransferAsClientIntegrationTest {
 
     @Test

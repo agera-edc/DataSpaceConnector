@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.iam.daps.annotations;
+package org.eclipse.dataspaceconnector.samples.annotations;
 
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Tag;
@@ -23,11 +23,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for Daps integration testing. It applies specific Junit Tag.
+ * Annotation for File Transfer integration test.It applies specific Junit Tag.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @IntegrationTest
-@Tag("daps-integration-test")
-public @interface DapsIntegrationTest {
+@Tag("file-transfer-integration-test")
+public @interface FileTransferIntegrationTest {
 }

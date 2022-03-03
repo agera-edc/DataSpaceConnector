@@ -14,8 +14,8 @@
 
 package org.eclipse.dataspaceconnector.azure.testfixtures.annotations;
 
+import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
+@IntegrationTest
 @Tag("azure-storage-integration-test")
-@EnabledIfEnvironmentVariable(named = "RUN_INTEGRATION_TEST", matches = "true")
 public @interface AzureStorageIntegrationTest {
 }

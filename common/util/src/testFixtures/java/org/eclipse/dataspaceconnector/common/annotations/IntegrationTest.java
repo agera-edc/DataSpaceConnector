@@ -14,8 +14,8 @@
 
 package org.eclipse.dataspaceconnector.common.annotations;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -25,6 +25,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Test
-@EnabledIfEnvironmentVariable(named = "RUN_INTEGRATION_TEST", matches = "true")
+@Tag("integration-test")
 public @interface IntegrationTest {
 }
