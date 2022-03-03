@@ -60,9 +60,30 @@ Important considerations:
 
 The "by vendor" and "by domain" approaches can be combined as well. Thus, for each microservice a set of repositories can be provided for vendors implementing extensible parts of it.
 
+## Repo Split Spike
+
+To simulate the development cycle with a split repo, we have copied the EDC repository into an own project and split it following a "by vendor" approach:
+- [EDC Core](https://github.com/agera-edc/DataSpaceConnector-Core)
+- [EDC Azure Extensions](https://github.com/agera-edc/DataSpaceConnector-AzureExtensions)
+
+Splitting the repo required removing the vendor extension from the core repo into a separate one, and changing the gradle build to refer to released artefact versions within a [GitHub Packages](https://github.com/orgs/agera-edc/packages?repo_name=DataSpaceConnector-Core) repository. Artefacts were previously published into this repository using the [publish](https://github.com/agera-edc/DataSpaceConnector-Core/actions/workflows/publish.yaml) workflow.
+
+TBD: mention how test fixtures are declared as dependencies?
+
+### Scenario 1: code change spanning across core and vendor repositories
+
+TBD
+
+### Scenario 2: code change within a vendor repository (bugfix)
+
+TBD
+
+### Scenario 3: SPI version upgrade
+
+TBD
+
 ## Next steps
 
--> lifecycle of a change with multirepo
 -> define possible next steps: improve in memory impls to match what Azure impls do and add tests
 
 ### Appendix
