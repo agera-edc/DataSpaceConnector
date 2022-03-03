@@ -13,7 +13,7 @@
  */
 
 plugins {
-    java
+    `java-library`
 }
 
 val jupiterVersion: String by project
@@ -26,11 +26,6 @@ val faker: String by project
 dependencies {
     testImplementation("io.gatling:gatling-http-java:${gatlingVersion}")
     testImplementation("io.gatling.highcharts:gatling-charts-highcharts:${gatlingVersion}")
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
-    testImplementation("io.rest-assured:rest-assured:${restAssured}")
-    testImplementation("org.assertj:assertj-core:${assertj}")
-    testImplementation("org.awaitility:awaitility:${awaitility}")
-    testImplementation("com.github.javafaker:javafaker:${faker}")
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))

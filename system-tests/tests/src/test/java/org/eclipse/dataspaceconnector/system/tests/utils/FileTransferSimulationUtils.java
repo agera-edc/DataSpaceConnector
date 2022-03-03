@@ -36,7 +36,6 @@ import static io.gatling.javaapi.http.HttpDsl.http;
 import static io.gatling.javaapi.http.HttpDsl.status;
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static java.lang.String.format;
-import static org.apache.http.HttpStatus.SC_OK;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.endlesslyWith;
 
 /**
@@ -83,7 +82,7 @@ public abstract class FileTransferSimulationUtils {
                                 .body(StringBody(body))
                                 .header(CONTENT_TYPE, "application/json")
                                 .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)
-                                .check(status().is(SC_OK))
+                                .check(status().is(200))
                                 .check(bodyString()
                                         .notNull()
                                         // UUID is returned to get the contract agreement negotiated between provider and consumer.
@@ -97,7 +96,7 @@ public abstract class FileTransferSimulationUtils {
                                 .on(exec(http("Get status")
                                                 .get(session -> format("/api/control/negotiation/%s", session.getString("contractNegotiationRequestId")))
                                                 .header(API_KEY_HEADER, apiKey)
-                                                .check(status().is(SC_OK))
+                                                .check(status().is(200))
                                                 .check(
                                                         jmesPath("id").is(session -> session.getString("contractNegotiationRequestId")),
                                                         jmesPath("state").saveAs("status")
@@ -122,7 +121,7 @@ public abstract class FileTransferSimulationUtils {
                                 .queryParam(CONNECTOR_ADDRESS_PARAM, connectorAddress)
                                 .queryParam(DESTINATION_PARAM, s -> format(destinationPath, s.getString("fileName")))
                                 .queryParam(CONTRACT_ID_PARAM, s -> s.getString("contractAgreementId"))
-                                .check(status().is(SC_OK))
+                                .check(status().is(200))
                                 .check(bodyString()
                                         .notNull()
                                         .saveAs("transferProcessId"))
@@ -134,7 +133,7 @@ public abstract class FileTransferSimulationUtils {
                                 Duration.ofSeconds(30))
                                 .on(exec(http("Get transfer status")
                                                 .get(session -> format("/api/transfer/%s", session.getString("transferProcessId")))
-                                                .check(status().is(SC_OK))
+                                                .check(status().is(200))
                                                 .check(
                                                         jmesPath("id").is(session -> session.getString("transferProcessId")),
                                                         jmesPath("state").saveAs("status")
