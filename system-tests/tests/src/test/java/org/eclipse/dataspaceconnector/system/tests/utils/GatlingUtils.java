@@ -18,9 +18,6 @@ import io.gatling.app.Gatling;
 import io.gatling.core.config.GatlingPropertiesBuilder;
 import io.gatling.javaapi.core.Simulation;
 
-import java.util.Iterator;
-import java.util.function.Supplier;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -46,34 +43,5 @@ public class GatlingUtils {
         assertThat(statusCode)
                 .withFailMessage("Gatling Simulation failed")
                 .isEqualTo(0);
-    }
-
-    /**
-     * Returns an iterator that runs forever, getting each value by calling a {@see Supplier}.
-     *
-     * @param supplier source of iterator values.
-     * @param <T>      iterator value type.
-     * @return an unbounded iterator.
-     */
-    public static <T> Iterator<T> endlesslyWith(Supplier<T> supplier) {
-        return new EndlessIterator<>(supplier);
-    }
-
-    private static class EndlessIterator<T> implements Iterator<T> {
-        private final Supplier<T> supplier;
-
-        private EndlessIterator(Supplier<T> supplier) {
-            this.supplier = supplier;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return true;
-        }
-
-        @Override
-        public T next() {
-            return supplier.get();
-        }
     }
 }
