@@ -16,12 +16,7 @@ plugins {
     `java-library`
 }
 
-val jupiterVersion: String by project
-val restAssured: String by project
-val assertj: String by project
-val awaitility: String by project
 val gatlingVersion: String by project
-val faker: String by project
 
 dependencies {
     testImplementation("io.gatling:gatling-http-java:${gatlingVersion}")
