@@ -87,7 +87,6 @@ public abstract class FileTransferSimulationUtils {
                                 .check(bodyString()
                                         .notNull()
                                         // UUID is returned to get the contract agreement negotiated between provider and consumer.
-
                                         .saveAs("contractNegotiationRequestId"))
                 ))
                 // Call ContractNegotiation status endpoint every second, till it gives a CONFIRMED state.
@@ -110,8 +109,7 @@ public abstract class FileTransferSimulationUtils {
                                                         // Obtain contract agreement ID
                                                         jmesPath("contractAgreement.id").notNull().saveAs("contractAgreementId")
                                                 )
-                                        )
-                                                .pace(Duration.ofSeconds(1))
+                                        ).pace(Duration.ofSeconds(1))
                                 )
 
                 )
@@ -141,8 +139,7 @@ public abstract class FileTransferSimulationUtils {
                                                         jmesPath("id").is(session -> session.getString("transferProcessId")),
                                                         jmesPath("state").saveAs("status")
                                                 )
-                                        )
-                                                .pace(Duration.ofSeconds(1))
+                                        ).pace(Duration.ofSeconds(1))
                                 )
                 );
     }
