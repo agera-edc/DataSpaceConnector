@@ -44,6 +44,9 @@ class DataPlaneManagerImplTest {
 
         var latch = new CountDownLatch(1);
 
+        when(transferService.canHandle(isA(DataFlowRequest.class)))
+                .thenReturn(true);
+
         when(transferService.transfer(isA(DataFlowRequest.class))).thenAnswer(i -> {
             latch.countDown();
             return completedFuture(Result.success("ok"));
@@ -68,6 +71,9 @@ class DataPlaneManagerImplTest {
     @Test
     void verifyWorkDispatchError() throws InterruptedException {
         var latch = new CountDownLatch(1);
+
+        when(transferService.canHandle(isA(DataFlowRequest.class)))
+                .thenReturn(true);
 
         when(transferService.transfer(isA(DataFlowRequest.class)))
                 .thenAnswer(i -> {
@@ -100,6 +106,7 @@ class DataPlaneManagerImplTest {
                 .queueCapacity(100)
                 .workers(1)
                 .waitTimeout(10)
+                .transferServiceSelectionStrategy(TransferServiceSelectionStrategy.selectFirst())
                 .store(new InMemoryDataPlaneStore(10))
                 .monitor(monitor).build();
         dataPlaneManager.registerTransferService(transferService);
