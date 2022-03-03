@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class PipelineServiceImplTest {
-    private PipelineService service;
+    private PipelineServiceImpl service;
 
     @Test
     void verifyTransfer() {

@@ -18,6 +18,7 @@ import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSinkFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSourceFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
+import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.TransferService;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -35,9 +36,15 @@ import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.FATAL_E
 /**
  * Default pipeline service implementation.
  */
-public class PipelineServiceImpl implements PipelineService {
+public class PipelineServiceImpl implements TransferService, PipelineService {
     private List<DataSourceFactory> sourceFactories = new ArrayList<>();
     private List<DataSinkFactory> sinkFactories = new ArrayList<>();
+
+    @Override
+    public boolean canHandle(DataFlowRequest request) {
+        return getSourceFactory(request) != null &&
+                getSinkFactory(request) != null;
+    }
 
     @Override
     public Result<Boolean> validate(DataFlowRequest request) {
