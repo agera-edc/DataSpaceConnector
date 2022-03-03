@@ -20,15 +20,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A service that can satisfy a {@link DataFlowRequest} by transferring data from a source to a destination.
+ */
 public interface TransferService {
 
     /**
-     * A successful validation result.
-     */
-    Result<Boolean> VALID = Result.success(true);
-
-    /**
-     * Returns true if this factory can transfer the request.
+     * Returns true if this service can transfer the request.
      */
     boolean canHandle(DataFlowRequest request);
 
@@ -37,5 +35,8 @@ public interface TransferService {
      */
     @NotNull Result<Boolean> validate(DataFlowRequest request);
 
+    /**
+     * Transfers data from source to destination.
+     */
     @NotNull CompletableFuture<TransferResult> transfer(DataFlowRequest request);
 }
