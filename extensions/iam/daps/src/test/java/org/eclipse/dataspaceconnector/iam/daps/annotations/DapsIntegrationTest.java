@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for Daps integration testing. It applies specific Junit Tag.
+ * Composite annotation for Daps integration testing. It applies specific Junit Tag.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)

@@ -31,7 +31,7 @@ export PROVIDER_URL="http://provider-dataspace-connector"
 export DESTINATION_PATH="/tmp/destination-file-$RANDOM"
 export API_KEY="password"
 
-./gradlew :samples:04.0-file-transfer:integration-tests:test -DincludeTags="file-transfer-integration-test" --tests org.eclipse.dataspaceconnector.samples.FileTransferAsClientIntegrationTest
+./gradlew :samples:04.0-file-transfer:integration-tests:test -DincludeTags="integration-test" --tests org.eclipse.dataspaceconnector.samples.FileTransferAsClientIntegrationTest
 
 kubectl exec deployment/provider-dataspace-connector -- wc -l $DESTINATION_PATH
 echo "Test succeeded."
