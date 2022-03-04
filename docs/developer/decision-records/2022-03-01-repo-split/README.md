@@ -96,13 +96,13 @@ Publishing snapshot versions to local maven repositories can be useful for local
 
 #### PRs and CI
 
-After finishing local development a PR should be created for EDC Core first. A snapshot version for EDC Core needs to be published to the Maven Snapshot repository, so that it can be declared as a dependency from the vendor repository change. This step can be automated by a CI workflow that automatically publishes branch-specific snapshot on every push e.g. `0.0.1-[branch-name]-SNAPSHOT`. See [sample PR](https://github.com/agera-edc/DataSpaceConnector-Core/pull/1) for more details.
+After finishing local development a PR should be created for EDC Core first. A snapshot version for EDC Core needs to be published to the Maven Snapshot repository, so that it can be declared as a dependency from the vendor repository change. This step can be automated by a CI workflow that automatically publishes branch-specific snapshots on every push e.g. `0.0.1-[branch-name]-SNAPSHOT`. See [sample PR](https://github.com/agera-edc/DataSpaceConnector-Core/pull/1) for more details.
 
 Once the EDC Core PR is ready, the PR on the vendor repository can be opened, using the aforementioned branch-specific snapshot. See [example PR](https://github.com/agera-edc/DataSpaceConnector-AzureExtensions/pull/1) on vendor repository.
 
 Once the change is accepted the merging sequence is the following:
 1. Merge EDC Core PR
-1. EDC Core snapshot is published for the target merge branch (possibly automatically)
+1. EDC Core snapshot is published for the target merge branch
 1. Vendor repository PR is adapted to use the new snapshot version
 1. Vendor repository PR is merged
 
