@@ -20,6 +20,7 @@ import org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.system.injection.InjectionPointScanner;
 import org.eclipse.dataspaceconnector.spi.system.injection.ObjectFactory;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
@@ -40,13 +41,18 @@ public class DependencyInjectionExtension extends BaseRuntime implements BeforeT
 
     @Override
     public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
-        context = createServiceExtensionContext();
+        context = super.createServiceExtensionContext();
         context.initialize();
         factory = new ReflectiveObjectFactory(
                 new InjectorImpl(),
                 new InjectionPointScanner(),
                 context
         );
+    }
+
+    @Override
+    protected ServiceExtensionContext createServiceExtensionContext() {
+        return context;
     }
 
     @Override
