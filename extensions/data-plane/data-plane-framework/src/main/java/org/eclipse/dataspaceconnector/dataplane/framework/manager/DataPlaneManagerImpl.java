@@ -150,7 +150,7 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
 
     private TransferService resolveTransferService(DataFlowRequest polledRequest) {
         var possibleServices = transferServices.stream().filter(s -> s.canHandle(polledRequest));
-        return transferServiceSelectionStrategy.chooseTransferService(possibleServices);
+        return transferServiceSelectionStrategy.chooseTransferService(polledRequest, possibleServices);
     }
 
     public void registerTransferService(TransferService transferService) {
