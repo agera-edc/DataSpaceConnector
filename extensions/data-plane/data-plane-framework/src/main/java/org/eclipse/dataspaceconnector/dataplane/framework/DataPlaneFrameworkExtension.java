@@ -56,6 +56,13 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
     @Inject(required = false)
     private TransferServiceSelectionStrategy transferServiceSelectionStrategy;
 
+    public DataPlaneFrameworkExtension(){
+    }
+
+    DataPlaneFrameworkExtension(TransferServiceSelectionStrategy transferServiceSelectionStrategy){
+        this.transferServiceSelectionStrategy=transferServiceSelectionStrategy;
+    }
+
     @Override
     public String name() {
         return "Data Plane Framework";

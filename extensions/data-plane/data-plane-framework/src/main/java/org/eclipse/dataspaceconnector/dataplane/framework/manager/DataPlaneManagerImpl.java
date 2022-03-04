@@ -119,9 +119,9 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                 }
                 final var polledRequest = request;
 
-                // TODO move out of queue
                 TransferService transferService = resolveTransferService(polledRequest);
                 if (transferService == null) {
+                    // Should not happen since resolving a transferService is part of payload validation
                     // TODO persist error details
                     store.completed(polledRequest.getProcessId());
                 }
@@ -155,11 +155,6 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
 
     public void registerTransferService(TransferService transferService) {
         transferServices.add(transferService);
-    }
-
-    @Nullable
-    private TransferService getTransferService(DataFlowRequest request) {
-        return transferServices.stream().filter(s -> s.canHandle(request)).findFirst().orElse(null);
     }
 
     public static class Builder {

@@ -15,34 +15,45 @@ package org.eclipse.dataspaceconnector.dataplane.framework.manager;
 
 import org.eclipse.dataspaceconnector.dataplane.framework.store.InMemoryDataPlaneStore;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.TransferService;
+import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class DataPlaneManagerImplTest {
-    private TransferService transferService;
-    private DataPlaneManagerImpl dataPlaneManager;
+    private TransferService transferService = mock(TransferService.class);
+    private TransferService transferService2 = mock(TransferService.class);
+
+    DataPlaneStore store = new InMemoryDataPlaneStore(10);
+    DataFlowRequest request = createRequest();
+    CountDownLatch latch = new CountDownLatch(1);
+    ArgumentCaptor<Stream> streamCaptor = ArgumentCaptor.forClass(Stream.class);
+    TransferServiceSelectionStrategy transferServiceSelectionStrategy = mock(TransferServiceSelectionStrategy.class);
+
+    {
+        when(transferServiceSelectionStrategy.chooseTransferService(any(), any()))
+                .thenReturn(transferService);
+    }
 
     /**
      * Verifies a request is enqueued, dequeued, and dispatched to the pipeline service.
      */
     @Test
     void verifyWorkDispatch() throws InterruptedException {
-
-        var latch = new CountDownLatch(1);
+        var dataPlaneManager = extracted();
 
         when(transferService.canHandle(isA(DataFlowRequest.class)))
                 .thenReturn(true);
@@ -52,17 +63,20 @@ class DataPlaneManagerImplTest {
             return completedFuture(Result.success("ok"));
         });
 
-        DataFlowRequest request = createRequest();
 
         dataPlaneManager.start();
 
         dataPlaneManager.initiateTransfer(request);
 
-        latch.await(10000, TimeUnit.MILLISECONDS);
+        assertThat(latch.await(10000, TimeUnit.MILLISECONDS)).isTrue();
 
         dataPlaneManager.stop();
 
-        verify(transferService, times(1)).transfer(isA(DataFlowRequest.class));
+        verify(transferServiceSelectionStrategy).chooseTransferService(eq(request), streamCaptor.capture());
+        assertThat(streamCaptor.getValue()).containsExactly(transferService);
+        verify(transferService2).canHandle(isA(DataFlowRequest.class));
+
+        verify(transferService).transfer(isA(DataFlowRequest.class));
     }
 
     /**
@@ -70,12 +84,12 @@ class DataPlaneManagerImplTest {
      */
     @Test
     void verifyWorkDispatchError() throws InterruptedException {
-        var latch = new CountDownLatch(1);
+        var dataPlaneManager = extracted();
 
-        when(transferService.canHandle(isA(DataFlowRequest.class)))
+        when(transferService.canHandle(request))
                 .thenReturn(true);
 
-        when(transferService.transfer(isA(DataFlowRequest.class)))
+        when(transferService.transfer(request))
                 .thenAnswer(i -> {
                     throw new RuntimeException("Test exception");
                 }).thenAnswer((i -> {
@@ -83,36 +97,58 @@ class DataPlaneManagerImplTest {
                     return completedFuture(Result.success("ok"));
                 }));
 
-        DataFlowRequest request = createRequest();
 
         dataPlaneManager.start();
 
         dataPlaneManager.initiateTransfer(request);
         dataPlaneManager.initiateTransfer(request);
 
-        latch.await(10000, TimeUnit.MILLISECONDS);
+        assertThat(latch.await(10000, TimeUnit.MILLISECONDS)).isTrue();
 
         dataPlaneManager.stop();
 
-        verify(transferService, times(2)).transfer(isA(DataFlowRequest.class));
+        verify(transferService, times(2)).transfer(request);
     }
 
-    @BeforeEach
-    void setUp() {
-        transferService = mock(TransferService.class);
-        var monitor = mock(Monitor.class);
+    @Test
+    void verifyWorkDispatch_onUnavailableTransferService_completesTransfer() throws InterruptedException {
+        store = mock(DataPlaneStore.class);
 
-        dataPlaneManager = DataPlaneManagerImpl.Builder.newInstance()
+        var dataPlaneManager = extracted();
+
+        when(transferService.canHandle(isA(DataFlowRequest.class)))
+                .thenReturn(false);
+
+        doAnswer(i -> {
+            latch.countDown();
+            return null;
+        }).when(store).completed(request.getProcessId());
+
+        dataPlaneManager.start();
+
+        dataPlaneManager.initiateTransfer(request);
+
+        assertThat(latch.await(10000, TimeUnit.MILLISECONDS)).isTrue();
+
+        dataPlaneManager.stop();
+    }
+
+
+    private DataPlaneManagerImpl extracted() {
+        var monitor = mock(Monitor.class);
+        var dataPlaneManager = DataPlaneManagerImpl.Builder.newInstance()
                 .queueCapacity(100)
                 .workers(1)
                 .waitTimeout(10)
-                .transferServiceSelectionStrategy(TransferServiceSelectionStrategy.selectFirst())
-                .store(new InMemoryDataPlaneStore(10))
+                .transferServiceSelectionStrategy(transferServiceSelectionStrategy)
+                .store(store)
                 .monitor(monitor).build();
         dataPlaneManager.registerTransferService(transferService);
+        dataPlaneManager.registerTransferService(transferService2);
+        return dataPlaneManager;
     }
 
-    private DataFlowRequest createRequest() {
+    DataFlowRequest createRequest() {
         return DataFlowRequest.Builder.newInstance()
                 .id("1")
                 .processId("1")
