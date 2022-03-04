@@ -14,32 +14,29 @@
 package org.eclipse.dataspaceconnector.dataplane.spi.pipeline;
 
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Transfers data from a source to a sink.
+ * A service that can satisfy a {@link DataFlowRequest} by transferring data from a source to a destination.
  */
-public interface PipelineService {
+public interface TransferService {
 
     /**
-     * Transfers data using the supplied data source.
+     * Returns true if this service can transfer the request.
      */
-    CompletableFuture<TransferResult> transfer(DataSource source, DataFlowRequest request);
+    boolean canHandle(DataFlowRequest request);
 
     /**
-     * Transfers data using the supplied data sink.
+     * Returns true if the request is valid.
      */
-    CompletableFuture<TransferResult> transfer(DataSink sink, DataFlowRequest request);
+    @NotNull Result<Boolean> validate(DataFlowRequest request);
 
     /**
-     * Registers a factory for creating data sources.
+     * Transfers data from source to destination.
      */
-    void registerFactory(DataSourceFactory factory);
-
-    /**
-     * Registers a factory for creating data sinks.
-     */
-    void registerFactory(DataSinkFactory factory);
+    @NotNull CompletableFuture<TransferResult> transfer(DataFlowRequest request);
 }
