@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.iam.daps;
 
 import org.eclipse.dataspaceconnector.core.security.fs.FsCertificateResolver;
 import org.eclipse.dataspaceconnector.core.security.fs.FsPrivateKeyResolver;
+import org.eclipse.dataspaceconnector.iam.daps.annotations.DapsTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.MockVault;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -37,7 +38,7 @@ import java.util.Objects;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(EdcExtension.class)
-@org.eclipse.dataspaceconnector.iam.daps.annotations.DapsIntegrationTest
+@DapsTest
 class DapsIntegrationTest {
 
     private static final String AUDIENCE_IDS_CONNECTORS_ALL = "idsc:IDS_CONNECTORS_ALL";
