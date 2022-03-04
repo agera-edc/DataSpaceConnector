@@ -18,7 +18,6 @@ import org.eclipse.dataspaceconnector.boot.system.DefaultServiceExtensionContext
 import org.eclipse.dataspaceconnector.boot.system.ExtensionLoader;
 import org.eclipse.dataspaceconnector.boot.system.ServiceLocator;
 import org.eclipse.dataspaceconnector.boot.system.ServiceLocatorImpl;
-import org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
@@ -46,8 +45,10 @@ import static org.eclipse.dataspaceconnector.common.types.Cast.cast;
 /**
  * A JUnit extension for running an embedded EDC runtime as part of a test fixture.
  * This extension attaches a EDC runtime to the {@link BeforeTestExecutionCallback} and {@link AfterTestExecutionCallback} lifecycle hooks. Parameter injection of runtime services is supported.
+ * <p>
+ * If only basic dependency injection is needed, use the superclass {@link DependencyInjectionExtension} instead.
  */
-public class EdcExtension extends BaseRuntime implements BeforeTestExecutionCallback, AfterTestExecutionCallback, ParameterResolver {
+public class EdcExtension extends DependencyInjectionExtension implements BeforeTestExecutionCallback, AfterTestExecutionCallback, ParameterResolver {
     private final LinkedHashMap<Class<?>, Object> serviceMocks = new LinkedHashMap<>();
     private final LinkedHashMap<Class<? extends SystemExtension>, List<SystemExtension>> systemExtensions = new LinkedHashMap<>();
     private List<ServiceExtension> runningServiceExtensions;
@@ -116,10 +117,9 @@ public class EdcExtension extends BaseRuntime implements BeforeTestExecutionCall
         var type = parameterContext.getParameter().getParameterizedType();
         if (type.equals(EdcExtension.class)) {
             return true;
-        } else if (type instanceof Class) {
-            return context.hasService(cast(type));
+        } else {
+            return super.supportsParameter(parameterContext, extensionContext);
         }
-        return false;
     }
 
     @Override
@@ -127,10 +127,9 @@ public class EdcExtension extends BaseRuntime implements BeforeTestExecutionCall
         var type = parameterContext.getParameter().getParameterizedType();
         if (type.equals(EdcExtension.class)) {
             return this;
-        } else if (type instanceof Class) {
-            return context.getService(cast(type));
+        } else {
+            return super.resolveParameter(parameterContext, extensionContext);
         }
-        return null;
     }
 
     /**
