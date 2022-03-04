@@ -73,6 +73,7 @@ public class EdcExtension extends DependencyInjectionExtension implements Before
 
     @Override
     public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
+        super.beforeTestExecution(extensionContext);
         boot();
     }
 
