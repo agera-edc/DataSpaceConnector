@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, 2021 Microsoft Corporation
+ *  Copyright (c) 2022 Microsoft Corporation
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Common annotation for integration testing.
+ * Common annotation for integration testing.It applies integration-test Junit Tag.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
