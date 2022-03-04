@@ -16,8 +16,7 @@ public interface TransferServiceSelectionStrategy {
      *
      * @param request          the request.
      * @param transferServices any number of services which are able to handle the request. May be an empty {@link Stream}.
-     * @return the service to be used to serve the request, selected among the input {@code transferServices},
-     * or {@code null} if the stream is empty or no service should be used.
+     * @return the service to be used to serve the request, selected among the input {@code transferServices}, or {@code null} if the stream is empty or no service should be used.
      */
     TransferService chooseTransferService(DataFlowRequest request, Stream<TransferService> transferServices);
 
