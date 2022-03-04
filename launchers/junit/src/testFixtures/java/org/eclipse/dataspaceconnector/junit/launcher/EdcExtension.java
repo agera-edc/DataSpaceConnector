@@ -52,7 +52,6 @@ public class EdcExtension extends DependencyInjectionExtension implements Before
     private final LinkedHashMap<Class<?>, Object> serviceMocks = new LinkedHashMap<>();
     private final LinkedHashMap<Class<? extends SystemExtension>, List<SystemExtension>> systemExtensions = new LinkedHashMap<>();
     private List<ServiceExtension> runningServiceExtensions;
-    private DefaultServiceExtensionContext context;
     private Monitor monitor;
 
     /**
@@ -73,7 +72,6 @@ public class EdcExtension extends DependencyInjectionExtension implements Before
 
     @Override
     public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
-        super.beforeTestExecution(extensionContext);
         boot();
     }
 
@@ -95,8 +93,7 @@ public class EdcExtension extends DependencyInjectionExtension implements Before
 
     @Override
     protected @NotNull ServiceExtensionContext createContext(TypeManager typeManager, Monitor monitor, Telemetry telemetry) {
-        this.context = new DefaultServiceExtensionContext(typeManager, monitor, telemetry, new MultiSourceServiceLocator());
-        return this.context;
+        return new DefaultServiceExtensionContext(typeManager, monitor, telemetry, new MultiSourceServiceLocator());
     }
 
     @Override

@@ -21,7 +21,7 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.system.injection.InjectionPointScanner;
 import org.eclipse.dataspaceconnector.spi.system.injection.ObjectFactory;
 import org.jetbrains.annotations.NotNull;
-import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
@@ -35,12 +35,12 @@ import static org.eclipse.dataspaceconnector.common.types.Cast.cast;
  * <p>
  * If additional lifecycle services are needed (detection, loading and booting of extensions), use the subclass {@link EdcExtension} instead.
  */
-public class DependencyInjectionExtension extends BaseRuntime implements BeforeTestExecutionCallback, ParameterResolver {
+public class DependencyInjectionExtension extends BaseRuntime implements BeforeEachCallback, ParameterResolver {
     private ServiceExtensionContext context;
     private ObjectFactory factory;
 
     @Override
-    public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
+    public void beforeEach(ExtensionContext extensionContext) throws Exception {
         context = super.createServiceExtensionContext();
         context.initialize();
         factory = new ReflectiveObjectFactory(
