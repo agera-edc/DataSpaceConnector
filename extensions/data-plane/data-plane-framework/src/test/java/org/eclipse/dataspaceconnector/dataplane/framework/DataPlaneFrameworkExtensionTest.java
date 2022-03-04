@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(DependencyInjectionExtension.class)
 class DataPlaneFrameworkExtensionTest {
 
+
     @Test
     void initialize_registers_PipelineService(ServiceExtensionContext context, ReflectiveObjectFactory factory) {
         var extension = factory.constructInstance(DataPlaneFrameworkExtension.class);
