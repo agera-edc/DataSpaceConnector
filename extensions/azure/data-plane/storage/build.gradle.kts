@@ -15,19 +15,31 @@
 val okHttpVersion: String by project
 val storageBlobVersion: String by project;
 val jodahFailsafeVersion: String by project
+val jupiterVersion: String by project
+val assertj: String by project
+val faker: String by project
 
 plugins {
     `java-library`
+    `java-test-fixtures`
 }
 
+
 dependencies {
-    api(project(":extensions:data-plane:data-plane-spi"))
+    implementation(project(":extensions:azure:data-plane:common"))
     implementation(project(":common:util"))
     implementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
 
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testImplementation(testFixtures(project(":common:util")))
+
+    testFixturesApi(project(":extensions:data-plane:data-plane-spi"))
+    testFixturesImplementation(project(":common:util"))
+
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
+    testFixturesRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jupiterVersion}")
+    testFixturesImplementation("com.github.javafaker:javafaker:${faker}")
 }
 
 publishing {
