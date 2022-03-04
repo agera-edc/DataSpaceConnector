@@ -35,11 +35,11 @@ Below annotations are used to categorize integration tests based on their techno
 - `@AwsS3IntegrationTest`: Marks an integration test with `aws-s3-integration-test` Junit tag. This should be used when the integration test is related to `AWS S3`.
 - `@DapsTest`: Marks an integration test with `daps-integration-test` Junit tag. This should be used when the integration test is related to `Daps IAM`.
 
-We encourage you to use these available annotation but if your integration test does not fit in one of these available annotations and you want to categorize them base on their technologies then feel free to create a new annotations but make sure to use composite annotations which contains `@IntegrationTest`.
+We encourage you to use these available annotation but if your integration test does not fit in one of these available annotations and you want to categorize them base on their technologies then feel free to create a new annotations but make sure to use composite annotations which contains `@IntegrationTest`. If you do not wish to categorize base on their technologies then you can use already available `@IntegrationTest` annotation.
 
 - By default JUnit test runner ignores all integration tests because in root `build.gradle.kts` file we have excluded all tests with `integration-test` Junit tag.
 
-All integration tests should have the `"...IntegrationTest"` postfix to distinguish them clearly from unit tests. They should reside in the same package as unit tests because all tests should maintain package consistency to their test subject.
+All integration tests should specify annotation to categorize them and the `"...IntegrationTest"` postfix to distinguish them clearly from unit tests. They should reside in the same package as unit tests because all tests should maintain package consistency to their test subject.
 
 Any credentials, secrets, passwords, etc. that are required by the integration tests should be passed in using environment variables. A good way to access them is `ConfigurationFunctions.propOrEnv()` because then the credentials can also be supplied via system properties.
 
@@ -49,7 +49,7 @@ This does not at all discourage the use of external test environments like conta
 
 ## Running them locally
 
-As mentioned above the JUnit runner won't pick up integration tests unless a tag is provided. For instance if we want to run integration tests related to `Azure CosmosDB` then it can be achieved by passing the `IncludeTags` parameter to the `gradlew` command:
+As mentioned above the JUnit runner won't pick up integration tests unless a tag is provided. For instance if needed to run integration tests related to `Azure CosmosDB` then it can be achieved by passing the `IncludeTags` parameter to the `gradlew` command:
 
 ```bash
 ./gradlew test -DIncludeTags="azure-cosmos-db-integration-test"
@@ -57,20 +57,27 @@ As mentioned above the JUnit runner won't pick up integration tests unless a tag
 
 _Cosmos DB integration tests are run by default against a locally running [Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator). You can also use an instance of Cosmos DB running in Azure, in which case you should set the `COSMOS_KEY` environment variable._
 
-if we want to run all kind of tests(e.g. unit & integration) then it can be achieved by passing the `RunAllTest=true` parameter to the `gradlew` command:
+if needed to run all kind of tests(e.g. unit & integration) then it can be achieved by passing the `RunAllTest=true` parameter to the `gradlew` command:
 
 ```bash
 ./gradlew test -DRunAllTest="true"
 ```
 
+If needed to run all integration tests from a module (and all of its sub-modules) then it can be achieved by specifying module project to the `gradlew` command. For example to run all integration tests from Azure cosmos db module and its sub-modules:
+
+```bash
+./gradlew -p extensions/azure/cosmos test -DIncludeTags="azure-cosmos-db-integration-test"
+```
+
+_Command as `./gradlew :extensions:azure:cosmos test -DIncludeTags="azure-cosmos-db-integration-test"` does not executed tests from all sub-modules. So we need to use `-p` to specify the module project path._
+
 ## Running them in the CI pipeline
 
-All integration tests should go into the [integration test workflow](../.github/workflows/integrationtests.yaml),
-every "technology" should have its own job, every test should go into a step.
+All integration tests should go into the [integration test workflow](../.github/workflows/integrationtests.yaml), every "technology" should have its own job, and technology specific tests can be targeted using Junit tags with `-DIncludeTags` property as described above in document.
 
-For example let's assume we've implemented a Postgres-based Asset Index, then the integration tests for that should go
-into a "Postgres" `job`, and every module that adds a test (here: `extensions:postgres:assetindex`) should go into its
-own `step`. Let's also make sure that the code is checked out before and integration tests only run on the upstream repo.
+For example let's assume we've implemented a Postgres-based Asset Index, then the integration tests for that should go into a "Postgres" `job`, and every module that adds a test (here: `extensions:postgres:assetindex`) should apply a composite annotation (here: `@PostgresIntegrationTest` adding a tag `postgres-integration-test`) on its integration tests this tagging will be used by the CI pipeline step to target and execute the integration tests related to Postgres.
+
+Let's also make sure that the code is checked out before and integration tests only run on the upstream repo.
 
 ```yaml
 jobs:
@@ -107,12 +114,10 @@ jobs:
           RUN_INTEGRATION_TEST: true
           POSTGRES_USER: ${{ secrets.POSTGRES_USERNAME }}
           POSTGRES_PWD: ${{ secrets.POSTGRES_PASSWORD }}
-        run: ./gradlew -p extensions/postgres/assetindex check -DincludeTags="postgres-integration-test"
+        run: ./gradlew -p extensions/postgres test -DIncludeTags="postgres-integration-test"
 ```
 
-It is important to note that the secrets (here: `POSTGRES_USERNAME` and `POSTGRES_PASSWORD`) must be defined within the
-repository's settings and that can only be done by a committer with temporary admin access, so be sure to contact them
-before submitting your PR.
+It is important to note that the secrets (here: `POSTGRES_USERNAME` and `POSTGRES_PASSWORD`) must be defined within the repository's settings and that can only be done by a committer with temporary admin access, so be sure to contact them before submitting your PR.
 
 ## Do's and Don'ts
 
