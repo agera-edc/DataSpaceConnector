@@ -51,7 +51,7 @@ public class DependencyInjectionExtension extends BaseRuntime implements BeforeT
     }
 
     @Override
-    protected ServiceExtensionContext createServiceExtensionContext() {
+    protected @NotNull ServiceExtensionContext createServiceExtensionContext() {
         return context;
     }
 
