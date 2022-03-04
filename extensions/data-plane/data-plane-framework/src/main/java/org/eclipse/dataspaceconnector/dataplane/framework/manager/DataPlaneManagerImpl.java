@@ -17,17 +17,13 @@ import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSink;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
-import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.TransferService;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore;
 import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore.State;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -47,13 +43,11 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
     private int workers = 1;
     private long waitTimeout = 100;
 
-    private List<TransferService> transferServices = new ArrayList<>();
     private PipelineService pipelineService;
     private Monitor monitor;
 
     private BlockingQueue<DataFlowRequest> queue;
     private ExecutorService executorService;
-    private TransferServiceSelectionStrategy transferServiceSelectionStrategy;
 
     private AtomicBoolean active = new AtomicBoolean();
     private DataPlaneStore store;
@@ -83,10 +77,7 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
 
     @Override
     public Result<Boolean> validate(DataFlowRequest dataRequest) {
-        var transferService = resolveTransferService(dataRequest);
-        return transferService != null ?
-                transferService.validate(dataRequest) :
-                Result.failure("Cannot handle this request");
+        return pipelineService.validate(dataRequest);
     }
 
     public void initiateTransfer(DataFlowRequest dataRequest) {
@@ -118,15 +109,7 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                     continue;
                 }
                 final var polledRequest = request;
-
-                TransferService transferService = resolveTransferService(polledRequest);
-                if (transferService == null) {
-                    // Should not happen since resolving a transferService is part of payload validation
-                    // TODO persist error details
-                    store.completed(polledRequest.getProcessId());
-                }
-
-                transferService.transfer(request).whenComplete((result, exception) -> {
+                pipelineService.transfer(request).whenComplete((result, exception) -> {
                     if (polledRequest.isTrackable()) {
                         // TODO persist TransferResult or error details
                         store.completed(polledRequest.getProcessId());
@@ -148,15 +131,6 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
         }
     }
 
-    private TransferService resolveTransferService(DataFlowRequest polledRequest) {
-        var possibleServices = transferServices.stream().filter(s -> s.canHandle(polledRequest));
-        return transferServiceSelectionStrategy.chooseTransferService(polledRequest, possibleServices);
-    }
-
-    public void registerTransferService(TransferService transferService) {
-        transferServices.add(transferService);
-    }
-
     public static class Builder {
         private DataPlaneManagerImpl manager;
 
@@ -166,11 +140,6 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
 
         public Builder pipelineService(PipelineService pipelineService) {
             manager.pipelineService = pipelineService;
-            return this;
-        }
-
-        public Builder transferServiceSelectionStrategy(TransferServiceSelectionStrategy transferServiceSelectionStrategy) {
-            manager.transferServiceSelectionStrategy = transferServiceSelectionStrategy;
             return this;
         }
 
