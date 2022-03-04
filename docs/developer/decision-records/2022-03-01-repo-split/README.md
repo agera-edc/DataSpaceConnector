@@ -90,42 +90,41 @@ in EDC Azure Extensions need to be declared using `:test-fixtures` postfix.
 Publishing snapshot versions to local maven repositories can be useful for local development of changes spanning across core and vendor repositories.
 
 1. Change is made in EDC Core repository.
-2. Developer publishes a snapshot locally using e.g. `./gradlew publishToMavenLocal` command.
-3. New version is visible locally in the EDC Azure Extensions repository after gradle dependencies are refreshed. IntelliJ does this step automatically very quickly.
+2. Developer publishes a EDC Core snapshot version to the local Maven repository using e.g. `./gradlew publishToMavenLocal` command.
+3. New version is visible locally in the EDC vendor repository after gradle dependencies are refreshed. IntelliJ does this step automatically very quickly.
    - Note that repo that picks up libraries from local maven should have added `mavenLocal()` to the list of repositories in gradle configuration.
-
-Note that above-mentioned steps can be followed for the development of EDC Core repository and EDC Vendor Extensions repository until first version is 
-released. Until then both repositories use and release only snapshot versions. 
 
 #### PRs and CI
 
-After finishing local development first PR should be created in the Core repository. Possible solution to handle versioning would be to have a CI workflow 
-that automatically publishes snapshot from branch on every change in that branch creating artifact with a name e.g. `0.0.1-[branch-name]-SNAPSHOT`.
-`0.0.1-[branch-name]-SNAPSHOT` version of Core artifact can be then used in the corresponding branch in Extensions repository to enable creating the PR that 
-passes the CI checks. 
+After finishing local development a PR should be created for EDC Core first. A snapshot version for EDC Core needs to be published to the Maven Snapshot repository, so that it can be declared as a dependency from the vendor repository change. This step can be automated by a CI workflow that automatically publishes branch-specific snapshot on every push e.g. `0.0.1-[branch-name]-SNAPSHOT`. See [sample PR](https://github.com/agera-edc/DataSpaceConnector-Core/pull/1) for more details.
 
-PR in Core repository needs to be merged before the PR in Extensions repository so that the new Core version can be released and then used in the Extensions 
-PR.
+Once the EDC Core PR is ready, the PR on the vendor repository can be opened, using the aforementioned branch-specific snapshot. See [example PR](https://github.com/agera-edc/DataSpaceConnector-AzureExtensions/pull/1) on vendor repository.
 
-Based on above steps we can distinguish following CI that are needed to enable this scenario.
+Once the change is accepted the merging sequence is the following:
+1. Merge EDC Core PR
+1. EDC Core snapshot is published for the target merge branch (possibly automatically)
+1. Vendor repository PR is adapted to use the new snapshot version
+1. Vendor repository PR is merged
 
-1. EDC Core repository - publishing snaphot version with `branch_name` prefix/suffix on every push to a branch. Produces `0.0.1-[branch-name]-SNAPSHOT` version.
-2. EDC Core repository and EDC Azure Extension repository - publishing snaphot version for staging changes on every merged PR. Produces `0.0.1-SNAPSHOT` 
+Based on above steps we can distinguish following CI features required to enable this scenario:
+
+1. EDC Core repository - publishing snapshot version with `branch_name` prefix/suffix on every push to a branch. Produces `0.0.1-[branch-name]-SNAPSHOT` version.
+1. EDC Core repository and vendor repository - publishing snapshot version for staging changes on every merged PR. Produces `0.0.1-SNAPSHOT` 
    version.
 
 #### Release cycles
 
-The release cycle for EDC Core and vendor Extensions should be correlated. Below points describe one possibility how the release cycles can be defined and 
-depend on each other. This option assumes that the releases of EDC Core always trigger releases of vendor Extensions.
+The release cycle for EDC Core and vendor Extensions must be well aligned. The following points describe a possibility how the release cycles can be defined and 
+depend on each other. This option assumes that the releases of EDC Core always triggers releases on vendor repositories.
 
 1. EDC Core releases are scheduled on demand, once planned set of features is implemented and tested.
    - Releasing EDC Core regularly (e.g. once a day/week) would be also an option, but less frequent but more stable releases planned in advance seem to 
      allow more organised structure of versions.
 2. Every EDC Core release triggers (optionally automatically using Github workflow pipelines) a corresponding release in EDC Extensions repositories.
 
-#### Main branch
+Note that above-mentioned steps can be followed for the development of EDC Core repository and EDC Vendor Extensions repository until first version is
+released. Until then both repositories use and release only snapshot versions.
 
-TBD
 
 ### Scenario 2: code change within a vendor repository (bugfix)
 
