@@ -19,6 +19,7 @@ import org.eclipse.dataspaceconnector.boot.system.injection.ReflectiveObjectFact
 import org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.system.injection.InjectionPointScanner;
+import org.eclipse.dataspaceconnector.spi.system.injection.ObjectFactory;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolutionException;
@@ -34,7 +35,7 @@ import static org.eclipse.dataspaceconnector.common.types.Cast.cast;
  */
 public class DependencyInjectionExtension extends BaseRuntime implements ParameterResolver {
     private final ServiceExtensionContext context;
-    private final ReflectiveObjectFactory factory;
+    private final ObjectFactory factory;
 
     public DependencyInjectionExtension() {
         context = createServiceExtensionContext();
@@ -49,7 +50,7 @@ public class DependencyInjectionExtension extends BaseRuntime implements Paramet
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
         var type = parameterContext.getParameter().getParameterizedType();
-        if (type.equals(ReflectiveObjectFactory.class)) {
+        if (type.equals(ObjectFactory.class)) {
             return true;
         } else if (type.equals(ServiceExtensionContext.class)) {
             return true;
@@ -64,7 +65,7 @@ public class DependencyInjectionExtension extends BaseRuntime implements Paramet
         var type = parameterContext.getParameter().getParameterizedType();
         if (type.equals(ServiceExtensionContext.class)) {
             return context;
-        } else if (type.equals(ReflectiveObjectFactory.class)) {
+        } else if (type.equals(ObjectFactory.class)) {
             return factory;
         } else if (type instanceof Class) {
             return context.getService(cast(type));
