@@ -91,8 +91,16 @@ Publishing snapshot versions to local maven repositories can be useful for local
 
 1. Change is made in EDC Core repository.
 2. Developer publishes a snapshot locally using e.g. `./gradlew publishToMavenLocal` command.
-3. New version should be visible locally in the EDC Azure Extensions repository after refreshing gradle dependencies.
+3. New version is visible locally in the EDC Azure Extensions repository after gradle dependencies are refreshed. IntelliJ does this step automatically very quickly.
    - Note that repo that picks up libraries from local maven should have added `mavenLocal()` to the list of repositories in gradle configuration.
+
+#### PRs and CI
+
+TBD
+
+#### Main branch
+
+TBD
 
 ### Scenario 2: code change within a vendor repository (bugfix)
 
