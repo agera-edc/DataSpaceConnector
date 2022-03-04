@@ -78,6 +78,16 @@ Test fixture dependencies published using the [java-text-fixtures](https://docs.
     testImplementation("org.eclipse.dataspaceconnector:common-util:${edcCoreVersion}:test-fixtures")
 ```
 
+During the spike we analysed the development cycle after the repo split and recognised areas of impact. The steps to proceed within these areas should be 
+agreed on before the split.
+
+Areas of impact by repo split:
+- Local development of changes crossing the repositories.
+- Publishing and versioning EDC artifacts.
+- Release cycle for EDC Core and the Vendor Extensions.
+
+A possible solution for these areas is presented below.
+
 ### Scenario 1: code change spanning across core and vendor repositories
 
 #### Local development
@@ -85,10 +95,10 @@ Test fixture dependencies published using the [java-text-fixtures](https://docs.
 Publishing snapshot versions to local maven repositories can be useful for local development of changes spanning across core and vendor repositories.
 
 1. Change is made in EDC Core repository.
-2. Developer publishes a EDC Core snapshot version to the local Maven repository using e.g. `./gradlew publishToMavenLocal` command.
+2. Developer publishes an EDC Core snapshot version to the local Maven repository using e.g. `./gradlew publishToMavenLocal` command.
 3. New version is visible locally in the EDC vendor repository after gradle dependencies are refreshed. IntelliJ does this step automatically very quickly.
    - Note that repo that picks up libraries from local maven should have added `mavenLocal()` to the list of repositories in gradle configuration.
-
+   
 #### PRs and CI
 
 After finishing local development a PR should be created for EDC Core first. A snapshot version for EDC Core needs to be published to the Maven Snapshot repository, so that it can be declared as a dependency from the vendor repository change. This step can be automated by a CI workflow that automatically publishes branch-specific snapshots on every push e.g. `0.0.1-[branch-name]-SNAPSHOT`. See [sample PR](https://github.com/agera-edc/DataSpaceConnector-Core/pull/1) for more details.
@@ -117,18 +127,32 @@ depend on each other. This option assumes that the releases of EDC Core always t
      allow more organised structure of versions.
 2. Every EDC Core release triggers (optionally automatically using Github workflow pipelines) a corresponding release in EDC Extensions repositories.
 
-Note that above-mentioned steps can be followed for the development of EDC Core repository and EDC Vendor Extensions repository until first version is
-released. Until then both repositories use and release only snapshot versions.
+Note that above-mentioned release steps assume that EDC Core and Vendor releases are aligned. Between the releases the Vendor repository uses corresponding 
+snapshot version from EDC Core. It means that this approach does not prevent the EDC Core from publishing snapshots containing breaking changes 
+which can block or slow down development in Vendor repositories. A benefit of this approach is though that incompatibilities can be discovered and fixed early. 
 
+Possible mitigations of this risk:
+- Having an agreement that changes in EDC Core should be introduced with backward compatibility in mind
+  - e.g. instead of changing ConsoleMonitor interface, it can be marked as @Deprecated and new interface can be introduced allowing the extensions adapt 
+    to the changes.  
+- Having a suite of integration tests running in Vendor repository that constantly checks if the snapshots are in sync.
 
-### Scenario 2: code change within a vendor repository
+### Scenario 2: code change within a vendor repository (e.g. bugfix)
+
+Changes within Vendor repository do not impact EDC Core repository. Therefore, development of isolated changes in Vendor repositories is the same as in the 
+case of working with monorepo.
+
+1. Change is made in Vendor repository.
+2. PR is created in Vendor repository.
+3. Vendor repository PR is merged.
+4. In case of urgent bugfix new version of Vendor artifact is released, otherwise snapshot version is published.
 
 Releasing new versions of a vendor extension (for instance a bugfix) can be done independently of the EDC core repository. The only important point to take into account is that a version scheme is needed to track compatibility between EDC Core and vendor extensions versions. A simple but effective versioning strategy could be:
 
 EDC Core version: `<MAJOR>.<MINOR>`
 Extension version: `<MAJOR>.<MINOR>.<PATCH>`
 
-Compatible EDC Core and Extensions should have the same <MAJOR> and <MINOR> version. The <PATCH> version allows for extensions to release further artefacts compatible with the same core version. 
+Compatible EDC Core and Extensions should have the same <MAJOR> and <MINOR> version. The <PATCH> version allows for extensions to release further artefacts compatible with the same core version.
 
 ### Scenario 3: SPI version upgrade
 
@@ -138,6 +162,11 @@ A repository split by vendor allows for a delay between an SPI upgrade and the r
 1. Vendor extension teams validate the changes and give a go for the EDC Core changes
 1. EDC Core is released. A versioning scheme makes clear which vendor extensions are compatible.
 1. Each vendor extension team can release its own implementation at its own pace.
+
+### Conclusion
+
+Working with multirepo adds an overhead to the development and release cycle process, but using automation in CI pipelines and scripts that help bumping up
+versions automatically we can achieve a straightforward, relatively easy to use approach.
 
 ## Next steps
 
