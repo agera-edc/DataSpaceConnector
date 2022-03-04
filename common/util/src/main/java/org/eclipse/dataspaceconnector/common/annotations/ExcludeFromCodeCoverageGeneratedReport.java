@@ -16,6 +16,9 @@ import java.lang.annotation.Target;
 
 /**
  * Exclude a block of code from code coverage.
+ * <p>
+ * JaCoCo automatically excludes code with an annotation containing
+ * the string "Generated" in its name.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
