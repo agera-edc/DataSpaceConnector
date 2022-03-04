@@ -24,6 +24,7 @@ import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore.State;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;

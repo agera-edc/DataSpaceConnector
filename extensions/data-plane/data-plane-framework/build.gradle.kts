@@ -19,7 +19,6 @@ plugins {
 dependencies {
     api(project(":extensions:data-plane:data-plane-spi"))
     implementation(project(":common:util"))
-    testImplementation(testFixtures(project(":launchers:junit")))
 }
 
 
