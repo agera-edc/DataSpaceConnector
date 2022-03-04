@@ -94,9 +94,34 @@ Publishing snapshot versions to local maven repositories can be useful for local
 3. New version is visible locally in the EDC Azure Extensions repository after gradle dependencies are refreshed. IntelliJ does this step automatically very quickly.
    - Note that repo that picks up libraries from local maven should have added `mavenLocal()` to the list of repositories in gradle configuration.
 
+Note that above-mentioned steps can be followed for the development of EDC Core repository and EDC Vendor Extensions repository until first version is 
+released. Until then both repositories use and release only snapshot versions. 
+
 #### PRs and CI
 
-TBD
+After finishing local development first PR should be created in the Core repository. Possible solution to handle versioning would be to have a CI workflow 
+that automatically publishes snapshot from branch on every change in that branch creating artifact with a name e.g. `0.0.1-[branch-name]-SNAPSHOT`.
+`0.0.1-[branch-name]-SNAPSHOT` version of Core artifact can be then used in the corresponding branch in Extensions repository to enable creating the PR that 
+passes the CI checks. 
+
+PR in Core repository needs to be merged before the PR in Extensions repository so that the new Core version can be released and then used in the Extensions 
+PR.
+
+Based on above steps we can distinguish following CI that are needed to enable this scenario.
+
+1. EDC Core repository - publishing snaphot version with `branch_name` prefix/suffix on every push to a branch. Produces `0.0.1-[branch-name]-SNAPSHOT` version.
+2. EDC Core repository and EDC Azure Extension repository - publishing snaphot version for staging changes on every merged PR. Produces `0.0.1-SNAPSHOT` 
+   version.
+
+#### Release cycles
+
+The release cycle for EDC Core and vendor Extensions should be correlated. Below points describe one possibility how the release cycles can be defined and 
+depend on each other. This option assumes that the releases of EDC Core always trigger releases of vendor Extensions.
+
+1. EDC Core releases are scheduled on demand, once planned set of features is implemented and tested.
+   - Releasing EDC Core regularly (e.g. once a day/week) would be also an option, but less frequent but more stable releases planned in advance seem to 
+     allow more organised structure of versions.
+2. Every EDC Core release triggers (optionally automatically using Github workflow pipelines) a corresponding release in EDC Extensions repositories.
 
 #### Main branch
 
