@@ -58,7 +58,7 @@ class DataPlaneManagerImplTest {
      */
     @Test
     void verifyWorkDispatch() throws InterruptedException {
-        var dataPlaneManager = extracted();
+        var dataPlaneManager = createDataPlaneManager();
 
         when(transferService.canHandle(isA(DataFlowRequest.class)))
                 .thenReturn(true);
@@ -89,7 +89,7 @@ class DataPlaneManagerImplTest {
      */
     @Test
     void verifyWorkDispatchError() throws InterruptedException {
-        var dataPlaneManager = extracted();
+        var dataPlaneManager = createDataPlaneManager();
 
         when(transferService.canHandle(request))
                 .thenReturn(true);
@@ -119,7 +119,7 @@ class DataPlaneManagerImplTest {
     void verifyWorkDispatch_onUnavailableTransferService_completesTransfer() throws InterruptedException {
         store = mock(DataPlaneStore.class);
 
-        var dataPlaneManager = extracted();
+        var dataPlaneManager = createDataPlaneManager();
 
         when(transferService.canHandle(isA(DataFlowRequest.class)))
                 .thenReturn(false);
@@ -139,7 +139,7 @@ class DataPlaneManagerImplTest {
     }
 
 
-    private DataPlaneManagerImpl extracted() {
+    private DataPlaneManagerImpl createDataPlaneManager() {
         var monitor = mock(Monitor.class);
         var dataPlaneManager = DataPlaneManagerImpl.Builder.newInstance()
                 .queueCapacity(100)
