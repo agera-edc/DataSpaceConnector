@@ -15,9 +15,9 @@ class BlobAdapterFactoryTest {
         BlobAdapterFactory f = new BlobAdapterFactory(null);
         assertThatNoException()
                 .isThrownBy(() -> f.getBlobAdapter(
-                                createAccountName(),
-                                createContainerName(),
-                                createBlobName(),
-                                createSharedKey()));
+                        createAccountName(),
+                        createContainerName(),
+                        createBlobName(),
+                        createSharedKey()));
     }
 }
