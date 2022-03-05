@@ -78,12 +78,9 @@ class TransferProcessTest {
         process.transitionProvisioning(ResourceManifest.Builder.newInstance().build());
         process.transitionProvisioned();
 
-        process.transitionRequested();
-
         // test illegal transition
         assertThrows(IllegalStateException.class, process::transitionEnded);
 
-        process.transitionRequestAck();
         process.transitionInProgress();
         process.transitionCompleted();
 
