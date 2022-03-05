@@ -51,6 +51,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.Cont
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
 import org.eclipse.dataspaceconnector.spi.types.domain.metadata.MetadataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -60,6 +61,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.testOkHttpClient;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -239,9 +241,15 @@ class MultipartDispatcherIntegrationTest extends AbstractMultipartDispatcherInte
         assertThat(result.getHeader()).isInstanceOf(MessageProcessedNotificationMessage.class);
         assertThat(result.getPayload()).isNull();
     }
+    @BeforeAll
+    protected static void beforea() {
 
-    @Override
-    protected Map<String, String> getSystemProperties() {
+        for (Map.Entry<String, String> entry : getSystemProperties().entrySet()) {
+            System.setProperty(entry.getKey(), entry.getValue());
+        }
+    }
+
+    protected static Map<String, String> getSystemProperties() {
         return new HashMap<>() {
             {
                 put("web.http.port", String.valueOf(getPort()));

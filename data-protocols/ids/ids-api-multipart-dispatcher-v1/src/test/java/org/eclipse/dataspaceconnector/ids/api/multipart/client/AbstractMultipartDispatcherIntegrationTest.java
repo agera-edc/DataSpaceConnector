@@ -28,6 +28,7 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -47,7 +48,7 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
     // TODO needs to be replaced by an objectmapper capable to understand IDS JSON-LD
     //      once https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/issues/236 is done
     protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final AtomicReference<Integer> PORT = new AtomicReference<>();
+    private static final AtomicReference<Integer> PORT = new AtomicReference<>(getFreePort());
     private static final List<Asset> ASSETS = new LinkedList<>();
 
     static {
@@ -66,20 +67,15 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
     void after() {
         ASSETS.clear();
 
-        for (String key : getSystemProperties().keySet()) {
-            System.clearProperty(key);
-        }
 
-        PORT.set(null);
     }
 
-    @BeforeEach
-    protected void before(EdcExtension extension) {
-        PORT.set(getFreePort());
+    @BeforeAll
+    protected static void beforea() {
 
-        for (Map.Entry<String, String> entry : getSystemProperties().entrySet()) {
-            System.setProperty(entry.getKey(), entry.getValue());
-        }
+    }
+    @BeforeEach
+        protected void before(EdcExtension extension) {
 
         var tokenResult = TokenRepresentation.Builder.newInstance().token("token").build();
         var claimToken = ClaimToken.Builder.newInstance().claim("key", "value").build();
@@ -95,7 +91,7 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
         ASSETS.add(asset);
     }
 
-    protected int getPort() {
+    protected static int getPort() {
         return PORT.get();
     }
 
@@ -103,5 +99,7 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
         return String.format("http://localhost:%s/api%s", getPort(), MultipartController.PATH);
     }
 
-    protected abstract Map<String, String> getSystemProperties();
+    protected static Map<String, String> getSystemProperties() {
+        return null;
+    }
 }
