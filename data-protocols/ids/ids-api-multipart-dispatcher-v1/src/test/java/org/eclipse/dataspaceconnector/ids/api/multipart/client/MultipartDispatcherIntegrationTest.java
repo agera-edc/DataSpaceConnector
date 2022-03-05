@@ -61,7 +61,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.testOkHttpClient;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -252,7 +251,7 @@ class MultipartDispatcherIntegrationTest extends AbstractMultipartDispatcherInte
     protected static Map<String, String> getSystemProperties() {
         return new HashMap<>() {
             {
-                put("web.http.port", String.valueOf(getPort()));
+                put("web.http.port", String.valueOf(PORT));
                 put("edc.ids.id", "urn:connector:" + CONNECTOR_ID);
                 put("ids.webhook.address", "http://webhook");
             }

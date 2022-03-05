@@ -28,15 +28,12 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.text.SimpleDateFormat;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,7 +45,7 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
     // TODO needs to be replaced by an objectmapper capable to understand IDS JSON-LD
     //      once https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/issues/236 is done
     protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final AtomicReference<Integer> PORT = new AtomicReference<>(getFreePort());
+    protected static final int PORT = getFreePort();
     private static final List<Asset> ASSETS = new LinkedList<>();
 
     static {
@@ -66,14 +63,8 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
     @AfterEach
     void after() {
         ASSETS.clear();
-
-
     }
 
-    @BeforeAll
-    protected static void beforea() {
-
-    }
     @BeforeEach
         protected void before(EdcExtension extension) {
 
@@ -91,15 +82,7 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
         ASSETS.add(asset);
     }
 
-    protected static int getPort() {
-        return PORT.get();
-    }
-
     protected String getUrl() {
-        return String.format("http://localhost:%s/api%s", getPort(), MultipartController.PATH);
-    }
-
-    protected static Map<String, String> getSystemProperties() {
-        return null;
+        return String.format("http://localhost:%s/api%s", PORT, MultipartController.PATH);
     }
 }
