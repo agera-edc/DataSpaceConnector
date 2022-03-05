@@ -99,6 +99,10 @@ depends on a `FooService` and because of that, any provider of a `FooStore` must
 the `FooMaintenanceExtension`. The fact that `CosmosFooStoreExtension` provides a `FooStore` is declared using
 the `@Provides` annotation.
 
+To test such classes, use the appropriate JUnit extension:
+- If only basic dependency injection is needed (unit testing), use the `DependencyInjectionExtension`.
+- If the full EDC runtime should be run (integration testing), use the `EdcExtension`.
+
 ### Option 2: use `@Requires` to declare dependencies
 
 In cases where defining a field seems unwieldy or is simply not desirable, we provide another way to dynamically resolve
