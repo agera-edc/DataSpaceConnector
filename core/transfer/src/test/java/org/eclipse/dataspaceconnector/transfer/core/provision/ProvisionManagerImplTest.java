@@ -47,7 +47,7 @@ class ProvisionManagerImplTest {
         when(provisioner.provision(isA(TestResourceDefinition.class))).thenReturn(completedFuture(provisionResponse));
         TransferProcess transferProcess = TransferProcess.Builder.newInstance()
                 .id("id")
-                .state(TransferProcessStates.REQUESTED.code())
+                .state(TransferProcessStates.IN_PROGRESS.code())
                 .resourceManifest(ResourceManifest.Builder.newInstance().definitions(List.of(new TestResourceDefinition())).build())
                 .build();
 
@@ -67,7 +67,7 @@ class ProvisionManagerImplTest {
         when(provisioner.provision(isA(TestResourceDefinition.class))).thenThrow(new EdcException("error"));
         TransferProcess transferProcess = TransferProcess.Builder.newInstance()
                 .id("id")
-                .state(TransferProcessStates.REQUESTED.code())
+                .state(TransferProcessStates.IN_PROGRESS.code())
                 .resourceManifest(ResourceManifest.Builder.newInstance().definitions(List.of(new TestResourceDefinition())).build())
                 .build();
 
@@ -85,7 +85,7 @@ class ProvisionManagerImplTest {
         when(provisioner.provision(isA(TestResourceDefinition.class))).thenReturn(failedFuture(new EdcException("error")));
         TransferProcess transferProcess = TransferProcess.Builder.newInstance()
                 .id("id")
-                .state(TransferProcessStates.REQUESTED.code())
+                .state(TransferProcessStates.IN_PROGRESS.code())
                 .resourceManifest(ResourceManifest.Builder.newInstance().definitions(List.of(new TestResourceDefinition())).build())
                 .build();
 
@@ -106,7 +106,7 @@ class ProvisionManagerImplTest {
         when(provisioner.deprovision(isA(TestProvisionedResource.class))).thenReturn(completedFuture(deprovisionResponse));
         TransferProcess transferProcess = TransferProcess.Builder.newInstance()
                 .id("id")
-                .state(TransferProcessStates.REQUESTED.code())
+                .state(TransferProcessStates.IN_PROGRESS.code())
                 .provisionedResourceSet(ProvisionedResourceSet.Builder.newInstance().resources(List.of(new TestProvisionedResource())).build())
                 .build();
 
@@ -126,7 +126,7 @@ class ProvisionManagerImplTest {
         when(provisioner.deprovision(isA(TestProvisionedResource.class))).thenThrow(new EdcException("error"));
         TransferProcess transferProcess = TransferProcess.Builder.newInstance()
                 .id("id")
-                .state(TransferProcessStates.REQUESTED.code())
+                .state(TransferProcessStates.IN_PROGRESS.code())
                 .provisionedResourceSet(ProvisionedResourceSet.Builder.newInstance().resources(List.of(new TestProvisionedResource())).build())
                 .build();
 
@@ -144,7 +144,7 @@ class ProvisionManagerImplTest {
         when(provisioner.deprovision(isA(TestProvisionedResource.class))).thenReturn(failedFuture(new EdcException("error")));
         TransferProcess transferProcess = TransferProcess.Builder.newInstance()
                 .id("id")
-                .state(TransferProcessStates.REQUESTED.code())
+                .state(TransferProcessStates.IN_PROGRESS.code())
                 .provisionedResourceSet(ProvisionedResourceSet.Builder.newInstance().resources(List.of(new TestProvisionedResource())).build())
                 .build();
 
@@ -156,6 +156,7 @@ class ProvisionManagerImplTest {
                 .withMessageContaining("error");
     }
 
-    private static class TestProvisionedResource extends ProvisionedResource {}
+    private static class TestProvisionedResource extends ProvisionedResource {
+    }
 
 }

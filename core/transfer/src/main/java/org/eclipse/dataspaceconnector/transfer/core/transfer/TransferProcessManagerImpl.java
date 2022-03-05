@@ -60,7 +60,6 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.INITIAL;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.IN_PROGRESS;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.PROVISIONED;
-import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.REQUESTED_ACK;
 
 /**
  * This transfer process manager receives a {@link TransferProcess} and transitions it through its internal state machine (cf {@link TransferProcessStates}.
@@ -106,7 +105,6 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         stateMachine = StateMachine.Builder.newInstance("transfer-process", monitor, waitStrategy)
                 .processor(processTransfersInState(INITIAL, this::processInitial))
                 .processor(processTransfersInState(PROVISIONED, this::processProvisioned))
-                .processor(processTransfersInState(REQUESTED_ACK, this::processAckRequested))
                 .processor(processTransfersInState(IN_PROGRESS, this::processInProgress))
                 .processor(processTransfersInState(DEPROVISIONING_REQ, this::processDeprovisioningRequest))
                 .processor(processTransfersInState(DEPROVISIONED, this::processDeprovisioned))
@@ -205,17 +203,6 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         observable.invokeForEach(l -> l.deprovisioned(transferProcess));
     }
 
-    private void transitionToRequestAck(String processId) {
-        TransferProcess transferProcess = transferProcessStore.find(processId);
-        if (transferProcess == null) {
-            monitor.severe("TransferProcessManager: no TransferProcess found for acked request");
-            return;
-        }
-
-        transferProcess.transitionRequestAck();
-        transferProcessStore.update(transferProcess);
-    }
-
     private TransferInitiateResult initiateRequest(TransferProcess.Type type, DataRequest dataRequest) {
         // make the request idempotent: if the process exists, return
         var processId = transferProcessStore.processIdForTransferId(dataRequest.getId());
@@ -271,20 +258,6 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
                 });
 
         return true;
-    }
-
-    @WithSpan
-    private boolean processAckRequested(TransferProcess process) {
-        if (!process.getDataRequest().isManagedResources() || (process.getProvisionedResourceSet() != null && !process.getProvisionedResourceSet().empty())) {
-            process.transitionInProgressOrStreaming();
-            transferProcessStore.update(process);
-            observable.invokeForEach(l -> l.inProgress(process));
-            monitor.debug("Process " + process.getId() + " is now " + TransferProcessStates.from(process.getState()));
-            return true;
-        } else {
-            monitor.debug("Process " + process.getId() + " does not yet have provisioned resources, will stay in " + TransferProcessStates.REQUESTED_ACK);
-            return false;
-        }
     }
 
     @WithSpan
@@ -396,15 +369,8 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
     @WithSpan
     private void sendConsumerRequest(TransferProcess process, DataRequest dataRequest) {
-        process.transitionRequested();
-        transferProcessStore.update(process);   // update before sending to accommodate synchronous transports; reliability will be managed by retry and idempotency
         observable.invokeForEach(l -> l.requested(process));
         dispatcherRegistry.send(Object.class, dataRequest, process::getId)
-                .thenApply(o -> {
-                    // TODO: what's the point of this state transition?
-                    transitionToRequestAck(process.getId());
-                    return o;
-                })
                 .whenComplete((o, throwable) -> {
                     if (o != null) {
                         monitor.info("Object received: " + o);

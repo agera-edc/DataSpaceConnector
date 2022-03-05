@@ -24,8 +24,6 @@ public enum TransferProcessStates {
     INITIAL(100),
     PROVISIONING(200),
     PROVISIONED(300),
-    REQUESTED(400),
-    REQUESTED_ACK(500),
     IN_PROGRESS(600),
     STREAMING(700),
     COMPLETED(800),

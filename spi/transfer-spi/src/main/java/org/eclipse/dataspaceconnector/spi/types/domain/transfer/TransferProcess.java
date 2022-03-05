@@ -47,8 +47,6 @@ import static java.util.stream.Collectors.toSet;
  * {@link TransferProcessStates#INITIAL} ->
  * {@link TransferProcessStates#PROVISIONING} ->
  * {@link TransferProcessStates#PROVISIONED} ->
- * {@link TransferProcessStates#REQUESTED} ->
- * {@link TransferProcessStates#REQUESTED_ACK} ->
  * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} ->
  * {@link TransferProcessStates#COMPLETED} ->
  * {@link TransferProcessStates#DEPROVISIONING} ->
@@ -166,23 +164,7 @@ public class TransferProcess implements TraceCarrier {
     }
 
     public void transitionProvisioned() {
-        // requested is allowed to support retries
-        transition(TransferProcessStates.PROVISIONED, TransferProcessStates.PROVISIONING, TransferProcessStates.PROVISIONED, TransferProcessStates.REQUESTED);
-    }
-
-    public void transitionRequested() {
-        if (Type.PROVIDER == type) {
-            throw new IllegalStateException("Provider processes have no REQUESTED state");
-        }
-        transition(TransferProcessStates.REQUESTED, TransferProcessStates.PROVISIONED, TransferProcessStates.REQUESTED);
-
-    }
-
-    public void transitionRequestAck() {
-        if (Type.PROVIDER == type) {
-            throw new IllegalStateException("Provider processes have no REQUESTED state");
-        }
-        transition(TransferProcessStates.REQUESTED_ACK, TransferProcessStates.REQUESTED);
+        transition(TransferProcessStates.PROVISIONED, TransferProcessStates.PROVISIONING, TransferProcessStates.PROVISIONED);
     }
 
     public void transitionInProgressOrStreaming() {
@@ -195,28 +177,16 @@ public class TransferProcess implements TraceCarrier {
     }
 
     public void transitionInProgress() {
-        if (type == Type.CONSUMER) {
-            // the consumer must first transition to the request/ack states before in progress
-            transition(TransferProcessStates.IN_PROGRESS, TransferProcessStates.REQUESTED, TransferProcessStates.REQUESTED_ACK);
-        } else {
-            // the provider transitions from provisioned to in progress directly
-            transition(TransferProcessStates.IN_PROGRESS, TransferProcessStates.REQUESTED, TransferProcessStates.PROVISIONED);
-        }
+            transition(TransferProcessStates.IN_PROGRESS, TransferProcessStates.PROVISIONED);
     }
 
     public void transitionStreaming() {
-        if (type == Type.CONSUMER) {
-            // the consumer must first transition to the request/ack states before in progress
-            transition(TransferProcessStates.STREAMING, TransferProcessStates.REQUESTED_ACK);
-        } else {
-            // the provider transitions from provisioned to in progress directly
             transition(TransferProcessStates.STREAMING, TransferProcessStates.PROVISIONED);
-        }
     }
 
     public void transitionCompleted() {
-        // consumers are in REQUESTED_ACK state after sending a request to the provider, they can directly transition to COMPLETED when the transfer is complete
-        transition(TransferProcessStates.COMPLETED, TransferProcessStates.COMPLETED, TransferProcessStates.IN_PROGRESS, TransferProcessStates.REQUESTED_ACK, TransferProcessStates.STREAMING);
+        // FIXME consumers are in REQUESTED_ACK state after sending a request to the provider, they can directly transition to COMPLETED when the transfer is complete
+        transition(TransferProcessStates.COMPLETED, TransferProcessStates.COMPLETED, TransferProcessStates.IN_PROGRESS, TransferProcessStates.STREAMING);
     }
 
     public void transitionDeprovisioning() {
@@ -233,7 +203,6 @@ public class TransferProcess implements TraceCarrier {
         var allowedStates = new TransferProcessStates[]{
                 TransferProcessStates.UNSAVED, TransferProcessStates.INITIAL,
                 TransferProcessStates.PROVISIONING, TransferProcessStates.PROVISIONED,
-                TransferProcessStates.REQUESTED, TransferProcessStates.REQUESTED_ACK,
                 TransferProcessStates.IN_PROGRESS, TransferProcessStates.STREAMING,
                 TransferProcessStates.DEPROVISIONED, TransferProcessStates.DEPROVISIONING_REQ,
                 TransferProcessStates.DEPROVISIONING, TransferProcessStates.CANCELLED

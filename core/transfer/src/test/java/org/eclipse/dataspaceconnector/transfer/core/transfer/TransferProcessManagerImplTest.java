@@ -45,11 +45,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.INITIAL;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.IN_PROGRESS;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.PROVISIONED;
-import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.REQUESTED_ACK;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -140,7 +140,7 @@ class TransferProcessManagerImplTest {
     }
 
     @Test
-    @DisplayName("verifySend: check that the process is in REQUESTED state")
+    @DisplayName("verifySend: check that the process is in PROVISIONED state")
     void verifySend() throws InterruptedException {
         TransferProcess process = createTransferProcess(PROVISIONED);
         var cdl = new CountDownLatch(1);
@@ -156,23 +156,24 @@ class TransferProcessManagerImplTest {
         manager.start();
 
         assertThat(cdl.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
-        assertThat(process.getState()).describedAs("State should be REQUESTED").isEqualTo(TransferProcessStates.REQUESTED.code());
+        assertThat(process.getState()).describedAs("State should be REQUESTED").isEqualTo(TransferProcessStates.PROVISIONED.code());
         verify(dispatcherRegistry, atLeastOnce()).send(any(), any(), any());
         verify(store, atLeastOnce()).nextForState(eq(INITIAL.code()), anyInt());
-        verify(store, atLeastOnce()).update(process);
     }
 
     @Test
     @DisplayName("checkProvisioned: all resources belong to finite processes")
     void verifyCheckProvisioned_allAreFinite() throws InterruptedException {
-        TransferProcess process = createTransferProcess(REQUESTED_ACK);
+        TransferProcess process = createTransferProcess(PROVISIONED);
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
 
         var cdl = new CountDownLatch(1);
 
-        when(store.nextForState(eq(REQUESTED_ACK.code()), anyInt())).thenReturn(List.of(process));
+        when(store.nextForState(eq(PROVISIONED.code()), anyInt())).thenReturn(List.of(process));
 
-        store.update(process);
+        when(store.find(process.getId())).thenReturn(process);
+        when(dispatcherRegistry.send(eq(Object.class), any(), any()))
+                .thenReturn(completedFuture(new Object()));
         doAnswer(i -> {
             cdl.countDown();
             return null;
@@ -192,12 +193,15 @@ class TransferProcessManagerImplTest {
         TransferType type = TransferType.Builder.transferType()
                 .isFinite(false).build();
 
-        TransferProcess process = createTransferProcess(REQUESTED_ACK, type, true);
+        TransferProcess process = createTransferProcess(PROVISIONED, type, true);
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
 
         var cdl = new CountDownLatch(1);
 
-        when(store.nextForState(eq(REQUESTED_ACK.code()), anyInt())).thenReturn(List.of(process));
+        when(store.nextForState(eq(PROVISIONED.code()), anyInt())).thenReturn(List.of(process));
+        when(store.find(process.getId())).thenReturn(process);
+        when(dispatcherRegistry.send(eq(Object.class), any(), any()))
+                .thenReturn(completedFuture(new Object()));
 
         doAnswer(i -> {
             cdl.countDown();
@@ -215,11 +219,11 @@ class TransferProcessManagerImplTest {
     @Test
     @DisplayName("checkProvisioned: empty provisioned resources")
     void verifyCheckProvisioned_emptyProvisionedResoures() throws InterruptedException {
-        TransferProcess process = createTransferProcess(REQUESTED_ACK);
+        TransferProcess process = createTransferProcess(IN_PROGRESS);
 
         var cdl = new CountDownLatch(1);
 
-        when(store.nextForState(eq(REQUESTED_ACK.code()), anyInt())).thenReturn(List.of(process));
+        when(store.nextForState(eq(IN_PROGRESS.code()), anyInt())).thenReturn(List.of(process));
 
         when(store.nextForState(anyInt(), anyInt())).thenAnswer(i -> {
             cdl.countDown();
@@ -233,7 +237,7 @@ class TransferProcessManagerImplTest {
         manager.start();
 
         assertThat(cdl.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
-        assertThat(process.getState()).describedAs("State should be REQUESTED_ACK").isEqualTo(REQUESTED_ACK.code());
+        assertThat(process.getState()).describedAs("State should be IN_PROGRESS").isEqualTo(IN_PROGRESS.code());
         verify(store, atLeastOnce()).nextForState(anyInt(), anyInt());
         verify(store, atLeastOnce()).update(process);
     }
@@ -241,7 +245,7 @@ class TransferProcessManagerImplTest {
     @Test
     @DisplayName("checkComplete: should transition process with managed resources if checker returns completed")
     void verifyCompletedManagedResources() throws InterruptedException {
-        TransferProcess process = createTransferProcess(REQUESTED_ACK);
+        TransferProcess process = createTransferProcess(IN_PROGRESS);
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
 
@@ -268,7 +272,7 @@ class TransferProcessManagerImplTest {
     @Test
     @DisplayName("checkComplete: should transition process with no managed resources if checker returns completed")
     void verifyCompletedNonManagedResources() throws InterruptedException {
-        TransferProcess process = createTransferProcess(REQUESTED_ACK, new TransferType(), false);
+        TransferProcess process = createTransferProcess(IN_PROGRESS, new TransferType(), false);
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
 
