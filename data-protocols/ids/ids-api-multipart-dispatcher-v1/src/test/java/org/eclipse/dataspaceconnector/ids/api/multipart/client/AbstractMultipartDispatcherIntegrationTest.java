@@ -66,7 +66,7 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
     }
 
     @BeforeEach
-        protected void before(EdcExtension extension) {
+    protected void before(EdcExtension extension) {
 
         var tokenResult = TokenRepresentation.Builder.newInstance().token("token").build();
         var claimToken = ClaimToken.Builder.newInstance().claim("key", "value").build();

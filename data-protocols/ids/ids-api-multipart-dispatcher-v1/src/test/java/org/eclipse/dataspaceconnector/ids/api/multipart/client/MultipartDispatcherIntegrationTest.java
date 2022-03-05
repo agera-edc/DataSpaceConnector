@@ -51,6 +51,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.Cont
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
 import org.eclipse.dataspaceconnector.spi.types.domain.metadata.MetadataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,7 @@ import org.junit.jupiter.api.Test;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -71,6 +73,7 @@ import static org.mockito.Mockito.when;
 
 class MultipartDispatcherIntegrationTest extends AbstractMultipartDispatcherIntegrationTest {
     private static final String CONNECTOR_ID = UUID.randomUUID().toString();
+    private static Properties savedProperties;
     private TransformerRegistry transformerRegistry;
     private IdsMultipartRemoteMessageDispatcher multipartDispatcher;
 
@@ -240,12 +243,18 @@ class MultipartDispatcherIntegrationTest extends AbstractMultipartDispatcherInte
         assertThat(result.getHeader()).isInstanceOf(MessageProcessedNotificationMessage.class);
         assertThat(result.getPayload()).isNull();
     }
-    @BeforeAll
-    protected static void beforea() {
 
+    @BeforeAll
+    protected static void setUpClass() {
+        savedProperties = (Properties) System.getProperties().clone();
         for (Map.Entry<String, String> entry : getSystemProperties().entrySet()) {
             System.setProperty(entry.getKey(), entry.getValue());
         }
+    }
+
+    @AfterAll
+    protected static void tearDownClass() {
+        System.setProperties(savedProperties);
     }
 
     protected static Map<String, String> getSystemProperties() {
