@@ -33,7 +33,7 @@ import static org.eclipse.dataspaceconnector.common.types.Cast.cast;
  * A JUnit extension for running an embedded EDC dependency injection container as part of a test fixture.
  * This extension attaches a dependency injection container to the test lifecycle. Parameter injection of runtime services is supported.
  * <p>
- * If additional lifecycle services are needed (detection, loading and booting of extensions), use the subclass {@link EdcExtension} instead.
+ * If additional lifecycle services are needed (detection, loading and booting of extensions), use {@link EdcExtension} instead.
  */
 public class DependencyInjectionExtension extends BaseRuntime implements BeforeEachCallback, ParameterResolver {
     private ServiceExtensionContext context;
