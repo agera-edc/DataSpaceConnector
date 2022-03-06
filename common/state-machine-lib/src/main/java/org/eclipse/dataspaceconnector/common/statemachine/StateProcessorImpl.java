@@ -35,8 +35,10 @@ public class StateProcessorImpl<T> implements StateProcessor {
     private final Supplier<Collection<T>> entities;
     private final Function<T, Boolean> process;
     private final Predicate<Boolean> isProcessed = it -> it;
+    private final int state;
 
-    public StateProcessorImpl(Supplier<Collection<T>> entitiesSupplier, Function<T, Boolean> process) {
+    public StateProcessorImpl(int state, Supplier<Collection<T>> entitiesSupplier, Function<T, Boolean> process) {
+        this.state = state;
         this.entities = entitiesSupplier;
         this.process = process;
     }
@@ -44,6 +46,10 @@ public class StateProcessorImpl<T> implements StateProcessor {
     @Override
     public Long process() {
         return entities.get().stream()
+                .map(p -> {
+                    System.out.println("[PROCESSOR] " + state + " " + p);
+                    return p;
+                })
                 .map(process)
                 .filter(isProcessed)
                 .count();
