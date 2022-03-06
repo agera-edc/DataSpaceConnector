@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.spi.monitor;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.PrintStream;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.function.Supplier;
@@ -34,13 +35,16 @@ public class ConsoleMonitor implements Monitor {
 
     private final Level level;
     private final String prefix;
+    private final PrintStream destination;
 
     public ConsoleMonitor() {
+        this.destination = System.out;
         this.prefix = "";
         this.level = Level.DEBUG;
     }
 
-    public ConsoleMonitor(@Nullable String runtimeName, Level level) {
+    public ConsoleMonitor(PrintStream destination, @Nullable String runtimeName, Level level) {
+        this.destination = destination;
         this.prefix = format("[%s] ", runtimeName);
         this.level = level;
     }
@@ -76,11 +80,11 @@ public class ConsoleMonitor implements Monitor {
 
     private void output(String level, Supplier<String> supplier, Throwable... errors) {
         String time = ZonedDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        System.out.println(prefix + level + " " + time + " " + supplier.get());
+        destination.println(prefix + level + " " + time + " " + supplier.get());
         if (errors != null) {
             for (Throwable error : errors) {
                 if (error != null) {
-                    error.printStackTrace(System.out);
+                    error.printStackTrace(destination);
                 }
             }
         }

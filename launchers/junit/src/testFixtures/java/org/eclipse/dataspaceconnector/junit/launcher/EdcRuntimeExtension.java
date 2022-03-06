@@ -14,14 +14,17 @@
 package org.eclipse.dataspaceconnector.junit.launcher;
 
 import org.eclipse.dataspaceconnector.spi.EdcException;
+import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.extension.AfterTestExecutionCallback;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
@@ -32,6 +35,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.eclipse.dataspaceconnector.boot.system.ExtensionLoader.loadMonitor;
 
@@ -55,6 +59,7 @@ public class EdcRuntimeExtension extends EdcExtension {
     private final String moduleName;
     private final String logPrefix;
     private final Map<String, String> properties;
+    private final ByteArrayOutputStream os = new ByteArrayOutputStream();
     private Thread runtimeThread;
 
     public EdcRuntimeExtension(String moduleName, String logPrefix, Map<String, String> properties) {
@@ -167,13 +172,14 @@ public class EdcRuntimeExtension extends EdcExtension {
         if (runtimeThread != null) {
             runtimeThread.join();
         }
+        context.getExecutionException()
+                .ifPresent(e -> System.out.println(os.toString(UTF_8)));
         super.afterTestExecution(context);
     }
 
     @Override
     protected @NotNull Monitor createMonitor() {
-        return new Monitor() {
-        };
+        return new ConsoleMonitor(new PrintStream(os), logPrefix, ConsoleMonitor.Level.DEBUG);
     }
 
     /**
