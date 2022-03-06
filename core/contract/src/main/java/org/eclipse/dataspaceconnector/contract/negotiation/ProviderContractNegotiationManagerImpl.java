@@ -272,11 +272,11 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     }
 
     private StateProcessorImpl<ContractNegotiation> processNegotiationsInState(ContractNegotiationStates state, Function<ContractNegotiation, Boolean> function) {
-        return new StateProcessorImpl<>(() -> negotiationStore.nextForState(state.code(), batchSize), telemetry.contextPropagationMiddleware(function));
+        return new StateProcessorImpl<>(state.code(), () -> negotiationStore.nextForState(state.code(), batchSize), telemetry.contextPropagationMiddleware(function));
     }
 
     private StateProcessorImpl<ContractNegotiationCommand> onCommands(Function<ContractNegotiationCommand, Boolean> process) {
-        return new StateProcessorImpl<>(() -> commandQueue.dequeue(5), process);
+        return new StateProcessorImpl<>(0, () -> commandQueue.dequeue(5), process);
     }
 
     private boolean processCommand(ContractNegotiationCommand command) {

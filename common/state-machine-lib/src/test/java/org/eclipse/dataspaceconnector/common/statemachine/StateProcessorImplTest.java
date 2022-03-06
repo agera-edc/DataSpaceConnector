@@ -10,7 +10,7 @@ class StateProcessorImplTest {
 
     @Test
     void shouldReturnTheProcessedCount() {
-        var processor = new StateProcessorImpl<>(() -> List.of("any"), string -> true);
+        var processor = new StateProcessorImpl<>(0, () -> List.of("any"), string -> true);
 
         var count = processor.process();
 
@@ -19,7 +19,7 @@ class StateProcessorImplTest {
 
     @Test
     void shouldNotCountUnprocessedEntities() {
-        var processor = new StateProcessorImpl<>(() -> List.of("any"), string -> false);
+        var processor = new StateProcessorImpl<>(0, () -> List.of("any"), string -> false);
 
         var count = processor.process();
 
