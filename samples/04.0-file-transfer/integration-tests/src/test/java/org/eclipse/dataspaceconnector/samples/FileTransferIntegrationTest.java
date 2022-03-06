@@ -25,7 +25,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
 import static org.eclipse.dataspaceconnector.samples.FileTransferTestUtils.PROVIDER_ASSET_NAME;
@@ -83,9 +85,10 @@ class FileTransferIntegrationTest {
 
         // Assert
         var copiedFilePath = Path.of(format(CONSUMER_ASSET_PATH + "/%s.txt", PROVIDER_ASSET_NAME));
-        assertThat(copiedFilePath)
-                .withFailMessage("Destination file %s not created", copiedFilePath)
-                .exists();
+        await().atMost(30, SECONDS).untilAsserted(() ->
+                assertThat(copiedFilePath)
+                        .withFailMessage("Destination file %s not created", copiedFilePath)
+                        .exists());
         var actualFileContent = Files.readString(copiedFilePath);
         assertThat(actualFileContent)
                 .withFailMessage("Transferred file contents are not same as the source file")
