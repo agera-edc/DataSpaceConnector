@@ -177,11 +177,11 @@ public class TransferProcess implements TraceCarrier {
     }
 
     public void transitionInProgress() {
-            transition(TransferProcessStates.IN_PROGRESS, TransferProcessStates.PROVISIONED);
+        transition(TransferProcessStates.IN_PROGRESS, TransferProcessStates.PROVISIONED);
     }
 
     public void transitionStreaming() {
-            transition(TransferProcessStates.STREAMING, TransferProcessStates.PROVISIONED);
+        transition(TransferProcessStates.STREAMING, TransferProcessStates.PROVISIONED);
     }
 
     public void transitionCompleted() {

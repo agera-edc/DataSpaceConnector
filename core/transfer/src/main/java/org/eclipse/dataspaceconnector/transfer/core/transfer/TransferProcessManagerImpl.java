@@ -373,7 +373,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     @WithSpan
     private void sendConsumerRequest(TransferProcess process, DataRequest dataRequest) {
         var result = Failsafe.with(retryPolicy)
-                .getStageAsync(() ->dispatcherRegistry.send(Object.class, dataRequest, process::getId));
+                .getStageAsync(() -> dispatcherRegistry.send(Object.class, dataRequest, process::getId));
         result.exceptionally((e) -> {
                     TransferProcess transferProcess = transferProcessStore.find(process.getId());
                     if (transferProcess == null) {
