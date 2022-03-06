@@ -225,11 +225,11 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
     private StateProcessorImpl<TransferProcess> processTransfersInState(TransferProcessStates state, Function<TransferProcess, Boolean> function) {
         var functionWithTraceContext = telemetry.contextPropagationMiddleware(function);
-        return new StateProcessorImpl<>(state.code(), () -> transferProcessStore.nextForState(state.code(), batchSize), functionWithTraceContext);
+        return new StateProcessorImpl<>(() -> transferProcessStore.nextForState(state.code(), batchSize), functionWithTraceContext);
     }
 
     private StateProcessorImpl<TransferProcessCommand> onCommands(Function<TransferProcessCommand, Boolean> process) {
-        return new StateProcessorImpl<>(0, () -> commandQueue.dequeue(5), process);
+        return new StateProcessorImpl<>(() -> commandQueue.dequeue(5), process);
     }
 
     private boolean processCommand(TransferProcessCommand command) {
