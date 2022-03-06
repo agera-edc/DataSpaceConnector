@@ -15,6 +15,8 @@
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
 import io.opentelemetry.extension.annotations.WithSpan;
+import net.jodah.failsafe.Failsafe;
+import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.common.statemachine.StateMachine;
 import org.eclipse.dataspaceconnector.common.statemachine.StateProcessorImpl;
 import org.eclipse.dataspaceconnector.spi.command.CommandProcessor;
@@ -97,6 +99,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     private Monitor monitor;
     private Telemetry telemetry;
     private StateMachine stateMachine;
+    private RetryPolicy<Object> retryPolicy;
 
     private TransferProcessManagerImpl() {
     }
@@ -369,22 +372,31 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
     @WithSpan
     private void sendConsumerRequest(TransferProcess process, DataRequest dataRequest) {
-        observable.invokeForEach(l -> l.requested(process));
-        dispatcherRegistry.send(Object.class, dataRequest, process::getId)
-                .whenComplete((o, throwable) -> {
-                    if (o != null) {
-                        monitor.info("Object received: " + o);
-                        TransferProcess transferProcess = transferProcessStore.find(process.getId());
-                        if (transferProcess == null) {
-                            monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", process.getId()));
-                            return;
-                        }
-
-                        transferProcess.transitionInProgressOrStreaming();
-                        transferProcessStore.update(transferProcess);
-                        observable.invokeForEach(l -> l.inProgress(transferProcess));
+        var result = Failsafe.with(retryPolicy)
+                .getStageAsync(() ->dispatcherRegistry.send(Object.class, dataRequest, process::getId));
+        result.exceptionally((e) -> {
+                    TransferProcess transferProcess = transferProcessStore.find(process.getId());
+                    if (transferProcess == null) {
+                        monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", process.getId()));
+                        return null;
                     }
-                });
+                    transferProcess.transitionError(e.getMessage());
+                    transferProcessStore.update(transferProcess);
+                    observable.invokeForEach(l -> l.error(transferProcess));
+                    return null;
+                }
+        );
+        result.thenRun(() -> {
+            TransferProcess transferProcess = transferProcessStore.find(process.getId());
+            if (transferProcess == null) {
+                monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", process.getId()));
+                return;
+            }
+
+            transferProcess.transitionInProgressOrStreaming();
+            transferProcessStore.update(transferProcess);
+            observable.invokeForEach(l -> l.inProgress(transferProcess));
+        });
     }
 
     public static class Builder {
@@ -464,6 +476,11 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             return this;
         }
 
+        public Builder retryPolicy(RetryPolicy<Object> retryPolicy) {
+            manager.retryPolicy = retryPolicy;
+            return this;
+        }
+
         public Builder observable(TransferProcessObservable observable) {
             manager.observable = observable;
             return this;
@@ -483,6 +500,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             Objects.requireNonNull(manager.commandQueue, "commandQueue cannot be null");
             Objects.requireNonNull(manager.commandRunner, "commandRunner cannot be null");
             Objects.requireNonNull(manager.statusCheckerRegistry, "StatusCheckerRegistry cannot be null!");
+            Objects.requireNonNull(manager.retryPolicy, "retryPolicy cannot be null");
             Objects.requireNonNull(manager.observable, "Observable cannot be null");
             Objects.requireNonNull(manager.telemetry, "Telemetry cannot be null");
             Objects.requireNonNull(manager.transferProcessStore, "Store cannot be null");

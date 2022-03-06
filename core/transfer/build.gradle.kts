@@ -13,6 +13,7 @@
  */
 
 val openTelemetryVersion: String by project
+val jodahFailsafeVersion: String by project
 
 plugins {
     `java-library`
@@ -24,6 +25,7 @@ dependencies {
     api(project(":common:util"))
 
     implementation("io.opentelemetry:opentelemetry-extension-annotations:${openTelemetryVersion}")
+    implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
 
     testImplementation(project(":extensions:in-memory:transfer-store-memory"))
 }

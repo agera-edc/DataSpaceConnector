@@ -14,6 +14,8 @@
 
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
+import net.jodah.failsafe.RetryPolicy;
+import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
 import org.eclipse.dataspaceconnector.spi.command.CommandRunner;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
@@ -46,7 +48,9 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static java.util.concurrent.CompletableFuture.failedFuture;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.ERROR;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.INITIAL;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.IN_PROGRESS;
 import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.PROVISIONED;
@@ -95,6 +99,7 @@ class TransferProcessManagerImplTest {
                 .statusCheckerRegistry(statusCheckerRegistry)
                 .observable(mock(TransferProcessObservable.class))
                 .store(store)
+                .retryPolicy(new RetryPolicy<>())
                 .build();
     }
 
@@ -159,6 +164,31 @@ class TransferProcessManagerImplTest {
         assertThat(process.getState()).describedAs("State should be REQUESTED").isEqualTo(TransferProcessStates.PROVISIONED.code());
         verify(dispatcherRegistry, atLeastOnce()).send(any(), any(), any());
         verify(store, atLeastOnce()).nextForState(eq(INITIAL.code()), anyInt());
+    }
+
+    @Test
+    void verifyCheckProvisioned_xxx() throws InterruptedException {
+        TransferProcess process = createTransferProcess(PROVISIONED);
+        process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
+
+        var cdl = new CountDownLatch(1);
+
+        when(store.nextForState(eq(PROVISIONED.code()), anyInt())).thenReturn(List.of(process));
+
+        when(store.find(process.getId())).thenReturn(process);
+        when(dispatcherRegistry.send(eq(Object.class), any(), any()))
+                .thenReturn(failedFuture(new EdcException("Error sending payload")));
+        doAnswer(i -> {
+            cdl.countDown();
+            return null;
+        }).when(store).update(process);
+
+        manager.start();
+
+        assertThat(cdl.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
+        assertThat(process.getState()).describedAs("State should be ERROR").isEqualTo(ERROR.code());
+        verify(store, atLeastOnce()).nextForState(anyInt(), anyInt());
+        verify(store, atLeastOnce()).update(process);
     }
 
     @Test

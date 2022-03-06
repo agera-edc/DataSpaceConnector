@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.transfer.core;
 
+import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.spi.command.BoundedCommandQueue;
 import org.eclipse.dataspaceconnector.spi.command.CommandHandlerRegistry;
 import org.eclipse.dataspaceconnector.spi.command.CommandRunner;
@@ -48,6 +49,8 @@ import org.eclipse.dataspaceconnector.transfer.core.provision.ProvisionManagerIm
 import org.eclipse.dataspaceconnector.transfer.core.provision.ResourceManifestGeneratorImpl;
 import org.eclipse.dataspaceconnector.transfer.core.transfer.StatusCheckerRegistryImpl;
 import org.eclipse.dataspaceconnector.transfer.core.transfer.TransferProcessManagerImpl;
+
+import java.time.temporal.ChronoUnit;
 
 /**
  * Provides core data transfer services to the system.
@@ -113,6 +116,10 @@ public class CoreTransferExtension implements ServiceExtension {
         var observable = new TransferProcessObservableImpl();
         context.registerService(TransferProcessObservable.class, observable);
 
+        RetryPolicy<Object> retryPolicy = new RetryPolicy<>()
+                .withBackoff(500, 5000, ChronoUnit.MILLIS)
+                .withMaxRetries(3);
+
         processManager = TransferProcessManagerImpl.Builder.newInstance()
                 .waitStrategy(waitStrategy)
                 .manifestGenerator(manifestGenerator)
@@ -127,6 +134,7 @@ public class CoreTransferExtension implements ServiceExtension {
                 .commandQueue(commandQueue)
                 .commandRunner(new CommandRunner<>(registry, monitor))
                 .observable(observable)
+                .retryPolicy(retryPolicy)
                 .store(transferProcessStore)
                 .build();
 

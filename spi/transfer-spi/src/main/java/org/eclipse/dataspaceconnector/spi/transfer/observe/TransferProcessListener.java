@@ -107,13 +107,4 @@ public interface TransferProcessListener {
      */
     default void error(TransferProcess process) {
     }
-
-    /**
-     * Called after a {@link TransferProcess} has moved to state
-     * {@link TransferProcessStates#REQUESTED REQUESTED}.
-     *
-     * @param process the transfer process whose state has changed.
-     */
-    default void requested(TransferProcess process) {
-    }
 }

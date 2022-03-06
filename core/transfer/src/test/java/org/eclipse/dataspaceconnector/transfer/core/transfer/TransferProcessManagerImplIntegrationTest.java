@@ -1,5 +1,6 @@
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
+import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
 import org.eclipse.dataspaceconnector.spi.command.CommandRunner;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
@@ -69,6 +70,7 @@ class TransferProcessManagerImplIntegrationTest {
                 .statusCheckerRegistry(mock(StatusCheckerRegistry.class))
                 .observable(mock(TransferProcessObservable.class))
                 .store(store)
+                .retryPolicy(new RetryPolicy<>())
                 .build();
 
         transferProcessManager.start();
