@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.dataplane.framework;
 import org.eclipse.dataspaceconnector.dataplane.framework.manager.DataPlaneManagerImpl;
 import org.eclipse.dataspaceconnector.dataplane.framework.manager.TransferServiceSelectionStrategy;
 import org.eclipse.dataspaceconnector.dataplane.framework.pipeline.PipelineServiceImpl;
+import org.eclipse.dataspaceconnector.dataplane.framework.pipeline.PipelineServiceTransferServiceImpl;
 import org.eclipse.dataspaceconnector.dataplane.framework.store.InMemoryDataPlaneStore;
 import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.OutputStreamDataSinkFactory;
@@ -75,6 +76,7 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
         var pipelineService = new PipelineServiceImpl();
         pipelineService.registerFactory(new OutputStreamDataSinkFactory()); // Added by default to support synchronous data transfer, i.e. pull data
         context.registerService(PipelineService.class, pipelineService);
+        var transferService = new PipelineServiceTransferServiceImpl(pipelineService);
 
         monitor = context.getMonitor();
         var queueCapacity = context.getSetting(QUEUE_CAPACITY, DEFAULT_QUEUE_CAPACITY);
@@ -90,7 +92,7 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
                         TransferServiceSelectionStrategy::selectFirst))
                 .store(new InMemoryDataPlaneStore(IN_MEMORY_STORE_CAPACITY))
                 .monitor(monitor).build();
-        dataPlaneManager.registerTransferService(pipelineService);
+        dataPlaneManager.registerTransferService(transferService);
 
         context.registerService(DataPlaneManager.class, dataPlaneManager);
     }

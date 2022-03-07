@@ -33,10 +33,10 @@ public interface TransferService {
     /**
      * Returns true if the request is valid.
      */
-    @NotNull Result<Boolean> validate(DataFlowRequest request);
+    Result<Boolean> validate(DataFlowRequest request);
 
     /**
      * Transfers data from source to destination.
      */
-    @NotNull CompletableFuture<TransferResult> transfer(DataFlowRequest request);
+    CompletableFuture<TransferResult> transfer(DataFlowRequest request);
 }
