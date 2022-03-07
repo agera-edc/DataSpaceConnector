@@ -75,7 +75,7 @@ _Command as `./gradlew :extensions:azure:cosmos test -DIncludeTags="azure-cosmos
 
 All integration tests should go into the [integration test workflow](../.github/workflows/integrationtests.yaml), every "technology" should have its own job, and technology specific tests can be targeted using Junit tags with `-DIncludeTags` property as described above in document.
 
-For example let's assume we've implemented a Postgres-based Asset Index, then the integration tests for that should go into a "Postgres" `job`, and every module that adds a test (here: `extensions:postgres:assetindex`) should apply a composite annotation (here: `@PostgresIntegrationTest` adding a tag `postgres-integration-test`) on its integration tests this tagging will be used by the CI pipeline step to target and execute the integration tests related to Postgres.
+For example let's assume we've implemented a Postgres-based Asset Index, then the integration tests for that should go into a "Postgres" `job`, and every module that adds a test (here: `extensions:postgres:assetindex`) should apply a composite annotation (here: `@PostgresIntegrationTest` adding a tag `postgres-integration-test`) on its integration tests. This tagging will be used by the CI pipeline step to target and execute the integration tests related to Postgres.
 
 Let's also make sure that the code is checked out before and integration tests only run on the upstream repo.
 
