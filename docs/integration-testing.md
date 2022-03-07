@@ -57,10 +57,10 @@ As mentioned above the JUnit runner won't pick up integration tests unless a tag
 
 _Cosmos DB integration tests are run by default against a locally running [Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator). You can also use an instance of Cosmos DB running in Azure, in which case you should set the `COSMOS_KEY` environment variable._
 
-if needed to run all kind of tests(e.g. unit & integration) then it can be achieved by passing the `RunAllTest=true` parameter to the `gradlew` command:
+if needed to run all kind of tests(e.g. unit & integration) then it can be achieved by passing the `RunAllTests=true` parameter to the `gradlew` command:
 
 ```bash
-./gradlew test -DRunAllTest="true"
+./gradlew test -DRunAllTests="true"
 ```
 
 If needed to run all integration tests from a module (and all of its sub-modules) then it can be achieved by specifying module project to the `gradlew` command. For example to run all integration tests from Azure cosmos db module and its sub-modules:

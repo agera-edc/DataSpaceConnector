@@ -150,9 +150,9 @@ allprojects {
     }
 
     tasks.withType<Test> {
-        // Target all type of test e.g. -DRunAllTest="true"
-        val runAllTest: String = System.getProperty("RunAllTest", "false");
-        if (runAllTest == "true") {
+        // Target all type of test e.g. -DRunAllTests="true"
+        val runAllTests: String = System.getProperty("RunAllTests", "false");
+        if (runAllTests == "true") {
             useJUnitPlatform()
         } else {
             // Target specific set of tests by specifying junit tags on command-line e.g. -DIncludeTags="tag-name1,tag-name2"
