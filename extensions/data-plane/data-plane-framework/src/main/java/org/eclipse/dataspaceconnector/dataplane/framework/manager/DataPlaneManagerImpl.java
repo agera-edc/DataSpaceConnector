@@ -24,7 +24,6 @@ import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore.State;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,8 +123,7 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                     // Should not happen since resolving a transferService is part of payload validation
                     // TODO persist error details
                     store.completed(polledRequest.getProcessId());
-                }
-                else {
+                } else {
                     transferService.transfer(request).whenComplete((result, exception) -> {
                         if (polledRequest.isTrackable()) {
                             // TODO persist TransferResult or error details
