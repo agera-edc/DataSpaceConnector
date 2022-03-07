@@ -14,12 +14,10 @@
 
 package org.eclipse.dataspaceconnector.configuration.fs;
 
-import org.eclipse.dataspaceconnector.junit.launcher.DependencyInjectionExtension;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -32,7 +30,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(DependencyInjectionExtension.class)
 class FsConfigurationExtensionTest {
     private FsConfigurationExtension configurationExtension;
     private ServiceExtensionContext context;

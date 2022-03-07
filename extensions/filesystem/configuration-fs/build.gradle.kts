@@ -20,7 +20,6 @@ plugins {
 dependencies {
     api(project(":spi:core-spi"))
     implementation(project(":common:util"))
-    testImplementation(testFixtures(project(":launchers:junit")))
 }
 
 publishing {

@@ -26,6 +26,13 @@ public class IdsTransformServiceExtension implements ServiceExtension {
     @Inject
     private TransformerRegistry registry;
 
+    public IdsTransformServiceExtension(TransformerRegistry registry) {
+        this.registry = registry;
+    }
+
+    public IdsTransformServiceExtension() {
+    }
+
     @Override
     public String name() {
         return "IDS Transform Extension";

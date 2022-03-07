@@ -55,7 +55,15 @@ public class BaseRuntime {
      * Main entry point to runtime initialization. Calls all methods.
      */
     protected void boot() {
-        ServiceExtensionContext context = createServiceExtensionContext();
+        var typeManager = createTypeManager();
+        monitor = createMonitor();
+        MonitorProvider.setInstance(monitor);
+
+        var telemetry = loadTelemetry();
+
+        var context = createContext(typeManager, monitor, telemetry);
+        initializeContext(context);
+
 
         var name = getRuntimeName(context);
         try {
@@ -77,19 +85,6 @@ public class BaseRuntime {
 
         monitor.info(format("%s ready", name));
 
-    }
-
-    @NotNull
-    protected ServiceExtensionContext createServiceExtensionContext() {
-        var typeManager = createTypeManager();
-        monitor = createMonitor();
-        MonitorProvider.setInstance(monitor);
-
-        var telemetry = loadTelemetry();
-
-        var context = createContext(typeManager, monitor, telemetry);
-        initializeContext(context);
-        return context;
     }
 
     /**
