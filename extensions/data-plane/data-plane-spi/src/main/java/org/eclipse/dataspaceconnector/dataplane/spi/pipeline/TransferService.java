@@ -16,7 +16,6 @@ package org.eclipse.dataspaceconnector.dataplane.spi.pipeline;
 import org.eclipse.dataspaceconnector.dataplane.spi.result.TransferResult;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
