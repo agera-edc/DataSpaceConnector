@@ -52,7 +52,7 @@ This does not at all discourage the use of external test environments like conta
 As mentioned above the JUnit runner won't pick up integration tests unless a tag is provided. For instance if needed to run integration tests related to `Azure CosmosDB` then it can be achieved by passing the `IncludeTags` parameter to the `gradlew` command:
 
 ```bash
-./gradlew test -DIncludeTags="azure-cosmos-db-integration-test"
+./gradlew test -p path/to/module -DIncludeTags="azure-cosmos-db-integration-test"
 ```
 
 _Cosmos DB integration tests are run by default against a locally running [Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator). You can also use an instance of Cosmos DB running in Azure, in which case you should set the `COSMOS_KEY` environment variable._
