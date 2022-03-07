@@ -25,8 +25,8 @@ import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
@@ -46,7 +46,7 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
     private int workers = 1;
     private long waitTimeout = 100;
 
-    private List<TransferService> transferServices = new ArrayList<>();
+    private final Collection<TransferService> transferServices = new LinkedHashSet<>();
     private PipelineService pipelineService;
     private Monitor monitor;
 

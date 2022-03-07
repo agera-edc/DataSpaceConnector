@@ -53,5 +53,10 @@ public interface DataPlaneManager {
      */
     State transferState(String processId);
 
+    /**
+     * Adds a {@link TransferService} to the collection of services that can perform data transfers.
+     *
+     * @param transferService the service to add.
+     */
     void registerTransferService(TransferService transferService);
 }

@@ -20,6 +20,7 @@ import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -39,16 +40,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DataPlaneManagerImplTest {
-    private TransferService transferService = mock(TransferService.class);
-    private TransferService transferService2 = mock(TransferService.class);
+    TransferService transferService = mock(TransferService.class);
+    TransferService transferService2 = mock(TransferService.class);
 
     DataPlaneStore store = new InMemoryDataPlaneStore(10);
     DataFlowRequest request = createRequest();
     CountDownLatch latch = new CountDownLatch(1);
-    ArgumentCaptor<Stream> streamCaptor = ArgumentCaptor.forClass(Stream.class);
+    ArgumentCaptor<Stream<TransferService>> streamCaptor = ArgumentCaptor.forClass(Stream.class);
     TransferServiceSelectionStrategy transferServiceSelectionStrategy = mock(TransferServiceSelectionStrategy.class);
 
-    {
+    @BeforeEach
+    public void setUp() {
         when(transferServiceSelectionStrategy.chooseTransferService(any(), any()))
                 .thenReturn(transferService);
     }
@@ -69,13 +71,7 @@ class DataPlaneManagerImplTest {
         });
 
 
-        dataPlaneManager.start();
-
-        dataPlaneManager.initiateTransfer(request);
-
-        assertThat(latch.await(10000, TimeUnit.MILLISECONDS)).isTrue();
-
-        dataPlaneManager.stop();
+        performTransfer(dataPlaneManager);
 
         verify(transferServiceSelectionStrategy).chooseTransferService(eq(request), streamCaptor.capture());
         assertThat(streamCaptor.getValue()).containsExactly(transferService);
@@ -117,6 +113,7 @@ class DataPlaneManagerImplTest {
 
     @Test
     void verifyWorkDispatch_onUnavailableTransferService_completesTransfer() throws InterruptedException {
+        // Modify store used in createDataPlaneManager()
         store = mock(DataPlaneStore.class);
 
         var dataPlaneManager = createDataPlaneManager();
@@ -129,15 +126,8 @@ class DataPlaneManagerImplTest {
             return null;
         }).when(store).completed(request.getProcessId());
 
-        dataPlaneManager.start();
-
-        dataPlaneManager.initiateTransfer(request);
-
-        assertThat(latch.await(10000, TimeUnit.MILLISECONDS)).isTrue();
-
-        dataPlaneManager.stop();
+        performTransfer(dataPlaneManager);
     }
-
 
     private DataPlaneManagerImpl createDataPlaneManager() {
         var monitor = mock(Monitor.class);
@@ -160,6 +150,16 @@ class DataPlaneManagerImplTest {
                 .sourceDataAddress(DataAddress.Builder.newInstance().type("type").build())
                 .destinationDataAddress(DataAddress.Builder.newInstance().type("type").build())
                 .build();
+    }
+
+    void performTransfer(DataPlaneManagerImpl dataPlaneManager) throws InterruptedException {
+        dataPlaneManager.start();
+
+        dataPlaneManager.initiateTransfer(request);
+
+        assertThat(latch.await(10000, TimeUnit.MILLISECONDS)).isTrue();
+
+        dataPlaneManager.stop();
     }
 
 }

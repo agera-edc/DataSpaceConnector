@@ -12,11 +12,9 @@
  *
  */
 
-val okHttpVersion: String by project
 val storageBlobVersion: String by project;
 val jodahFailsafeVersion: String by project
 val jupiterVersion: String by project
-val assertj: String by project
 val faker: String by project
 
 plugins {
