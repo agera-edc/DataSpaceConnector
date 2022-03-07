@@ -125,13 +125,14 @@ public class DataPlaneManagerImpl implements DataPlaneManager {
                     // TODO persist error details
                     store.completed(polledRequest.getProcessId());
                 }
-
-                transferService.transfer(request).whenComplete((result, exception) -> {
-                    if (polledRequest.isTrackable()) {
-                        // TODO persist TransferResult or error details
-                        store.completed(polledRequest.getProcessId());
-                    }
-                });
+                else {
+                    transferService.transfer(request).whenComplete((result, exception) -> {
+                        if (polledRequest.isTrackable()) {
+                            // TODO persist TransferResult or error details
+                            store.completed(polledRequest.getProcessId());
+                        }
+                    });
+                }
             } catch (InterruptedException e) {
                 Thread.interrupted();
                 active.set(false);
