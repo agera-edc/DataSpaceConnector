@@ -2,25 +2,17 @@
 
 ## Definition and distinction
 
-While _unit tests_ test one single class by stubbing or mocking dependencies, and an end-2-end test relies on the _
-entire_ system to be present, the _integration test_ tests one particular aspect of a software, which may involve external
-systems.
+While _unit tests_ test one single class by stubbing or mocking dependencies, and an end-2-end test relies on the _entire_ system to be present, the _integration test_ tests one particular aspect of a software, which may involve external systems.
 
 ## TL;DR
 
-Use integration tests only when necessary, keep them concise, implement them in a defensive manner using timeouts and
-randomized names, setup external systems during the workflow.
+Use integration tests only when necessary, keep them concise, implement them in a defensive manner using timeouts and randomized names, setup external systems during the workflow.
 
 ## When to use them
 
-Generally we should aim at writing unit tests rather than integration tests, because they are simpler, more stable and
-typically run faster. Sometimes that's not (easily) possible, especially when an implementation relies on an external
-system that is not easily mocked or stubbed such as cloud-based databases.
+Generally we should aim at writing unit tests rather than integration tests, because they are simpler, more stable and typically run faster. Sometimes that's not (easily) possible, especially when an implementation relies on an external system that is not easily mocked or stubbed such as cloud-based databases.
 
-Therefore, in many cases writing unit tests is more involved that writing an integration test, for example say we wanted
-to test our implementation of a CosmosDB-backed queue. We would have to mock the behavior of the CosmosDB API, which -
-while certainly possible - can get complicated pretty quickly. Now we still might do that for simpler scenarios, but
-eventually we might want to write an integration test that uses a CosmosDB test instance.
+Therefore, in many cases writing unit tests is more involved that writing an integration test, for example say we wanted to test our implementation of a CosmosDB-backed queue. We would have to mock the behavior of the CosmosDB API, which - while certainly possible - can get complicated pretty quickly. Now we still might do that for simpler scenarios, but eventually we might want to write an integration test that uses a CosmosDB test instance.
 
 ## Coding Guidelines
 
