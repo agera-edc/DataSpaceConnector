@@ -24,7 +24,12 @@ eventually we might want to write an integration test that uses a CosmosDB test 
 
 ## Coding Guidelines
 
-EDC codebase has few annotations to help you write and categorize integration tests. The following are some of the available ones:
+EDC codebase has few annotations and these annotation focuses on two important aspects:
+
+- Exclude integration tests by default from JUnit test runner as these tests relies on external systems which might not be available during a local execution.
+- Categorize integration tests with help of JUnit Tags.
+
+Following are some of the available annotations:
 
 - `@IntegrationTest`: Marks an integration test with `IntegrationTest` Junit tag. This is the default tag and can be used if you do not want to specify any other tags on your test to do further categorization.
 
@@ -35,9 +40,10 @@ Below annotations are used to categorize integration tests based on their techno
 - `@AwsS3IntegrationTest`: Marks an integration test with `AwsS3IntegrationTest` Junit tag. This should be used when the integration test is related to `AWS S3`.
 - `@DapsTest`: Marks an integration test with `DapsIntegrationTest` Junit tag. This should be used when the integration test is related to `Daps IAM`.
 
-We encourage you to use these available annotation but if your integration test does not fit in one of these available annotations and you want to categorize them base on their technologies then feel free to create a new annotations but make sure to use composite annotations which contains `@IntegrationTest`. If you do not wish to categorize base on their technologies then you can use already available `@IntegrationTest` annotation.
+We encourage you to use these available annotation but if your integration test does not fit in one of these available annotations and you want to categorize them based on their technologies then feel free to create a new annotations but make sure to use composite annotations which contains `@IntegrationTest`. If you do not wish to categorize based on their technologies then you can use already available `@IntegrationTest` annotation.
 
-- By default JUnit test runner ignores all integration tests because in root `build.gradle.kts` file we have excluded all tests with `IntegrationTest` Junit tag.
+- By default JUnit test runner ignores all integration tests because in root `build.gradle.kts` file we have excluded all tests marked with `IntegrationTest` Junit tag.
+- If your integration test does not relies on an external system then you may not want to use above mentioned annotations.
 
 All integration tests should specify annotation to categorize them and the `"...IntegrationTest"` postfix to distinguish them clearly from unit tests. They should reside in the same package as unit tests because all tests should maintain package consistency to their test subject.
 
