@@ -195,6 +195,16 @@ Our suggestion would be to start with a repository split by vendor, extracting A
 | Lower barriers of entry (everything in one place) to understand the project           | Contributing is easier (forking, no need to understand the whole repo)                                  |
 | Good white box testing because all projects are testable together                     | Good black box testing because each project is testable separately, and verifiable independently        |
 
+### Using git submodules for local development
+
+[Git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) was evaluated as an alternative to the local maven repository for the inner development loop (see [git-submodule branch](https://github.com/agera-edc/DataSpaceConnector-AzureExtensions/tree/git-submodules) in Azure Extensions repo). With this setup, vendor extensions could include the EDC Core codebase as a submodule with the intent of compiling directly against the EDC Codebase instead of using pre-built snapshot artifacts, and thus skipping the step of having to publish those.
+
+The main issue with this approach is that publishing snapshot artefacts are still required to build and release EDC Core and vendor extensions in CI. This means the 2 approaches must coexist, one in CI and the other one for local development. 
+
+Additionally, gradle files need to be adapted to use EDC Core as available in the submodule, which we could not get running within the scope of this spike. Gradle and Maven were not designed with this use case in mind.
+
+Finally, the development cycle with the local Maven repository seems to be efficient enough, publishing local snapshots takes few seconds and IntelliJ automatically picks and refreshes projects using these snapshots.
+
 ### Dependency analysis
 
 This section shows if there are any blockers or tightly coupled dependencies that can have impact on the repo split process (for the current state of the
