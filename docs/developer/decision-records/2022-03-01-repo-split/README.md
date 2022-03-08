@@ -152,7 +152,7 @@ Releasing new versions of a vendor extension (for instance a bugfix) can be done
 EDC Core version: `<MAJOR>.<MINOR>`
 Extension version: `<MAJOR>.<MINOR>.<PATCH>`
 
-Compatible EDC Core and Extensions should have the same <MAJOR> and <MINOR> version. The <PATCH> version allows for extensions to release further artefacts compatible with the same core version.
+Compatible EDC Core and Extensions should have the same `<MAJOR>` and `<MINOR>` version. The `<PATCH>` version allows for extensions to release further artefacts compatible with the same core version.
 
 ### Scenario 3: SPI version upgrade
 
