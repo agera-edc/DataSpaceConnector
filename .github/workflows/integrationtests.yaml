@@ -37,9 +37,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-
-      - name: Setup Gradle cache
-        uses: gradle/gradle-build-action@v2
+          cache: 'gradle'
 
       # Cosmos DB Emulator is preinstalled on GitHub Actions workers
       - name: Launch Cosmos DB Emulator
@@ -69,6 +67,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+          cache: 'gradle'
 
       - name: AWS S3 Tests
         env:
@@ -91,6 +90,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
+          cache: 'gradle'
 
       - name: Daps Integration Tests
         run: ./gradlew -p extensions/iam/daps test -DIncludeTags="DapsIntegrationTest"
