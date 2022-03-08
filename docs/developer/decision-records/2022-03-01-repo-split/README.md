@@ -66,22 +66,17 @@ To simulate the development cycle with a split repo, we have copied the EDC repo
 - [EDC Core](https://github.com/agera-edc/DataSpaceConnector-Core)
 - [EDC Azure Extensions](https://github.com/agera-edc/DataSpaceConnector-AzureExtensions)
 
-Splitting the repo required removing the vendor extension from the core repo into a separate one, and changing the gradle build to refer to released artefact versions within a [GitHub Packages](https://github.com/orgs/agera-edc/packages?repo_name=DataSpaceConnector-Core) repository. Artefacts were previously published into this repository using the [publish](https://github.com/agera-edc/DataSpaceConnector-Core/actions/workflows/publish.yaml) workflow.
+Splitting the repo required extracting the vendor extension from the core repo into a separate one, and changing the gradle build to refer to released artefact versions within a [GitHub Packages](https://github.com/orgs/agera-edc/packages?repo_name=DataSpaceConnector-Core) repository. Artefacts were previously published into this repository using the [publish](https://github.com/agera-edc/DataSpaceConnector-Core/actions/workflows/publish.yaml) workflow.
 
-The documentation about [publishing test fixtures](https://docs.gradle.org/current/userguide/java_testing.html#publishing_test_fixtures) says that
-fixtures published using `java-test-fixtures` plugin are published alongside the regular artifacts.
-
-Therefore, libraries, that in monorepo were declared as below:
+Test fixture dependencies published using the [java-text-fixtures](https://docs.gradle.org/current/userguide/java_testing.html#publishing_test_fixtures) plugin required declaring dependencies in a different way:
 
 ```kotlin
+    // monorepo text fixture dependency
     testImplementation(testFixtures(project(":common:util")))
-```
-in EDC Azure Extensions need to be declared using `:test-fixtures` postfix.
 
-```kotlin
+    // equivalent dependency for vendor repo dependency
     testImplementation("org.eclipse.dataspaceconnector:common-util:${edcCoreVersion}:test-fixtures")
 ```
-
 
 ### Scenario 1: code change spanning across core and vendor repositories
 
@@ -108,8 +103,8 @@ Once the change is accepted the merging sequence is the following:
 
 Based on above steps we can distinguish following CI features required to enable this scenario:
 
-1. EDC Core repository - publishing snapshot version with `branch_name` prefix/suffix on every push to a branch. Produces `0.0.1-[branch-name]-SNAPSHOT` version.
-1. EDC Core repository and vendor repository - publishing snapshot version for staging changes on every merged PR. Produces `0.0.1-SNAPSHOT` 
+1. EDC Core repository: publishing snapshot version with `branch_name` prefix/suffix on every push to a branch. Produces `0.0.1-[branch-name]-SNAPSHOT` version.
+1. EDC Core repository and vendor repository: publishing snapshot version for staging changes on every merged PR. Produces `0.0.1-SNAPSHOT` 
    version.
 
 #### Release cycles
