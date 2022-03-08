@@ -121,8 +121,14 @@ Note that above-mentioned steps can be followed for the development of EDC Core 
 released. Until then both repositories use and release only snapshot versions.
 
 
-### Scenario 2: code change within a vendor repository (bugfix)
+### Scenario 2: code change within a vendor repository
 
+Releasing new versions of a vendor extension (for instance a bugfix) can be done independently of the EDC core repository. The only important point to take into account is that a version scheme is needed to track compatibility between EDC Core and vendor extensions versions. A simple but effective versioning strategy could be:
+
+EDC Core version: `<MAJOR>.<MINOR>`
+Extension version: `<MAJOR>.<MINOR>.<PATCH>`
+
+Compatible EDC Core and Extensions should have the same <MAJOR> and <MINOR> version. The <PATCH> version allows for extensions to release further artefacts compatible with the same core version. 
 
 ### Scenario 3: SPI version upgrade
 
