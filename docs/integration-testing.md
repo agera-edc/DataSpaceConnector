@@ -2,60 +2,99 @@
 
 ## Definition and distinction
 
-While _unit tests_ test one single class by stubbing or mocking dependencies, and an end-2-end test relies on the _entire_ system to be present, the _integration test_ tests one particular aspect of a software, which may involve external systems.
+While _unit tests_ test one single class by stubbing or mocking dependencies, and an end-2-end test relies on the _
+entire_
+system to be present, the _integration test_ tests one particular aspect of a software, which may involve external
+systems.
 
 ## TL;DR
 
-Use integration tests only when necessary, keep them concise, implement them in a defensive manner using timeouts and randomized names, setup external systems during the workflow.
+Use integration tests only when necessary, keep them concise, implement them in a defensive manner using timeouts and
+randomized names, setup external systems during the workflow.
 
 ## When to use them
 
-Generally we should aim at writing unit tests rather than integration tests, because they are simpler, more stable and typically run faster. Sometimes that's not (easily) possible, especially when an implementation relies on an external system that is not easily mocked or stubbed such as cloud-based databases.
+Generally we should aim at writing unit tests rather than integration tests, because they are simpler, more stable and
+typically run faster. Sometimes that's not (easily) possible, especially when an implementation relies on an external
+system that is not easily mocked or stubbed such as cloud-based databases.
 
-Therefore, in many cases writing unit tests is more involved that writing an integration test, for example say we wanted to test our implementation of a CosmosDB-backed queue. We would have to mock the behavior of the CosmosDB API, which - while certainly possible - can get complicated pretty quickly. Now we still might do that for simpler scenarios, but eventually we might want to write an integration test that uses a CosmosDB test instance.
+Therefore, in many cases writing unit tests is more involved that writing an integration test, for example say we wanted
+to test our implementation of a CosmosDB-backed queue. We would have to mock the behavior of the CosmosDB API, which -
+while certainly possible - can get complicated pretty quickly. Now we still might do that for simpler scenarios, but
+eventually we might want to write an integration test that uses a CosmosDB test instance.
 
 ## Coding Guidelines
 
 EDC codebase has few annotations and these annotation focuses on two important aspects:
 
-- Exclude integration tests by default from JUnit test runner as these tests relies on external systems which might not be available during a local execution.
-- Categorize integration tests with help of [JUnit Tags](https://junit.org/junit5/docs/current/user-guide/#writing-tests-tagging-and-filtering).
+- Exclude integration tests by default from JUnit test runner as these tests relies on external systems which might not
+be available during a local execution.
+- Categorize integration tests with help of
+[JUnit Tags](https://junit.org/junit5/docs/current/user-guide/#writing-tests-tagging-and-filtering).
 
-Following are some of the available annotations:
+Following are some available annotations:
 
-- `@IntegrationTest`: Marks an integration test with `IntegrationTest` Junit tag. This is the default tag and can be used if you do not want to specify any other tags on your test to do further categorization.
+- `@IntegrationTest`: Marks an integration test with `IntegrationTest` Junit tag. This is the default tag and can be
+used if you do not want to specify any other tags on your test to do further categorization.
 
-Below annotations are used to categorize integration tests based on their technologies. All of these annotations are composite annotations and contains `@IntegrationTest` annotation as well.
+Below annotations are used to categorize integration tests based on their technologies. All of these annotations are
+composite annotations and contains `@IntegrationTest` annotation as well.
 
-- `@AzureStorageIntegrationTest`: Marks an integration test with `AzureStorageIntegrationTest` Junit tag. This should be used when the integration test is related to `Azure Storage`.
-- `@AzureCosmosDbIntegrationTest`: Marks an integration test with `AzureCosmosDbIntegrationTest` Junit tag. This should be used when the integration test is related to `Azure CosmosDB`.
-- `@AwsS3IntegrationTest`: Marks an integration test with `AwsS3IntegrationTest` Junit tag. This should be used when the integration test is related to `AWS S3`.
-- `@DapsTest`: Marks an integration test with `DapsIntegrationTest` Junit tag. This should be used when the integration test is related to `Daps IAM`.
+- `@AzureStorageIntegrationTest`: Marks an integration test with `AzureStorageIntegrationTest` Junit tag. This should be
+used when the integration test is related to `Azure Storage`.
+- `@AzureCosmosDbIntegrationTest`: Marks an integration test with `AzureCosmosDbIntegrationTest` Junit tag. This should
+be used when the integration test is related to `Azure CosmosDB`.
+- `@AwsS3IntegrationTest`: Marks an integration test with `AwsS3IntegrationTest` Junit tag. This should be used when the
+integration test is related to `AWS S3`.
+- `@DapsTest`: Marks an integration test with `DapsIntegrationTest` Junit tag. This should be used when the integration
+test is related to `Daps IAM`.
 
-We encourage you to use these available annotation but if your integration test does not fit in one of these available annotations and you want to categorize them based on their technologies then feel free to create a new annotations but make sure to use composite annotations which contains `@IntegrationTest`. If you do not wish to categorize based on their technologies then you can use already available `@IntegrationTest` annotation.
+We encourage you to use these available annotation but if your integration test does not fit in one of these available
+annotations, and you want to categorize them based on their technologies then feel free to create a new annotations but
+make sure to use composite annotations which contains `@IntegrationTest`. If you do not wish to categorize based on
+their technologies then you can use already available `@IntegrationTest` annotation.
 
-- By default JUnit test runner ignores all integration tests because in root `build.gradle.kts` file we have excluded all tests marked with `IntegrationTest` Junit tag.
-- If your integration test does not relies on an external system then you may not want to use above mentioned annotations.
+- By default, JUnit test runner ignores all integration tests because in root `build.gradle.kts` file we have excluded
+all tests marked with `IntegrationTest` Junit tag.
+- If your integration test does not rely on an external system then you may not want to use above-mentioned annotations.
 
-All integration tests should specify annotation to categorize them and the `"...IntegrationTest"` postfix to distinguish them clearly from unit tests. They should reside in the same package as unit tests because all tests should maintain package consistency to their test subject.
+All integration tests should specify annotation to categorize them and the `"...IntegrationTest"` postfix to distinguish
+them clearly from unit tests. They should reside in the same package as unit tests because all tests should maintain
+package consistency to their test subject.
 
-Any credentials, secrets, passwords, etc. that are required by the integration tests should be passed in using environment variables. A good way to access them is `ConfigurationFunctions.propOrEnv()` because then the credentials can also be supplied via system properties.
+Any credentials, secrets, passwords, etc. that are required by the integration tests should be passed in using
+environment variables. A good way to access them is `ConfigurationFunctions.propOrEnv()` because then the credentials
+can also be supplied via system properties.
 
-There is no one-size-fits-all guideline whether to perform setup tasks in the `@BeforeAll` or `@BeforeEach`, it will depend on the concrete system you're using. As a general rule of thumb long-running one-time setup should be done in the `@BeforeAll` so as not to extend the run-time of the test unnecessarily. In contrast, in most cases it is **not** advisable to deploy/provision the external system itself in either of those methods. In other words, provisioning a CosmosDB or spinning up a Postgres docker container directly from test code should generally be avoided, because it will introduce code that has nothing to do with the test and may cause security problems (privilege escalation through the Docker API), etc.
+There is no one-size-fits-all guideline whether to perform setup tasks in the `@BeforeAll` or `@BeforeEach`, it will
+depend on the concrete system you're using. As a general rule of thumb long-running one-time setup should be done in
+the `@BeforeAll` so as not to extend the run-time of the test unnecessarily. In contrast, in most cases it is **not**
+advisable to deploy/provision the external system itself in either of those methods. In other words, provisioning a
+CosmosDB or spinning up a Postgres docker container directly from test code should generally be avoided, because it will
+introduce code that has nothing to do with the test and may cause security problems (privilege escalation through the
+Docker API), etc.
 
-This does not at all discourage the use of external test environments like containers, rather, the external system should be deployed in the CI script (e.g. through Github's `services` feature), or there might even be a dedicated test instance running continuously, e.g. a CosmosDB test instance in Azure. In the latter case we need to be careful to avoid conflicts (e.g. database names) when multiple test runners access that system simultaneously and to properly clean-up any residue before and after the test.
+This does not at all discourage the use of external test environments like containers, rather, the external system
+should be deployed in the CI script (e.g. through Github's `services` feature), or there might even be a dedicated test
+instance running continuously, e.g. a CosmosDB test instance in Azure. In the latter case we need to be careful to avoid
+conflicts (e.g. database names) when multiple test runners access that system simultaneously and to properly clean-up
+any residue before and after the test.
 
 ## Running them locally
 
-As mentioned above the JUnit runner won't pick up integration tests unless a tag is provided. For example to run `Azure CosmosDB` integration tests pass `IncludeTags` parameter with tag value to the `gradlew` command:
+As mentioned above the JUnit runner won't pick up integration tests unless a tag is provided. For example to run
+`Azure CosmosDB` integration tests pass `IncludeTags` parameter with tag value to the `gradlew` command:
 
 ```bash
 ./gradlew test -p path/to/module -DIncludeTags="AzureCosmosDbIntegrationTest"
 ```
 
-_Cosmos DB integration tests are run by default against a locally running [Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator). You can also use an instance of Cosmos DB running in Azure, in which case you should set the `COSMOS_KEY` environment variable._
+_Cosmos DB integration tests are run by default against a locally running
+[Cosmos DB Emulator](https://docs.microsoft.com/azure/cosmos-db/local-emulator). You can also use an instance of Cosmos
+DB running in Azure, in which case you should set the `COSMOS_KEY` environment variable._
 
-if needed to run all types of tests(e.g. unit & integration) then it can be achieved by passing the `RunAllTests=true` parameter to the `gradlew` command:
+if needed to run all types of tests(e.g. unit & integration) then it can be achieved by passing the `RunAllTests=true`
+parameter to the `gradlew` command:
 
 ```bash
 ./gradlew test -DRunAllTests="true"
@@ -67,13 +106,19 @@ For example to run all integration tests from Azure cosmos db module and its sub
 ./gradlew -p extensions/azure/cosmos test -DIncludeTags="AzureCosmosDbIntegrationTest"
 ```
 
-_Command as `./gradlew :extensions:azure:cosmos test -DIncludeTags="AzureCosmosDbIntegrationTest"` does not execute tests from all sub-modules so we need to use `-p` to specify the module project path._
+_Command as `./gradlew :extensions:azure:cosmos test -DIncludeTags="AzureCosmosDbIntegrationTest"` does not execute
+tests from all sub-modules so we need to use `-p` to specify the module project path._
 
 ## Running them in the CI pipeline
 
-All integration tests should go into the [integration test workflow](../.github/workflows/integrationtests.yaml), every "technology" should have its own job, and technology specific tests can be targeted using Junit tags with `-DIncludeTags` property as described above in document.
+All integration tests should go into the [integration test workflow](../.github/workflows/integrationtests.yaml), every
+"technology" should have its own job, and technology specific tests can be targeted using Junit tags with
+`-DIncludeTags` property as described above in document.
 
-For example let's assume we've implemented a Postgres-based Asset Index, then the integration tests for that should go into a "Postgres" `job`, and every module that adds a test (here: `extensions:postgres:assetindex`) should apply a composite annotation (here: `@PostgresIntegrationTest` adding a tag `PostgresIntegrationTest`) on its integration tests. This tagging will be used by the CI pipeline step to target and execute the integration tests related to Postgres.
+For example let's assume we've implemented a Postgres-based Asset Index, then the integration tests for that should go
+into a "Postgres" `job`, and every module that adds a test (here: `extensions:postgres:assetindex`) should apply a
+composite annotation (here: `@PostgresIntegrationTest` adding a tag `PostgresIntegrationTest`) on its integration tests.
+This tagging will be used by the CI pipeline step to target and execute the integration tests related to Postgres.
 
 Let's also make sure that the code is checked out before and integration tests only run on the upstream repo.
 
@@ -115,7 +160,9 @@ jobs:
         run: ./gradlew -p extensions/postgres test -DIncludeTags="PostgresIntegrationTest"
 ```
 
-It is important to note that the secrets (here: `POSTGRES_USERNAME` and `POSTGRES_PASSWORD`) must be defined within the repository's settings and that can only be done by a committer with temporary admin access, so be sure to contact them before submitting your PR.
+It is important to note that the secrets (here: `POSTGRES_USERNAME` and `POSTGRES_PASSWORD`) must be defined within the
+repository's settings and that can only be done by a committer with temporary admin access, so be sure to contact them
+before submitting your PR.
 
 ## Do's and Don'ts
 
