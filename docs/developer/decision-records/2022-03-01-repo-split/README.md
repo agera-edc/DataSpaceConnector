@@ -129,9 +129,9 @@ released. Until then both repositories use and release only snapshot versions.
 A repository split by vendor allows for a delay between an SPI upgrade and the rollout of the implementations for each vendor. Thus, it is possible to release a new EDC core version with a default implementation (and arguably a reference implementation for a vendor):
 
 1. EDC Core team releases a preview for a new SPI version together with a reference implementation
-2. Vendor extension teams validate the changes and give a go for the EDC Core changes
-3. EDC Core is released. A versioning scheme makes clear which vendor extensions are compatible.
-4. Each vendor extension team can release its own implementation at its own pace.
+1. Vendor extension teams validate the changes and give a go for the EDC Core changes
+1. EDC Core is released. A versioning scheme makes clear which vendor extensions are compatible.
+1. Each vendor extension team can release its own implementation at its own pace.
 
 ## Next steps
 
