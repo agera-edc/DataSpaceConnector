@@ -126,7 +126,8 @@ depend on each other. This option assumes that the releases of EDC Core always t
 
 Note that above-mentioned release steps assume that EDC Core and Vendor releases are aligned. Between the releases the vendor repository uses the corresponding 
 snapshot version from EDC Core. It means that this approach does not prevent the EDC Core from publishing snapshots containing breaking changes 
-which can block or slow down development in Vendor repositories. A benefit of this approach is though that incompatibilities can be discovered and fixed early.  Possible mitigations of this risk include:
+which can block or slow down development in Vendor repositories. A benefit of this approach is though that incompatibilities can be discovered and fixed 
+early. Possible mitigations of this risk include:
 - Having an agreement that changes in EDC Core should be introduced with backward compatibility in mind
   - e.g. instead of changing ConsoleMonitor interface, it can be marked as @Deprecated and new interface can be introduced allowing the extensions adapt 
     to the changes.  
