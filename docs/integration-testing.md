@@ -27,7 +27,7 @@ eventually we might want to write an integration test that uses a CosmosDB test 
 EDC codebase has few annotations and these annotation focuses on two important aspects:
 
 - Exclude integration tests by default from JUnit test runner as these tests relies on external systems which might not be available during a local execution.
-- Categorize integration tests with help of JUnit Tags.
+- Categorize integration tests with help of [JUnit Tags](https://junit.org/junit5/docs/current/user-guide/#writing-tests-tagging-and-filtering).
 
 Following are some of the available annotations:
 
