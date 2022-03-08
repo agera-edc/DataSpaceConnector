@@ -69,7 +69,7 @@ If needed to run all integration tests from a module (and all of its sub-modules
 ./gradlew -p extensions/azure/cosmos test -DIncludeTags="azure-cosmos-db-integration-test"
 ```
 
-_Command as `./gradlew :extensions:azure:cosmos test -DIncludeTags="azure-cosmos-db-integration-test"` does not executed tests from all sub-modules. So we need to use `-p` to specify the module project path._
+_Command as `./gradlew :extensions:azure:cosmos test -DIncludeTags="azure-cosmos-db-integration-test"` does not execute tests from all sub-modules so we need to use `-p` to specify the module project path._
 
 ## Running them in the CI pipeline
 
