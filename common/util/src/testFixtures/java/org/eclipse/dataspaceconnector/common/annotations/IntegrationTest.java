@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Common annotation for integration testing.It applies integration-test Junit Tag.
+ * Common annotation for integration testing.  It applies integration-test Junit Tag.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
