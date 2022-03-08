@@ -123,15 +123,23 @@ released. Until then both repositories use and release only snapshot versions.
 
 ### Scenario 2: code change within a vendor repository (bugfix)
 
-TBD
 
 ### Scenario 3: SPI version upgrade
 
-TBD
+A repository split by vendor allows for a delay between an SPI upgrade and the rollout of the implementations for each vendor. Thus, it is possible to release a new EDC core version with a default implementation (and arguably a reference implementation for a vendor):
+
+1. EDC Core team releases a preview for a new SPI version together with a reference implementation
+2. Vendor extension teams validate the changes and give a go for the EDC Core changes
+3. EDC Core is released. A versioning scheme makes clear which vendor extensions are compatible.
+4. Each vendor extension team can release its own implementation at its own pace.
 
 ## Next steps
 
--> define possible next steps: improve in memory impls to match what Azure impls do and add tests
+Our suggestion would be to start with a repository split by vendor, extracting Azure Extensions into an own repository first as shown in the previous examples. This would involve the following next steps:
+1. Agree with EDC community on repo split and versioning strategy
+1. Setup Maven repository for EDC
+1. Make sure that default vendor-agnostic implementations for all services required for integration testing are available. Adapt integration tests to use these default implementations to test EDC core. 
+1. Extract Azure dependencies repository
 
 ### Appendix
 
@@ -158,7 +166,7 @@ It uses Intellij Dependency Matrix tool (Code -> Analyse Code -> Dependency Matr
 
 #### By domains (microservices)
 
-Currently only microservice in the repository is DPF. There aro no dependencies in the core modules that depend on data-plane or its extensions.
+Currently, only microservice in the repository is DPF. There are no dependencies in the core modules that depend on data-plane or its extensions.
 
 Below dependency matrix shows azure -> data-plane-azure-storage uses data-plane. Both will be a part of new repo in this scenario.
 
