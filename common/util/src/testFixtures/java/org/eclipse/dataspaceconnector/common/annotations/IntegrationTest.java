@@ -28,6 +28,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Test
-@Tag("integration-test")
+@Tag("IntegrationTest")
 public @interface IntegrationTest {
 }

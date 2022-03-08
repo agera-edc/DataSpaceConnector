@@ -165,7 +165,7 @@ allprojects {
                 }
             } else {
                 useJUnitPlatform {
-                    excludeTags("integration-test")
+                    excludeTags("IntegrationTest")
                 }
             }
         }

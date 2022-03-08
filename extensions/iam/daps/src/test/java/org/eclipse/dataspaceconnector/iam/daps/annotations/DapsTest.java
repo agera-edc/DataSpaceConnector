@@ -28,6 +28,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @IntegrationTest
-@Tag("daps-integration-test")
+@Tag("DapsIntegrationTest")
 public @interface DapsTest {
 }

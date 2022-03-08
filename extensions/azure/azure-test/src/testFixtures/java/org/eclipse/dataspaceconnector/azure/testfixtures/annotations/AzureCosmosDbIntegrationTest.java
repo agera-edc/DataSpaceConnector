@@ -28,6 +28,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @IntegrationTest
-@Tag("azure-cosmos-db-integration-test")
+@Tag("AzureCosmosDbIntegrationTest")
 public @interface AzureCosmosDbIntegrationTest {
 }
