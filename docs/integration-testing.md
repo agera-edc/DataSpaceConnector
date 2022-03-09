@@ -37,7 +37,7 @@ Following are some available annotations:
 - `@IntegrationTest`: Marks an integration test with `IntegrationTest` Junit tag. This is the default tag and can be
 used if you do not want to specify any other tags on your test to do further categorization.
 
-Below annotations are used to categorize integration tests based on their technologies. All of these annotations are
+Below annotations are used to categorize integration tests based on the runtime components that must be available for the test to run. All of these annotations are
 composite annotations and contains `@IntegrationTest` annotation as well.
 
 - `@AzureStorageIntegrationTest`: Marks an integration test with `AzureStorageIntegrationTest` Junit tag. This should be
