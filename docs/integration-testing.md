@@ -37,8 +37,8 @@ Following are some available annotations:
 - `@IntegrationTest`: Marks an integration test with `IntegrationTest` Junit tag. This is the default tag and can be
 used if you do not want to specify any other tags on your test to do further categorization.
 
-Below annotations are used to categorize integration tests based on the runtime components that must be available for the test to run. All of these annotations are
-composite annotations and contains `@IntegrationTest` annotation as well.
+Below annotations are used to categorize integration tests based on the runtime components that must be available for
+the test to run. All of these annotations are composite annotations and contains `@IntegrationTest` annotation as well.
 
 - `@AzureStorageIntegrationTest`: Marks an integration test with `AzureStorageIntegrationTest` Junit tag. This should be
 used when the integration test requires the Azure Storage emulator to run.
@@ -47,7 +47,7 @@ be used when the integration test requires the Azure CosmosDB emulator to run.
 - `@AwsS3IntegrationTest`: Marks an integration test with `AwsS3IntegrationTest` Junit tag. This should be used when the
 integration test requires the AWS S3 storage emulator to run.
 - `@DapsTest`: Marks an integration test with `DapsIntegrationTest` Junit tag. This should be used when the integration
-test is related to `Daps IAM`.
+test is requires Daps IAM endpoint to run.
 
 We encourage you to use these available annotation but if your integration test does not fit in one of these available
 annotations, and you want to categorize them based on their technologies then feel free to create a new annotations but
