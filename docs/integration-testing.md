@@ -19,7 +19,7 @@ typically run faster. Sometimes that's not (easily) possible, especially when an
 system that is not easily mocked or stubbed such as cloud-based databases.
 
 Therefore, in many cases writing unit tests is more involved that writing an integration test, for example say we wanted
-to test our implementation of a CosmosDB-backed queue. We would have to mock the behavior of the CosmosDB API, which -
+to test our implementation of a CosmosDB-backed queue. We would have to mock the behaviour of the CosmosDB API, which -
 while certainly possible - can get complicated pretty quickly. Now we still might do that for simpler scenarios, but
 eventually we might want to write an integration test that uses a CosmosDB test instance.
 
