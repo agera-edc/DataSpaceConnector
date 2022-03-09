@@ -45,7 +45,7 @@ used when the integration test requires the Azure Storage emulator to run.
 - `@AzureCosmosDbIntegrationTest`: Marks an integration test with `AzureCosmosDbIntegrationTest` Junit tag. This should
 be used when the integration test requires the Azure CosmosDB emulator to run.
 - `@AwsS3IntegrationTest`: Marks an integration test with `AwsS3IntegrationTest` Junit tag. This should be used when the
-integration test is related to `AWS S3`.
+integration test requires the AWS S3 storage emulator to run.
 - `@DapsTest`: Marks an integration test with `DapsIntegrationTest` Junit tag. This should be used when the integration
 test is related to `Daps IAM`.
 
