@@ -65,6 +65,9 @@ Important considerations:
 
 The "by vendor" and "by domain" approaches can be combined as well. Thus, for each microservice a set of repositories can be provided for vendors implementing extensible parts of it.
 
+Another strategy for hybrid approach would be to do a split "by domain" and additionally have a repo containing all "thirdparty" libraries such as Azure, 
+AWS, SQL extensions.
+
 ## Repo Split Spike
 
 To simulate the development cycle with a split repo, we have copied the EDC repository into an own project and split it following a "by vendor" approach:
