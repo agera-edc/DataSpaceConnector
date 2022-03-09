@@ -73,7 +73,8 @@ To simulate the development cycle with a split repo, we have copied the EDC repo
 
 Splitting the repo required extracting the vendor extension from the core repo into a separate one, and changing the gradle build to refer to released artefact versions within a [GitHub Packages](https://github.com/orgs/agera-edc/packages?repo_name=DataSpaceConnector-Core) repository. Artefacts were previously published into this repository using the [publish](https://github.com/agera-edc/DataSpaceConnector-Core/actions/workflows/publish.yaml) workflow.
 
-Test fixture dependencies published using the [java-text-fixtures](https://docs.gradle.org/current/userguide/java_testing.html#publishing_test_fixtures) plugin required declaring dependencies in a different way:
+Test fixture dependencies published using the [java-test-fixtures](https://docs.gradle.org/current/userguide/java_testing.html#publishing_test_fixtures) 
+plugin required declaring dependencies in a different way:
 
 ```kotlin
     // monorepo text fixture dependency
