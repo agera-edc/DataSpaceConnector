@@ -29,11 +29,15 @@ This option involves splitting a repo for each vendor providing an implementatio
 
 Important considerations:
 
-- A default implementation that can be used in EDC core to perform testing is required (for instance an in-memory version of a store like `InMemoryTransferProcessStore`)
-- A set of integration tests must be provided by the core EDC repository to verify that components work as expected using the default implementation. These test can be reused by other implementations to verify conformance.
-- An overarching set of E2E test might be required for common scenarios spanning across several vendor implementations
-- Separate release cycles for vendor extensions is possible, but an adequate versioning strategy is required to simplify understanding of compatibility with EDC core (for instance Azure Extensions 1.1.x are always compatible with EDC core 1.1)
-- EDC repository lacks of real world implementations as they are moved to vendor repositories
+- A default implementation that can be used in EDC core to perform testing is required (for instance an in-memory version of a store like 
+  `InMemoryTransferProcessStore`).
+- A set of integration tests must be provided by the core EDC repository to verify that components work as expected using the default implementation. These 
+  test can be reused by other implementations to verify conformance.
+- An overarching set of E2E test might be required for common scenarios spanning across several vendor implementations.
+- Separate release cycles for vendor extensions is possible, but an adequate versioning strategy is required to simplify understanding of compatibility with 
+  EDC core (for instance Azure Extensions 1.1.x are always compatible with EDC core 1.1).
+- EDC repository lacks of real world implementations as they are moved to vendor repositories.
+- This strategy conforms to Conway's law which says that the system design should mirror the organization's communication structure.
 
 ### By domains (microservices)
 
