@@ -43,7 +43,7 @@ composite annotations and contains `@IntegrationTest` annotation as well.
 - `@AzureStorageIntegrationTest`: Marks an integration test with `AzureStorageIntegrationTest` Junit tag. This should be
 used when the integration test requires the Azure Storage emulator to run.
 - `@AzureCosmosDbIntegrationTest`: Marks an integration test with `AzureCosmosDbIntegrationTest` Junit tag. This should
-be used when the integration test is related to `Azure CosmosDB`.
+be used when the integration test requires the Azure CosmosDB emulator to run.
 - `@AwsS3IntegrationTest`: Marks an integration test with `AwsS3IntegrationTest` Junit tag. This should be used when the
 integration test is related to `AWS S3`.
 - `@DapsTest`: Marks an integration test with `DapsIntegrationTest` Junit tag. This should be used when the integration
