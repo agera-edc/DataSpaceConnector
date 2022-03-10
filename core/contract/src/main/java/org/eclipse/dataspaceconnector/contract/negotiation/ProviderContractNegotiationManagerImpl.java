@@ -425,6 +425,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
                 .build();
 
         //TODO protocol-independent response type?
+        negotiation.transitionConfirmingSent();
         update(negotiation, l -> l.confirmingSent(negotiation));
         dispatcherRegistry.send(Object.class, request, () -> null)
                 .whenComplete(onAgreementSent(negotiation.getId(), agreement));
