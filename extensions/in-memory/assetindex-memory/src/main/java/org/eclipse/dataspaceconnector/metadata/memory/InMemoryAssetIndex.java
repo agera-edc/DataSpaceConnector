@@ -20,6 +20,7 @@ import org.eclipse.dataspaceconnector.dataloading.AssetLoader;
 import org.eclipse.dataspaceconnector.spi.asset.AssetIndex;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
 import org.eclipse.dataspaceconnector.spi.asset.DataAddressResolver;
+import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -155,13 +156,11 @@ public class InMemoryAssetIndex implements AssetIndex, DataAddressResolver, Asse
     @Override
     public Asset deleteById(String assetId) {
         lock.writeLock().lock();
-        Asset asset = null;
         try {
-            asset = delete(assetId);
+            return delete(assetId);
         } finally {
             lock.writeLock().unlock();
         }
-        return asset;
     }
 
     private @Nullable Comparable asComparable(Object property) {

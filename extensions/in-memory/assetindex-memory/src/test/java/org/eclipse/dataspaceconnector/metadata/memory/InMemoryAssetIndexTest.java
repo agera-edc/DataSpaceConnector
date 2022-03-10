@@ -260,12 +260,13 @@ class InMemoryAssetIndexTest {
         var deletedAsset = index.deleteById(asset.getId());
 
         assertThat(deletedAsset).isEqualTo(asset);
-        var assets = index.queryAssets(AssetSelectorExpression.Builder.newInstance().whenEquals(Asset.PROPERTY_NAME, asset.getName()).build());
+        var assetSelector = AssetSelectorExpression.Builder.newInstance().whenEquals(Asset.PROPERTY_NAME, asset.getName()).build();
+        var assets = index.queryAssets(assetSelector);
         assertThat(assets).isEmpty();
     }
 
     @Test
-    void deleteById_whenAlreadyMissing_returnsNull() {
+    void deleteById_whenMissing_returnsNull() {
         assertThat(index.deleteById(UUID.randomUUID().toString())).isNull();
     }
 

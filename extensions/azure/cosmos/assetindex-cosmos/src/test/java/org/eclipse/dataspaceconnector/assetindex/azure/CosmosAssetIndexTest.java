@@ -22,6 +22,7 @@ import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApi;
 import org.eclipse.dataspaceconnector.common.matchers.PredicateMatcher;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
+import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.when;
 class CosmosAssetIndexTest {
 
     private static final String TEST_PARTITION_KEY = "test-partition-key";
+    private static final String TEST_ID = "id-test";
     private CosmosDbApi api;
     private TypeManager typeManager;
     private RetryPolicy<Object> retryPolicy;
@@ -65,34 +67,34 @@ class CosmosAssetIndexTest {
         typeManager.registerTypes(AssetDocument.class, Asset.class);
         retryPolicy = new RetryPolicy<>().withMaxRetries(1);
         api = mock(CosmosDbApi.class);
-        assetIndex = new CosmosAssetIndex(api, TEST_PARTITION_KEY, typeManager, retryPolicy);
+        assetIndex = new CosmosAssetIndex(api, TEST_PARTITION_KEY, typeManager, retryPolicy, new ConsoleMonitor());
     }
 
     @Test
     void inputValidation() {
         // null cosmos api
         assertThatExceptionOfType(NullPointerException.class)
-                .isThrownBy(() -> new CosmosAssetIndex(null, TEST_PARTITION_KEY, null, retryPolicy));
+                .isThrownBy(() -> new CosmosAssetIndex(null, TEST_PARTITION_KEY, null, retryPolicy, new ConsoleMonitor()));
 
         // type manager is null
         assertThatExceptionOfType(NullPointerException.class)
-                .isThrownBy(() -> new CosmosAssetIndex(api, TEST_PARTITION_KEY, null, retryPolicy));
+                .isThrownBy(() -> new CosmosAssetIndex(api, TEST_PARTITION_KEY, null, retryPolicy, new ConsoleMonitor()));
 
         // retry policy is null
         assertThatExceptionOfType(NullPointerException.class)
-                .isThrownBy(() -> new CosmosAssetIndex(api, TEST_PARTITION_KEY, typeManager, null));
+                .isThrownBy(() -> new CosmosAssetIndex(api, TEST_PARTITION_KEY, typeManager, null, new ConsoleMonitor()));
     }
 
     @Test
     void findById() {
-        String id = "id-test";
-        AssetDocument document = createDocument(id);
-        when(api.queryItemById(eq(id))).thenReturn(document);
 
-        Asset actualAsset = assetIndex.findById(id);
+        AssetDocument document = createDocument(TEST_ID);
+        when(api.queryItemById(TEST_ID)).thenReturn(document);
+
+        Asset actualAsset = assetIndex.findById(TEST_ID);
 
         assertThat(actualAsset.getProperties()).isEqualTo(document.getWrappedAsset().getProperties());
-        verify(api).queryItemById(eq(id));
+        verify(api).queryItemById(TEST_ID);
     }
 
     @Test
@@ -163,7 +165,7 @@ class CosmosAssetIndexTest {
         // let's verify that the query actually contains the proper WHERE clause
         var queryCapture = ArgumentCaptor.forClass(SqlQuerySpec.class);
         when(api.queryItems(queryCapture.capture())).thenReturn(Stream.of(createDocument(id1), createDocument(id2)));
-        CosmosAssetIndex assetIndex = new CosmosAssetIndex(api, TEST_PARTITION_KEY, typeManager, retryPolicy);
+        CosmosAssetIndex assetIndex = new CosmosAssetIndex(api, TEST_PARTITION_KEY, typeManager, retryPolicy, new ConsoleMonitor());
         var selectByName = AssetSelectorExpression.Builder.newInstance().whenEquals(Asset.PROPERTY_NAME, "somename").build();
 
         var assets = assetIndex.queryAssets(selectByName);
@@ -178,8 +180,7 @@ class CosmosAssetIndexTest {
 
     @Test
     void findAll_noQuerySpec() {
-        String id = "id-test";
-        AssetDocument document = createDocument(id);
+        AssetDocument document = createDocument(TEST_ID);
         var expectedQuery = "SELECT * FROM AssetDocument OFFSET 0 LIMIT 50";
         when(api.queryItems(argThat(queryMatches(expectedQuery)))).thenReturn(Stream.of(document));
 
@@ -192,8 +193,7 @@ class CosmosAssetIndexTest {
 
     @Test
     void findAll_withPaging_SortingDesc() {
-        String id = "id-test";
-        AssetDocument document = createDocument(id);
+        AssetDocument document = createDocument(TEST_ID);
         var expectedQuery = "SELECT * FROM AssetDocument ORDER BY AssetDocument.wrappedInstance.anyField DESC OFFSET 5 LIMIT 100";
         when(api.queryItems(argThat(queryMatches(expectedQuery)))).thenReturn(Stream.of(document));
 
@@ -212,8 +212,7 @@ class CosmosAssetIndexTest {
 
     @Test
     void findAll_withPaging_SortingAsc() {
-        String id = "id-test";
-        AssetDocument document = createDocument(id);
+        AssetDocument document = createDocument(TEST_ID);
         var expectedQuery = "SELECT * FROM AssetDocument ORDER BY AssetDocument.wrappedInstance.anyField ASC OFFSET 5 LIMIT 100";
         when(api.queryItems(argThat(queryMatches(expectedQuery)))).thenReturn(Stream.of(document));
 
@@ -232,8 +231,7 @@ class CosmosAssetIndexTest {
 
     @Test
     void findAll_withFiltering() {
-        String id = "id-test";
-        AssetDocument document = createDocument(id);
+        AssetDocument document = createDocument(TEST_ID);
         var expectedQuery = "SELECT * FROM AssetDocument WHERE AssetDocument.wrappedInstance.someField = @someField OFFSET 5 LIMIT 100";
         when(api.queryItems(argThat(queryMatches(expectedQuery)))).thenReturn(Stream.of(document));
 
@@ -251,20 +249,18 @@ class CosmosAssetIndexTest {
 
     @Test
     void deleteById_whenPresent_deletesItem() {
-        String id = "id-test";
-        AssetDocument document = createDocument(id);
-        when(api.deleteItem(id)).thenReturn(document);
+        AssetDocument document = createDocument(TEST_ID);
+        when(api.deleteItem(TEST_ID)).thenReturn(document);
 
-        var deletedAsset = assetIndex.deleteById(id);
+        var deletedAsset = assetIndex.deleteById(TEST_ID);
         assertThat(deletedAsset.getProperties()).isEqualTo(document.getWrappedAsset().getProperties());
-        verify(api).deleteItem(eq(id));
+        verify(api).deleteItem(TEST_ID);
     }
 
     @Test
-    void deleteById_whenAlreadyMissing_returnsNull() {
-        String id = "id-test";
-        when(api.deleteItem(eq(id))).thenThrow(new NotFoundException());
-        assertThat(assetIndex.deleteById(id)).isNull();
+    void deleteById_whenMissing_returnsNull() {
+        when(api.deleteItem(TEST_ID)).thenThrow(new NotFoundException());
+        assertThat(assetIndex.deleteById(TEST_ID)).isNull();
     }
 
     @NotNull
