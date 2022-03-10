@@ -125,7 +125,7 @@ public class CosmosContractDefinitionStore implements ContractDefinitionStore {
     }
 
     @Override
-    public ContractDefinition delete(String id) {
+    public ContractDefinition deleteById(String id) {
         var deletedItem = cosmosDbApi.deleteItem(id);
         return deletedItem == null ? null : convert(deletedItem);
     }

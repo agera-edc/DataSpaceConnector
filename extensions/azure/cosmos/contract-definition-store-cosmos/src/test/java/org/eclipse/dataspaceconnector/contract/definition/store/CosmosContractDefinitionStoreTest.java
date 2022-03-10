@@ -128,7 +128,7 @@ class CosmosContractDefinitionStoreTest {
 
     @Test
     void delete() {
-        store.delete("some-id");
+        store.deleteById("some-id");
 
         verify(cosmosDbApiMock).deleteItem(notNull());
     }

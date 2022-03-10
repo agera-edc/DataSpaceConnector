@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -43,8 +44,14 @@ class InMemoryContractDefinitionStoreTest {
         store.save(List.of(definition2));
         assertThat(store.findAll()).contains(definition1);
 
-        store.delete(definition1.getId());
+        var deletedDefinition = store.deleteById(definition1.getId());
+        assertThat(deletedDefinition).isEqualTo(definition1);
         assertThat(store.findAll()).doesNotContain(definition1);
+    }
+
+    @Test
+    void deleteById_whenContractDefinitionMissing_returnsNull() {
+        assertThat(store.deleteById(UUID.randomUUID().toString())).isNull();
     }
 
     @Test
