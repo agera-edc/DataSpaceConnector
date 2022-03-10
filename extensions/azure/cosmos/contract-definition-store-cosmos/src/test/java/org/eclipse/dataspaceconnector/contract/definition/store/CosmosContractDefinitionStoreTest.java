@@ -127,10 +127,20 @@ class CosmosContractDefinitionStoreTest {
     }
 
     @Test
-    void delete() {
-        store.deleteById("some-id");
-
+    void deleteById_whenMissing_returnsNull() {
+        var contractDefinition = store.deleteById("some-id");
+        assertThat(contractDefinition).isNull();
         verify(cosmosDbApiMock).deleteItem(notNull());
+    }
+
+    @Test
+    void delete_whenContractDefinitionPresent_deletes() {
+        var contractDefinition = generateDefinition();
+        var document = new ContractDefinitionDocument(contractDefinition, TEST_PART_KEY);
+        when(cosmosDbApiMock.deleteItem(document.getId())).thenReturn(document);
+
+        var deletedDefinition = store.deleteById(document.getId());
+        assertThat(deletedDefinition).isEqualTo(contractDefinition);
     }
 
     @Test
