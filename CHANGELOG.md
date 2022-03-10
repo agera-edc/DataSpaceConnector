@@ -21,18 +21,21 @@ the detailed section referring to by linking pull requests or issues.
 * `ContractDefinitionStore` supports paging (#717)
 * Add okhttp client timeouts (#735)
 * Unit test framework for Dependency Injection (#843)
+* Implemented S3BucketReader (#675)
 
 #### Changed
 
 * Change scope used for obtaining a token for ids multipart (#731)
 * Refactor ids token validation as extension (#625)
 * All `CosmosDocument` subclasses now use a configurable partition key (#780)
-* Call the listeners before the state transition is persisted. (#434)
+* Add `findAll` method to `TransferProcessStore` (#859)
+* Call the listeners before the state transition is persisted. (#?)
 
 #### Removed
 
 * Remove ION extension (#664)
 * Remove module `:samples:other:commandline` (#820)
+* Remove unneeded/unimplemented methods from `TransferProcessStore` (#859)
 
 #### Fixed
 * Flaky S3 StatusChecker Test (#794)
