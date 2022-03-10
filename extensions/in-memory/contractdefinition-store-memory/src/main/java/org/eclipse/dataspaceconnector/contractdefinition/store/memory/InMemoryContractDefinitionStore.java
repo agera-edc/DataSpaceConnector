@@ -82,8 +82,8 @@ public class InMemoryContractDefinitionStore implements ContractDefinitionStore 
     }
 
     @Override
-    public void delete(String id) {
-        cache.remove(id);
+    public ContractDefinition delete(String id) {
+        return cache.remove(id);
     }
 
     @Override

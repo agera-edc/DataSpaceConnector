@@ -280,7 +280,7 @@ class IdsApiMultipartDispatcherV1IntegrationTestServiceExtension implements Serv
         }
 
         @Override
-        public void delete(String id) {
+        public ContractDefinition delete(String id) {
             throw new NotImplementedError();
         }
 
