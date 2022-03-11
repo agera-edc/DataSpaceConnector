@@ -3,6 +3,7 @@ package org.eclipse.dataspaceconnector.spi.contract.policy.store;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.jetbrains.annotations.Nullable;
+
 import java.util.stream.Stream;
 
 /**
