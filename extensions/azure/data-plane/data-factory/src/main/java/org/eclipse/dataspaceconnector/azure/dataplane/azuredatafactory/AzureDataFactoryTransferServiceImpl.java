@@ -47,6 +47,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateAccountName;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateContainerName;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator.AzureStorageValidator.validateSharedKey;
@@ -151,10 +152,10 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
             monitor.info("ADF pipeline status is " + runStatusValue + " with message [" + message + "] for " + baseName);
             var runStatus = DataFactoryPipelineRunStates.valueOf(runStatusValue);
             if (runStatus.succeeded) {
-                return CompletableFuture.completedFuture(TransferResult.success());
+                return completedFuture(TransferResult.success());
             }
             if (runStatus.failed) {
-                return CompletableFuture.completedFuture(TransferResult.failure(ERROR_RETRY, message));
+                return completedFuture(TransferResult.failure(ERROR_RETRY, message));
             }
         }
     }

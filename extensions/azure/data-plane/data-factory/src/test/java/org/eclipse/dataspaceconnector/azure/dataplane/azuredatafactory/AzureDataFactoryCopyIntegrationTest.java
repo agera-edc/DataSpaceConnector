@@ -105,6 +105,7 @@ class AzureDataFactoryCopyIntegrationTest {
                 .destinationDataAddress(destination)
                 .id(UUID.randomUUID().toString())
                 .processId(UUID.randomUUID().toString())
+                .trackable(true)
                 .build();
 
         // Act
@@ -116,9 +117,8 @@ class AzureDataFactoryCopyIntegrationTest {
                 .getBlobClient(blobName);
         await()
                 .atMost(Duration.ofMinutes(5))
-                .untilAsserted(() ->
-                        assertThat(store.getState(request.getProcessId()))
-                                .isEqualTo(DataPlaneStore.State.COMPLETED));
+                .untilAsserted(() -> assertThat(store.getState(request.getProcessId()))
+                        .isEqualTo(DataPlaneStore.State.COMPLETED));
         assertThat(destinationBlob.exists())
                         .withFailMessage("should have copied blob between containers")
                         .isTrue();
