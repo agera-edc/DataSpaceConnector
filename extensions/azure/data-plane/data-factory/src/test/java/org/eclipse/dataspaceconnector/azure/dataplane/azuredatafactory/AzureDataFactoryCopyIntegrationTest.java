@@ -23,6 +23,7 @@ import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.azure.testfixtures.TerraformOutputsExtension;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
+import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -70,7 +71,10 @@ class AzureDataFactoryCopyIntegrationTest {
     }
 
     @Test
-    void transfer_success(AzureResourceManager azure, DataPlaneManager dataPlaneManager) {
+    void transfer_success(
+            AzureResourceManager azure,
+            DataPlaneManager dataPlaneManager,
+            DataPlaneStore store) {
         // Arrange
         providerStorage = new Account(azure, "test_provider_storage_resourceid");
         consumerStorage = new Account(azure, "test_consumer_storage_resourceid");
@@ -112,9 +116,12 @@ class AzureDataFactoryCopyIntegrationTest {
                 .getBlobClient(blobName);
         await()
                 .atMost(Duration.ofMinutes(5))
-                .untilAsserted(() -> assertThat(destinationBlob.exists())
+                .untilAsserted(() ->
+                        assertThat(store.getState(request.getProcessId()))
+                                .isEqualTo(DataPlaneStore.State.COMPLETED));
+        assertThat(destinationBlob.exists())
                         .withFailMessage("should have copied blob between containers")
-                        .isTrue());
+                        .isTrue();
         assertThat(destinationBlob.getProperties().getBlobSize())
                 .isEqualTo(randomBytes.length);
     }
