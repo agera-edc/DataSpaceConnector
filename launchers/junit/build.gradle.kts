@@ -28,6 +28,7 @@ dependencies {
     api(project(":core:base"))
 
     testFixturesImplementation(project(":common:util"))
+    testFixturesImplementation(testFixtures(project(":common:util")))
 
     testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
     testFixturesRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jupiterVersion}")
