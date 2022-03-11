@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, 2021 Microsoft Corporation
+ *  Copyright (c) 2022 Microsoft Corporation
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -12,8 +12,6 @@
  *
  */
 
-val rsApi: String by project
-val mockitoVersion: String by project
 val azureIdentityVersion: String by project
 val azureResourceManagerVersion: String by project
 
@@ -22,25 +20,22 @@ plugins {
 }
 
 dependencies {
-    api(project(":spi:core-spi"))
-
+    implementation(project(":extensions:azure:data-plane:common"))
     implementation(project(":common:util"))
-    implementation("com.azure:azure-security-keyvault-secrets:4.2.3")
     implementation("com.azure:azure-identity:${azureIdentityVersion}")
-    implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
+    implementation("com.azure.resourcemanager:azure-resourcemanager:${azureResourceManagerVersion}")
+    implementation("com.azure.resourcemanager:azure-resourcemanager-authorization:${azureResourceManagerVersion}")
 
-    testImplementation("com.microsoft.azure:azure-mgmt-resources:1.3.0")
-    testImplementation("com.azure.resourcemanager:azure-resourcemanager:${azureResourceManagerVersion}")
-    testImplementation("com.azure.resourcemanager:azure-resourcemanager-keyvault:${azureResourceManagerVersion}")
+    testImplementation(testFixtures(project(":extensions:azure:azure-test")))
+    testImplementation(testFixtures(project(":extensions:azure:data-plane:storage")))
     testImplementation(testFixtures(project(":common:util")))
-    testImplementation("org.mockito:mockito-inline:${mockitoVersion}")
+    testImplementation(testFixtures(project(":launchers:junit")))
 }
-
 
 publishing {
     publications {
-        create<MavenPublication>("azure-vault") {
-            artifactId = "azure-vault"
+        create<MavenPublication>("azure-resource-manager") {
+            artifactId = "azure-resource-manager"
             from(components["java"])
         }
     }

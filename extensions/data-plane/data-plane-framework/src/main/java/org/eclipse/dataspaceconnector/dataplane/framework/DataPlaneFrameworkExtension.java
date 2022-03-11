@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * Provides core services for the Data Plane Framework.
  */
-@Provides({DataPlaneManager.class, PipelineService.class})
+@Provides({DataPlaneManager.class, PipelineService.class, TransferServiceRegistry.class})
 public class DataPlaneFrameworkExtension implements ServiceExtension {
     private static final int IN_MEMORY_STORE_CAPACITY = 1000;
 
