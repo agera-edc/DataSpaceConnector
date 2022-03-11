@@ -62,9 +62,9 @@ public class AzureDataFactoryTransferServiceImplTest {
                 clock);
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} {0}")
     @MethodSource("provideDataAddressType")
-    void validate_canHandle(String sourceType, String destinationType, boolean expected) {
+    void validate_canHandle(String name, String sourceType, String destinationType, boolean expected) {
         var source = createDataAddress(sourceType, Collections.emptyMap());
         var destination = createDataAddress(destinationType, Collections.emptyMap());
         var request = createRequest(Collections.emptyMap(), source.build(), destination.build());
@@ -75,10 +75,10 @@ public class AzureDataFactoryTransferServiceImplTest {
 
     private static Stream<Arguments> provideDataAddressType() {
         return Stream.of(
-                Arguments.of(AzureBlobStoreSchema.TYPE, AzureBlobStoreSchema.TYPE, true),
-                Arguments.of(FAKER.lorem().word(), AzureBlobStoreSchema.TYPE, false),
-                Arguments.of(AzureBlobStoreSchema.TYPE, FAKER.lorem().word(), false),
-                Arguments.of(FAKER.lorem().word(), FAKER.lorem().word(), false)
+                Arguments.of("Valid source and destination", AzureBlobStoreSchema.TYPE, AzureBlobStoreSchema.TYPE, true),
+                Arguments.of("Invalid source and valid destination", FAKER.lorem().word(), AzureBlobStoreSchema.TYPE, false),
+                Arguments.of("Valid source and invalid destination", AzureBlobStoreSchema.TYPE, FAKER.lorem().word(), false),
+                Arguments.of("Invalid source and destination", FAKER.lorem().word(), FAKER.lorem().word(), false)
         );
     }
 
