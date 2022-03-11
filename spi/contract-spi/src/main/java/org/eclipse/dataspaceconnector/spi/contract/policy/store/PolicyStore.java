@@ -17,7 +17,7 @@ public interface PolicyStore {
     Policy findById(String policyId);
 
     /**
-     * Returns stream of all policies in the store.
+     * Returns stream of policies in the store based on query spec.
      */
     Stream<Policy> findAll(QuerySpec spec);
 
