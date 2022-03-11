@@ -25,8 +25,6 @@ import com.azure.resourcemanager.datafactory.models.DatasetReference;
 import com.azure.resourcemanager.datafactory.models.DatasetResource;
 import com.azure.resourcemanager.datafactory.models.LinkedServiceReference;
 import com.azure.resourcemanager.datafactory.models.LinkedServiceResource;
-import com.azure.resourcemanager.datafactory.models.PipelineElapsedTimeMetricPolicy;
-import com.azure.resourcemanager.datafactory.models.PipelinePolicy;
 import com.azure.resourcemanager.datafactory.models.PipelineResource;
 import com.azure.resourcemanager.resources.models.GenericResource;
 import com.azure.security.keyvault.secrets.SecretClient;
@@ -163,9 +161,6 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
                         .withSink(new BlobSink())
                         .withValidateDataConsistency(true)
                         .withDataIntegrationUnits(32)))
-                .withPolicy(
-                        new PipelinePolicy()
-                                .withElapsedTimeMetric(new PipelineElapsedTimeMetricPolicy().withDuration("0.00:10:00")))
                 .create();
     }
 
