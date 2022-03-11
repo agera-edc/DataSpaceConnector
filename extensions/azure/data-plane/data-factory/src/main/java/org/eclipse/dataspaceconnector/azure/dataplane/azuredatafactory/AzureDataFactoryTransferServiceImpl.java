@@ -52,7 +52,7 @@ import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.valida
 import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.ERROR_RETRY;
 
 /**
- * {@link @TransferService} implementation that performs transfers in Azure Data Factory.
+ * {@link TransferService} implementation that performs transfers in Azure Data Factory.
  */
 public class AzureDataFactoryTransferServiceImpl implements TransferService {
     private final DataFactoryManager dataFactoryManager;

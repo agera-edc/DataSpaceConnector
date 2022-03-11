@@ -1,12 +1,10 @@
 package org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory;
 
 import com.azure.core.credential.TokenCredential;
-import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.profile.AzureProfile;
 import com.azure.resourcemanager.datafactory.DataFactoryManager;
 import com.azure.resourcemanager.resources.models.GenericResource;
 import com.azure.security.keyvault.secrets.SecretClient;
-import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
@@ -18,6 +16,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.Collections;
@@ -25,7 +24,11 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.util.Base64.getEncoder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.ACCOUNT_NAME;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.CONTAINER_NAME;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema.SHARED_KEY;
 import static org.mockito.Mockito.mock;
 
 public class AzureDataFactoryTransferServiceImplTest {
@@ -47,13 +50,9 @@ public class AzureDataFactoryTransferServiceImplTest {
         monitor = mock(Monitor.class);
         factory = mock(GenericResource.class);
         clock = mock(Clock.class);
-
-        secretClient = new SecretClientBuilder()
-                .vaultUrl(format("https://%s", FAKER.internet().url()))
-                .credential(tokenCredential)
-                .buildClient();
-        azureProfile = new AzureProfile(AzureEnvironment.AZURE);
-        dataFactoryManager = DataFactoryManager.authenticate(tokenCredential, azureProfile);
+        secretClient = mock(SecretClient.class);
+        azureProfile = mock(AzureProfile.class);
+        dataFactoryManager = mock(DataFactoryManager.class);
         azureDataFactoryTransferService = new AzureDataFactoryTransferServiceImpl(
                 monitor,
                 dataFactoryManager,
@@ -64,24 +63,45 @@ public class AzureDataFactoryTransferServiceImplTest {
     }
 
     @Test
-    void canHandle_validRequest() {
+    void canHandle_success() {
+        // Arrange
         var source = createDataAddress(AzureBlobStoreSchema.TYPE, Collections.emptyMap());
         var destination = createDataAddress(AzureBlobStoreSchema.TYPE, Collections.emptyMap());
         var request = createRequest(Collections.emptyMap(), source.build(), destination.build());
-
+        // Act & Assert
         assertThat(azureDataFactoryTransferService.canHandle(request.build())).isEqualTo(true);
 
     }
 
     @ParameterizedTest(name = "{index} {0}")
     @MethodSource("provideInvalidDataAddressType")
-    void canHandle_invalidRequest(String name, String sourceType, String destinationType) {
+    void canHandle_failure(String name, String sourceType, String destinationType) {
+        // Arrange
         var source = createDataAddress(sourceType, Collections.emptyMap());
         var destination = createDataAddress(destinationType, Collections.emptyMap());
         var request = createRequest(Collections.emptyMap(), source.build(), destination.build());
-
+        // Act & Assert
         assertThat(azureDataFactoryTransferService.canHandle(request.build())).isEqualTo(false);
 
+    }
+
+    @Test
+    void validate_failure() {
+        // Arrange
+        var source = createDataAddress(AzureBlobStoreSchema.TYPE, Collections.emptyMap());
+        var extraProp = "extra-property";
+        var destination = createDataAddress(AzureBlobStoreSchema.TYPE, Map.of(
+                ACCOUNT_NAME, "validaccount",
+                CONTAINER_NAME, "validcontainer",
+                SHARED_KEY, getEncoder().encodeToString("validkey".getBytes(StandardCharsets.UTF_8)),
+                extraProp, FAKER.lorem().word()
+        ));
+        var request = createRequest(Collections.emptyMap(), source.build(), destination.build()).build();
+        // Act
+        var response = azureDataFactoryTransferService.validate(request);
+        // Arrange
+        assertThat(response.failed()).isTrue();
+        assertThat(response.getFailureMessages()).containsOnly(format("Unexpected property %s", extraProp));
     }
 
     private static Stream<Arguments> provideInvalidDataAddressType() {

@@ -40,8 +40,7 @@ public class TerraformOutputsExtension implements BeforeAllCallback, AfterAllCal
 
         var root = TestUtils.findBuildRoot();
         var file = new File(root, OUTPUTS_FILE);
-        if (!file.exists())
-        {
+        if (!file.exists()) {
             throw new EdcException("Could not locate " + OUTPUTS_FILE + ". Refer to developer docs to download this file.");
         }
 
