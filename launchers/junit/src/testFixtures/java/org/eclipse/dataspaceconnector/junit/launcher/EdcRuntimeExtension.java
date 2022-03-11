@@ -13,6 +13,7 @@
  */
 package org.eclipse.dataspaceconnector.junit.launcher;
 
+import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.jetbrains.annotations.NotNull;
@@ -88,11 +89,11 @@ public class EdcRuntimeExtension extends EdcExtension {
     @Override
     public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
         // Find the project root directory, moving up the directory tree
-        var root = GradleUtils.findRoot();
+        var root = TestUtils.findBuildRoot();
 
         // Run a Gradle custom task to determine the runtime classpath of the module to run
         String[] command = {
-                new File(root, GradleUtils.GRADLE_WRAPPER).getCanonicalPath(),
+                new File(root, TestUtils.GRADLE_WRAPPER).getCanonicalPath(),
                 "-q",
                 moduleName + ":printClasspath"
         };
