@@ -27,6 +27,8 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.system.SettingResolver;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.util.Objects;
 
 /**
@@ -53,6 +55,9 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
     @Inject
     private TokenCredential credential;
 
+    @Inject(required = false)
+    private Clock clock = Clock.systemUTC();
+
     @Override
     public String name() {
         return "Data Plane Azure Data Factory";
@@ -75,7 +80,9 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
                 .credential(new DefaultAzureCredentialBuilder().build())
                 .buildClient();
 
-        var transferService = new AzureDataFactoryTransferServiceImpl(monitor, dataFactoryManager, factory, secretClient, keyVaultLinkedService);
+        var maxDuration = Duration.ofHours(1);
+        var transferService = new AzureDataFactoryTransferServiceImpl(
+                monitor, dataFactoryManager, factory, secretClient, keyVaultLinkedService, maxDuration, clock);
         registry.registerTransferService(transferService);
     }
 

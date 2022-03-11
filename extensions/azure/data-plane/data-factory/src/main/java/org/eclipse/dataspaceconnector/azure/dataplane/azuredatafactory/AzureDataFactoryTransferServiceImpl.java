@@ -13,9 +13,7 @@
  */
 package org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory;
 
-import com.azure.core.util.Context;
 import com.azure.resourcemanager.datafactory.DataFactoryManager;
-import com.azure.resourcemanager.datafactory.models.Activity;
 import com.azure.resourcemanager.datafactory.models.AzureBlobStorageLocation;
 import com.azure.resourcemanager.datafactory.models.AzureKeyVaultSecretReference;
 import com.azure.resourcemanager.datafactory.models.AzureStorageLinkedService;
@@ -41,6 +39,8 @@ import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -62,14 +62,17 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
     private final Monitor monitor;
     private final String keyVaultLinkedService;
     private final SecretClient secretClient;
-    private final Context context = Context.NONE;
+    private final Duration maxDuration;
+    private final Clock clock;
 
-    public AzureDataFactoryTransferServiceImpl(Monitor monitor, DataFactoryManager dataFactoryManager, GenericResource factory, SecretClient secretClient, String keyVaultLinkedService) {
+    public AzureDataFactoryTransferServiceImpl(Monitor monitor, DataFactoryManager dataFactoryManager, GenericResource factory, SecretClient secretClient, String keyVaultLinkedService, Duration maxDuration, Clock clock) {
         this.monitor = monitor;
         this.dataFactoryManager = dataFactoryManager;
         this.factory = factory;
         this.secretClient = secretClient;
         this.keyVaultLinkedService = keyVaultLinkedService;
+        this.maxDuration = maxDuration;
+        this.clock = clock;
     }
 
     @Override
@@ -109,46 +112,21 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
 
         var runId = runPipeline(pipeline);
 
-        return awaitRunCompletion(baseName, runId)
-                .thenApply((result) -> {
-                    cleanup(runId);
-                    return result;
-                });
-    }
-
-    private void cleanup(String runId) {
-        var run = dataFactoryManager.pipelineRuns().get(
-                factory.resourceGroupName(),
-                factory.name(),
-                runId);
-        var pipeline = dataFactoryManager.pipelines().get(
-                factory.resourceGroupName(),
-                factory.name(),
-                run.pipelineName());
-        // pipeline.activities().stream().parallel().forEach(this::cleanup);
-        // cleanup(pipeline);
-    }
-
-    private void cleanup(PipelineResource pipeline) {
-        dataFactoryManager.pipelines().delete(
-                factory.resourceGroupName(),
-                factory.name(),
-                pipeline.name());
-    }
-
-    private void cleanup(Activity activity) {
+        return awaitRunCompletion(baseName, runId);
     }
 
     @NotNull
     private CompletableFuture<TransferResult> awaitRunCompletion(String baseName, String runId) {
         monitor.info("Awaiting ADF pipeline completion for " + baseName);
-        while (true) {
+
+        var timeout = clock.instant().plus(maxDuration);
+        while (clock.instant().isBefore(timeout)) {
             var pipelineRun =
                     dataFactoryManager
                             .pipelineRuns()
-                            .getWithResponse(factory.resourceGroupName(), factory.name(), runId, context);
-            var runStatusValue = pipelineRun.getValue().status();
-            var message = pipelineRun.getValue().message();
+                            .get(factory.resourceGroupName(), factory.name(), runId);
+            var runStatusValue = pipelineRun.status();
+            var message = pipelineRun.message();
             monitor.info("ADF pipeline status is " + runStatusValue + " with message [" + message + "] for " + baseName);
             var runStatus = DataFactoryPipelineRunStates.valueOf(runStatusValue);
             if (runStatus.succeeded) {
@@ -158,6 +136,10 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
                 return completedFuture(TransferResult.failure(ERROR_RETRY, message));
             }
         }
+        dataFactoryManager
+                .pipelineRuns()
+                .cancel(factory.resourceGroupName(), factory.name(), runId);
+        return completedFuture(TransferResult.failure(ERROR_RETRY, "Run timed out"));
     }
 
     private String runPipeline(PipelineResource pipeline) {
@@ -230,6 +212,7 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
                 .create();
     }
 
+    @SuppressWarnings("UnusedDeclaration")
     private enum DataFactoryPipelineRunStates {
         Queued(false, false, false),
         InProgress(false, false, false),
