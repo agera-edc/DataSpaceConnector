@@ -108,7 +108,7 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
 
         var runId = runPipeline(pipeline);
 
-        return getTransferResultCompletableFuture(baseName, runId)
+        return awaitRunCompletion(baseName, runId)
                 .thenApply((result) -> {
                     cleanup(runId);
                     return result;
@@ -139,7 +139,7 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
     }
 
     @NotNull
-    private CompletableFuture<TransferResult> getTransferResultCompletableFuture(String baseName, String runId) {
+    private CompletableFuture<TransferResult> awaitRunCompletion(String baseName, String runId) {
         monitor.info("Awaiting ADF pipeline completion for " + baseName);
         while (true) {
             var pipelineRun =
