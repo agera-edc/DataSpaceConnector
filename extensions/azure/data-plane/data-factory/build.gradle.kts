@@ -22,7 +22,6 @@ plugins {
 
 dependencies {
     implementation(project(":extensions:azure:data-plane:common"))
-    implementation(project(":extensions:azure:resource-manager"))
     implementation(project(":common:util"))
     implementation("com.azure:azure-identity:${azureIdentityVersion}")
     implementation("com.azure.resourcemanager:azure-resourcemanager-datafactory:1.0.0-beta.12")
@@ -32,6 +31,7 @@ dependencies {
     implementation("com.azure.resourcemanager:azure-resourcemanager-authorization:${azureResourceManagerVersion}")
 
     testImplementation(project(":extensions:data-plane:data-plane-framework"))
+    testImplementation(project(":extensions:azure:resource-manager"))
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testImplementation(testFixtures(project(":extensions:azure:data-plane:storage")))
     testImplementation(testFixtures(project(":common:util")))
