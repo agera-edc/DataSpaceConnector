@@ -28,6 +28,7 @@ dependencies {
 
     implementation("io.opentelemetry:opentelemetry-api:${openTelemetryVersion}")
 
+    api(project(":common:util"))
     testImplementation(testFixtures(project(":common:util")))
 }
 

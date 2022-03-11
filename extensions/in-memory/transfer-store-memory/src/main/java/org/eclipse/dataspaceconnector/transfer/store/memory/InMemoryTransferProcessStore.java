@@ -18,6 +18,7 @@ import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.spi.query.Criterion;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
+import org.eclipse.dataspaceconnector.spi.query.StreamQueryResolver;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +47,7 @@ public class InMemoryTransferProcessStore implements TransferProcessStore {
     private final Map<String, TransferProcess> processesById = new HashMap<>();
     private final Map<String, TransferProcess> processesByExternalId = new HashMap<>();
     private final Map<Integer, List<TransferProcess>> stateCache = new HashMap<>();
+    private final StreamQueryResolver<TransferProcess> queryResolver = new StreamQueryResolver<>(TransferProcess.class);
 
     @Override
     public TransferProcess find(String id) {
@@ -118,27 +120,7 @@ public class InMemoryTransferProcessStore implements TransferProcessStore {
     public Stream<TransferProcess> findAll(QuerySpec querySpec) {
         return lockManager.readLock(() -> {
             Stream<TransferProcess> transferProcessStream = processesById.values().stream();
-            // filter
-            var andPredicate = querySpec.getFilterExpression().stream().map(this::toPredicate).reduce(x -> true, Predicate::and);
-            transferProcessStream = transferProcessStream.filter(andPredicate);
-
-            // sort
-            var sortField = querySpec.getSortField();
-
-            if (sortField != null) {
-                var comparator = propertyComparator(querySpec.getSortOrder() == SortOrder.ASC, sortField);
-                transferProcessStream = transferProcessStream.sorted(comparator);
-            }
-
-            //limit
-            transferProcessStream = transferProcessStream.skip(querySpec.getOffset()).limit(querySpec.getLimit());
-
-            return transferProcessStream;
+            return queryResolver.applyQuery(querySpec, transferProcessStream);
         });
     }
-
-    private Predicate<TransferProcess> toPredicate(Criterion criterion) {
-        return new TransferProcessPredicateConverter().convert(criterion);
-    }
-
 }

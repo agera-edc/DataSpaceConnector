@@ -25,6 +25,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Test
-@EnabledIfEnvironmentVariable(named = "RUN_INTEGRATION_TEST", matches = "true")
+// @EnabledIfEnvironmentVariable(named = "RUN_INTEGRATION_TEST", matches = "true")
 public @interface IntegrationTest {
 }

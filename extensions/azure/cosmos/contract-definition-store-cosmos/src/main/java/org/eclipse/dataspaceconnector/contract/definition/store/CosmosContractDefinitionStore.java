@@ -21,10 +21,7 @@ import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.common.reflection.ReflectionUtil;
 import org.eclipse.dataspaceconnector.contract.definition.store.model.ContractDefinitionDocument;
 import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitionStore;
-import org.eclipse.dataspaceconnector.spi.query.BaseCriterionToPredicateConverter;
-import org.eclipse.dataspaceconnector.spi.query.Criterion;
-import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
-import org.eclipse.dataspaceconnector.spi.query.SortOrder;
+import org.eclipse.dataspaceconnector.spi.query.*;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDefinition;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +37,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.jodah.failsafe.Failsafe.with;
-import static org.eclipse.dataspaceconnector.common.reflection.ReflectionUtil.propertyComparator;
 
 /**
  * Implementation of the {@link ContractDefinitionStore} based on CosmosDB. This store implements simple write-through
@@ -53,6 +49,7 @@ public class CosmosContractDefinitionStore implements ContractDefinitionStore {
     private final RetryPolicy<Object> retryPolicy;
     private final LockManager lockManager;
     private final String partitionKey;
+    private final StreamQueryResolver<ContractDefinition> queryResolver;
     private AtomicReference<Map<String, ContractDefinition>> objectCache;
 
     public CosmosContractDefinitionStore(CosmosDbApi cosmosDbApi, TypeManager typeManager, RetryPolicy<Object> retryPolicy, String partitionKey) {
@@ -61,6 +58,7 @@ public class CosmosContractDefinitionStore implements ContractDefinitionStore {
         this.retryPolicy = retryPolicy;
         this.partitionKey = partitionKey;
         lockManager = new LockManager(new ReentrantReadWriteLock(true));
+        queryResolver = new StreamQueryResolver<>(ContractDefinition.class);
     }
 
     @Override
@@ -73,28 +71,7 @@ public class CosmosContractDefinitionStore implements ContractDefinitionStore {
      */
     @Override
     public @NotNull Stream<ContractDefinition> findAll(QuerySpec spec) {
-        return lockManager.readLock(() -> {
-            var stream = getCache().values().stream();
-
-            //filter
-            var andPredicate = spec.getFilterExpression().stream().map(this::toPredicate).reduce(x -> true, Predicate::and);
-            stream = stream.filter(andPredicate);
-
-            //sort
-            var sortField = spec.getSortField();
-
-            if (sortField != null) {
-                // if the sortfield doesn't exist on the object -> return empty
-                if (ReflectionUtil.getFieldRecursive(ContractDefinition.class, sortField) == null) {
-                    return Stream.empty();
-                }
-                var comparator = propertyComparator(spec.getSortOrder() == SortOrder.ASC, sortField);
-                stream = stream.sorted(comparator);
-            }
-
-            // limit
-            return stream.skip(spec.getOffset()).limit(spec.getLimit());
-        });
+        return lockManager.readLock(() -> queryResolver.applyQuery(spec, getCache().values().stream()));
     }
 
     @Override
