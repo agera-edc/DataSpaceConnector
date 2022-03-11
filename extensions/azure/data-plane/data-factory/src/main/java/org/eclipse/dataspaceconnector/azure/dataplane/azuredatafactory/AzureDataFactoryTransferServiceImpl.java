@@ -15,6 +15,7 @@ package org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory;
 
 import com.azure.core.util.Context;
 import com.azure.resourcemanager.datafactory.DataFactoryManager;
+import com.azure.resourcemanager.datafactory.models.Activity;
 import com.azure.resourcemanager.datafactory.models.AzureBlobStorageLocation;
 import com.azure.resourcemanager.datafactory.models.AzureKeyVaultSecretReference;
 import com.azure.resourcemanager.datafactory.models.AzureStorageLinkedService;
@@ -28,6 +29,7 @@ import com.azure.resourcemanager.datafactory.models.LinkedServiceReference;
 import com.azure.resourcemanager.datafactory.models.LinkedServiceResource;
 import com.azure.resourcemanager.datafactory.models.PipelineElapsedTimeMetricPolicy;
 import com.azure.resourcemanager.datafactory.models.PipelinePolicy;
+import com.azure.resourcemanager.datafactory.models.PipelineResource;
 import com.azure.resourcemanager.resources.models.GenericResource;
 import com.azure.security.keyvault.secrets.SecretClient;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema.AzureBlobStoreSchema;
@@ -41,7 +43,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -96,72 +97,93 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
     @Override
     public CompletableFuture<TransferResult> transfer(DataFlowRequest request) {
 
-        String referencePipelineRunId = null;
-        Boolean isRecovery = null;
-        String startActivityName = null;
-        Boolean startFromFailure = null;
-        Map<String, Object> parameters = null;
-
         var baseName = "EDC-DPF-" + UUID.randomUUID();
 
         monitor.info("Creating ADF pipeline for " + baseName);
 
-        DatasetResource src = createDataset(baseName + "src", request.getSourceDataAddress());
-        DatasetResource dst = createDataset(baseName + "dst", request.getDestinationDataAddress());
+        var sourceDataset = createDataset(baseName + "src", request.getSourceDataAddress());
+        var destinationDataset = createDataset(baseName + "dst", request.getDestinationDataAddress());
 
-        var pipeline =
-                dataFactoryManager.pipelines()
-                        .define(baseName)
-                        .withExistingFactory(factory.resourceGroupName(), factory.name())
-                        .withActivities(List.of(new CopyActivity()
-                                .withName("CopyActivity")
-                                .withInputs(List.of(new DatasetReference().withReferenceName(src.name())))
-                                .withOutputs(List.of(new DatasetReference().withReferenceName(dst.name())))
-                                .withSource(new BlobSource())
-                                .withSink(new BlobSink())
-                                .withValidateDataConsistency(true)
-                                .withDataIntegrationUnits(32)))
-                        .withPolicy(
-                                new PipelinePolicy()
-                                        .withElapsedTimeMetric(new PipelineElapsedTimeMetricPolicy().withDuration("0.00:10:00")))
-                        .create();
+        var pipeline = createCopyPipeline(baseName, sourceDataset, destinationDataset);
 
-        var createRunResponse =
-                dataFactoryManager.pipelines()
-                        .createRunWithResponse(
-                                factory.resourceGroupName(),
-                                factory.name(),
-                                pipeline.name(),
-                                referencePipelineRunId,
-                                isRecovery,
-                                startActivityName,
-                                startFromFailure,
-                                parameters,
-                                context);
-        var runId =
-                createRunResponse.getValue().runId();
+        var runId = runPipeline(pipeline);
 
+        return getTransferResultCompletableFuture(baseName, runId)
+                .thenApply((result) -> {
+                    cleanup(runId);
+                    return result;
+                });
+    }
+
+    private void cleanup(String runId) {
+        var run = dataFactoryManager.pipelineRuns().get(
+                factory.resourceGroupName(),
+                factory.name(),
+                runId);
+        var pipeline = dataFactoryManager.pipelines().get(
+                factory.resourceGroupName(),
+                factory.name(),
+                run.pipelineName());
+        // pipeline.activities().stream().parallel().forEach(this::cleanup);
+        // cleanup(pipeline);
+    }
+
+    private void cleanup(PipelineResource pipeline) {
+        dataFactoryManager.pipelines().delete(
+                factory.resourceGroupName(),
+                factory.name(),
+                pipeline.name());
+    }
+
+    private void cleanup(Activity activity) {
+    }
+
+    @NotNull
+    private CompletableFuture<TransferResult> getTransferResultCompletableFuture(String baseName, String runId) {
         monitor.info("Awaiting ADF pipeline completion for " + baseName);
         while (true) {
             var pipelineRun =
                     dataFactoryManager
                             .pipelineRuns()
                             .getWithResponse(factory.resourceGroupName(), factory.name(), runId, context);
-            var runStatus = pipelineRun.getValue().status();
-            String message = pipelineRun.getValue().message();
-            monitor.info("ADF pipeline status is " + runStatus + " " + message + " for " + baseName);
-            var runStatus2 = DataFactoryPipelineRunStates.valueOf(runStatus);
-            switch (runStatus2) {
-                case Queued:
-                case InProgress:
-                    break;
-                case Succeeded:
-                    return CompletableFuture.completedFuture(TransferResult.success());
-                default:
-                    return CompletableFuture.completedFuture(TransferResult.failure(ERROR_RETRY, message));
+            var runStatusValue = pipelineRun.getValue().status();
+            var message = pipelineRun.getValue().message();
+            monitor.info("ADF pipeline status is " + runStatusValue + " with message [" + message + "] for " + baseName);
+            var runStatus = DataFactoryPipelineRunStates.valueOf(runStatusValue);
+            if (runStatus.succeeded) {
+                return CompletableFuture.completedFuture(TransferResult.success());
+            }
+            if (runStatus.failed) {
+                return CompletableFuture.completedFuture(TransferResult.failure(ERROR_RETRY, message));
             }
         }
+    }
 
+    private String runPipeline(PipelineResource pipeline) {
+        return dataFactoryManager.pipelines()
+                .createRun(
+                        factory.resourceGroupName(),
+                        factory.name(),
+                        pipeline.name())
+                .runId();
+    }
+
+    private PipelineResource createCopyPipeline(String baseName, DatasetResource sourceDataset, DatasetResource destinationDataset) {
+        return dataFactoryManager.pipelines()
+                .define(baseName)
+                .withExistingFactory(factory.resourceGroupName(), factory.name())
+                .withActivities(List.of(new CopyActivity()
+                        .withName("CopyActivity")
+                        .withInputs(List.of(new DatasetReference().withReferenceName(sourceDataset.name())))
+                        .withOutputs(List.of(new DatasetReference().withReferenceName(destinationDataset.name())))
+                        .withSource(new BlobSource())
+                        .withSink(new BlobSink())
+                        .withValidateDataConsistency(true)
+                        .withDataIntegrationUnits(32)))
+                .withPolicy(
+                        new PipelinePolicy()
+                                .withElapsedTimeMetric(new PipelineElapsedTimeMetricPolicy().withDuration("0.00:10:00")))
+                .create();
     }
 
     private DatasetResource createDataset(String name, DataAddress sourceDataAddress) {
@@ -186,8 +208,8 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
     }
 
     private LinkedServiceResource createLinkedService(String name, DataAddress dataAddress) {
-        String accountName = dataAddress.getProperty(AzureBlobStoreSchema.ACCOUNT_NAME);
-        String accountKey = dataAddress.getProperty(AzureBlobStoreSchema.SHARED_KEY);
+        var accountName = dataAddress.getProperty(AzureBlobStoreSchema.ACCOUNT_NAME);
+        var accountKey = dataAddress.getProperty(AzureBlobStoreSchema.SHARED_KEY);
 
         var secret = secretClient.setSecret(name, accountKey);
 
@@ -208,7 +230,21 @@ public class AzureDataFactoryTransferServiceImpl implements TransferService {
     }
 
     private enum DataFactoryPipelineRunStates {
-        Queued, InProgress, Succeeded, Failed,
-        Canceling, Cancelled
+        Queued(false, false, false),
+        InProgress(false, false, false),
+        Succeeded(true, true, false),
+        Failed(true, false, true),
+        Canceling(false, false, true),
+        Cancelled(true, false, true);
+
+        final boolean terminal;
+        final boolean succeeded;
+        final boolean failed;
+
+        DataFactoryPipelineRunStates(boolean terminal, boolean succeeded, boolean failed) {
+            this.terminal = terminal;
+            this.succeeded = succeeded;
+            this.failed = failed;
+        }
     }
 }
