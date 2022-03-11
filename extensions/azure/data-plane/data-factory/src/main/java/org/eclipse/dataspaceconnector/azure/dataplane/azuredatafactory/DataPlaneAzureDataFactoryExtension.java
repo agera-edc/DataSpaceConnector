@@ -19,7 +19,6 @@ import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.datafactory.DataFactoryManager;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory.pipeline.AzureDataFactoryTransferServiceImpl;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.TransferService;
 import org.eclipse.dataspaceconnector.dataplane.spi.registry.TransferServiceRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
@@ -83,5 +82,4 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
     private static String requiredSetting(SettingResolver context, String s) {
         return Objects.requireNonNull(context.getSetting(s, null), s);
     }
-
 }
