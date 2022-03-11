@@ -12,6 +12,7 @@ At this time, this module has the following limitations:
 - Both Azure storage accounts must be accessible from the Internet.
 - Only a single named blob can be copied in a data transfer request.
 - The transfer must complete in at most 1 hour, or will time out.
+- Resources created in Data Factory and Key Vault secrets are not deleted after the run.
 
 Required runtime settings:
 
