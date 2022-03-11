@@ -53,7 +53,7 @@ class InMemoryPolicyStoreTest {
         store.save(policy2);
         store.save(policy3);
 
-        assertThat(store.findAll(QuerySpec.Builder.newInstance().filter("uid="+policy1.getUid()).build())).containsExactly(policy1);
+        assertThat(store.findAll(QuerySpec.Builder.newInstance().filter("uid=" + policy1.getUid()).build())).containsExactly(policy1);
     }
 
     @Test
