@@ -116,3 +116,7 @@ This downloads a `terraform_outputs.json` file, which is read by cloud integrati
 When doing changes to the Terraform configuration, keep in mind that the cloud resources, as well as the Terraform output values, are shared with other branches. You must ensure that any changes are backward compatible.
 
 For example, if changing a test so that a resource is not needed anymore, do not remove the resource from the Terraform configuration in the same PR.
+
+### Deleting Terraform resources
+
+Resources such as pipeline definitions created in Data Factory prevent the use of Terraform to destroy the created resources. However, the deletion of the storage account for Terraform state and the resource group containing generated Azure resources can be scripted.
