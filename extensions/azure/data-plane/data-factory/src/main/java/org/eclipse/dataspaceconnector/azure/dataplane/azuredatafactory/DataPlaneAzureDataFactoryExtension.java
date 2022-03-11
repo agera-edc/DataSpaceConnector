@@ -37,11 +37,11 @@ import java.util.Objects;
 public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
 
     @EdcSetting
-    private static final String KEY_VAULT_LINKED_SERVICE_NAME = "edc.datafactory.keyvault.linkedservicename";
+    private static final String KEY_VAULT_LINKED_SERVICE_NAME = "edc.data.factory.key.vault.linked.service.name";
     @EdcSetting
-    private static final String RESOURCE_ID = "edc.datafactory.resourceid";
+    private static final String RESOURCE_ID = "edc.data.factory.resource.id";
     @EdcSetting
-    private static final String KEY_VAULT_RESOURCE_ID = "edc.datafactory.keyvault.resourceid";
+    private static final String KEY_VAULT_RESOURCE_ID = "edc.data.factory.key.vault.resource.id";
 
     @Inject
     private TransferServiceRegistry registry;

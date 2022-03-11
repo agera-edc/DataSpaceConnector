@@ -38,8 +38,8 @@ public class AzureResourceManagerExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        var tenantId = requiredSetting(context, "edc.azure.tenantid");
-        var subscriptionId = requiredSetting(context, "edc.azure.subscriptionid");
+        var tenantId = requiredSetting(context, "edc.azure.tenant.id");
+        var subscriptionId = requiredSetting(context, "edc.azure.subscription.id");
 
         // Detect credential source based on runtime environment, e.g. Azure CLI, environment variables
         var credential = new DefaultAzureCredentialBuilder().build();

@@ -1,26 +1,26 @@
 ### Application runtime settings ###
 
-output "EDC_AZURE_TENANTID" {
+output "EDC_AZURE_TENANT_ID" {
   value       = data.azurerm_client_config.current.tenant_id
   description = "Azure Active Directory Tenant ID for the GitHub workflow identity."
 }
 
-output "EDC_AZURE_SUBSCRIPTIONID" {
+output "EDC_AZURE_SUBSCRIPTION_ID" {
   value       = data.azurerm_client_config.current.subscription_id
   description = "Azure Subscription ID in which cloud resources are deployed."
 }
 
-output "EDC_DATAFACTORY_RESOURCEID" {
+output "EDC_DATA_FACTORY_RESOURCE_ID" {
   value       = azurerm_data_factory.main.id
   description = "Resource ID of the Azure Data Factory deployed for tests."
 }
 
-output "EDC_DATAFACTORY_KEYVAULT_RESOURCEID" {
+output "EDC_DATA_FACTORY_KEY_VAULT_RESOURCE_ID" {
   value       = azurerm_key_vault.main.id
   description = "Resource ID of the Azure Key Vault connected to the Data Factory."
 }
 
-output "EDC_DATAFACTORY_KEYVAULT_LINKEDSERVICENAME" {
+output "EDC_DATA_FACTORY_KEY_VAULT_LINKED_SERVICE_NAME" {
   value       = azurerm_data_factory_linked_service_key_vault.main.name
   description = "Name of the Data Factory linked service representing the connected Key Vault."
 }
