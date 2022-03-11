@@ -13,6 +13,7 @@ import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -62,23 +63,32 @@ public class AzureDataFactoryTransferServiceImplTest {
                 clock);
     }
 
+    @Test
+    void canHandle_validRequest() {
+        var source = createDataAddress(AzureBlobStoreSchema.TYPE, Collections.emptyMap());
+        var destination = createDataAddress(AzureBlobStoreSchema.TYPE, Collections.emptyMap());
+        var request = createRequest(Collections.emptyMap(), source.build(), destination.build());
+
+        assertThat(azureDataFactoryTransferService.canHandle(request.build())).isEqualTo(true);
+
+    }
+
     @ParameterizedTest(name = "{index} {0}")
-    @MethodSource("provideDataAddressType")
-    void validate_canHandle(String name, String sourceType, String destinationType, boolean expected) {
+    @MethodSource("provideInvalidDataAddressType")
+    void canHandle_invalidRequest(String name, String sourceType, String destinationType) {
         var source = createDataAddress(sourceType, Collections.emptyMap());
         var destination = createDataAddress(destinationType, Collections.emptyMap());
         var request = createRequest(Collections.emptyMap(), source.build(), destination.build());
 
-        assertThat(azureDataFactoryTransferService.canHandle(request.build())).isEqualTo(expected);
+        assertThat(azureDataFactoryTransferService.canHandle(request.build())).isEqualTo(false);
 
     }
 
-    private static Stream<Arguments> provideDataAddressType() {
+    private static Stream<Arguments> provideInvalidDataAddressType() {
         return Stream.of(
-                Arguments.of("Valid source and destination", AzureBlobStoreSchema.TYPE, AzureBlobStoreSchema.TYPE, true),
-                Arguments.of("Invalid source and valid destination", FAKER.lorem().word(), AzureBlobStoreSchema.TYPE, false),
-                Arguments.of("Valid source and invalid destination", AzureBlobStoreSchema.TYPE, FAKER.lorem().word(), false),
-                Arguments.of("Invalid source and destination", FAKER.lorem().word(), FAKER.lorem().word(), false)
+                Arguments.of("Invalid source and valid destination", FAKER.lorem().word(), AzureBlobStoreSchema.TYPE),
+                Arguments.of("Valid source and invalid destination", AzureBlobStoreSchema.TYPE, FAKER.lorem().word()),
+                Arguments.of("Invalid source and destination", FAKER.lorem().word(), FAKER.lorem().word())
         );
     }
 
