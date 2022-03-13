@@ -27,38 +27,43 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class AzureStorageTestFixtures {
 
-    static Faker faker = new Faker();
+    private static final Faker FAKER = new Faker();
 
-    static DataFlowRequest.Builder createRequest(String type) {
+    public static DataFlowRequest.Builder createRequest(String type) {
         return DataFlowRequest.Builder.newInstance()
-                .id("1").processId("1")
-                .sourceDataAddress(DataAddress.Builder.newInstance().type(type).build())
-                .destinationDataAddress(DataAddress.Builder.newInstance().type(type).build());
+                .id(FAKER.internet().uuid())
+                .processId(FAKER.internet().uuid())
+                .sourceDataAddress(createDataAddress(type).build())
+                .destinationDataAddress(createDataAddress(type).build());
+    }
+
+    public static DataAddress.Builder createDataAddress(String type) {
+        return DataAddress.Builder.newInstance().type(type);
     }
 
     public static String createAccountName() {
-        return faker.lorem().characters(3, 24, false, false);
+        return FAKER.lorem().characters(3, 24, false, false);
     }
 
     public static String createContainerName() {
-        return faker.lorem().characters(3, 40, false, false);
+        return FAKER.lorem().characters(3, 40, false, false);
     }
 
     public static String createBlobName() {
-        return faker.lorem().characters(3, 40, false, false);
+        return FAKER.lorem().characters(3, 40, false, false);
     }
 
     public static String createSharedKey() {
-        return faker.lorem().characters();
+        return FAKER.lorem().characters();
     }
 
     private AzureStorageTestFixtures() {
     }
 
     static class FakeBlobAdapter implements BlobAdapter {
-        final String name = faker.lorem().characters();
-        final String content = faker.lorem().sentence();
-        final long length = faker.random().nextLong(1_000_000_000_000_000L);
+        final String name = FAKER.lorem().characters();
+        final String content = FAKER.lorem().sentence();
+        final long length = FAKER.random().nextLong(1_000_000_000_000_000L);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         @Override

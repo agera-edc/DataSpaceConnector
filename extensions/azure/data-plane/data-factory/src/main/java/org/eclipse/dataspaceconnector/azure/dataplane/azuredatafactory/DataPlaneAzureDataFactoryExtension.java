@@ -42,6 +42,8 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
     private static final String RESOURCE_ID = "edc.data.factory.resource.id";
     @EdcSetting
     private static final String KEY_VAULT_RESOURCE_ID = "edc.data.factory.key.vault.resource.id";
+    @EdcSetting
+    private static final String DATA_INTEGRATION_UNITS = "edc.data.factory.data.integration.units";
 
     @Inject
     private TransferServiceRegistry registry;
@@ -70,6 +72,7 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
         var dataFactoryId = requiredSetting(context, RESOURCE_ID);
         var keyVaultId = requiredSetting(context, KEY_VAULT_RESOURCE_ID);
         var keyVaultLinkedService = context.getSetting(KEY_VAULT_LINKED_SERVICE_NAME, "AzureKeyVault");
+        int dataIntegrationUnits = context.getSetting(DATA_INTEGRATION_UNITS, 32);
 
         var dataFactoryManager = DataFactoryManager.authenticate(credential, profile);
         var factory = resourceManager.genericResources().getById(dataFactoryId);
@@ -81,8 +84,23 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
                 .buildClient();
 
         var maxDuration = Duration.ofHours(1);
-        var transferService = new AzureDataFactoryTransferServiceImpl(
-                monitor, dataFactoryManager, factory, secretClient, keyVaultLinkedService, maxDuration, clock);
+        var dataFactoryClient = new DataFactoryClient(dataFactoryManager, factory.resourceGroupName(), factory.name());
+        var keyVaultClient = new KeyVaultClient(secretClient);
+        var validator = new AzureDataFactoryTransferRequestValidator();
+        var pipelineFactory = new DataFactoryPipelineFactory(
+                keyVaultLinkedService,
+                keyVaultClient,
+                dataFactoryClient,
+                dataIntegrationUnits);
+        var transferManager = new AzureDataFactoryTransferManager(
+                monitor,
+                dataFactoryClient,
+                pipelineFactory,
+                maxDuration,
+                clock);
+        var transferService = new AzureDataFactoryTransferService(
+                validator,
+                transferManager);
         registry.registerTransferService(transferService);
     }
 

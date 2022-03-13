@@ -128,7 +128,7 @@ class AzureDataFactoryCopyIntegrationTest {
 
     static class Account {
 
-        final static Faker FAKER = new Faker();
+        static final Faker FAKER = new Faker();
         final String name;
         final String key;
         final BlobServiceClient client;
