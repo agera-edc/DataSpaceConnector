@@ -105,6 +105,7 @@ class ReflectionBasedQueryResolverTest {
         private FakeItem(int id) {
             this.id = id;
         }
+
         private FakeItem(int id, String name) {
             this.id = id;
             this.name = name;
