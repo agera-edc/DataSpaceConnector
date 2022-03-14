@@ -41,8 +41,8 @@ class InMemoryPolicyStoreTest {
     }
 
     @Test
-    void findById_whenMissing() {
-        assertThat(store.findById(UUID.randomUUID().toString())).isNull();
+    void findById_whenNonexistent() {
+        assertThat(store.findById("nonexistent")).isNull();
     }
 
     @Test
@@ -136,8 +136,8 @@ class InMemoryPolicyStoreTest {
     }
 
     @Test
-    void deleteById_whenMissing() {
-        assertThat(store.delete(UUID.randomUUID().toString())).isNull();
+    void deleteById_whenNonexistent() {
+        assertThat(store.delete("nonexistent")).isNull();
     }
 
 }

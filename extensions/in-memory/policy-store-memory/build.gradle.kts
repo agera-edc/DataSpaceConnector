@@ -12,8 +12,6 @@
  *
  */
 
-val openTelemetryVersion: String by project
-
 plugins {
     `java-library`
 }
@@ -21,9 +19,8 @@ plugins {
 dependencies {
     api(project(":spi"))
     implementation(project(":common:util"))
-
-
 }
+
 publishing {
     publications {
         create<MavenPublication>("policy-store-memory") {

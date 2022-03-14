@@ -61,7 +61,7 @@ public class InMemoryPolicyStore implements PolicyStore {
 
     @Override
     public Policy delete(String policyId) {
-        return lockManager.writeLock(() -> Optional.ofNullable(policiesById.remove(policyId)).orElse(null));
+        return lockManager.writeLock(() -> policiesById.remove(policyId));
     }
 
     private <T> Stream<T> applyQuery(QuerySpec spec, Stream<T> streamOfAll, Class<?> clazz) {
