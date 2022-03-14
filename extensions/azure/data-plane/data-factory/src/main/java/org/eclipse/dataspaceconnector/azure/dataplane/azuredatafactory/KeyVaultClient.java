@@ -28,6 +28,7 @@ class KeyVaultClient {
 
     /**
      * Sets a Key Vault secret.
+     *
      * @param name secret name.
      * @param value secret value.
      * @return created Key Vault secret.
