@@ -1,3 +1,17 @@
+/*
+ *  Copyright (c) 2022 Amadeus
+ *
+ *  This program and the accompanying materials are made available under the
+ *  terms of the Apache License, Version 2.0 which is available at
+ *  https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  SPDX-License-Identifier: Apache-2.0
+ *
+ *  Contributors:
+ *       Amadeus - initial API and implementation
+ *
+ */
+
 package org.eclipse.dataspaceconnector.ids.api.multipart.dispatcher.sender;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,12 +53,6 @@ class MultipartEndpointDataReferenceRequestSenderTest {
         var identityService = mock(IdentityService.class);
         mapper = new ObjectMapper();
         sender = new MultipartEndpointDataReferenceRequestSender(connectorId, httpClient, mapper, monitor, identityService, transformerRegistry);
-    }
-
-    @Test
-    void retrieveRemoteConnectorId() {
-        var request = createEdrRequest();
-        assertThat(sender.retrieveRemoteConnectorId(request)).isEqualTo(request.getConnectorId());
     }
 
     @Test

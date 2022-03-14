@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021 Microsoft Corporation
+ *  Copyright (c) 2021-2022 Microsoft Corporation
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -10,12 +10,14 @@
  *  Contributors:
  *       Microsoft Corporation - initial API and implementation
  *       Fraunhofer Institute for Software and Systems Engineering - extended method implementation
+ *       Daimler TSS GmbH - fixed contract dates to epoch seconds
  *
  */
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
 import io.opentelemetry.extension.annotations.WithSpan;
-import org.eclipse.dataspaceconnector.common.stream.EntitiesProcessor;
+import org.eclipse.dataspaceconnector.common.statemachine.StateMachine;
+import org.eclipse.dataspaceconnector.common.statemachine.StateProcessorImpl;
 import org.eclipse.dataspaceconnector.contract.common.ContractId;
 import org.eclipse.dataspaceconnector.spi.command.CommandProcessor;
 import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
@@ -42,11 +44,9 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOf
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -54,6 +54,7 @@ import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.contract.common.ContractId.DEFINITION_PART;
 import static org.eclipse.dataspaceconnector.contract.common.ContractId.parseContractId;
 import static org.eclipse.dataspaceconnector.spi.contract.negotiation.response.NegotiationResult.Status.FATAL_ERROR;
+import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiation.Type.PROVIDER;
 import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates.CONFIRMING;
 import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates.DECLINING;
 import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates.PROVIDER_OFFERING;
@@ -63,21 +64,19 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiati
  */
 public class ProviderContractNegotiationManagerImpl implements ProviderContractNegotiationManager {
 
-    private final AtomicBoolean active = new AtomicBoolean();
-
     private int batchSize = 5;
     private WaitStrategy waitStrategy = () -> 5000L;  // default wait five seconds
 
     private ContractNegotiationStore negotiationStore;
     private ContractValidationService validationService;
     private RemoteMessageDispatcherRegistry dispatcherRegistry;
-    private ExecutorService executor;
     private ContractNegotiationObservable observable;
     private CommandQueue<ContractNegotiationCommand> commandQueue;
     private CommandRunner<ContractNegotiationCommand> commandRunner;
     private CommandProcessor<ContractNegotiationCommand> commandProcessor;
     private Monitor monitor;
     private Telemetry telemetry;
+    private StateMachine stateMachine;
 
     private ProviderContractNegotiationManagerImpl() {
     }
@@ -86,17 +85,20 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
 
     //TODO validate previous offers against hash?
 
-    public void start(ContractNegotiationStore negotiationStore) {
-        this.negotiationStore = negotiationStore;
-        active.set(true);
-        executor = Executors.newSingleThreadExecutor();
-        executor.submit(this::run);
+    public void start() {
+        stateMachine = StateMachine.Builder.newInstance("provider-contract-negotiation", monitor, waitStrategy)
+                .processor(processNegotiationsInState(PROVIDER_OFFERING, this::processProviderOffering))
+                .processor(processNegotiationsInState(DECLINING, this::processDeclining))
+                .processor(processNegotiationsInState(CONFIRMING, this::processConfirming))
+                .processor(onCommands(this::processCommand))
+                .build();
+
+        stateMachine.start();
     }
 
     public void stop() {
-        active.set(false);
-        if (executor != null) {
-            executor.shutdownNow();
+        if (stateMachine != null) {
+            stateMachine.stop();
         }
     }
 
@@ -164,8 +166,8 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
                 .counterPartyId(request.getConnectorId())
                 .counterPartyAddress(request.getConnectorAddress())
                 .protocol(request.getProtocol())
-                .type(ContractNegotiation.Type.PROVIDER)
                 .traceContext(telemetry.getCurrentTraceContext())
+                .type(PROVIDER)
                 .build();
 
         negotiation.transitionRequested();
@@ -271,50 +273,12 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
         return NegotiationResult.success(negotiation);
     }
 
-    /**
-     * Continuously checks all unfinished {@link ContractNegotiation}s and performs actions based on
-     * their states.
-     */
-    private void run() {
-        while (active.get()) {
-            try {
-                long providerOffering = processNegotiationsInState(PROVIDER_OFFERING, this::processProviderOffering);
-                long declining = processNegotiationsInState(DECLINING, this::processDeclining);
-                long confirming = processNegotiationsInState(CONFIRMING, this::processConfirming);
-                long commandsProcessed = onCommands().doProcess(this::processCommand);
-
-                var totalProcessed = providerOffering + declining + confirming + commandsProcessed;
-
-                if (totalProcessed == 0) {
-                    Thread.sleep(waitStrategy.waitForMillis());
-                }
-                waitStrategy.success();
-            } catch (Error e) {
-                throw e; // let the thread die and don't reschedule as the error is unrecoverable
-            } catch (InterruptedException e) {
-                Thread.interrupted();
-                active.set(false);
-                break;
-            } catch (Throwable e) {
-                monitor.severe("Error caught in provider contract negotiation manager", e);
-                try {
-                    Thread.sleep(waitStrategy.retryInMillis());
-                } catch (InterruptedException e2) {
-                    Thread.interrupted();
-                    active.set(false);
-                    break;
-                }
-            }
-        }
+    private StateProcessorImpl<ContractNegotiation> processNegotiationsInState(ContractNegotiationStates state, Function<ContractNegotiation, Boolean> function) {
+        return new StateProcessorImpl<>(() -> negotiationStore.nextForState(state.code(), batchSize), telemetry.contextPropagationMiddleware(function));
     }
 
-    private long processNegotiationsInState(ContractNegotiationStates state, Function<ContractNegotiation, Boolean> function) {
-        return new EntitiesProcessor<>(() -> negotiationStore.nextForState(state.code(), batchSize))
-                .doProcess(telemetry.contextPropagationMiddleware(function));
-    }
-
-    private EntitiesProcessor<ContractNegotiationCommand> onCommands() {
-        return new EntitiesProcessor<>(() -> commandQueue.dequeue(5));
+    private StateProcessorImpl<ContractNegotiationCommand> onCommands(Function<ContractNegotiationCommand, Boolean> process) {
+        return new StateProcessorImpl<>(() -> commandQueue.dequeue(5), process);
     }
 
     private boolean processCommand(ContractNegotiationCommand command) {
@@ -342,23 +306,34 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
 
         //TODO protocol-independent response type?
         dispatcherRegistry.send(Object.class, contractOfferRequest, () -> null)
-                .whenComplete((response, throwable) -> {
-                    if (throwable == null) {
-                        negotiation.transitionOffered();
-                        negotiationStore.save(negotiation);
-                        observable.invokeForEach(l -> l.providerOffered(negotiation));
-                        monitor.debug(String.format("[Provider] ContractNegotiation %s is now in state %s.",
-                                negotiation.getId(), ContractNegotiationStates.from(negotiation.getState())));
-                    } else {
-                        negotiation.transitionOffering();
-                        negotiationStore.save(negotiation);
-                        observable.invokeForEach(l -> l.providerOffering(negotiation));
-                        String message = format("[Provider] Failed to send contract offer with id %s. ContractNegotiation %s stays in state %s.",
-                                currentOffer.getId(), negotiation.getId(), ContractNegotiationStates.from(negotiation.getState()));
-                        monitor.debug(message, throwable);
-                    }
-                });
+                .whenComplete(onCounterOfferSent(negotiation.getId(), currentOffer.getId()));
         return false;
+    }
+
+    @NotNull
+    private BiConsumer<Object, Throwable> onCounterOfferSent(String negotiationId, String offerId) {
+        return (response, throwable) -> {
+            var negotiation = negotiationStore.find(negotiationId);
+            if (negotiation == null) {
+                monitor.severe(String.format("[Provider] ContractNegotiation %s not found.", negotiationId));
+                return;
+            }
+
+            if (throwable == null) {
+                negotiation.transitionOffered();
+                negotiationStore.save(negotiation);
+                observable.invokeForEach(l -> l.providerOffered(negotiation));
+                monitor.debug(String.format("[Provider] ContractNegotiation %s is now in state %s.",
+                        negotiation.getId(), ContractNegotiationStates.from(negotiation.getState())));
+            } else {
+                negotiation.transitionOffering();
+                negotiationStore.save(negotiation);
+                observable.invokeForEach(l -> l.providerOffering(negotiation));
+                String message = format("[Provider] Failed to send contract offer with id %s. ContractNegotiation %s stays in state %s.",
+                        offerId, negotiation.getId(), ContractNegotiationStates.from(negotiation.getState()));
+                monitor.debug(message, throwable);
+            }
+        };
     }
 
     /**
@@ -380,23 +355,35 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
 
         //TODO protocol-independent response type?
         dispatcherRegistry.send(Object.class, rejection, () -> null)
-                .whenComplete((response, throwable) -> {
-                    if (throwable == null) {
-                        negotiation.transitionDeclined();
-                        negotiationStore.save(negotiation);
-                        observable.invokeForEach(l -> l.declined(negotiation));
-                        monitor.debug(String.format("[Provider] ContractNegotiation %s is now in state %s.",
-                                negotiation.getId(), ContractNegotiationStates.from(negotiation.getState())));
-                    } else {
-                        negotiation.transitionDeclining();
-                        negotiationStore.save(negotiation);
-                        observable.invokeForEach(l -> l.declining(negotiation));
-                        String message = format("[Provider] Failed to send contract rejection. ContractNegotiation %s stays in state %s.",
-                                negotiation.getId(), ContractNegotiationStates.from(negotiation.getState()));
-                        monitor.debug(message, throwable);
-                    }
-                });
+                .whenComplete(onRejectionSent(negotiation.getId()));
+
         return false;
+    }
+
+    @NotNull
+    private BiConsumer<Object, Throwable> onRejectionSent(String negotiationId) {
+        return (response, throwable) -> {
+            var negotiation = negotiationStore.find(negotiationId);
+            if (negotiation == null) {
+                monitor.severe(String.format("[Provider] ContractNegotiation %s not found.", negotiationId));
+                return;
+            }
+
+            if (throwable == null) {
+                negotiation.transitionDeclined();
+                negotiationStore.save(negotiation);
+                observable.invokeForEach(l -> l.declined(negotiation));
+                monitor.debug(String.format("[Provider] ContractNegotiation %s is now in state %s.",
+                        negotiation.getId(), ContractNegotiationStates.from(negotiation.getState())));
+            } else {
+                negotiation.transitionDeclining();
+                negotiationStore.save(negotiation);
+                observable.invokeForEach(l -> l.declining(negotiation));
+                String message = format("[Provider] Failed to send contract rejection. ContractNegotiation %s stays in state %s.",
+                        negotiation.getId(), ContractNegotiationStates.from(negotiation.getState()));
+                monitor.debug(message, throwable);
+            }
+        };
     }
 
     /**
@@ -424,9 +411,9 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
             //TODO move to own service
             agreement = ContractAgreement.Builder.newInstance()
                     .id(ContractId.createContractId(definitionId))
-                    .contractEndDate(Instant.now().getEpochSecond() + 60 * 60 /* Five Minutes */) // TODO
-                    .contractSigningDate(Instant.now().getEpochSecond() - 60 * 5 /* Five Minutes */)
                     .contractStartDate(Instant.now().getEpochSecond())
+                    .contractEndDate(Instant.now().plus(365, ChronoUnit.DAYS).getEpochSecond()) // TODO Make configurable (issue #722)
+                    .contractSigningDate(Instant.now().getEpochSecond())
                     .providerAgentId(String.valueOf(lastOffer.getProvider()))
                     .consumerAgentId(String.valueOf(lastOffer.getConsumer()))
                     .policy(lastOffer.getPolicy())
@@ -436,7 +423,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
             agreement = retrievedAgreement;
         }
 
-        ContractAgreementRequest request = ContractAgreementRequest.Builder.newInstance()
+        var request = ContractAgreementRequest.Builder.newInstance()
                 .protocol(negotiation.getProtocol())
                 .connectorId(negotiation.getCounterPartyId())
                 .connectorAddress(negotiation.getCounterPartyAddress())
@@ -455,7 +442,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     @NotNull
     private BiConsumer<Object, Throwable> onAgreementSent(String id, ContractAgreement agreement) {
         return (response, throwable) -> {
-            ContractNegotiation negotiation = negotiationStore.find(id);
+            var negotiation = negotiationStore.find(id);
             if (negotiation == null) {
                 monitor.severe(String.format("[Provider] ContractNegotiation %s not found.", id));
                 return;
@@ -539,6 +526,11 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
             return this;
         }
 
+        public Builder store(ContractNegotiationStore store) {
+            manager.negotiationStore = store;
+            return this;
+        }
+
         public ProviderContractNegotiationManagerImpl build() {
             Objects.requireNonNull(manager.validationService, "contractValidationService");
             Objects.requireNonNull(manager.monitor, "monitor");
@@ -547,9 +539,11 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
             Objects.requireNonNull(manager.commandRunner, "commandRunner");
             Objects.requireNonNull(manager.observable, "observable");
             Objects.requireNonNull(manager.telemetry, "telemetry");
+            Objects.requireNonNull(manager.negotiationStore, "store");
             manager.commandProcessor = new CommandProcessor<>(manager.commandQueue, manager.commandRunner, manager.monitor);
 
             return manager;
         }
+
     }
 }

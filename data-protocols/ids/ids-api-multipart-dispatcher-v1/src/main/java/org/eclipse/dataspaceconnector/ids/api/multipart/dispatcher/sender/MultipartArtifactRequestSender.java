@@ -36,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.UUID;
 
 import static org.eclipse.dataspaceconnector.ids.spi.IdsConstants.IDS_WEBHOOK_ADDRESS_PROPERTY;
 
@@ -67,11 +68,6 @@ public class MultipartArtifactRequestSender extends IdsMultipartSender<DataReque
     }
 
     @Override
-    protected String retrieveRemoteConnectorId(DataRequest request) {
-        return request.getConnectorId();
-    }
-
-    @Override
     protected String retrieveRemoteConnectorAddress(DataRequest request) {
         return request.getConnectorAddress();
     }
@@ -99,7 +95,8 @@ public class MultipartArtifactRequestSender extends IdsMultipartSender<DataReque
         var artifactId = artifactTransformationResult.getContent();
         var contractId = contractTransformationResult.getContent();
 
-        var message = new ArtifactRequestMessageBuilder()
+        var artifactRequestId = request.getId() != null ? request.getId() : UUID.randomUUID().toString();
+        var message = new ArtifactRequestMessageBuilder(URI.create(artifactRequestId))
                 ._modelVersion_(IdsProtocol.INFORMATION_MODEL_VERSION)
                 //._issued_(gregorianNow()) TODO once https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/issues/236 is done
                 ._securityToken_(token)
@@ -109,7 +106,7 @@ public class MultipartArtifactRequestSender extends IdsMultipartSender<DataReque
                 ._requestedArtifact_(artifactId)
                 ._transferContract_(contractId)
                 .build();
-        message.setProperty(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/ids/multipart");
+        message.setProperty(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/v1/ids/data");
         request.getProperties().forEach(message::setProperty);
         return message;
     }

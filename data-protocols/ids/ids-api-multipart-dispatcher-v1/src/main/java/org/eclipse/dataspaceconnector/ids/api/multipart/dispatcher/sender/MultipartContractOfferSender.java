@@ -63,11 +63,6 @@ public class MultipartContractOfferSender extends IdsMultipartSender<ContractOff
     }
 
     @Override
-    protected String retrieveRemoteConnectorId(ContractOfferRequest request) {
-        return request.getConnectorId();
-    }
-
-    @Override
     protected String retrieveRemoteConnectorAddress(ContractOfferRequest request) {
         return request.getConnectorAddress();
     }
@@ -84,7 +79,7 @@ public class MultipartContractOfferSender extends IdsMultipartSender<ContractOff
                     ._recipientConnector_(Collections.singletonList(URI.create(request.getConnectorId())))
                     ._transferContract_(URI.create(request.getCorrelationId()))
                     .build();
-            message.setProperty(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/ids/multipart");
+            message.setProperty(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/v1/ids/data");
 
             return message;
         } else {
@@ -97,7 +92,7 @@ public class MultipartContractOfferSender extends IdsMultipartSender<ContractOff
                     ._recipientConnector_(Collections.singletonList(URI.create(request.getConnectorId())))
                     ._transferContract_(URI.create(request.getCorrelationId()))
                     .build();
-            message.setProperty(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/ids/multipart");
+            message.setProperty(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/v1/ids/data");
 
             return message;
         }

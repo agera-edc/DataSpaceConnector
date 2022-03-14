@@ -1,3 +1,17 @@
+/*
+ *  Copyright (c) 2022 Amadeus
+ *
+ *  This program and the accompanying materials are made available under the
+ *  terms of the Apache License, Version 2.0 which is available at
+ *  https://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  SPDX-License-Identifier: Apache-2.0
+ *
+ *  Contributors:
+ *       Amadeus - initial API and implementation
+ *
+ */
+
 package org.eclipse.dataspaceconnector.ids.api.multipart.dispatcher.sender;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,6 +74,7 @@ class MultipartArtifactRequestSenderTest {
         assertThat(message).isInstanceOf(ArtifactRequestMessage.class);
         assertThat((ArtifactRequestMessage) message)
                 .satisfies(msg -> {
+                    assertThat(msg.getId()).hasToString(request.getId());
                     assertThat(msg.getModelVersion()).isEqualTo(IdsProtocol.INFORMATION_MODEL_VERSION);
                     assertThat(msg.getSecurityToken()).isEqualTo(token);
                     assertThat(msg.getIssuerConnector()).isEqualTo(sender.getConnectorId());
@@ -70,7 +85,7 @@ class MultipartArtifactRequestSenderTest {
                     assertThat(msg.getProperties())
                             .hasSize(request.getProperties().size() + 1)
                             .containsAllEntriesOf(request.getProperties())
-                            .containsEntry(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/ids/multipart");
+                            .containsEntry(IDS_WEBHOOK_ADDRESS_PROPERTY, idsWebhookAddress + "/api/v1/ids/data");
                 });
     }
 
