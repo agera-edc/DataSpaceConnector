@@ -40,6 +40,9 @@ jobs:
           DEPENDENCY_ANALYSIS: true
         run: ./gradlew buildHealth -Pdependency.analysis.clear.artifacts=false
 
+      - name: Build health report
+        run: cat build/reports/dependency-analysis/build-health-report.txt
+
   Unit-Test:
     runs-on: ubuntu-latest
     steps:
