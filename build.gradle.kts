@@ -57,6 +57,47 @@ subprojects {
     }
 
     tasks.register<DependencyReportTask>("allDependencies") {}
+
+    tasks.register("applyDependencyRules") {
+        doLast {
+
+            val dependencies = configurations.get("default").resolvedConfiguration.resolvedArtifacts
+            dependencies.forEach { artifact ->
+                val dependency = artifact.moduleVersion.id
+
+                if (dependency.group == project.group) {
+                    val pathFromRoot = artifact.file.relativeTo(project.rootDir).path
+                    val pathFromThisModule = artifact.file.relativeTo(project.projectDir).path
+
+                    if (!dependency.name.endsWith("-spi") // modules may only depend on `-spi` modules (exceptions follow)
+                        && !dependency.name.endsWith("spi")
+                        && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
+                        && !pathFromRoot.startsWith("common/") // exception: `common`
+                        && !pathFromRoot.startsWith("extensions/http/jetty/") // exception: `jetty` (this exception should be removed once there is an SPI for jetty)
+                        && !project.path.startsWith(":launchers:") // exception: launchers
+                        && !project.path.startsWith(":samples:") // exception: samples
+                        && !project.path.startsWith(":system-tests:") // exception: system-tests
+                    ) {
+                        println("DEPENDENCY VIOLATION: modules may only depend on '*-spi' modules. Invalid dependency: $dependency")
+                    }
+
+                    if (pathFromThisModule.matches(Regex("\\.\\./[^.].*")) // there should not be "cross-module" dependencies at the same level
+                        && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
+                    ) {
+                        println("DEPENDENCY VIOLATION: there should not be \"cross-module\" dependencies at the same level. Invalid dependency: $dependency")
+                    }
+
+                    if (project.name == "core-spi") { // `core:spi` cannot depend on any other module
+                        println("DEPENDENCY VIOLATION: `core:spi` cannot depend on any other module. Invalid dependency: $dependency")
+                    }
+
+                    if (project.name == dependency.name) { // `core:spi` cannot depend on any other module
+                        println("DEPENDENCY VIOLATION: `core:spi` cannot depend on any other module. Invalid dependency: $dependency")
+                    }
+                }
+            }
+        }
+    }
 }
 
 buildscript {
@@ -231,6 +272,14 @@ if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
                         "org.junit.jupiter:junit-jupiter-params",
                         "org.mockito:mockito-core"
                     )
+                }
+                onIncorrectConfiguration {
+                    exclude(
+                        "org.jetbrains:annotations"
+                    )
+                }
+                onUsedTransitiveDependencies {
+                    severity("ignore")
                 }
             }
         }
