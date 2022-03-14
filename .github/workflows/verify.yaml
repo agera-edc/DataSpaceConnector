@@ -11,8 +11,6 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '11'
-      - name: Setup Gradle cache
-        uses: gradle/gradle-build-action@v2
 
       # lets run Checkstyle explicitly (as opposed to within gradle) due to better reporting capabilities
       - name: Run Checkstyle
@@ -40,7 +38,7 @@ jobs:
       - name: Dependency analysis
         env:
           DEPENDENCY_ANALYSIS: true
-        run: ./gradlew buildHealth
+        run: ./gradlew buildHealth -Pdependency.analysis.clear.artifacts=false
 
   Unit-Test:
     runs-on: ubuntu-latest
