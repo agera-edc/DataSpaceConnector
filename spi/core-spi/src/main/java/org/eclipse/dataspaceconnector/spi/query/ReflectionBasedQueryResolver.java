@@ -46,7 +46,7 @@ public class ReflectionBasedQueryResolver<T> extends QueryResolver<T> {
      *
      * @param stream stream to be queried.
      * @param spec query specification.
-     * return stream result from queries.
+     * @return stream result from queries.
      */
     @Override
     public Stream<T> query(Stream<T> stream, QuerySpec spec) {

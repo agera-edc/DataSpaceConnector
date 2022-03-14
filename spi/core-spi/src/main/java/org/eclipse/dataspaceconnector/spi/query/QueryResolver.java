@@ -14,7 +14,7 @@ public abstract class QueryResolver<T> {
      *
      * @param stream stream to be queried.
      * @param spec query specification.
-     * return stream result from queries.
+     * @return stream result from queries.
      */
     public abstract Stream<T> query(Stream<T> stream, QuerySpec spec);
 }
