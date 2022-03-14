@@ -18,6 +18,7 @@ plugins {
     checkstyle
     jacoco
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
+    id("com.autonomousapps.dependency-analysis") version "1.0.0-rc03" apply (false)
 }
 
 repositories {
@@ -98,7 +99,7 @@ allprojects {
         version = edcVersion
 
         dependencies {
-            api("org.jetbrains:annotations:${jetBrainsAnnotationsVersion}")
+            compileOnly("org.jetbrains:annotations:${jetBrainsAnnotationsVersion}")
             api("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
             api("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
             api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
@@ -206,6 +207,31 @@ openApiMerger {
             license {
                 name.set("Apache License v2.0")
                 url.set("http://apache.org/v2")
+            }
+        }
+    }
+}
+
+
+if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
+    apply(plugin = "com.autonomousapps.dependency-analysis")
+    configure<com.autonomousapps.DependencyAnalysisExtension> {
+        // See https://github.com/autonomousapps/dependency-analysis-android-gradle-plugin
+        issues {
+            all { // all projects
+                onAny {
+                    // severity("fail")
+                }
+                onUnusedDependencies {
+                    exclude(
+                        "com.fasterxml.jackson.core:jackson-annotations",
+                        "com.github.javafaker:javafaker",
+                        "org.assertj:assertj-core",
+                        "org.junit.jupiter:junit-jupiter-api",
+                        "org.junit.jupiter:junit-jupiter-params",
+                        "org.mockito:mockito-core"
+                    )
+                }
             }
         }
     }
