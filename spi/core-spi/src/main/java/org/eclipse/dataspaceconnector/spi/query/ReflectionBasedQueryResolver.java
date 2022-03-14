@@ -21,11 +21,11 @@ import java.util.stream.Stream;
 import static org.eclipse.dataspaceconnector.common.reflection.ReflectionUtil.propertyComparator;
 
 /**
- * Applies query on stream. Used in stores implementations.
+ * Applies query on a stream. Uses reflection to fetch object fields. Used in stores implementations.
  *
  * @param <T> type of the stream elements.
  */
-public class StreamQueryResolver<T> {
+public class ReflectionBasedQueryResolver<T> extends QueryResolver<T> {
 
     private final Class<T> typeParameterClass;
 
@@ -34,27 +34,29 @@ public class StreamQueryResolver<T> {
      *
      * @param typeParameterClass class of the type parameter. Used in reflection operation to recursively fetch a property from an object.
      */
-    public StreamQueryResolver(Class<T> typeParameterClass) {
+    public ReflectionBasedQueryResolver(Class<T> typeParameterClass) {
         this.typeParameterClass = typeParameterClass;
     }
 
     /**
-     * Method to apply query specification on the stream.
+     * Method to query a stream by provided specification.
      * Converts the criterion into 'and' predicate.
      * Applies sorting. When sort field is not found returns empty stream.
      * Applies offset and limit on the query result.
      *
-     * @param spec query specification.
      * @param stream stream to be queried.
+     * @param spec query specification.
+     * return stream result from queries.
      */
-    public Stream<T> applyQuery(QuerySpec spec, Stream<T> stream) {
+    @Override
+    public Stream<T> query(Stream<T> stream, QuerySpec spec) {
 
-        //filter
+        // filter
         Stream<Predicate<T>> predicateStream = spec.getFilterExpression().stream().map(this::toPredicate);
         var andPredicate = predicateStream.reduce(x -> true, Predicate::and);
         Stream<T> filteredStream  = stream.filter(andPredicate);
 
-        //sort
+        // sort
         var sortField = spec.getSortField();
 
         if (sortField != null) {

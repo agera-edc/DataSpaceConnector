@@ -16,9 +16,10 @@ package org.eclipse.dataspaceconnector.policy.store.memory;
 import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.contract.policy.store.PolicyStore;
+import org.eclipse.dataspaceconnector.spi.query.QueryResolver;
 import org.eclipse.dataspaceconnector.spi.persistence.EdcPersistenceException;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
-import org.eclipse.dataspaceconnector.spi.query.StreamQueryResolver;
+import org.eclipse.dataspaceconnector.spi.query.ReflectionBasedQueryResolver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class InMemoryPolicyStore implements PolicyStore {
 
     private final LockManager lockManager;
     private final Map<String, Policy> policiesById =  new HashMap<>();
-    private final StreamQueryResolver<Policy> queryResolver = new StreamQueryResolver<>(Policy.class);
+    private final QueryResolver<Policy> queryResolver = new ReflectionBasedQueryResolver<>(Policy.class);
 
     public InMemoryPolicyStore(LockManager lockManager) {
         this.lockManager = lockManager;
@@ -51,7 +52,7 @@ public class InMemoryPolicyStore implements PolicyStore {
     @Override
     public Stream<Policy> findAll(QuerySpec spec) {
         try {
-            return lockManager.readLock(() -> lockManager.readLock(() -> queryResolver.applyQuery(spec, policiesById.values().stream())));
+            return lockManager.readLock(() -> queryResolver.query(policiesById.values().stream(), spec));
         } catch (Exception e) {
             throw new EdcPersistenceException(String.format("Finding policy stream by query spec %s failed", spec), e);
         }

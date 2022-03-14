@@ -44,7 +44,7 @@ public class InMemoryContractNegotiationStore implements ContractNegotiationStor
     private final Map<String, ContractNegotiation> processesByCorrelationId = new HashMap<>();
     private final Map<String, ContractNegotiation> contractAgreements = new HashMap<>();
     private final Map<Integer, List<ContractNegotiation>> stateCache = new HashMap<>();
-    private final StreamQueryResolver<ContractNegotiation> queryResolver = new StreamQueryResolver<>(ContractNegotiation.class);
+    private final QueryResolver<ContractNegotiation> queryResolver = new ReflectionBasedQueryResolver<>(ContractNegotiation.class);
 
     @Override
     public ContractNegotiation find(String id) {
@@ -117,7 +117,7 @@ public class InMemoryContractNegotiationStore implements ContractNegotiationStor
 
     @Override
     public Stream<ContractNegotiation> queryNegotiations(QuerySpec querySpec) {
-        return lockManager.readLock(() -> queryResolver.applyQuery(querySpec, processesById.values().stream()));
+        return lockManager.readLock(() -> queryResolver.query(processesById.values().stream(), querySpec));
     }
 
 }

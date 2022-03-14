@@ -22,37 +22,39 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class StreamQueryResolverTest {
+class ReflectionBasedQueryResolverTest {
 
-    private StreamQueryResolver<FakeItem> queryResolver = new StreamQueryResolver<>(FakeItem.class);
+    private QueryResolver<FakeItem> queryResolver = new ReflectionBasedQueryResolver<>(FakeItem.class);
 
     @Test
     void verifyQuery_noFilters() {
         var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
 
         QuerySpec spec = QuerySpec.Builder.newInstance().build();
-        assertThat(queryResolver.applyQuery(spec, stream)).hasSize(10);
+        assertThat(queryResolver.query(stream, spec)).hasSize(10);
+    }
+
+    @Test
+    void verifyQuery_equalStringProperty() {
+        var stream = Stream.concat(
+                IntStream.range(0, 5).mapToObj(i -> new FakeItem(i, "Alice")),
+                IntStream.range(5, 10).mapToObj(i -> new FakeItem(i, "Bob")));
+
+        QuerySpec spec = QuerySpec.Builder.newInstance().filter("name=Alice").build();
+        assertThat(queryResolver.query(stream, spec)).hasSize(5).extracting(FakeItem::getName).containsOnly("Alice");
     }
 
     @Test
     @Disabled
-    void verifyQuery_equal() {
+    void verifyQuery_criterionFilterIntProperty() {
         var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
 
-        QuerySpec spec = QuerySpec.Builder.newInstance().equalsAsContains(false).filter("id=5").build();
-        assertThat(queryResolver.applyQuery(spec, stream)).hasSize(1).extracting(FakeItem::getId).containsExactly(5);
-    }
-
-    @Test
-    @Disabled
-    void verifyQuery_criterionFilter() {
-        var stream = IntStream.range(0, 10).mapToObj(FakeItem::new).collect(Collectors.toList());
-
-        QuerySpec spec = QuerySpec.Builder.newInstance().filter(List.of(new Criterion("id", "=", "5"))).build();
-        Collection<FakeItem> actual = queryResolver.applyQuery(spec, stream.stream()).collect(Collectors.toList());
+        QuerySpec spec = QuerySpec.Builder.newInstance().filter(List.of(new Criterion("id", "=", 5))).build();
+        Collection<FakeItem> actual = queryResolver.query(stream, spec).collect(Collectors.toList());
         assertThat(actual).hasSize(1).extracting(FakeItem::getId).containsExactly(5);
     }
 
@@ -61,7 +63,7 @@ class StreamQueryResolverTest {
         var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
 
         QuerySpec spec = QuerySpec.Builder.newInstance().sortField("id").sortOrder(SortOrder.DESC).build();
-        assertThat(queryResolver.applyQuery(spec, stream)).hasSize(10).isSortedAccordingTo(Comparator.comparing(FakeItem::getId).reversed());
+        assertThat(queryResolver.query(stream, spec)).hasSize(10).isSortedAccordingTo(Comparator.comparing(FakeItem::getId).reversed());
     }
 
     @Test
@@ -69,7 +71,7 @@ class StreamQueryResolverTest {
         var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
 
         QuerySpec spec = QuerySpec.Builder.newInstance().sortField("id").sortOrder(SortOrder.ASC).build();
-        assertThat(queryResolver.applyQuery(spec, stream)).hasSize(10).isSortedAccordingTo(Comparator.comparing(FakeItem::getId));
+        assertThat(queryResolver.query(stream, spec)).hasSize(10).isSortedAccordingTo(Comparator.comparing(FakeItem::getId));
     }
 
     @Test
@@ -77,7 +79,7 @@ class StreamQueryResolverTest {
         var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
 
         QuerySpec spec = QuerySpec.Builder.newInstance().sortField("xyz").sortOrder(SortOrder.ASC).build();
-        assertThat(queryResolver.applyQuery(spec, stream)).isEmpty();
+        assertThat(queryResolver.query(stream, spec)).isEmpty();
     }
 
     @Test
@@ -85,7 +87,7 @@ class StreamQueryResolverTest {
         var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
 
         QuerySpec spec = QuerySpec.Builder.newInstance().offset(1).limit(2).build();
-        assertThat(queryResolver.applyQuery(spec, stream)).extracting(FakeItem::getId).containsExactly(1, 2);
+        assertThat(queryResolver.query(stream, spec)).extracting(FakeItem::getId).containsExactly(1, 2);
     }
 
     @Test
@@ -93,18 +95,27 @@ class StreamQueryResolverTest {
         var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
 
         QuerySpec spec = QuerySpec.Builder.newInstance().sortField("id").sortOrder(SortOrder.DESC).offset(1).limit(2).build();
-        assertThat(queryResolver.applyQuery(spec, stream)).extracting(FakeItem::getId).containsExactly(8, 7);
+        assertThat(queryResolver.query(stream, spec)).extracting(FakeItem::getId).containsExactly(8, 7);
     }
 
     private static class FakeItem {
         private int id;
+        private String name;
 
         private FakeItem(int id) {
             this.id = id;
         }
+        private FakeItem(int id, String name) {
+            this.id = id;
+            this.name = name;
+        }
 
         public int getId() {
             return id;
+        }
+
+        public String getName() {
+            return name;
         }
 
         @Override
@@ -112,12 +123,12 @@ class StreamQueryResolverTest {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             FakeItem fakeItem = (FakeItem) o;
-            return id == fakeItem.id;
+            return id == fakeItem.id && Objects.equals(name, fakeItem.name);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(id);
+            return Objects.hash(id, name);
         }
     }
 

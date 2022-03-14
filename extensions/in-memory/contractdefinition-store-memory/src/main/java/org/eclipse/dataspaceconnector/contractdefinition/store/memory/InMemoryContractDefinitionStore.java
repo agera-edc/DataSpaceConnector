@@ -15,8 +15,9 @@
 package org.eclipse.dataspaceconnector.contractdefinition.store.memory;
 
 import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitionStore;
+import org.eclipse.dataspaceconnector.spi.query.QueryResolver;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
-import org.eclipse.dataspaceconnector.spi.query.StreamQueryResolver;
+import org.eclipse.dataspaceconnector.spi.query.ReflectionBasedQueryResolver;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDefinition;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +32,7 @@ import java.util.stream.Stream;
  */
 public class InMemoryContractDefinitionStore implements ContractDefinitionStore {
     private final Map<String, ContractDefinition> cache = new ConcurrentHashMap<>();
-    private final StreamQueryResolver<ContractDefinition> queryResolver = new StreamQueryResolver<>(ContractDefinition.class);
+    private final QueryResolver<ContractDefinition> queryResolver = new ReflectionBasedQueryResolver<>(ContractDefinition.class);
 
     @Override
     public @NotNull Collection<ContractDefinition> findAll() {
@@ -40,7 +41,7 @@ public class InMemoryContractDefinitionStore implements ContractDefinitionStore 
 
     @Override
     public @NotNull Stream<ContractDefinition> findAll(QuerySpec spec) {
-        return queryResolver.applyQuery(spec, cache.values().stream());
+        return queryResolver.query(cache.values().stream(), spec);
 
     }
 
