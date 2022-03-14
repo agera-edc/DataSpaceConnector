@@ -42,8 +42,6 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
     private static final String RESOURCE_ID = "edc.data.factory.resource.id";
     @EdcSetting
     private static final String KEY_VAULT_RESOURCE_ID = "edc.data.factory.key.vault.resource.id";
-    @EdcSetting
-    private static final String DATA_INTEGRATION_UNITS = "edc.data.factory.data.integration.units";
 
     @Inject
     private TransferServiceRegistry registry;
@@ -72,7 +70,6 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
         var dataFactoryId = requiredSetting(context, RESOURCE_ID);
         var keyVaultId = requiredSetting(context, KEY_VAULT_RESOURCE_ID);
         var keyVaultLinkedService = context.getSetting(KEY_VAULT_LINKED_SERVICE_NAME, "AzureKeyVault");
-        int dataIntegrationUnits = context.getSetting(DATA_INTEGRATION_UNITS, 32);
 
         var dataFactoryManager = DataFactoryManager.authenticate(credential, profile);
         var factory = resourceManager.genericResources().getById(dataFactoryId);
@@ -90,8 +87,7 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
         var pipelineFactory = new DataFactoryPipelineFactory(
                 keyVaultLinkedService,
                 keyVaultClient,
-                dataFactoryClient,
-                dataIntegrationUnits);
+                dataFactoryClient);
         var transferManager = new AzureDataFactoryTransferManager(
                 monitor,
                 dataFactoryClient,

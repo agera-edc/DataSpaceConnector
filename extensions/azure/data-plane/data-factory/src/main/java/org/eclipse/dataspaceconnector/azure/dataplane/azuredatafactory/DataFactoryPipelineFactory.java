@@ -39,13 +39,11 @@ class DataFactoryPipelineFactory {
     private final String keyVaultLinkedService;
     private final KeyVaultClient keyVaultClient;
     private final DataFactoryClient client;
-    private final int dataIntegrationUnits;
 
-    DataFactoryPipelineFactory(String keyVaultLinkedService, KeyVaultClient keyVaultClient, DataFactoryClient client, int dataIntegrationUnits) {
+    DataFactoryPipelineFactory(String keyVaultLinkedService, KeyVaultClient keyVaultClient, DataFactoryClient client) {
         this.keyVaultLinkedService = keyVaultLinkedService;
         this.keyVaultClient = keyVaultClient;
         this.client = client;
-        this.dataIntegrationUnits = dataIntegrationUnits;
     }
 
     /**
@@ -71,8 +69,7 @@ class DataFactoryPipelineFactory {
                         .withOutputs(List.of(new DatasetReference().withReferenceName(destinationDataset.name())))
                         .withSource(new BlobSource())
                         .withSink(new BlobSink())
-                        .withValidateDataConsistency(true)
-                        .withDataIntegrationUnits(dataIntegrationUnits)))
+                        .withValidateDataConsistency(true)))
                 .create();
     }
 

@@ -39,8 +39,7 @@ class DataFactoryPipelineFactoryTest {
     DataFlowRequest request = AzureDataFactoryTransferRequestValidatorTest.requestWithProperties;
 
     String keyVaultLinkedService = FAKER.lorem().word();
-    int dataIntegrationUnits = 32;
-    DataFactoryPipelineFactory factory = new DataFactoryPipelineFactory(keyVaultLinkedService, keyVaultClient, client, dataIntegrationUnits);
+    DataFactoryPipelineFactory factory = new DataFactoryPipelineFactory(keyVaultLinkedService, keyVaultClient, client);
 
     @Test
     void createPipeline() {
