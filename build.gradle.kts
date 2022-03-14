@@ -262,6 +262,9 @@ if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
             all { // all projects
                 onAny {
                     // severity("fail")
+                    exclude(
+                        "org.jetbrains:annotations"
+                    )
                 }
                 onUnusedDependencies {
                     exclude(
@@ -271,11 +274,6 @@ if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
                         "org.junit.jupiter:junit-jupiter-api",
                         "org.junit.jupiter:junit-jupiter-params",
                         "org.mockito:mockito-core"
-                    )
-                }
-                onIncorrectConfiguration {
-                    exclude(
-                        "org.jetbrains:annotations"
                     )
                 }
                 onUsedTransitiveDependencies {
