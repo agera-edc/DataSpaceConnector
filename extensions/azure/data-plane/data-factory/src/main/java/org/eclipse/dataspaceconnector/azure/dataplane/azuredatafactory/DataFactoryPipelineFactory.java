@@ -35,19 +35,25 @@ import java.util.UUID;
 /**
  * Factory class for Azure Data Factory object definitions, such as pipelines and datasets.
  */
-public class DataFactoryPipelineFactory {
+class DataFactoryPipelineFactory {
     private final String keyVaultLinkedService;
     private final KeyVaultClient keyVaultClient;
     private final DataFactoryClient client;
     private final int dataIntegrationUnits;
 
-    public DataFactoryPipelineFactory(String keyVaultLinkedService, KeyVaultClient keyVaultClient, DataFactoryClient client, int dataIntegrationUnits) {
+    DataFactoryPipelineFactory(String keyVaultLinkedService, KeyVaultClient keyVaultClient, DataFactoryClient client, int dataIntegrationUnits) {
         this.keyVaultLinkedService = keyVaultLinkedService;
         this.keyVaultClient = keyVaultClient;
         this.client = client;
         this.dataIntegrationUnits = dataIntegrationUnits;
     }
 
+    /**
+     * Create a Data Factory pipeline for a transfer request.
+     *
+     * @param request the transfer request.
+     * @return the created pipeline resource.
+     */
     PipelineResource createPipeline(DataFlowRequest request) {
         var baseName = "EDC-DPF-" + UUID.randomUUID();
 

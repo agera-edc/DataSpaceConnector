@@ -11,7 +11,6 @@
  *       Microsoft Corporation - initial API and implementation
  *
  */
-
 package org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory;
 
 import com.azure.resourcemanager.AzureResourceManager;

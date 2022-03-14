@@ -20,7 +20,10 @@ import com.azure.resourcemanager.datafactory.models.LinkedServiceResource;
 import com.azure.resourcemanager.datafactory.models.PipelineResource;
 import com.azure.resourcemanager.datafactory.models.PipelineRun;
 
-public class DataFactoryClient {
+/**
+ * Client for Azure Data Factory, wrapping the Azure SDK.
+ */
+class DataFactoryClient {
     private final DataFactoryManager dataFactoryManager;
     private final String resourceGroupName;
     private final String factoryName;
@@ -31,6 +34,24 @@ public class DataFactoryClient {
         this.factoryName = factoryName;
     }
 
+    /**
+     * Define a Data Factory pipeline.
+     *
+     * @param name pipeline name.
+     * @return a pipeline definition.
+     */
+    PipelineResource.DefinitionStages.WithCreate definePipeline(String name) {
+        return dataFactoryManager.pipelines()
+                .define(name)
+                .withExistingFactory(resourceGroupName, factoryName);
+    }
+
+    /**
+     * Define a Data Factory linked service.
+     *
+     * @param name linked service name.
+     * @return a linked service definition.
+     */
     LinkedServiceResource.DefinitionStages.WithProperties defineLinkedService(String name) {
         return dataFactoryManager
                 .linkedServices()
@@ -38,12 +59,12 @@ public class DataFactoryClient {
                 .withExistingFactory(resourceGroupName, factoryName);
     }
 
-    PipelineResource.DefinitionStages.WithCreate definePipeline(String baseName) {
-        return dataFactoryManager.pipelines()
-                .define(baseName)
-                .withExistingFactory(resourceGroupName, factoryName);
-    }
-
+    /**
+     * Define a Data Factory dataset.
+     *
+     * @param name dataset name.
+     * @return a dataset definition.
+     */
     DatasetResource.DefinitionStages.WithProperties defineDataset(String name) {
         return dataFactoryManager
                 .datasets()
@@ -51,17 +72,35 @@ public class DataFactoryClient {
                 .withExistingFactory(resourceGroupName, factoryName);
     }
 
+
+    /**
+     * Runs a pipeline.
+     *
+     * @param pipeline pipeline to run.
+     * @return run response.
+     */
     CreateRunResponse runPipeline(PipelineResource pipeline) {
         return dataFactoryManager.pipelines()
                 .createRun(resourceGroupName, factoryName, pipeline.name());
     }
 
+    /**
+     * Gets a pipeline run.
+     *
+     * @param runId pipeline run identifier.
+     * @return run representation.
+     */
     PipelineRun getPipelineRun(String runId) {
         return dataFactoryManager
                 .pipelineRuns()
                 .get(resourceGroupName, factoryName, runId);
     }
 
+    /**
+     * Cancels a pipeline run.
+     *
+     * @param runId pipeline run identifier.
+     */
     void cancelPipelineRun(String runId) {
         dataFactoryManager
                 .pipelineRuns()

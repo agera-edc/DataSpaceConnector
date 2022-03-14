@@ -16,14 +16,23 @@ package org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory;
 import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 
-public class KeyVaultClient {
+/**
+ * Client for Azure Key Vault, wrapping the Azure SDK.
+ */
+class KeyVaultClient {
     private final SecretClient secretClient;
 
-    public KeyVaultClient(SecretClient secretClient) {
+    KeyVaultClient(SecretClient secretClient) {
         this.secretClient = secretClient;
     }
 
-    KeyVaultSecret setSecret(String name, String accountKey) {
-        return secretClient.setSecret(name, accountKey);
+    /**
+     * Sets a Key Vault secret.
+     * @param name secret name.
+     * @param value secret value.
+     * @return created Key Vault secret.
+     */
+    KeyVaultSecret setSecret(String name, String value) {
+        return secretClient.setSecret(name, value);
     }
 }
