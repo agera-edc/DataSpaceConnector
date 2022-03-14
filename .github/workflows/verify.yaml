@@ -38,7 +38,7 @@ jobs:
       - name: Dependency analysis
         env:
           DEPENDENCY_ANALYSIS: true
-        run: ./gradlew buildHealth -Pdependency.analysis.clear.artifacts=false
+        run: ./gradlew buildHealth applyDependencyRules -Pdependency.analysis.clear.artifacts=false
 
       - name: Build health report
         run: cat build/reports/dependency-analysis/build-health-report.txt
