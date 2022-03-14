@@ -99,7 +99,7 @@ allprojects {
         version = edcVersion
 
         dependencies {
-            compileOnly("org.jetbrains:annotations:${jetBrainsAnnotationsVersion}")
+            api("org.jetbrains:annotations:${jetBrainsAnnotationsVersion}")
             api("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
             api("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
             api("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
