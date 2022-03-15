@@ -26,7 +26,6 @@ dependencies {
     api(project(":spi"))
 
     testFixturesApi(project(":common:util"))
-    testFixturesApi("com.azure:azure-cosmos:${cosmosSdkVersion}")
     testFixturesApi("com.azure:azure-storage-blob:${storageBlobVersion}")
     testFixturesApi("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
 }
