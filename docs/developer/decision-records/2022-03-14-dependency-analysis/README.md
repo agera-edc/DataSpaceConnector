@@ -10,6 +10,7 @@ The CI workflow is extended with two Gradle tasks for analyzing EDC module depen
 The tasks are initially set to only emit warnings, but will be configured to fail builds once all warnings have been resolved.
 
 The tasks are run in the CI workflow.
+
 ## Rationale
 
 The [Gradle Java library plugin](https://docs.gradle.org/current/userguide/java_library_plugin.html#sec:java_library_recognizing_dependencies) defines a clear separation between configurations. This allows controlling and limiting the use of transitive dependencies.
