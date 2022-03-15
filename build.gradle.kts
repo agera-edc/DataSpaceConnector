@@ -35,6 +35,7 @@ val assertj: String by project
 val rsApi: String by project
 val swaggerJaxrs2Version: String by project
 val faker: String by project
+val dependencyAnalysis: String? = System.getenv("DEPENDENCY_ANALYSIS")
 
 val groupId: String = "org.eclipse.dataspaceconnector"
 var edcVersion: String = "0.0.1-SNAPSHOT"
@@ -61,7 +62,17 @@ subprojects {
     tasks.register("applyDependencyRules") {
         doLast {
 
-            val dependencies = configurations.get("default").resolvedConfiguration.resolvedArtifacts
+            fun dependencyError(error: String) {
+                val message = "DEPENDENCY VIOLATION: $error"
+                if (dependencyAnalysis == "fail") {
+                    throw GradleException(message)
+                } else {
+                    println(message)
+                }
+            }
+
+            val dependencies = configurations["compileClasspath"].resolvedConfiguration.resolvedArtifacts
+
             dependencies.forEach { artifact ->
                 val dependency = artifact.moduleVersion.id
 
@@ -78,21 +89,21 @@ subprojects {
                         && !project.path.startsWith(":samples:") // exception: samples
                         && !project.path.startsWith(":system-tests:") // exception: system-tests
                     ) {
-                        println("DEPENDENCY VIOLATION: modules may only depend on '*-spi' modules. Invalid dependency: $dependency")
+                        dependencyError("modules may only depend on '*-spi' modules. Invalid dependency: $dependency")
                     }
 
                     if (pathFromThisModule.matches(Regex("\\.\\./[^.].*")) // there should not be "cross-module" dependencies at the same level
                         && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
                     ) {
-                        println("DEPENDENCY VIOLATION: there should not be \"cross-module\" dependencies at the same level. Invalid dependency: $dependency")
+                        dependencyError("there should not be \"cross-module\" dependencies at the same level. Invalid dependency: $dependency")
                     }
 
                     if (project.name == "core-spi") { // `core:spi` cannot depend on any other module
-                        println("DEPENDENCY VIOLATION: `core:spi` cannot depend on any other module. Invalid dependency: $dependency")
+                        dependencyError("`core:spi` cannot depend on any other module. Invalid dependency: $dependency")
                     }
 
                     if (project.name == dependency.name) { // two modules cannot have the same name (TBC)
-                        println("DEPENDENCY VIOLATION: two modules cannot have the same name. Invalid dependency: $dependency")
+                        dependencyError("two modules cannot have the same name. Invalid dependency: $dependency")
                     }
                 }
             }
@@ -131,7 +142,7 @@ allprojects {
     // EdcRuntimeExtension uses this to determine the runtime classpath of the module to run.
     tasks.register("printClasspath") {
         doLast {
-            println(sourceSets["main"].runtimeClasspath.asPath);
+            println(sourceSets["main"].runtimeClasspath.asPath)
         }
     }
 
@@ -254,14 +265,14 @@ openApiMerger {
 }
 
 
-if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
+if (dependencyAnalysis != null) {
     apply(plugin = "com.autonomousapps.dependency-analysis")
     configure<com.autonomousapps.DependencyAnalysisExtension> {
         // See https://github.com/autonomousapps/dependency-analysis-android-gradle-plugin
         issues {
             all { // all projects
                 onAny {
-                    // severity("fail")
+                    severity(dependencyAnalysis)
                     exclude(
                         "org.jetbrains:annotations",
                     )
@@ -276,7 +287,7 @@ if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
                         "org.mockito:mockito-core",
                     )
                 }
-                onIncorrectConfiguration{
+                onIncorrectConfiguration {
                     exclude(
                         "com.squareup.okhttp3:okhttp",
                         "net.jodah:failsafe",
