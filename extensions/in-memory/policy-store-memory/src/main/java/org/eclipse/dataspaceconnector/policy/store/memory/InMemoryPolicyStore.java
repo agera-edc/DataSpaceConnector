@@ -41,6 +41,7 @@ public class InMemoryPolicyStore implements PolicyStore {
     }
 
     @Override
+
     public @Nullable Policy findById(String policyId) {
         try {
             return lockManager.readLock(() -> policiesById.get(policyId));
