@@ -2,6 +2,8 @@ name: Integration Tests
 
 on: [ push, pull_request ]
 
+# Grant permissions to obtain federated identity credentials
+# see https://docs.github.com/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
 permissions:
   id-token: write
   contents: read
@@ -164,7 +166,7 @@ jobs:
         env:
           TERRAFORM_OUTPUTS: ${{ secrets.TERRAFORM_OUTPUTS }}
 
-      - name: "List Terraform output keys"
+      - name: "List Terraform output keys" # for information/manual debugging only
         run: cat resources/azure/testing/terraform_outputs.json | jq -r 'keys | .[]'
 
       - uses: actions/setup-java@v2

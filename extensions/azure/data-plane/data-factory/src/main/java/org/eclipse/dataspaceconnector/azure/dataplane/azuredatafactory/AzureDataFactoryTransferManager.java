@@ -48,6 +48,9 @@ public class AzureDataFactoryTransferManager {
 
     /**
      * Transfers data from source to destination.
+     *
+     * @param request the data flow request.
+     * @return a {@link Future} that completes when the data transfer completes.
      */
     public CompletableFuture<TransferResult> transfer(DataFlowRequest request) {
 
@@ -90,6 +93,11 @@ public class AzureDataFactoryTransferManager {
         return completedFuture(TransferResult.failure(ERROR_RETRY, "ADF run timed out"));
     }
 
+    /**
+     * States of a pipeline run, as returned from the Data Factory API.
+     *
+     * @see <a href="https://docs.microsoft.com/rest/api/datafactory/pipeline-runs/get#pipelinerun">PipelineRun</a>
+     */
     @SuppressWarnings("unused")
     private enum DataFactoryPipelineRunStates {
         Queued(false, false),
