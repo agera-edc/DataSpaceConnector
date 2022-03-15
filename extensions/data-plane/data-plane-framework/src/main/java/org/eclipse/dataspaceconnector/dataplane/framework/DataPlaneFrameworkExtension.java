@@ -84,8 +84,8 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
         transferServiceRegistry.registerTransferService(transferService);
         context.registerService(TransferServiceRegistry.class, transferServiceRegistry);
 
-        var nThreads = context.getSetting(TRANSFER_THREADS, DEFAULT_TRANSFER_THREADS);
-        var executorContainer = new DataTransferExecutorServiceContainer(Executors.newFixedThreadPool(nThreads));
+        var numThreads = context.getSetting(TRANSFER_THREADS, DEFAULT_TRANSFER_THREADS);
+        var executorContainer = new DataTransferExecutorServiceContainer(Executors.newFixedThreadPool(numThreads));
         context.registerService(DataTransferExecutorServiceContainer.class, executorContainer);
 
         monitor = context.getMonitor();
