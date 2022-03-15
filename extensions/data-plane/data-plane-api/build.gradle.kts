@@ -22,7 +22,7 @@ plugins {
 dependencies {
     implementation(project(":spi:web-spi"))
     api(project(":common:token-validation-lib"))
-    implementation(project(":extensions:data-plane:data-plane-spi"))
+    api(project(":extensions:data-plane:data-plane-spi"))
 
     implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
