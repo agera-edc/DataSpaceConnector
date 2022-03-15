@@ -22,6 +22,7 @@ the detailed section referring to by linking pull requests or issues.
 * Add okhttp client timeouts (#735)
 * Unit test framework for Dependency Injection (#843)
 * Implemented S3BucketReader (#675)
+* In-memory implementation of PolicyStore (#?)
 
 #### Changed
 
