@@ -67,7 +67,7 @@ class AzureDataFactoryTransferRequestValidatorTest {
 
     @ParameterizedTest(name = "{index} {0}")
     @MethodSource("canHandleArguments")
-    void canHandle(String ignoredName, String sourceType, String destinationType, boolean expected) {
+    void canHandle_onResult(String ignoredName, String sourceType, String destinationType, boolean expected) {
         // Arrange
         var source = createDataAddress(sourceType);
         var destination = createDataAddress(destinationType);

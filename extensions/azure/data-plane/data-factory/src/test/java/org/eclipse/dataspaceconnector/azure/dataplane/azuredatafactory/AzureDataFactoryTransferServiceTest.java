@@ -46,7 +46,7 @@ class AzureDataFactoryTransferServiceTest {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    void canHandle(boolean expected) {
+    void canHandle_onResult(boolean expected) {
         // Arrange
         when(validator.canHandle(request.build())).thenReturn(expected);
         // Act & Assert
