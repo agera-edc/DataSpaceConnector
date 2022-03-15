@@ -21,7 +21,6 @@ plugins {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":common:util"))
     implementation(project(":extensions:iam:decentralized-identity:registration-service"))
     implementation(project(":extensions:iam:decentralized-identity:registration-service-api"))
     implementation(project(":extensions:in-memory:did-document-store-inmem"))

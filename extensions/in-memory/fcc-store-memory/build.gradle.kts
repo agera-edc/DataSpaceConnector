@@ -19,7 +19,6 @@ plugins {
 dependencies {
     api(project(":spi"))
     api(project(":extensions:catalog:federated-catalog-spi"))
-    implementation(project(":common:util"))
 }
 publishing {
     publications {

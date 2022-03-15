@@ -22,9 +22,6 @@ plugins {
 dependencies {
     api(project(":spi"))
     api(project(":core:base"))
-    api(project(":common:util"))
-    api(project(":data-protocols:ids:ids-spi"))
-    implementation(project(":extensions:iam:oauth2:oauth2-spi"))
 
     api("de.fraunhofer.iais.eis.ids.infomodel:java:${infoModelVersion}")
 
