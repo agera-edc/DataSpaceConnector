@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public interface PolicyStore {
 
     /**
-     * Findss the policy by id.
+     * Finds the policy by id.
      *
      * @param policyId id of the policy.
      * @return {@link Policy} or null if not found.
