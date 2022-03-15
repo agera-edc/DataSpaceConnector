@@ -37,10 +37,10 @@ jobs:
 
       - name: Dependency analysis
         env:
-          DEPENDENCY_ANALYSIS: true
+          DEPENDENCY_ANALYSIS: warn #  <'fail'|'warn'|'ignore'>
         run: ./gradlew buildHealth applyDependencyRules -Pdependency.analysis.clear.artifacts=false
 
-      - name: Build health report
+      - name: Dependency analysis report
         run: cat build/reports/dependency-analysis/build-health-report.txt
 
   Unit-Test:
