@@ -21,8 +21,6 @@ plugins {
 
 
 dependencies {
-    api(project(":core:policy:policy-engine"))
-    api(project(":core:policy:policy-evaluator"))
 
 }
 

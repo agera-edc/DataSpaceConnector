@@ -23,7 +23,6 @@ plugins {
 
 dependencies {
     api(project(":spi"))
-    api(project(":common:util"))
     api(project(":data-protocols:ids:ids-spi"))
 
     api("de.fraunhofer.iais.eis.ids.infomodel:java:${infoModelVersion}")
@@ -31,7 +30,6 @@ dependencies {
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
     implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
 
-    implementation(project(":core:policy:policy-engine"))
 }
 
 

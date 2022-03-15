@@ -17,12 +17,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":spi:web-spi"))
     api(project(":core:base"))
     api(project(":core:boot"))
     api(project(":extensions:http"))
 
-    api(project(":extensions:data-plane:data-plane-spi"))
     api(project(":extensions:data-plane:data-plane-framework"))
     api(project(":extensions:data-plane:data-plane-http"))
     api(project(":extensions:data-plane:data-plane-api"))

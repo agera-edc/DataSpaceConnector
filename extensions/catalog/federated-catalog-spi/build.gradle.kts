@@ -18,7 +18,6 @@ plugins {
 
 dependencies {
     api(project(":spi"))
-    implementation(project(":common:util"))
 }
 publishing {
     publications {

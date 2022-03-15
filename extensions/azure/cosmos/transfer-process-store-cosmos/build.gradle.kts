@@ -21,7 +21,6 @@ val jodahFailsafeVersion: String by project
 
 dependencies {
     api(project(":spi:transfer-spi"))
-    api(project(":common:util"))
     api(project(":extensions:azure:cosmos:cosmos-common"))
 
     implementation("com.azure:azure-cosmos:${cosmosSdkVersion}")

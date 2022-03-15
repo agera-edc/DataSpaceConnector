@@ -19,7 +19,6 @@ plugins {
 
 dependencies {
     api(project(":spi"))
-    api(project(":extensions:iam:decentralized-identity:identity-did-spi"))
     api(project(":extensions:iam:decentralized-identity:identity-did-core"))
     api(project(":extensions:iam:decentralized-identity:identity-did-service"))
 //    api(project(":extensions:iam:decentralized-identity:registration-service"))

@@ -19,7 +19,6 @@ plugins {
 //This file serves as BOM for the dataloader
 dependencies {
     api(project(":spi"))
-    implementation(project(":common:util"))
 }
 
 publishing {

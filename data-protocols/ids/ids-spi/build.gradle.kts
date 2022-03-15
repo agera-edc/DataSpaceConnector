@@ -23,7 +23,6 @@ plugins {
 dependencies {
     api(project(":spi"))
 
-    api(project(":core:policy:policy-engine"))
 
     api("de.fraunhofer.iais.eis.ids.infomodel:java:${infoModelVersion}")
 

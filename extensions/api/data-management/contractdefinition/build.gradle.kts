@@ -24,8 +24,6 @@ plugins {
 
 dependencies {
     api(project(":spi"))
-    implementation(project(":common:util"))
-    implementation(project(":extensions:api:api-core"))
     implementation(project(":extensions:api:data-management:api-configuration"))
 
 
@@ -33,7 +31,6 @@ dependencies {
 
     testImplementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
     testImplementation(testFixtures(project(":launchers:junit")))
-    testImplementation(project(":extensions:in-memory:contractdefinition-store-memory"))
     testImplementation(project(":extensions:http"))
     testImplementation(testFixtures(project(":common:util")))
 }
