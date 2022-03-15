@@ -31,12 +31,11 @@ public class MicrometerExtensionIntegrationTest {
 
     @Test
     public void testMicrometerMetrics() throws IOException {
+        // Call the callHealthEndpoint. After receiving this call, the connector will call the health endpoint.
         httpClient.newCall(new Request.Builder().url(CALL_HEALTH_ENDPOINT).build()).execute();
-        Request request =  new Request.Builder()
-                .url(METRICS_ENDPOINT)
-                .get()
-                .build();
 
+        // Collect the metrics.
+        Request request =  new Request.Builder().url(METRICS_ENDPOINT).get().build();
         Response response = httpClient.newCall(request).execute();
         String[] metrics = response.body().string().split("\n");
 
