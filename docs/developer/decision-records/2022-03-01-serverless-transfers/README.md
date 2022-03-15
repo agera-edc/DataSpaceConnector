@@ -38,7 +38,7 @@ A related topic is routing among several serverless platforms, if several are en
 
 ## Spike
 
-We built a spike to showcase the simplest possible use of ADF, to copy data between two storage accounts.
+We built a [spike](https://github.com/agera-edc/DataSpaceConnector/pull/112) in a forked repository to showcase the simplest possible use of ADF, to copy data between two storage accounts.
 
 ### Structure
 
