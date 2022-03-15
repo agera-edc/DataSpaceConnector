@@ -99,7 +99,7 @@ public class InMemoryPolicyStore implements PolicyStore {
         var sortField = spec.getSortField();
 
         if (sortField != null) {
-            // if the sortfield doesn't exist on the object -> return empty
+            // if the sort field doesn't exist on the object -> return empty
             if (ReflectionUtil.getFieldRecursive(Policy.class, sortField) == null) {
                 return Stream.empty();
             }
