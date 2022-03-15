@@ -263,7 +263,7 @@ if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
                 onAny {
                     // severity("fail")
                     exclude(
-                        "org.jetbrains:annotations"
+                        "org.jetbrains:annotations",
                     )
                 }
                 onUnusedDependencies {
@@ -273,7 +273,13 @@ if (System.getenv("DEPENDENCY_ANALYSIS") == "true") {
                         "org.assertj:assertj-core",
                         "org.junit.jupiter:junit-jupiter-api",
                         "org.junit.jupiter:junit-jupiter-params",
-                        "org.mockito:mockito-core"
+                        "org.mockito:mockito-core",
+                    )
+                }
+                onIncorrectConfiguration{
+                    exclude(
+                        "com.squareup.okhttp3:okhttp",
+                        "net.jodah:failsafe",
                     )
                 }
                 onUsedTransitiveDependencies {

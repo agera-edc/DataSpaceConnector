@@ -24,9 +24,8 @@ val jodahFailsafeVersion: String by project
 
 dependencies {
     api(project(":spi:core-spi"))
-
-    implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
-    implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
+    api("net.jodah:failsafe:${jodahFailsafeVersion}")
+    api("com.squareup.okhttp3:okhttp:${okHttpVersion}")
 
     testImplementation("org.awaitility:awaitility:4.1.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
