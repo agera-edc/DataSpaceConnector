@@ -26,7 +26,7 @@ public interface PolicyStore {
      * Find stream of policies in the store based on query spec.
      *
      * @param spec query specification.
-     * @return stream of found policies.
+     * @return A {@link Stream} of {@link Policy}. Might be empty, never null.
      * @throws EdcPersistenceException if something goes wrong.
      */
     Stream<Policy> findAll(QuerySpec spec);
