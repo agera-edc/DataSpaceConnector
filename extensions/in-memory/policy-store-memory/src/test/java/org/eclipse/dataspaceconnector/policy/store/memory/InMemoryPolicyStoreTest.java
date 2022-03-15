@@ -36,7 +36,7 @@ class InMemoryPolicyStoreTest {
 
     @BeforeEach
     void setUp() {
-        manager = spy(new LockManager(new ReentrantReadWriteLock()));
+        manager = spy(new LockManager(new ReentrantReadWriteLock(true)));
         store = new InMemoryPolicyStore(manager);
     }
 

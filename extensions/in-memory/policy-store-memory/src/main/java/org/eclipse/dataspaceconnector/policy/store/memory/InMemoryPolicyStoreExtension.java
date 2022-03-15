@@ -34,7 +34,7 @@ public class InMemoryPolicyStoreExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        context.registerService(PolicyStore.class, new InMemoryPolicyStore(new LockManager(new ReentrantReadWriteLock())));
+        context.registerService(PolicyStore.class, new InMemoryPolicyStore(new LockManager(new ReentrantReadWriteLock(true))));
     }
 
 }
