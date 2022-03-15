@@ -150,7 +150,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * @param contractOffer The contract offer.
      * @param hash          A hash of all previous contract offers.
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id or no last
-     * offer found for negotiation; OK otherwise
+     *         offer found for negotiation; OK otherwise
      */
     @WithSpan
     @Override
@@ -200,7 +200,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * @param agreement     Agreement sent by provider.
      * @param hash          A hash of all previous contract offers.
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id or no last
-     * offer found for negotiation; OK otherwise
+     *         offer found for negotiation; OK otherwise
      */
     @WithSpan
     @Override
@@ -253,7 +253,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * @param token         Claim token of the consumer that sent the rejection.
      * @param negotiationId Id of the ContractNegotiation.
      * @return a {@link NegotiationResult}: OK, if successfully transitioned to declined;
-     * FATAL_ERROR, if no match found for Id.
+     *         FATAL_ERROR, if no match found for Id.
      */
     @WithSpan
     @Override
