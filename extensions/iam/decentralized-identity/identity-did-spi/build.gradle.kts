@@ -3,6 +3,7 @@ plugins {
 }
 
 val nimbusVersion: String by project
+
 dependencies {
     api(project(":spi"))
     // newer Nimbus versions create a version conflict with the MSAL library which uses this version as a transitive dependency
