@@ -16,7 +16,7 @@ public interface PolicyStore {
      * Findss the policy by id.
      *
      * @param policyId id of the policy.
-     * @return found Policy or null if not found.
+     * @return {@link Policy} or null if not found.
      * @throws EdcPersistenceException if something goes wrong.
      */
     @Nullable
