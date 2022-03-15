@@ -35,7 +35,7 @@ jobs:
       - name: Setup Gradle cache
         uses: gradle/gradle-build-action@v2
 
-      - name: Dependency analysis
+      - name: Dependency rules report
         env:
           DEPENDENCY_ANALYSIS: warn #  <'fail'|'warn'|'ignore'>
         run: ./gradlew buildHealth applyDependencyRules -Pdependency.analysis.clear.artifacts=false

@@ -63,7 +63,7 @@ subprojects {
         doLast {
 
             fun dependencyError(error: String) {
-                val message = "DEPENDENCY VIOLATION: $error"
+                val message = "DEPENDENCY RULE VIOLATION: $error"
                 if (dependencyAnalysis == "fail") {
                     throw GradleException(message)
                 } else {
@@ -275,11 +275,15 @@ if (dependencyAnalysis != null) {
                     severity(dependencyAnalysis)
                     exclude(
                         "org.jetbrains:annotations",
+                        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",
+                        "com.fasterxml.jackson.core:jackson-core",
+                        "com.fasterxml.jackson.core:jackson-annotations",
+                        "com.fasterxml.jackson.core:jackson-databind",
+                        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",
                     )
                 }
                 onUnusedDependencies {
                     exclude(
-                        "com.fasterxml.jackson.core:jackson-annotations",
                         "com.github.javafaker:javafaker",
                         "org.assertj:assertj-core",
                         "org.junit.jupiter:junit-jupiter-api",
