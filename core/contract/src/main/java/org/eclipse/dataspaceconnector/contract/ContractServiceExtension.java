@@ -43,7 +43,6 @@ import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistr
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.retry.ExponentialWaitStrategy;
 import org.eclipse.dataspaceconnector.spi.system.CoreExtension;
-import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
@@ -141,7 +140,6 @@ public class ContractServiceExtension implements ServiceExtension {
                 .commandRunner(commandRunner)
                 .observable(observable)
                 .telemetry(telemetry)
-                .executorInstrumentation(context.getService(ExecutorInstrumentation.class))
                 .store(store)
                 .build();
 
@@ -154,7 +152,6 @@ public class ContractServiceExtension implements ServiceExtension {
                 .commandRunner(commandRunner)
                 .observable(observable)
                 .telemetry(telemetry)
-                .executorInstrumentation(context.getService(ExecutorInstrumentation.class))
                 .store(store)
                 .build();
 

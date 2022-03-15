@@ -31,8 +31,6 @@ import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistr
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
-import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
-import org.eclipse.dataspaceconnector.spi.system.NullExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreement;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreementRequest;
@@ -45,6 +43,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOf
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.UUID;
@@ -79,16 +78,14 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
     private CommandQueue<ContractNegotiationCommand> commandQueue;
     private CommandRunner<ContractNegotiationCommand> commandRunner;
     private CommandProcessor<ContractNegotiationCommand> commandProcessor;
-    private Monitor monitor;
     private Telemetry telemetry;
-    private ExecutorInstrumentation executorInstrumentation;
+    private Monitor monitor;
     private StateMachine stateMachine;
 
-    private ConsumerContractNegotiationManagerImpl() {
-    }
+    private ConsumerContractNegotiationManagerImpl() { }
 
     public void start() {
-        stateMachine = StateMachine.Builder.newInstance("consumer-contract-negotiation", monitor, executorInstrumentation, waitStrategy)
+        stateMachine = StateMachine.Builder.newInstance("consumer-contract-negotiation", monitor, waitStrategy)
                 .processor(processNegotiationsInState(INITIAL, this::processInitial))
                 .processor(processNegotiationsInState(CONSUMER_OFFERING, this::processConsumerOffering))
                 .processor(processNegotiationsInState(CONSUMER_APPROVING, this::processConsumerApproving))
@@ -145,12 +142,12 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * ContractNegotiation and transitions the ContractNegotiation to CONSUMER_APPROVING,
      * CONSUMER_OFFERING or DECLINING.
      *
-     * @param token         Claim token of the consumer that send the contract request.
+     * @param token Claim token of the consumer that send the contract request.
      * @param negotiationId Id of the ContractNegotiation.
      * @param contractOffer The contract offer.
-     * @param hash          A hash of all previous contract offers.
+     * @param hash A hash of all previous contract offers.
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id or no last
-     * offer found for negotiation; OK otherwise
+     *         offer found for negotiation; OK otherwise
      */
     @WithSpan
     @Override
@@ -195,12 +192,12 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * Validates the contract agreement sent by the provider against the last contract offer and
      * transitions the corresponding {@link ContractNegotiation} to state CONFIRMED or DECLINING.
      *
-     * @param token         Claim token of the consumer that send the contract request.
+     * @param token Claim token of the consumer that send the contract request.
      * @param negotiationId Id of the ContractNegotiation.
-     * @param agreement     Agreement sent by provider.
-     * @param hash          A hash of all previous contract offers.
+     * @param agreement Agreement sent by provider.
+     * @param hash A hash of all previous contract offers.
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id or no last
-     * offer found for negotiation; OK otherwise
+     *         offer found for negotiation; OK otherwise
      */
     @WithSpan
     @Override
@@ -250,10 +247,10 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * Tells this manager that a {@link ContractNegotiation} has been declined by the counter-party.
      * Transitions the corresponding ContractNegotiation to state DECLINED.
      *
-     * @param token         Claim token of the consumer that sent the rejection.
+     * @param token Claim token of the consumer that sent the rejection.
      * @param negotiationId Id of the ContractNegotiation.
      * @return a {@link NegotiationResult}: OK, if successfully transitioned to declined;
-     * FATAL_ERROR, if no match found for Id.
+     *         FATAL_ERROR, if no match found for Id.
      */
     @WithSpan
     @Override
@@ -285,7 +282,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * Builds and sends a {@link ContractOfferRequest} for a given {@link ContractNegotiation} and
      * {@link ContractOffer}.
      *
-     * @param offer   The contract offer.
+     * @param offer The contract offer.
      * @param process The contract negotiation.
      * @return The response to the sent message.
      */
@@ -533,7 +530,6 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
         private Builder() {
             manager = new ConsumerContractNegotiationManagerImpl();
             manager.telemetry = new Telemetry(); // default noop implementation
-            manager.executorInstrumentation = new NullExecutorInstrumentation(); // default noop implementation
         }
 
         public static Builder newInstance() {
@@ -549,12 +545,6 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
             manager.monitor = monitor;
             return this;
         }
-
-        public Builder executorInstrumentation(ExecutorInstrumentation executorInstrumentation) {
-            manager.executorInstrumentation = executorInstrumentation;
-            return this;
-        }
-
 
         public Builder batchSize(int batchSize) {
             manager.batchSize = batchSize;
@@ -599,7 +589,6 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
         public ConsumerContractNegotiationManagerImpl build() {
             Objects.requireNonNull(manager.validationService, "contractValidationService");
             Objects.requireNonNull(manager.monitor, "monitor");
-            Objects.requireNonNull(manager.executorInstrumentation, "executorInstrumentation");
             Objects.requireNonNull(manager.dispatcherRegistry, "dispatcherRegistry");
             Objects.requireNonNull(manager.commandQueue, "commandQueue");
             Objects.requireNonNull(manager.commandRunner, "commandRunner");
