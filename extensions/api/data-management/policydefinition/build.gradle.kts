@@ -21,10 +21,14 @@ plugins {
 }
 
 dependencies {
+    api(project(":core:policy:policy-evaluator"))
+    implementation(project(":common:util"))
+    implementation(project(":extensions:api:api-core"))
     implementation(project(":extensions:api:data-management:api-configuration"))
 
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
     testImplementation(testFixtures(project(":launchers:junit")))
+    testImplementation(project(":extensions:in-memory:contractdefinition-store-memory"))
     testImplementation(project(":extensions:http"))
     testImplementation(testFixtures(project(":common:util")))
 }

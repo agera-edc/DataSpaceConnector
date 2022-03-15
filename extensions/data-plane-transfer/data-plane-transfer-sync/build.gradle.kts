@@ -25,6 +25,7 @@ dependencies {
     api(project(":spi:core-spi"))
     api(project(":spi:contract-spi"))
     api(project(":spi:transfer-spi"))
+    implementation(project(":spi:web-spi"))
     api(project(":extensions:data-plane-transfer:data-plane-transfer-core"))
     api(project(":common:token-generation-lib"))
     api(project(":common:token-validation-lib"))

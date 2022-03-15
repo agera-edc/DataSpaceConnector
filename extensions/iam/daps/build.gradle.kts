@@ -28,6 +28,7 @@ dependencies {
     testImplementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")
 
     testImplementation(project(":extensions:filesystem:vault-fs"))
+    testImplementation(project(":extensions:iam:oauth2:oauth2-core"))
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))

@@ -25,6 +25,7 @@ plugins {
 
 dependencies {
     implementation(project(":extensions:azure:data-plane:common"))
+    implementation(project(":common:util"))
     implementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
 
@@ -32,6 +33,7 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
 
     testFixturesApi(project(":extensions:data-plane:data-plane-spi"))
+    testFixturesImplementation(project(":common:util"))
 
     testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
     testFixturesRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jupiterVersion}")

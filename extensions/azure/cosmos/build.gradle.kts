@@ -22,6 +22,7 @@ dependencies {
     api(project(":extensions:azure:cosmos:assetindex-cosmos"))
     api(project(":extensions:azure:cosmos:contract-definition-store-cosmos"))
     api(project(":extensions:azure:cosmos:contract-negotiation-store-cosmos"))
+    api(project(":extensions:azure:cosmos:cosmos-common"))
     api(project(":extensions:azure:cosmos:fcc-node-directory-cosmos"))
     api(project(":extensions:azure:cosmos:transfer-process-store-cosmos"))
 }

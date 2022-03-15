@@ -20,6 +20,7 @@ plugins {
 dependencies {
     api(project(":spi"))
     api(project(":extensions:catalog:federated-catalog-cache"))
+    api(project(":extensions:catalog:federated-catalog-spi"))
 }
 
 publishing {
