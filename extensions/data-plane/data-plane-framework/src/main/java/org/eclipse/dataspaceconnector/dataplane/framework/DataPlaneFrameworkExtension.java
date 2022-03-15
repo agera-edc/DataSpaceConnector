@@ -20,6 +20,7 @@ import org.eclipse.dataspaceconnector.dataplane.framework.registry.TransferServi
 import org.eclipse.dataspaceconnector.dataplane.framework.registry.TransferServiceSelectionStrategy;
 import org.eclipse.dataspaceconnector.dataplane.framework.store.InMemoryDataPlaneStore;
 import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
+import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataTransferExecutorServiceContainer;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.OutputStreamDataSinkFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.dataspaceconnector.dataplane.spi.registry.TransferServiceRegistry;
@@ -32,11 +33,12 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
 /**
  * Provides core services for the Data Plane Framework.
  */
-@Provides({DataPlaneManager.class, PipelineService.class})
+@Provides({DataPlaneManager.class, PipelineService.class, DataTransferExecutorServiceContainer.class})
 public class DataPlaneFrameworkExtension implements ServiceExtension {
     private static final int IN_MEMORY_STORE_CAPACITY = 1000;
 
@@ -51,6 +53,10 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
     @EdcSetting
     private static final String WAIT_TIMEOUT = "edc.dataplane.wait";
     private static final long DEFAULT_WAIT_TIMEOUT = 1000;
+
+    @EdcSetting
+    private static final String TRANSFER_THREADS = "edc.dataplane.transfer.threads";
+    private static final int DEFAULT_TRANSFER_THREADS = 10;
 
     private ServiceExtensionContext context;
 
@@ -77,6 +83,10 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
                 TransferServiceSelectionStrategy::selectFirst));
         transferServiceRegistry.registerTransferService(transferService);
         context.registerService(TransferServiceRegistry.class, transferServiceRegistry);
+
+        var nThreads = context.getSetting(TRANSFER_THREADS, DEFAULT_TRANSFER_THREADS);
+        var executorContainer = new DataTransferExecutorServiceContainer(Executors.newFixedThreadPool(nThreads));
+        context.registerService(DataTransferExecutorServiceContainer.class, executorContainer);
 
         monitor = context.getMonitor();
         var queueCapacity = context.getSetting(QUEUE_CAPACITY, DEFAULT_QUEUE_CAPACITY);
