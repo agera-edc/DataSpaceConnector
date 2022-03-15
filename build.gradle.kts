@@ -293,8 +293,11 @@ if (dependencyAnalysis != null) {
                 }
                 onIncorrectConfiguration {
                     exclude(
+                        // some common dependencies are intentionally exported by core:base for simplicity
                         "com.squareup.okhttp3:okhttp",
                         "net.jodah:failsafe",
+                        // public methods annotated with @WithSpan
+                        "io.opentelemetry:opentelemetry-extension-annotations",
                     )
                 }
                 onUsedTransitiveDependencies {
