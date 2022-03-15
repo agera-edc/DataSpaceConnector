@@ -43,7 +43,7 @@ public interface PolicyStore {
      * Deletes a policy for the given id.
      *
      * @param policyId id of the policy to be removed.
-     * @return deleted policy or null if policy not found.
+     * @return Deleted {@link Policy} or null if policy not found.
      * @throws EdcPersistenceException if something goes wrong.
      */
     Policy delete(String policyId);
