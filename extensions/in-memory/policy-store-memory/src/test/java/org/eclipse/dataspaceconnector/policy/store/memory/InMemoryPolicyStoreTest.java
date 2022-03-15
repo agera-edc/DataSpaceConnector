@@ -13,23 +13,30 @@
  */
 package org.eclipse.dataspaceconnector.policy.store.memory;
 
+import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.contract.policy.store.PolicyStore;
+import org.eclipse.dataspaceconnector.spi.persistence.EdcPersistenceException;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.UUID;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class InMemoryPolicyStoreTest {
     private PolicyStore store;
+    private LockManager manager;
 
     @BeforeEach
     void setUp() {
-        store = new InMemoryPolicyStore();
+        manager = spy(new LockManager(new ReentrantReadWriteLock()));
+        store = new InMemoryPolicyStore(manager);
     }
 
     @Test
@@ -140,4 +147,31 @@ class InMemoryPolicyStoreTest {
         assertThat(store.delete("nonexistent")).isNull();
     }
 
+    @Test
+    void findById_exceptionThrown() {
+        doThrow(new RuntimeException()).when(manager).readLock(any());
+
+        assertThatExceptionOfType(EdcPersistenceException.class).isThrownBy(() -> store.findById("any-policy-id"));
+    }
+
+    @Test
+    void findAll_exceptionThrown() {
+        doThrow(new RuntimeException()).when(manager).readLock(any());
+
+        assertThatExceptionOfType(EdcPersistenceException.class).isThrownBy(() -> store.findAll(QuerySpec.Builder.newInstance().build()));
+    }
+
+    @Test
+    void save_exceptionThrown() {
+        doThrow(new RuntimeException()).when(manager).writeLock(any());
+
+        assertThatExceptionOfType(EdcPersistenceException.class).isThrownBy(() -> store.save(Policy.Builder.newInstance().build()));
+    }
+
+    @Test
+    void deleteById_exceptionThrown() {
+        doThrow(new RuntimeException()).when(manager).writeLock(any());
+
+        assertThatExceptionOfType(EdcPersistenceException.class).isThrownBy(() -> store.delete("any-policy-id"));
+    }
 }

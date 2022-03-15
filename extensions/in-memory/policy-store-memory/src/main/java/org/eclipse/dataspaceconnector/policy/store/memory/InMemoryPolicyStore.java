@@ -17,6 +17,7 @@ import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.common.reflection.ReflectionUtil;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.contract.policy.store.PolicyStore;
+import org.eclipse.dataspaceconnector.spi.persistence.EdcPersistenceException;
 import org.eclipse.dataspaceconnector.spi.query.BaseCriterionToPredicateConverter;
 import org.eclipse.dataspaceconnector.spi.query.Criterion;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
@@ -25,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -38,44 +38,69 @@ import static org.eclipse.dataspaceconnector.common.reflection.ReflectionUtil.pr
  */
 public class InMemoryPolicyStore implements PolicyStore {
 
-    private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
+    private final LockManager lockManager;
     private final Map<String, Policy> policiesById =  new HashMap<>();
+
+    public InMemoryPolicyStore(LockManager lockManager) {
+        this.lockManager = lockManager;
+    }
+
+    public InMemoryPolicyStore() {
+        this.lockManager = new LockManager(new ReentrantReadWriteLock());
+    }
+
 
     @Override
     public @Nullable Policy findById(String policyId) {
-        return lockManager.readLock(() -> policiesById.get(policyId));
+        try {
+            return lockManager.readLock(() -> policiesById.get(policyId));
+        } catch (Exception e) {
+            throw new EdcPersistenceException(String.format("Finding policy by id %s failed.", policyId), e);
+        }
     }
 
     @Override
     public Stream<Policy> findAll(QuerySpec spec) {
-        return lockManager.readLock(() -> {
-            var stream = policiesById.values().stream();
-            return applyQuery(spec, stream, Policy.class);
-        });
+        try {
+            return lockManager.readLock(() -> {
+                var stream = policiesById.values().stream();
+                return applyQuery(spec, stream);
+            });
+        } catch (Exception e) {
+            throw new EdcPersistenceException(String.format("Finding policy stream by query spec %s failed", spec), e);
+        }
     }
 
     @Override
     public void save(Policy policy) {
-        lockManager.writeLock(() -> policiesById.put(policy.getUid(), policy));
+        try {
+            lockManager.writeLock(() -> policiesById.put(policy.getUid(), policy));
+        } catch (Exception e) {
+            throw new EdcPersistenceException("Saving policy failed", e);
+        }
     }
 
     @Override
     public Policy delete(String policyId) {
-        return lockManager.writeLock(() -> policiesById.remove(policyId));
+        try {
+            return lockManager.writeLock(() -> policiesById.remove(policyId));
+        } catch (Exception e) {
+            throw new EdcPersistenceException("Deleting policy failed", e);
+        }
     }
 
-    private <T> Stream<T> applyQuery(QuerySpec spec, Stream<T> streamOfAll, Class<?> clazz) {
+    private Stream<Policy> applyQuery(QuerySpec spec, Stream<Policy> streamOfAll) {
 
         //filter
         var andPredicate = spec.getFilterExpression().stream().map(this::toPredicate).reduce(x -> true, Predicate::and);
-        Stream<T> stream  = streamOfAll.filter(andPredicate);
+        Stream<Policy> stream  = streamOfAll.filter(andPredicate);
 
         //sort
         var sortField = spec.getSortField();
 
         if (sortField != null) {
             // if the sortfield doesn't exist on the object -> return empty
-            if (ReflectionUtil.getFieldRecursive(clazz, sortField) == null) {
+            if (ReflectionUtil.getFieldRecursive(Policy.class, sortField) == null) {
                 return Stream.empty();
             }
             var comparator = propertyComparator(spec.getSortOrder() == SortOrder.ASC, sortField);

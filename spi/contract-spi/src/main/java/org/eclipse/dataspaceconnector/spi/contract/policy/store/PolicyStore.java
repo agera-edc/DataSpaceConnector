@@ -20,7 +20,7 @@ public interface PolicyStore {
      * @throws EdcPersistenceException if something goes wrong.
      */
     @Nullable
-    Policy findById(String policyId);
+    Policy findById(String policyId) throws EdcPersistenceException;
 
     /**
      * Find stream of policies in the store based on query spec.
@@ -29,7 +29,7 @@ public interface PolicyStore {
      * @return A {@link Stream} of {@link Policy}. Might be empty, never null.
      * @throws EdcPersistenceException if something goes wrong.
      */
-    Stream<Policy> findAll(QuerySpec spec);
+    Stream<Policy> findAll(QuerySpec spec) throws EdcPersistenceException;
 
     /**
      * Persists the policy.
@@ -37,7 +37,7 @@ public interface PolicyStore {
      * @param policy to be saved.
      * @throws EdcPersistenceException if something goes wrong.
      */
-    void save(Policy policy);
+    void save(Policy policy) throws EdcPersistenceException;
 
     /**
      * Deletes a policy for the given id.
@@ -46,5 +46,5 @@ public interface PolicyStore {
      * @return Deleted {@link Policy} or null if policy not found.
      * @throws EdcPersistenceException if something goes wrong.
      */
-    Policy delete(String policyId);
+    Policy delete(String policyId) throws EdcPersistenceException;
 }
