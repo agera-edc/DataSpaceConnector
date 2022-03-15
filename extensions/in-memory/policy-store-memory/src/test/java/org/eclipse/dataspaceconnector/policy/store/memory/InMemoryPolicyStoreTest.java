@@ -27,7 +27,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 
 class InMemoryPolicyStoreTest {
     private PolicyStore store;
