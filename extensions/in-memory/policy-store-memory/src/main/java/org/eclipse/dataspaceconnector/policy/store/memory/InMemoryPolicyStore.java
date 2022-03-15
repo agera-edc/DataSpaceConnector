@@ -45,11 +45,6 @@ public class InMemoryPolicyStore implements PolicyStore {
         this.lockManager = lockManager;
     }
 
-    public InMemoryPolicyStore() {
-        this.lockManager = new LockManager(new ReentrantReadWriteLock());
-    }
-
-
     @Override
     public @Nullable Policy findById(String policyId) {
         try {

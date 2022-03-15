@@ -13,10 +13,13 @@
  */
 package org.eclipse.dataspaceconnector.policy.store.memory;
 
+import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.spi.contract.policy.store.PolicyStore;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
+
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Provides an in-memory implementation of the {@link PolicyStore} for testing.
@@ -31,7 +34,7 @@ public class InMemoryPolicyStoreExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        context.registerService(PolicyStore.class, new InMemoryPolicyStore());
+        context.registerService(PolicyStore.class, new InMemoryPolicyStore(new LockManager(new ReentrantReadWriteLock())));
     }
 
 }
