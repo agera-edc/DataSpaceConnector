@@ -25,6 +25,7 @@ dependencies {
     api(project(":spi"))
     api(project(":data-protocols:ids:ids-spi"))
     api(project(":data-protocols:ids:ids-core"))
+    implementation(project(":data-protocols:ids:ids-transform-v1"))
     implementation(project(":extensions:http"))
 
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
@@ -33,7 +34,9 @@ dependencies {
 
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":common:util")))
+    testImplementation(project(":core:transfer"))
     testImplementation(project(":data-protocols:ids:ids-api-multipart-endpoint-v1"))
+    testImplementation(project(":extensions:in-memory:negotiation-store-memory"))
 }
 
 publishing {

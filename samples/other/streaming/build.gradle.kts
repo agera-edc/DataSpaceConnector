@@ -32,6 +32,9 @@ dependencies {
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
 
     // extensions needed for integration testing
+    testImplementation(project(":core:base"))
+    testImplementation(project(":core:transfer"))
+    testImplementation(project(":extensions:in-memory:transfer-store-memory"))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":common:util")))
 

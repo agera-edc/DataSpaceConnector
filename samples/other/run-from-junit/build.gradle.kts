@@ -30,6 +30,8 @@ dependencies {
 
     api(project(":data-protocols:ids:ids-core"))
 
+    testImplementation(project(":extensions:filesystem:configuration-fs"))
+    testImplementation(project(":extensions:azure:vault"))
     testImplementation("com.azure:azure-storage-blob:${storageBlobVersion}")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")

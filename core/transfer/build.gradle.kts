@@ -20,6 +20,8 @@ plugins {
 
 dependencies {
     api(project(":spi:transfer-spi"))
+    implementation(project(":common:state-machine-lib"))
+    implementation(project(":common:util"))
 
     implementation("io.opentelemetry:opentelemetry-extension-annotations:${openTelemetryVersion}")
 

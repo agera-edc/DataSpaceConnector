@@ -20,10 +20,13 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":extensions:api:api-core"))
+    api(project(":spi:contract-spi"))
     implementation(project(":extensions:api:data-management:api-configuration"))
 
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
     testImplementation(testFixtures(project(":launchers:junit")))
+    testImplementation(project(":common:util"))
     testImplementation(project(":extensions:http"))
     testImplementation(testFixtures(project(":common:util")))
 }
