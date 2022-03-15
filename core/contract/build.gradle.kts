@@ -22,12 +22,10 @@ plugins {
 
 dependencies {
     api(project(":spi:contract-spi"))
-    api(project(":core:policy:policy-engine"))
-    api(project(":common:state-machine-lib"))
-    api(project(":common:util"))
+    api("io.opentelemetry:opentelemetry-extension-annotations:${openTelemetryVersion}")
 
-    api("org.slf4j:slf4j-api:${slf4jVersion}")
-    implementation("io.opentelemetry:opentelemetry-extension-annotations:${openTelemetryVersion}")
+    implementation(project(":core:policy:policy-engine"))
+    implementation(project(":common:state-machine-lib"))
 
     testImplementation(project(":extensions:in-memory:negotiation-store-memory"))
 }
