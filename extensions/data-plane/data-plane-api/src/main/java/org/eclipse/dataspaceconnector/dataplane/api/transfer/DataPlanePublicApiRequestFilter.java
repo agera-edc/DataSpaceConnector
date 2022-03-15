@@ -39,7 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static org.eclipse.dataspaceconnector.dataplane.api.common.ResponseFunctions.internalErrors;
@@ -62,17 +61,18 @@ public class DataPlanePublicApiRequestFilter implements ContainerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final TokenValidationService tokenValidationService;
     private final DataPlaneManager dataPlaneManager;
     private final Monitor monitor;
     private final TypeManager typeManager;
 
-    public DataPlanePublicApiRequestFilter(TokenValidationService tokenValidationService, DataPlaneManager dataPlaneManager, Monitor monitor, TypeManager typeManager) {
+    public DataPlanePublicApiRequestFilter(TokenValidationService tokenValidationService, DataPlaneManager dataPlaneManager, Monitor monitor, TypeManager typeManager, ExecutorService executorService) {
         this.tokenValidationService = tokenValidationService;
         this.dataPlaneManager = dataPlaneManager;
         this.monitor = monitor;
         this.typeManager = typeManager;
+        this.executorService = executorService;
     }
 
     @Override

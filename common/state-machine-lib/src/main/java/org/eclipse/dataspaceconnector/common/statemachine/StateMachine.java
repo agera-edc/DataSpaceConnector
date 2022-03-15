@@ -16,6 +16,8 @@ package org.eclipse.dataspaceconnector.common.statemachine;
 
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
+import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,24 +45,29 @@ public class StateMachine {
     private final String name;
     private int shutdownTimeout = 10;
 
-    private StateMachine(String name, Monitor monitor, WaitStrategy waitStrategy) {
+    private StateMachine(String name, Monitor monitor, ExecutorInstrumentation executorInstrumentation, WaitStrategy waitStrategy) {
         this.name = name;
         this.monitor = monitor;
         this.waitStrategy = waitStrategy;
-        this.executor = Executors.newSingleThreadExecutor(r -> {
+        this.executor = executorInstrumentation.instrument(Executors.newSingleThreadScheduledExecutor(r -> {
             var thread = Executors.defaultThreadFactory().newThread(r);
             thread.setName("StateMachine-" + name);
             return thread;
-        });
+        }), name);
     }
 
     /**
      * Start the loop that will run processors until it's stopped
      *
-     * @return a future that will complete when the loop stops
+     * @return a future that will complete when the loop starts
      */
     public Future<?> start() {
         active.set(true);
+        return submit();
+    }
+
+    @NotNull
+    private Future<?> submit() {
         return executor.submit(loop());
     }
 
@@ -94,28 +101,32 @@ public class StateMachine {
 
     private Runnable loop() {
         return () -> {
-            while (active.get()) {
-                try {
-                    var processed = processors.stream()
-                            .mapToLong(StateProcessor::process)
-                            .sum();
+            if (!active.get()) {
+                return;
+            }
+            try {
+                var processed = processors.stream()
+                        .mapToLong(StateProcessor::process)
+                        .sum();
 
-                    if (processed == 0) {
-                        Thread.sleep(waitStrategy.waitForMillis());
-                    }
-                    waitStrategy.success();
-                } catch (Error | InterruptedException e) {
+                if (processed == 0) {
+                    Thread.sleep(waitStrategy.waitForMillis());
+                }
+                waitStrategy.success();
+            } catch (Error | InterruptedException e) {
+                active.set(false);
+                monitor.severe(format("StateMachine [%s] unrecoverable error", name), e);
+            } catch (Throwable e) {
+                try {
+                    monitor.severe(format("StateMachine [%s] error caught", name), e);
+                    Thread.sleep(waitStrategy.retryInMillis());
+                } catch (InterruptedException ex) {
                     active.set(false);
                     monitor.severe(format("StateMachine [%s] unrecoverable error", name), e);
-                } catch (Throwable e) {
-                    try {
-                        monitor.severe(format("StateMachine [%s] error caught", name), e);
-                        Thread.sleep(waitStrategy.retryInMillis());
-                    } catch (InterruptedException ex) {
-                        active.set(false);
-                        monitor.severe(format("StateMachine [%s] unrecoverable error", name), e);
-                    }
                 }
+            }
+            if (active.get()) {
+                submit();
             }
         };
     }
@@ -124,12 +135,12 @@ public class StateMachine {
 
         private final StateMachine loop;
 
-        private Builder(String name, Monitor monitor, WaitStrategy waitStrategy) {
-            this.loop = new StateMachine(name, monitor, waitStrategy);
+        private Builder(String name, Monitor monitor, ExecutorInstrumentation executorInstrumentation, WaitStrategy waitStrategy) {
+            this.loop = new StateMachine(name, monitor, executorInstrumentation, waitStrategy);
         }
 
-        public static Builder newInstance(String name, Monitor monitor, WaitStrategy waitStrategy) {
-            return new Builder(name, monitor, waitStrategy);
+        public static Builder newInstance(String name, Monitor monitor, ExecutorInstrumentation executorInstrumentation, WaitStrategy waitStrategy) {
+            return new Builder(name, monitor, executorInstrumentation, waitStrategy);
         }
 
         public Builder processor(StateProcessor processor) {
