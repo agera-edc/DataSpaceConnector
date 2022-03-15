@@ -60,7 +60,7 @@ public class ReflectionBasedQueryResolver<T> extends QueryResolver<T> {
         var sortField = spec.getSortField();
 
         if (sortField != null) {
-            // if the sortfield doesn't exist on the object -> return empty
+            // if the sort field doesn't exist on the object -> return empty
             if (ReflectionUtil.getFieldRecursive(typeParameterClass, sortField) == null) {
                 return Stream.empty();
             }
