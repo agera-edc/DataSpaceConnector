@@ -91,8 +91,8 @@ subprojects {
                         println("DEPENDENCY VIOLATION: `core:spi` cannot depend on any other module. Invalid dependency: $dependency")
                     }
 
-                    if (project.name == dependency.name) { // `core:spi` cannot depend on any other module
-                        println("DEPENDENCY VIOLATION: `core:spi` cannot depend on any other module. Invalid dependency: $dependency")
+                    if (project.name == dependency.name) { // two modules cannot have the same name (TBC)
+                        println("DEPENDENCY VIOLATION: two modules cannot have the same name. Invalid dependency: $dependency")
                     }
                 }
             }
