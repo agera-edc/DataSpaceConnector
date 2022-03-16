@@ -145,10 +145,10 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * ContractNegotiation and transitions the ContractNegotiation to CONSUMER_APPROVING,
      * CONSUMER_OFFERING or DECLINING.
      *
-     * @param token         Claim token of the consumer that send the contract request.
+     * @param token Claim token of the consumer that send the contract request.
      * @param negotiationId Id of the ContractNegotiation.
      * @param contractOffer The contract offer.
-     * @param hash          A hash of all previous contract offers.
+     * @param hash A hash of all previous contract offers.
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id or no last
      *         offer found for negotiation; OK otherwise
      */
@@ -195,10 +195,10 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * Validates the contract agreement sent by the provider against the last contract offer and
      * transitions the corresponding {@link ContractNegotiation} to state CONFIRMED or DECLINING.
      *
-     * @param token         Claim token of the consumer that send the contract request.
+     * @param token Claim token of the consumer that send the contract request.
      * @param negotiationId Id of the ContractNegotiation.
-     * @param agreement     Agreement sent by provider.
-     * @param hash          A hash of all previous contract offers.
+     * @param agreement Agreement sent by provider.
+     * @param hash A hash of all previous contract offers.
      * @return a {@link NegotiationResult}: FATAL_ERROR, if no match found for Id or no last
      *         offer found for negotiation; OK otherwise
      */
@@ -250,7 +250,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * Tells this manager that a {@link ContractNegotiation} has been declined by the counter-party.
      * Transitions the corresponding ContractNegotiation to state DECLINED.
      *
-     * @param token         Claim token of the consumer that sent the rejection.
+     * @param token Claim token of the consumer that sent the rejection.
      * @param negotiationId Id of the ContractNegotiation.
      * @return a {@link NegotiationResult}: OK, if successfully transitioned to declined;
      *         FATAL_ERROR, if no match found for Id.
@@ -285,7 +285,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
      * Builds and sends a {@link ContractOfferRequest} for a given {@link ContractNegotiation} and
      * {@link ContractOffer}.
      *
-     * @param offer   The contract offer.
+     * @param offer The contract offer.
      * @param process The contract negotiation.
      * @return The response to the sent message.
      */
