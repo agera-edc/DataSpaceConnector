@@ -36,7 +36,7 @@ import java.util.Objects;
 /**
  * Provides core services for the Data Plane Framework.
  */
-@Provides({DataPlaneManager.class, PipelineService.class})
+@Provides({DataPlaneManager.class, PipelineService.class, TransferServiceRegistry.class})
 public class DataPlaneFrameworkExtension implements ServiceExtension {
     private static final int IN_MEMORY_STORE_CAPACITY = 1000;
 
@@ -52,8 +52,6 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
     private static final String WAIT_TIMEOUT = "edc.dataplane.wait";
     private static final long DEFAULT_WAIT_TIMEOUT = 1000;
 
-    private ServiceExtensionContext context;
-
     private DataPlaneManagerImpl dataPlaneManager;
     private Monitor monitor;
 
@@ -67,7 +65,6 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        this.context = context;
         var pipelineService = new PipelineServiceImpl();
         pipelineService.registerFactory(new OutputStreamDataSinkFactory()); // Added by default to support synchronous data transfer, i.e. pull data
         context.registerService(PipelineService.class, pipelineService);
@@ -83,24 +80,22 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
         var workers = context.getSetting(WORKERS, DEFAULT_WORKERS);
         var waitTimeout = context.getSetting(WAIT_TIMEOUT, DEFAULT_WAIT_TIMEOUT);
 
+        var store = new InMemoryDataPlaneStore(IN_MEMORY_STORE_CAPACITY);
         dataPlaneManager = DataPlaneManagerImpl.Builder.newInstance()
                 .queueCapacity(queueCapacity)
                 .workers(workers)
                 .waitTimeout(waitTimeout)
                 .pipelineService(pipelineService)
                 .transferServiceRegistry(transferServiceRegistry)
-                .store(new InMemoryDataPlaneStore(IN_MEMORY_STORE_CAPACITY))
+                .store(store)
                 .monitor(monitor).build();
 
+        context.registerService(DataPlaneStore.class, store);
         context.registerService(DataPlaneManager.class, dataPlaneManager);
     }
 
     @Override
     public void start() {
-        if (!context.hasService(DataPlaneStore.class)) {
-            monitor.info("Registering in-memory Data Plane store.");
-            context.registerService(DataPlaneStore.class, new InMemoryDataPlaneStore(IN_MEMORY_STORE_CAPACITY));
-        }
         dataPlaneManager.start();
     }
 

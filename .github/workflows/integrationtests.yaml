@@ -2,6 +2,12 @@ name: Integration Tests
 
 on: [ push, pull_request ]
 
+# Grant permissions to obtain federated identity credentials
+# see https://docs.github.com/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
 
   Azure-Storage-Integration-Test:
@@ -100,3 +106,49 @@ jobs:
 
       - name: Daps Integration Tests
         run: ./gradlew -p extensions/iam/daps test -DincludeTags="DapsIntegrationTest"
+
+  Check-Cloud-Environments:
+    environment: Azure-dev
+    runs-on: ubuntu-latest
+    steps:
+      - id: has-azure
+        env:
+          HAS_AZURE: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        if: "${{ env.HAS_AZURE != '' }}"
+        run: echo "::set-output name=defined::true"
+    outputs:
+      has-azure: ${{ steps.has-azure.outputs.defined }}
+
+  Azure-Cloud-Integration-Test:
+    needs: [ Check-Cloud-Environments ]
+    if: needs.Check-Cloud-Environments.outputs.has-azure == 'true'
+    environment: Azure-dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: 'Az CLI login'
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: "Fetch Terraform outputs"
+        run: printf "$TERRAFORM_OUTPUTS" > resources/azure/testing/terraform_outputs.json
+        env:
+          TERRAFORM_OUTPUTS: ${{ secrets.TERRAFORM_OUTPUTS }}
+
+      - name: "List Terraform output keys" # for information/manual debugging only
+        run: cat resources/azure/testing/terraform_outputs.json | jq -r 'keys | .[]'
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'gradle'
+
+      - name: Data Plane Azure Data Factory Test
+        run: ./gradlew -p extensions/azure/data-plane/data-factory test -DincludeTags="AzureDataFactoryIntegrationTest"
+
