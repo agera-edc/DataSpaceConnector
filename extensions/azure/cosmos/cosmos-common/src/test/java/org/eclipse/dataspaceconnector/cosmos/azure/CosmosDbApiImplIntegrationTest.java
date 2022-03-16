@@ -10,7 +10,7 @@ import com.azure.cosmos.models.PartitionKey;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApiImpl;
 import org.eclipse.dataspaceconnector.azure.testfixtures.CosmosTestClient;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
+import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureCosmosDbIntegrationTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,7 +23,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@IntegrationTest
+@AzureCosmosDbIntegrationTest
 class CosmosDbApiImplIntegrationTest {
 
     public static final String PARTITION_KEY = "partitionKey";
@@ -137,7 +137,7 @@ class CosmosDbApiImplIntegrationTest {
     }
 
     @Test
-    void deleteItem_whenItemPresent_deleted() {
+    void deleteItem_whenItemPresent_deletes() {
         var testItem = new TestCosmosDocument("payload", PARTITION_KEY);
         container.createItem(testItem);
 
@@ -152,7 +152,7 @@ class CosmosDbApiImplIntegrationTest {
 
     @Test
     void deleteItem_whenItemMissing_throws() {
-        var id = UUID.randomUUID().toString();
+        var id = "not-exists";
         assertThatThrownBy(() -> cosmosDbApi.deleteItem(id))
                 .hasMessageContaining(String.format("An object with the ID %s could not be found!", id))
                 .isInstanceOf(NotFoundException.class);

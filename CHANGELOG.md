@@ -22,17 +22,22 @@ the detailed section referring to by linking pull requests or issues.
 * Add okhttp client timeouts (#735)
 * Unit test framework for Dependency Injection (#843)
 * Implemented S3BucketReader (#675)
+* Add a deleteById method to the AssetLoader interface (#880)
 
 #### Changed
 
 * Change scope used for obtaining a token for ids multipart (#731)
 * Refactor ids token validation as extension (#625)
 * All `CosmosDocument` subclasses now use a configurable partition key (#780)
+* Add `findAll` method to `TransferProcessStore` (#859)
+* Enabled pluggable transfer service in DPF (#844)
+* Add data-management api to the samples (#733)
 
 #### Removed
 
 * Remove ION extension (#664)
 * Remove module `:samples:other:commandline` (#820)
+* Remove unneeded/unimplemented methods from `TransferProcessStore` (#859)
 
 #### Fixed
 * Flaky S3 StatusChecker Test (#794)
