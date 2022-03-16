@@ -19,6 +19,7 @@ import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApi;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDocument;
 import org.eclipse.dataspaceconnector.contract.definition.store.model.ContractDefinitionDocument;
+import org.eclipse.dataspaceconnector.spi.persistence.EdcPersistenceException;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
@@ -141,6 +142,13 @@ class CosmosContractDefinitionStoreTest {
 
         var deletedDefinition = store.deleteById(document.getId());
         assertThat(deletedDefinition).isEqualTo(contractDefinition);
+    }
+
+    @Test
+    void delete_whenCosmoDbApiThrows_throws() {
+        var id = "some-id";
+        when(cosmosDbApiMock.deleteItem(id)).thenThrow(new EdcPersistenceException("Something went wrong"));
+        assertThatThrownBy(() -> store.deleteById(id)).isInstanceOf(EdcPersistenceException.class);
     }
 
     @Test

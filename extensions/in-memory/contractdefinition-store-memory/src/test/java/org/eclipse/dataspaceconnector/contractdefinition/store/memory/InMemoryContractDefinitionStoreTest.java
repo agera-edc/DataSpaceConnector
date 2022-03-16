@@ -51,7 +51,7 @@ class InMemoryContractDefinitionStoreTest {
 
     @Test
     void deleteById_whenContractDefinitionMissing_returnsNull() {
-        assertThat(store.deleteById(UUID.randomUUID().toString())).isNull();
+        assertThat(store.deleteById("not-exists")).isNull();
     }
 
     @Test

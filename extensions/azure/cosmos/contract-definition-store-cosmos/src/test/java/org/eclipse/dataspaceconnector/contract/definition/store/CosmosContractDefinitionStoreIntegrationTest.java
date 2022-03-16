@@ -215,9 +215,9 @@ public class CosmosContractDefinitionStoreIntegrationTest {
 
     @Test
     void delete_notExist() {
-        assertThatThrownBy(() -> store.deleteById("not-exist-id"))
+        assertThatThrownBy(() -> store.deleteById("not-exists"))
                 .isInstanceOf(NotFoundException.class)
-                .hasMessageContaining("An object with the ID not-exist-id could not be found!");
+                .hasMessageContaining("An object with the ID not-exists could not be found!");
     }
 
     @Test
