@@ -59,7 +59,7 @@ import static org.eclipse.dataspaceconnector.dataplane.api.response.ResponseFunc
 public class DataPlanePublicApiController {
 
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService;
     private final DataPlaneManager dataPlaneManager;
     private final TokenValidationService tokenValidationService;
     private final Monitor monitor;
@@ -70,12 +70,14 @@ public class DataPlanePublicApiController {
                                         TokenValidationService tokenValidationService,
                                         Monitor monitor,
                                         ContainerRequestContextApi wrapper,
-                                        TypeManager typeManager) {
+                                        TypeManager typeManager,
+                                        ExecutorService executorService) {
         this.dataPlaneManager = dataPlaneManager;
         this.tokenValidationService = tokenValidationService;
         this.monitor = monitor;
         this.requestContextApi = wrapper;
         this.typeManager = typeManager;
+        this.executorService = executorService;
     }
 
     /**
