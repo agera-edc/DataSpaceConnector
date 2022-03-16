@@ -41,6 +41,7 @@ dependencies {
     implementation(project(":data-protocols:ids"))
 
     implementation(project(":samples:04.0-file-transfer:transfer-file"))
+    runtimeOnly(project(":extensions:jdk-logger-monitor"))
 }
 
 application {
