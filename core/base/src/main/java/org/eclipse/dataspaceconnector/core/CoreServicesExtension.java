@@ -29,7 +29,6 @@ import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.system.BaseExtension;
 import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
-import org.eclipse.dataspaceconnector.spi.system.NullExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -169,7 +168,7 @@ public class CoreServicesExtension implements ServiceExtension {
     }
 
     private ExecutorInstrumentation registerExecutorInstrumentation(ServiceExtensionContext context) {
-        var executorInstrumentationImpl = ofNullable(this.executorInstrumentation).orElse(new NullExecutorInstrumentation());
+        var executorInstrumentationImpl = ofNullable(this.executorInstrumentation).orElse(ExecutorInstrumentation.noop());
         // Register ExecutorImplementation with default noop implementation if none available
         context.registerService(ExecutorInstrumentation.class, executorInstrumentationImpl);
         return executorInstrumentationImpl;
