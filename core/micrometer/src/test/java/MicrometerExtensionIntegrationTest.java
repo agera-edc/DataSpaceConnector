@@ -23,14 +23,15 @@ public class MicrometerExtensionIntegrationTest {
     static final String CONNECTOR_URL = String.format("http://localhost:%s", CONNECTOR_PORT);
     static final String HEALTH_ENDPOINT = String.format("%s/api/check/health", CONNECTOR_URL);
     static final String METRICS_ENDPOINT = "http://localhost:9464/metrics";
-    static final String[] METRIC_PREFIXES = new String[]{"executor_", // ExecutorMetrics added by MicrometerExtension
-                                                        "jvm_memory_", // JvmMemoryMetrics added by MicrometerExtension
-                                                        "jvm_gc", // JvmGcMetrics added by MicrometerExtension
-                                                        "system_cpu_", // ProcessorMetrics added by MicrometerExtension
-                                                        "jvm_threads_", // JvmThreadMetrics added by MicrometerExtension
-                                                        "jetty_", // Added by JettyMicrometerExtension
-                                                        "jersey_", // Added by JerseyMicrometerExtension
-                                                        "http_client_"}; // OkHttp metrics
+    static final String[] METRIC_PREFIXES = new String[]{
+            "executor_", // ExecutorMetrics added by MicrometerExtension
+            "jvm_memory_", // JvmMemoryMetrics added by MicrometerExtension
+            "jvm_gc", // JvmGcMetrics added by MicrometerExtension
+            "system_cpu_", // ProcessorMetrics added by MicrometerExtension
+            "jvm_threads_", // JvmThreadMetrics added by MicrometerExtension
+            "jetty_", // Added by JettyMicrometerExtension
+            "jersey_", // Added by JerseyMicrometerExtension
+            "http_client_"}; // OkHttp metrics
 
     @BeforeAll
     static void checkForAgent() {
