@@ -40,9 +40,11 @@ You will need:
   - [Terraform CLI](https://learn.hashicorp.com/tutorials/terraform/install-cli)
   - [GitHub CLI](https://cli.github.com)
 
-### Logging in to Azure
+### Logged in to Azure & GitHub
 
-Both for running Terraform and running tests in a local development environment, you must be [signed in to the target Azure subscription with the Azure CLI](https://docs.microsoft.com/cli/azure/authenticate-azure-cli) and [have the target Azure subscription selected](https://docs.microsoft.com/cli/azure/manage-azure-subscriptions-azure-cli).
+- Both for running Terraform and running tests in a local development environment, you must be [signed in to the target Azure subscription with the Azure CLI](https://docs.microsoft.com/cli/azure/authenticate-azure-cli) and [have the target Azure subscription selected](https://docs.microsoft.com/cli/azure/manage-azure-subscriptions-azure-cli).
+
+- You must be [signed in to GitHub with the GitHub CLI](https://cli.github.com/manual/gh_auth_login) and must have Contributor permissions on the repository.
 
 ### Create a service identity for the GitHub Environment
 
