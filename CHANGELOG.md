@@ -22,6 +22,7 @@ the detailed section referring to by linking pull requests or issues.
 * Add okhttp client timeouts (#735)
 * Unit test framework for Dependency Injection (#843)
 * Implemented S3BucketReader (#675)
+* Add a deleteById method to the AssetLoader interface (#880)
 
 #### Changed
 
@@ -30,6 +31,7 @@ the detailed section referring to by linking pull requests or issues.
 * All `CosmosDocument` subclasses now use a configurable partition key (#780)
 * Add `findAll` method to `TransferProcessStore` (#859)
 * Enabled pluggable transfer service in DPF (#844)
+* Add data-management api to the samples (#733)
 
 #### Removed
 
