@@ -5,11 +5,13 @@ import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.MicrometerI
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
@@ -24,6 +26,14 @@ public class MicrometerExtensionIntegrationTest {
     private static final String HEALTH_ENDPOINT = String.format("%s/api/check/health", CONNECTOR_URL);
     private static final String METRICS_ENDPOINT = "http://localhost:9464/metrics";
     private final OkHttpClient httpClient = new OkHttpClient();
+
+    @BeforeAll
+    static void checkForAgent() {
+        var runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        assertThat(runtimeMXBean.getInputArguments())
+                .withFailMessage("OpenTelemetry Agent JAR should be present. See README.md file for details.")
+                .anyMatch(arg -> arg.startsWith("-javaagent"));
+    }
 
     @BeforeEach
     void before(EdcExtension extension) {

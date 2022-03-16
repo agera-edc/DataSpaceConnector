@@ -40,8 +40,13 @@ dependencies {
 }
 
 tasks.withType<Test> {
-    jvmArgs("-javaagent:../../opentelemetry-javaagent.jar",
-    "-Dotel.metrics.exporter=prometheus");
+    val agent = rootDir.resolve("opentelemetry-javaagent.jar")
+    if (agent.exists()) {
+        jvmArgs(
+            "-javaagent:${agent.absolutePath}",
+            "-Dotel.metrics.exporter=prometheus"
+        );
+    }
 }
 
 publishing {
