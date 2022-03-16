@@ -78,7 +78,7 @@ public class StateMachine {
      * Stop the loop gracefully
      *
      * @return a future that will complete when the loop is fully stopped.
-     * The content of the future will be true if stop happened before the timeout, false elsewhere.
+     *         The content of the future will be true if stop happened before the timeout, false elsewhere.
      */
     public CompletableFuture<Boolean> stop() {
         active.set(false);
