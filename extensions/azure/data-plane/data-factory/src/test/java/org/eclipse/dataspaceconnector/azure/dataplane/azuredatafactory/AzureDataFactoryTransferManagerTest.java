@@ -35,9 +35,6 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,7 +45,7 @@ class AzureDataFactoryTransferManagerTest {
     Monitor monitor = mock(Monitor.class);
     Clock clock = mock(Clock.class);
     Instant fixedInstant = Instant.EPOCH;
-    DataFactoryClient client = mock(DataFactoryClient.class, RETURNS_DEEP_STUBS);
+    DataFactoryClient client = mock(DataFactoryClient.class);
     DataFactoryPipelineFactory pipelineFactory = mock(DataFactoryPipelineFactory.class);
     Duration maxDuration = Duration.ofMillis(FAKER.number().numberBetween(1, 10));
     AzureDataFactoryTransferManager transferManager = new AzureDataFactoryTransferManager(
