@@ -56,7 +56,7 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
     private TokenCredential credential;
 
     @Inject(required = false)
-    private Clock clock = Clock.systemUTC();
+    private final Clock clock = Clock.systemUTC();
 
     @Override
     public String name() {
