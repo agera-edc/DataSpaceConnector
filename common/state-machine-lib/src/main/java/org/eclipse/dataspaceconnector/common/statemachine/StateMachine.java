@@ -16,18 +16,18 @@ package org.eclipse.dataspaceconnector.common.statemachine;
 
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
-import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -38,22 +38,22 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class StateMachine {
 
     private final List<StateProcessor> processors = new ArrayList<>();
-    private final ExecutorService executor;
+    private final ScheduledExecutorService executor;
     private final AtomicBoolean active = new AtomicBoolean();
     private final WaitStrategy waitStrategy;
     private final Monitor monitor;
     private final String name;
     private int shutdownTimeout = 10;
 
-    private StateMachine(String name, Monitor monitor, ExecutorInstrumentation executorInstrumentation, WaitStrategy waitStrategy) {
+    private StateMachine(String name, Monitor monitor, WaitStrategy waitStrategy) {
         this.name = name;
         this.monitor = monitor;
         this.waitStrategy = waitStrategy;
-        this.executor = executorInstrumentation.instrument(Executors.newSingleThreadScheduledExecutor(r -> {
+        this.executor = Executors.newSingleThreadScheduledExecutor(r -> {
             var thread = Executors.defaultThreadFactory().newThread(r);
             thread.setName("StateMachine-" + name);
             return thread;
-        }), name);
+        });
     }
 
     /**
@@ -63,12 +63,13 @@ public class StateMachine {
      */
     public Future<?> start() {
         active.set(true);
-        return submit();
+        return submit(0L);
     }
 
     @NotNull
-    private Future<?> submit() {
-        return executor.submit(loop());
+    private Future<?> submit(long delayMillis) {
+        monitor.severe(format("StateMachine %s delaying for %s ms", name, delayMillis));
+        return executor.schedule(loop(), delayMillis, MILLISECONDS);
     }
 
     /**
@@ -104,43 +105,47 @@ public class StateMachine {
             if (!active.get()) {
                 return;
             }
-            try {
-                var processed = processors.stream()
-                        .mapToLong(StateProcessor::process)
-                        .sum();
 
-                if (processed == 0) {
-                    Thread.sleep(waitStrategy.waitForMillis());
-                }
-                waitStrategy.success();
-            } catch (Error | InterruptedException e) {
-                active.set(false);
-                monitor.severe(format("StateMachine [%s] unrecoverable error", name), e);
-            } catch (Throwable e) {
-                try {
-                    monitor.severe(format("StateMachine [%s] error caught", name), e);
-                    Thread.sleep(waitStrategy.retryInMillis());
-                } catch (InterruptedException ex) {
-                    active.set(false);
-                    monitor.severe(format("StateMachine [%s] unrecoverable error", name), e);
-                }
-            }
+            long delay = performLogic();
+
+            // Submit next execution after delay
             if (active.get()) {
-                submit();
+                submit(delay);
             }
         };
+    }
+
+    private long performLogic() {
+        try {
+            var processed = processors.stream()
+                    .mapToLong(StateProcessor::process)
+                    .sum();
+
+            waitStrategy.success();
+
+            if (processed == 0) {
+                return waitStrategy.waitForMillis();
+            }
+        } catch (Error e) {
+            active.set(false);
+            monitor.severe(format("StateMachine [%s] unrecoverable error", name), e);
+        } catch (Throwable e) {
+            monitor.severe(format("StateMachine [%s] error caught", name), e);
+            return waitStrategy.retryInMillis();
+        }
+        return 0;
     }
 
     public static class Builder {
 
         private final StateMachine loop;
 
-        private Builder(String name, Monitor monitor, ExecutorInstrumentation executorInstrumentation, WaitStrategy waitStrategy) {
-            this.loop = new StateMachine(name, monitor, executorInstrumentation, waitStrategy);
+        private Builder(String name, Monitor monitor, WaitStrategy waitStrategy) {
+            this.loop = new StateMachine(name, monitor, waitStrategy);
         }
 
-        public static Builder newInstance(String name, Monitor monitor, ExecutorInstrumentation executorInstrumentation, WaitStrategy waitStrategy) {
-            return new Builder(name, monitor, executorInstrumentation, waitStrategy);
+        public static Builder newInstance(String name, Monitor monitor, WaitStrategy waitStrategy) {
+            return new Builder(name, monitor, waitStrategy);
         }
 
         public Builder processor(StateProcessor processor) {

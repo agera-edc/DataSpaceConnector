@@ -12,10 +12,12 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.spi.system;
+package org.eclipse.dataspaceconnector.core.executor;
+
+import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
 
 /**
  * Default implementation of a {@link ExecutorInstrumentation} that performs no action.
  */
-public class NullExecutorInstrumentation implements ExecutorInstrumentation {
+public class NoopExecutorInstrumentation implements ExecutorInstrumentation {
 }

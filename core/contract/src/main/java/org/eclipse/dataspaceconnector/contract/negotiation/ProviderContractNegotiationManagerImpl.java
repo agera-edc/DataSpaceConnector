@@ -32,8 +32,6 @@ import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistr
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
-import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
-import org.eclipse.dataspaceconnector.spi.system.NullExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreement;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreementRequest;
@@ -78,7 +76,6 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     private CommandProcessor<ContractNegotiationCommand> commandProcessor;
     private Monitor monitor;
     private Telemetry telemetry;
-    private ExecutorInstrumentation executorInstrumentation;
     private StateMachine stateMachine;
 
     private ProviderContractNegotiationManagerImpl() {
@@ -89,7 +86,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
     //TODO validate previous offers against hash?
 
     public void start() {
-        stateMachine = StateMachine.Builder.newInstance("provider-contract-negotiation", monitor, executorInstrumentation, waitStrategy)
+        stateMachine = StateMachine.Builder.newInstance("provider-contract-negotiation", monitor, waitStrategy)
                 .processor(processNegotiationsInState(PROVIDER_OFFERING, this::processProviderOffering))
                 .processor(processNegotiationsInState(DECLINING, this::processDeclining))
                 .processor(processNegotiationsInState(CONFIRMING, this::processConfirming))
@@ -478,7 +475,6 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
         private Builder() {
             manager = new ProviderContractNegotiationManagerImpl();
             manager.telemetry = new Telemetry(); // default noop implementation
-            manager.executorInstrumentation = new NullExecutorInstrumentation(); // default noop implementation
         }
 
         public static Builder newInstance() {
@@ -494,12 +490,6 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
             manager.monitor = monitor;
             return this;
         }
-
-        public Builder executorInstrumentation(ExecutorInstrumentation executorInstrumentation) {
-            manager.executorInstrumentation = executorInstrumentation;
-            return this;
-        }
-
 
         public Builder batchSize(int batchSize) {
             manager.batchSize = batchSize;
@@ -544,7 +534,6 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
         public ProviderContractNegotiationManagerImpl build() {
             Objects.requireNonNull(manager.validationService, "contractValidationService");
             Objects.requireNonNull(manager.monitor, "monitor");
-            Objects.requireNonNull(manager.executorInstrumentation, "executorInstrumentation");
             Objects.requireNonNull(manager.dispatcherRegistry, "dispatcherRegistry");
             Objects.requireNonNull(manager.commandQueue, "commandQueue");
             Objects.requireNonNull(manager.commandRunner, "commandRunner");
@@ -555,5 +544,6 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
 
             return manager;
         }
+
     }
 }

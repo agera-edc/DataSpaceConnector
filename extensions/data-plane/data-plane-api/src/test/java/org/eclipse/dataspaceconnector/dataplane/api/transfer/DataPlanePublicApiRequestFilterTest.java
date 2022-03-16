@@ -43,12 +43,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.MAP;
 import static org.eclipse.dataspaceconnector.dataplane.spi.pipeline.OutputStreamDataSinkFactory.TYPE;
 import static org.eclipse.dataspaceconnector.dataplane.spi.schema.DataFlowRequestSchema.BODY;
 import static org.eclipse.dataspaceconnector.dataplane.spi.schema.DataFlowRequestSchema.MEDIA_TYPE;
@@ -75,7 +74,7 @@ class DataPlanePublicApiRequestFilterTest {
         dataPlaneManager = mock(DataPlaneManager.class);
         typeManager = new TypeManager();
         var monitor = mock(Monitor.class);
-        filter = new DataPlanePublicApiRequestFilter(tokenValidationService, dataPlaneManager, monitor, typeManager, Executors.newSingleThreadExecutor());
+        filter = new DataPlanePublicApiRequestFilter(tokenValidationService, dataPlaneManager, monitor, typeManager);
     }
 
     /**
@@ -103,7 +102,7 @@ class DataPlanePublicApiRequestFilterTest {
 
         var responseCapture = ArgumentCaptor.forClass(Response.class);
         verify(context, times(1)).abortWith(responseCapture.capture());
-        assertSuccessResponse(responseCapture.getValue());
+        assertSuccessResponse(responseCapture.getValue(), "bar");
         assertThat(validationCapture.getValue())
                 .isNotNull()
                 .isEqualTo(transferCapture.getValue())
@@ -210,8 +209,8 @@ class DataPlanePublicApiRequestFilterTest {
         assertErrorResponse(responseCapture.getValue(), 500, "Unhandled exception: transfer exception");
     }
 
-    private static void assertSuccessResponse(Response response) {
-        assertResponse(response, 200, "data", "bar");
+    private static void assertSuccessResponse(Response response, String message) {
+        assertResponse(response, 200, "data", message);
     }
 
     private static void assertErrorResponse(Response response, int errorCode, String message) {
@@ -222,8 +221,8 @@ class DataPlanePublicApiRequestFilterTest {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(expectedStatusCode);
         assertThat(response.getEntity())
-                .asInstanceOf(MAP)
-                .satisfies(o -> assertThat(o)
+                .isInstanceOf(Map.class)
+                .satisfies(o -> assertThat((Map) o)
                         .hasSize(1)
                         .containsEntry(expectedEntityKey, expectedEntityValue));
     }
