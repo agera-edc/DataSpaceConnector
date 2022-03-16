@@ -22,7 +22,7 @@ In addition, the [Jaeger exporter](https://github.com/open-telemetry/opentelemet
 To run the consumer, the provider, and Jaeger execute the following commands in the project root folder:
 
 ```bash
-./gradlew samples:04.3-open-telemetry:consumer:build samples:04.0-file-transfer:provider:build
+./gradlew samples:04.3-open-telemetry:consumer:build samples:04.3-open-telemetry:provider:build
 docker-compose -f samples/04.3-open-telemetry/docker-compose.yaml up --abort-on-container-exit
 ```
 

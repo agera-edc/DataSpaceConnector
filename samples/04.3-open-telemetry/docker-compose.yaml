@@ -9,8 +9,11 @@ services:
       OTEL_TRACES_EXPORTER: jaeger
       OTEL_EXPORTER_JAEGER_ENDPOINT: http://jaeger:14250
       OTEL_METRICS_EXPORTER: prometheus
-      edc.api.control.auth.apikey.value: password
-      ids.webhook.address: http://consumer:8181
+      WEB_HTTP_PORT: 8181
+      WEB_HTTP_PATH: /api
+      WEB_HTTP_DATA_PORT: 8182
+      WEB_HTTP_DATA_PATH: /api/v1/data
+      IDS_WEBHOOK_ADDRESS: http://consumer:8181
     volumes:
       - ../:/samples
     ports:
@@ -18,7 +21,6 @@ services:
       - 9192:8182
     entrypoint: java
       -javaagent:/samples/04.3-open-telemetry/opentelemetry-javaagent.jar
-      -Dedc.fs.config=/samples/04.3-open-telemetry/consumer/config.properties
       -jar /samples/04.3-open-telemetry/consumer/build/libs/consumer.jar
 
   provider:
@@ -27,7 +29,11 @@ services:
       OTEL_SERVICE_NAME: provider
       OTEL_TRACES_EXPORTER: jaeger
       OTEL_EXPORTER_JAEGER_ENDPOINT: http://jaeger:14250
-      ids.webhook.address: http://provider:8181
+      WEB_HTTP_PORT: 8181
+      WEB_HTTP_PATH: /api
+      WEB_HTTP_DATA_PORT: 8182
+      WEB_HTTP_DATA_PATH: /api/v1/data
+      IDS_WEBHOOK_ADDRESS: http://provider:8181
     volumes:
       - ../:/samples
     ports:
@@ -35,7 +41,6 @@ services:
       - 8182:8182
     entrypoint: java
       -javaagent:/samples/04.3-open-telemetry/opentelemetry-javaagent.jar
-      -Dedc.fs.config=/samples/04.0-file-transfer/provider/config.properties
       -jar /samples/04.0-file-transfer/provider/build/libs/provider.jar
 
   jaeger:
