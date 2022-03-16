@@ -31,6 +31,7 @@ dependencies {
 
     testImplementation(project(":extensions:http"))
     testImplementation(project(":extensions:api:observability"))
+    testImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":common:util")))
     testImplementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
