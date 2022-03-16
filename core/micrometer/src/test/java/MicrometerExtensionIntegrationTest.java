@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 
@@ -25,8 +26,8 @@ public class MicrometerExtensionIntegrationTest {
 
     @BeforeAll
     static void checkForAgent() {
-        var runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        assertThat(runtimeMXBean.getInputArguments())
+        var runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        assertThat(runtimeMxBean.getInputArguments())
                 .withFailMessage("OpenTelemetry Agent JAR should be present. See README.md file for details.")
                 .anyMatch(arg -> arg.startsWith("-javaagent"));
     }
@@ -36,7 +37,7 @@ public class MicrometerExtensionIntegrationTest {
         System.setProperty("web.http.port", Integer.toString(CONNECTOR_PORT));
     }
 
-        @Test
+    @Test
     void testMicrometerMetrics(OkHttpClient httpClient) throws IOException {
         // Call the callHealthEndpoint. After receiving this call, the connector will call the health endpoint.
         httpClient.newCall(new Request.Builder().url(HEALTH_ENDPOINT).build()).execute();
