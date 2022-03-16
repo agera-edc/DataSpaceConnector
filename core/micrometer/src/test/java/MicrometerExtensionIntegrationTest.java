@@ -5,6 +5,7 @@ import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 
 @IntegrationTest
+@Tag("MicrometerIntegrationTest")
 @ExtendWith(EdcExtension.class)
 public class MicrometerExtensionIntegrationTest {
     private static final int CONNECTOR_PORT = getFreePort();
