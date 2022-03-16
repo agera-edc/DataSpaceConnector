@@ -15,6 +15,7 @@
 val azureIdentityVersion: String by project
 val azureResourceManagerVersion: String by project
 val awaitility: String by project
+val azureResourceManagerDataFactory: String by project
 
 plugins {
     `java-library`
@@ -24,7 +25,7 @@ dependencies {
     implementation(project(":extensions:azure:data-plane:common"))
     implementation(project(":common:util"))
     implementation("com.azure:azure-identity:${azureIdentityVersion}")
-    implementation("com.azure.resourcemanager:azure-resourcemanager-datafactory:1.0.0-beta.12")
+    implementation("com.azure.resourcemanager:azure-resourcemanager-datafactory:${azureResourceManagerDataFactory}")
     implementation("com.azure.resourcemanager:azure-resourcemanager-storage:${azureResourceManagerVersion}")
     implementation("com.azure.resourcemanager:azure-resourcemanager-keyvault:${azureResourceManagerVersion}")
     implementation("com.azure.resourcemanager:azure-resourcemanager:${azureResourceManagerVersion}")
