@@ -4,12 +4,10 @@ import okhttp3.Response;
 import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.MicrometerIntegrationTest;
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
-import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 
@@ -20,12 +18,10 @@ import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFr
 @MicrometerIntegrationTest
 @ExtendWith(EdcExtension.class)
 public class MicrometerExtensionIntegrationTest {
-    private static final int CONNECTOR_PORT = getFreePort();
-    private static final String CONNECTOR_URL = String.format("http://localhost:%s", CONNECTOR_PORT);
-    private static final String CALL_HEALTH_ENDPOINT = String.format("%s/api/callHealth?connectorUrl=%s", CONNECTOR_URL, CONNECTOR_URL);
-    private static final String HEALTH_ENDPOINT = String.format("%s/api/check/health", CONNECTOR_URL);
-    private static final String METRICS_ENDPOINT = "http://localhost:9464/metrics";
-    private final OkHttpClient httpClient = new OkHttpClient();
+    static final int CONNECTOR_PORT = getFreePort();
+    static final String CONNECTOR_URL = String.format("http://localhost:%s", CONNECTOR_PORT);
+    static final String HEALTH_ENDPOINT = String.format("%s/api/check/health", CONNECTOR_URL);
+    static final String METRICS_ENDPOINT = "http://localhost:9464/metrics";
 
     @BeforeAll
     static void checkForAgent() {
@@ -38,13 +34,12 @@ public class MicrometerExtensionIntegrationTest {
     @BeforeEach
     void before(EdcExtension extension) {
         System.setProperty("web.http.port", Integer.toString(CONNECTOR_PORT));
-        extension.registerSystemExtension(ServiceExtension.class, new HealthCallerExtension());
     }
 
-    @Test
-    void testMicrometerMetrics() throws IOException {
+        @Test
+    void testMicrometerMetrics(OkHttpClient httpClient) throws IOException {
         // Call the callHealthEndpoint. After receiving this call, the connector will call the health endpoint.
-        httpClient.newCall(new Request.Builder().url(CALL_HEALTH_ENDPOINT).build()).execute();
+        httpClient.newCall(new Request.Builder().url(HEALTH_ENDPOINT).build()).execute();
 
         // Collect the metrics.
         Request request =  new Request.Builder().url(METRICS_ENDPOINT).get().build();
