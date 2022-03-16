@@ -26,13 +26,13 @@ public class MicrometerExtensionIntegrationTest {
     private final OkHttpClient httpClient = new OkHttpClient();
 
     @BeforeEach
-    protected void before(EdcExtension extension) {
+    void before(EdcExtension extension) {
         System.setProperty("web.http.port", Integer.toString(CONNECTOR_PORT));
         extension.registerSystemExtension(ServiceExtension.class, new HealthCallerExtension());
     }
 
     @Test
-    public void testMicrometerMetrics() throws IOException {
+    void testMicrometerMetrics() throws IOException {
         // Call the callHealthEndpoint. After receiving this call, the connector will call the health endpoint.
         httpClient.newCall(new Request.Builder().url(CALL_HEALTH_ENDPOINT).build()).execute();
 
