@@ -56,7 +56,7 @@ public class MicrometerExtensionIntegrationTest {
         Response response = httpClient.newCall(request).execute();
         String[] metrics = response.body().string().split("\n");
 
-        for (String metricPrefix: METRIC_PREFIXES) {
+        for (String metricPrefix : METRIC_PREFIXES) {
             assertThat(metrics).anyMatch(s -> s.startsWith(metricPrefix));
         }
     }
