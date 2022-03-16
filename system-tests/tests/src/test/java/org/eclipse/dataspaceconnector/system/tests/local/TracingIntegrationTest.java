@@ -18,10 +18,13 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.eclipse.dataspaceconnector.common.annotations.OpenTelemetryIntegrationTest;
+import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
+import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 
@@ -52,6 +55,7 @@ import static org.mockserver.stop.Stop.stopQuietly;
  * otel.exporter.otlp.protocol jvm argument.
  */
 @OpenTelemetryIntegrationTest
+@ExtendWith(OpenTelemetryExtension.class)
 public class TracingIntegrationTest extends FileTransferEdcRuntime {
 
     // Port of endpoint to export the traces. 4318 is the default port when protocol is http/protobuf.
