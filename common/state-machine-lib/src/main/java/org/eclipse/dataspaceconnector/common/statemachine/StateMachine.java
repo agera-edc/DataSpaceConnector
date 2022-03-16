@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.common.statemachine;
 
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
+import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -45,15 +46,17 @@ public class StateMachine {
     private final String name;
     private int shutdownTimeout = 10;
 
-    private StateMachine(String name, Monitor monitor, WaitStrategy waitStrategy) {
+    private StateMachine(String name, Monitor monitor, ExecutorInstrumentation instrumentation, WaitStrategy waitStrategy) {
         this.name = name;
         this.monitor = monitor;
         this.waitStrategy = waitStrategy;
-        this.executor = Executors.newSingleThreadScheduledExecutor(r -> {
-            var thread = Executors.defaultThreadFactory().newThread(r);
-            thread.setName("StateMachine-" + name);
-            return thread;
-        });
+        this.executor =
+                instrumentation.instrument(
+                        Executors.newSingleThreadScheduledExecutor(r -> {
+                            var thread = Executors.defaultThreadFactory().newThread(r);
+                            thread.setName("StateMachine-" + name);
+                            return thread;
+                        }));
     }
 
     /**
@@ -76,7 +79,7 @@ public class StateMachine {
      * Stop the loop gracefully
      *
      * @return a future that will complete when the loop is fully stopped.
-     *         The content of the future will be true if stop happened before the timeout, false elsewhere.
+     * The content of the future will be true if stop happened before the timeout, false elsewhere.
      */
     public CompletableFuture<Boolean> stop() {
         active.set(false);
@@ -140,12 +143,12 @@ public class StateMachine {
 
         private final StateMachine loop;
 
-        private Builder(String name, Monitor monitor, WaitStrategy waitStrategy) {
-            this.loop = new StateMachine(name, monitor, waitStrategy);
+        private Builder(String name, Monitor monitor, ExecutorInstrumentation instrumentation, WaitStrategy waitStrategy) {
+            this.loop = new StateMachine(name, monitor, instrumentation, waitStrategy);
         }
 
-        public static Builder newInstance(String name, Monitor monitor, WaitStrategy waitStrategy) {
-            return new Builder(name, monitor, waitStrategy);
+        public static Builder newInstance(String name, Monitor monitor, ExecutorInstrumentation instrumentation, WaitStrategy waitStrategy) {
+            return new Builder(name, monitor, instrumentation, waitStrategy);
         }
 
         public Builder processor(StateProcessor processor) {
