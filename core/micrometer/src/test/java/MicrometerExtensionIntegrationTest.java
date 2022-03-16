@@ -23,6 +23,14 @@ public class MicrometerExtensionIntegrationTest {
     static final String CONNECTOR_URL = String.format("http://localhost:%s", CONNECTOR_PORT);
     static final String HEALTH_ENDPOINT = String.format("%s/api/check/health", CONNECTOR_URL);
     static final String METRICS_ENDPOINT = "http://localhost:9464/metrics";
+    static final String[] metricPrefixes = new String[]{"executor_", // ExecutorMetrics added by MicrometerExtension
+                                                        "jvm_memory_", // JvmMemoryMetrics added by MicrometerExtension
+                                                        "jvm_gc", // JvmGcMetrics added by MicrometerExtension
+                                                        "system_cpu_", // ProcessorMetrics added by MicrometerExtension
+                                                        "jvm_threads_", // JvmThreadMetrics added by MicrometerExtension
+                                                        "jetty_", // Added by JettyMicrometerExtension
+                                                        "jersey_", // Added by JerseyMicrometerExtension
+                                                        "http_client_"}; // OkHttp metrics
 
     @BeforeAll
     static void checkForAgent() {
@@ -47,18 +55,8 @@ public class MicrometerExtensionIntegrationTest {
         Response response = httpClient.newCall(request).execute();
         String[] metrics = response.body().string().split("\n");
 
-        assertThat(metrics)
-                // Executor metrics
-                .anyMatch(s -> s.startsWith("executor_")) // ExecutorMetrics added by MicrometerExtension
-                // System metrics
-                .anyMatch(s -> s.startsWith("jvm_memory_")) // JvmMemoryMetrics added by MicrometerExtension
-                .anyMatch(s -> s.startsWith("jvm_gc")) // JvmGcMetrics added by MicrometerExtension
-                .anyMatch(s -> s.startsWith("system_cpu_")) // ProcessorMetrics added by MicrometerExtension
-                .anyMatch(s -> s.startsWith("jvm_threads_")) // JvmThreadMetrics added by MicrometerExtension
-                // Jetty and Jersey metrics
-                .anyMatch(s -> s.startsWith("jetty_")) // See JettyMicrometerExtension
-                .anyMatch(s -> s.startsWith("jersey_")) // See JerseyMicrometerExtension
-                // Make sure that the connector HTTP client metrics are present and that the health endpoint call is tracked.
-                .anyMatch(s -> s.startsWith("http_client_") && s.contains(HEALTH_ENDPOINT));
+        for (String metricPrefix: metricPrefixes) {
+            assertThat(metrics).anyMatch(s -> s.startsWith(metricPrefix));
+        }
     }
 }
