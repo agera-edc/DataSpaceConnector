@@ -98,8 +98,8 @@ jobs:
           java-version: '11'
           cache: 'gradle'
 
-- name: Daps Integration Tests
-  run: ./gradlew -p extensions/iam/daps test -DincludeTags="DapsIntegrationTest"
+      - name: Daps Integration Tests
+        run: ./gradlew -p extensions/iam/daps test -DincludeTags="DapsIntegrationTest"
 
   Micrometer-Integration-Tests:
     runs-on: ubuntu-latest
