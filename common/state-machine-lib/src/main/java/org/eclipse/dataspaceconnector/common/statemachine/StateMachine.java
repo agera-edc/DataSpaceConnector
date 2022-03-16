@@ -68,7 +68,7 @@ public class StateMachine {
 
     @NotNull
     private Future<?> submit(long delayMillis) {
-        monitor.severe(format("StateMachine %s delaying for %s ms", name, delayMillis));
+        monitor.debug(format("StateMachine [%s] delaying for %d ms", name, delayMillis));
         return executor.schedule(loop(), delayMillis, MILLISECONDS);
     }
 
