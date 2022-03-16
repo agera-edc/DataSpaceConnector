@@ -50,13 +50,12 @@ public class StateMachine {
         this.name = name;
         this.monitor = monitor;
         this.waitStrategy = waitStrategy;
-        this.executor =
-                instrumentation.instrument(
+        this.executor = instrumentation.instrument(
                         Executors.newSingleThreadScheduledExecutor(r -> {
                             var thread = Executors.defaultThreadFactory().newThread(r);
                             thread.setName("StateMachine-" + name);
                             return thread;
-                        }));
+                        }), name);
     }
 
     /**
