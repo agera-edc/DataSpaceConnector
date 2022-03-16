@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
@@ -50,7 +49,7 @@ public class AzureDataFactoryTransferManager {
      * Transfers data from source to destination.
      *
      * @param request the data flow request.
-     * @return a {@link Future} that completes when the data transfer completes.
+     * @return a {@link CompletableFuture} that completes when the data transfer completes.
      */
     public CompletableFuture<TransferResult> transfer(DataFlowRequest request) {
 
