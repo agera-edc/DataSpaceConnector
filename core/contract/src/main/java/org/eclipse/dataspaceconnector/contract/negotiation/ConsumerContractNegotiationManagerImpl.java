@@ -533,7 +533,7 @@ public class ConsumerContractNegotiationManagerImpl implements ConsumerContractN
         private Builder() {
             manager = new ConsumerContractNegotiationManagerImpl();
             manager.telemetry = new Telemetry(); // default noop implementation
-            manager.executorInstrumentation = new NullExecutorInstrumentation(); // default noop implementation
+            manager.executorInstrumentation = ExecutorInstrumentation.noop(); // default noop implementation
         }
 
         public static Builder newInstance() {

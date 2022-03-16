@@ -26,7 +26,6 @@ import org.eclipse.dataspaceconnector.spi.response.ResponseStatus;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
-import org.eclipse.dataspaceconnector.spi.system.NullExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferInitiateResult;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
@@ -430,7 +429,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         private Builder() {
             manager = new TransferProcessManagerImpl();
             manager.telemetry = new Telemetry(); // default noop implementation
-            manager.executorInstrumentation = new NullExecutorInstrumentation(); // default noop implementation
+            manager.executorInstrumentation = ExecutorInstrumentation.noop(); // default noop implementation
         }
 
         public static Builder newInstance() {

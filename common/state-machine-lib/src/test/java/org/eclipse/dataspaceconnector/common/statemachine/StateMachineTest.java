@@ -4,7 +4,6 @@ import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
 import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
-import org.eclipse.dataspaceconnector.spi.system.NullExecutorInstrumentation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,7 +23,7 @@ class StateMachineTest {
 
     private final WaitStrategy waitStrategy = mock(WaitStrategy.class);
     private final Monitor monitor = mock(Monitor.class);
-    private final ExecutorInstrumentation instrumentation = new NullExecutorInstrumentation();
+    private final ExecutorInstrumentation instrumentation = ExecutorInstrumentation.noop();
 
     @BeforeEach
     void setUp() {

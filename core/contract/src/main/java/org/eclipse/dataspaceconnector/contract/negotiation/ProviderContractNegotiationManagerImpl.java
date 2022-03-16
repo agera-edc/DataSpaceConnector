@@ -33,7 +33,6 @@ import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
 import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
-import org.eclipse.dataspaceconnector.spi.system.NullExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreement;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreementRequest;
@@ -478,7 +477,7 @@ public class ProviderContractNegotiationManagerImpl implements ProviderContractN
         private Builder() {
             manager = new ProviderContractNegotiationManagerImpl();
             manager.telemetry = new Telemetry(); // default noop implementation
-            manager.executorInstrumentation = new NullExecutorInstrumentation(); // default noop implementation
+            manager.executorInstrumentation = ExecutorInstrumentation.noop(); // default noop implementation
         }
 
         public static Builder newInstance() {
