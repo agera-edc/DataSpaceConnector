@@ -27,12 +27,14 @@ import org.eclipse.dataspaceconnector.dataplane.spi.registry.TransferServiceRegi
 import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -66,6 +68,9 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
     @Inject(required = false)
     private TransferServiceSelectionStrategy transferServiceSelectionStrategy;
 
+    @Inject
+    private ExecutorInstrumentation executorInstrumentation;
+
     @Override
     public String name() {
         return "Data Plane Framework";
@@ -85,7 +90,9 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
         context.registerService(TransferServiceRegistry.class, transferServiceRegistry);
 
         var numThreads = context.getSetting(TRANSFER_THREADS, DEFAULT_TRANSFER_THREADS);
-        var executorContainer = new DataTransferExecutorServiceContainer(Executors.newFixedThreadPool(numThreads));
+        var executorService = Executors.newFixedThreadPool(numThreads);
+        var executorContainer = new DataTransferExecutorServiceContainer(
+                executorInstrumentation.instrument(executorService, "Data plane transfers"));
         context.registerService(DataTransferExecutorServiceContainer.class, executorContainer);
 
         monitor = context.getMonitor();
