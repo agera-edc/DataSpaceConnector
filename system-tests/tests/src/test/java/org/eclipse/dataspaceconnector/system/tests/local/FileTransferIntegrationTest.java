@@ -96,4 +96,17 @@ public class FileTransferIntegrationTest {
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(fileContent);
     }
+
+    @Test
+    public void transferFile_testTraces() throws Exception {
+        // Just to make sure the config is taken into consideration.
+        java.util.logging.Logger.getAnonymousLogger().info("coucou");
+        // Arrange
+        // Create a file with test data on provider file system.
+        var fileContent = "FileTransfer-test-" + UUID.randomUUID();
+        Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
+
+        // Act
+        runGatling(FileTransferLocalSimulation.class, FileTransferSimulationUtils.DESCRIPTION);
+    }
 }

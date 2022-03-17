@@ -34,8 +34,20 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
+    testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.11.0")
     testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
     testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))
+}
+
+tasks.withType<Test> {
+    val agent = rootDir.resolve("opentelemetry-javaagent.jar")
+    if (agent.exists()) {
+        jvmArgs(
+                "-javaagent:${agent.absolutePath}",
+                "-Dotel.traces.exporter=logging",
+                "-Djava.util.logging.config.file=resources/logging.properties"
+        );
+    }
 }
 
 tasks.getByName<Test>("test") {
