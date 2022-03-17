@@ -48,7 +48,7 @@ public class MicrometerExtensionIntegrationTest {
 
     @Test
     void testMicrometerMetrics(OkHttpClient httpClient) throws IOException {
-        // Call the callHealthEndpoint. After receiving this call, the connector will call the health endpoint.
+        // Call the health endpoint with the client used by the connector. This is needed to check if OkHttp metrics are present.
         httpClient.newCall(new Request.Builder().url(HEALTH_ENDPOINT).build()).execute();
 
         // Collect the metrics.
