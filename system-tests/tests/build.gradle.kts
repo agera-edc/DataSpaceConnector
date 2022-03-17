@@ -17,6 +17,8 @@ plugins {
 }
 
 val gatlingVersion: String by project
+val openTelemetryVersion: String by project
+val awaitility: String by project
 
 dependencies {
     testImplementation("io.gatling.highcharts:gatling-charts-highcharts:${gatlingVersion}") {
@@ -34,7 +36,12 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
-    testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.11.0")
+    testImplementation("com.linecorp.armeria:armeria-grpc-protocol:1.14.1")
+    testImplementation("com.linecorp.armeria:armeria-junit5:1.14.1")
+    testImplementation("io.opentelemetry:opentelemetry-api:${openTelemetryVersion}")
+    testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.14.0-alpha")
+    testImplementation("org.awaitility:awaitility:${awaitility}")
+
     testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
     testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
@@ -42,11 +49,7 @@ dependencies {
 tasks.withType<Test> {
     val agent = rootDir.resolve("opentelemetry-javaagent.jar")
     if (agent.exists()) {
-        jvmArgs(
-                "-javaagent:${agent.absolutePath}",
-                "-Dotel.traces.exporter=logging",
-                "-Djava.util.logging.config.file=resources/logging.properties"
-        );
+        jvmArgs("-javaagent:${agent.absolutePath}")
     }
 }
 
