@@ -141,3 +141,4 @@ See [how to contribute](CONTRIBUTING.md).
 ## Tags
 
 Available tags can be found [here](https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/tags).
+
