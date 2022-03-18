@@ -23,7 +23,7 @@ public class MicrometerExtensionIntegrationTest {
     static final String CONNECTOR_URL = String.format("http://localhost:%s", CONNECTOR_PORT);
     static final String HEALTH_ENDPOINT = String.format("%s/api/check/health", CONNECTOR_URL);
     static final String METRICS_ENDPOINT = "http://localhost:9464/metrics";
-    static final String[] METRIC_PREFIXES = new String[]{
+    static final String[] METRIC_PREFIXES = new String[] {
             "executor_", // ExecutorMetrics added by MicrometerExtension
             "jvm_memory_", // JvmMemoryMetrics added by MicrometerExtension
             "jvm_gc", // JvmGcMetrics added by MicrometerExtension
