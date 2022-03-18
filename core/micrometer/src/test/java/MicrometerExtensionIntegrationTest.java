@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
@@ -56,7 +57,9 @@ public class MicrometerExtensionIntegrationTest {
         String[] metrics = response.body().string().split("\n");
 
         for (String metricPrefix : METRIC_PREFIXES) {
-            assertThat(metrics).anyMatch(s -> s.startsWith(metricPrefix));
+            assertThat(metrics)
+                    .withFailMessage(String.format("There is no metric starting by %s. ", metricPrefix))
+                    .anyMatch(s -> s.startsWith(metricPrefix));
         }
     }
 }
