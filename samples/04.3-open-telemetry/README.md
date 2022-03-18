@@ -45,7 +45,7 @@ Click the globe icon near the top right corner (Metrics Explorer) and select a m
 
 ## Using another monitoring backend
 
-Other monitoring backends can be plugged in easily with OpenTelemetry. For instance, if you want to use Azure Application Insights instead of Jaeger, you can replace the OpenTelemetry Java Agent by the [Application Insights Java Agent](https://docs.microsoft.com/azure/azure-monitor/app/java-in-process-agent#download-the-jar-file) instead, which has to be stored in the root folder of this sample as well. The only additional configuration required are the `APPLICATIONINSIGHTS_CONNECTION_STRING` and `APPLICATIONINSIGHTS_ROLE_NAME` env variables:
+Other monitoring backends can be plugged in easily with OpenTelemetry. For instance, if you want to use Azure Application Insights instead of Jaeger, you can replace the OpenTelemetry Java Agent with the [Application Insights Java Agent](https://docs.microsoft.com/azure/azure-monitor/app/java-in-process-agent#download-the-jar-file), which has to be stored in the root folder of this sample as well. The only additional configuration required are the `APPLICATIONINSIGHTS_CONNECTION_STRING` and `APPLICATIONINSIGHTS_ROLE_NAME` env variables:
 
 ```yaml
   consumer:
