@@ -44,6 +44,7 @@ tasks.withType<Test> {
     if (agent.exists()) {
         jvmArgs(
             "-javaagent:${agent.absolutePath}",
+            // Exposes metrics at http://localhost:9464/metrics
             "-Dotel.metrics.exporter=prometheus"
         );
     }
