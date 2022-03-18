@@ -49,7 +49,9 @@ public class MicrometerExtensionIntegrationTest {
     @Test
     void testMicrometerMetrics(OkHttpClient httpClient) throws IOException {
         // Call the health endpoint with the client used by the connector. This is needed to check if OkHttp metrics are present.
-        httpClient.newCall(new Request.Builder().url(HEALTH_ENDPOINT).build()).execute();
+        Response healthResponse = httpClient.newCall(new Request.Builder().url(HEALTH_ENDPOINT).build()).execute();
+        // The call needs to be successful to have Jetty & Jersey metrics.
+        assertThat(healthResponse.code()).isEqualTo(200);
 
         // Collect the metrics.
         Response response = httpClient.newCall(new Request.Builder().url(METRICS_ENDPOINT).build()).execute();
