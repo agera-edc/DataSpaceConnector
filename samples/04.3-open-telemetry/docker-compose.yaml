@@ -43,7 +43,7 @@ services:
     entrypoint: java
       -javaagent:/samples/04.3-open-telemetry/opentelemetry-javaagent.jar
       -Djava.util.logging.config.file=/samples/04.3-open-telemetry/logging.properties
-      -jar /samples/04.0-file-transfer/provider/build/libs/provider.jar
+      -jar /samples/04.3-open-telemetry/provider/build/libs/provider.jar
 
   jaeger:
     image: jaegertracing/all-in-one
