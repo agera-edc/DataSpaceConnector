@@ -46,6 +46,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.command.TransferProcessCommand;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -84,6 +85,10 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
  * A wait strategy may implement a backoff scheme.
  */
 public class TransferProcessManagerImpl implements TransferProcessManager {
+
+    private int retryLimit = 7;
+    private long successWaitPeriodMillis = 100;
+    private Clock clock = Clock.systemUTC();
 
     private int batchSize = 5;
     private WaitStrategy waitStrategy = () -> 5000L;  // default wait five seconds
@@ -238,6 +243,20 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     private boolean processRequesting(TransferProcess process) {
         var dataRequest = process.getDataRequest();
         if (CONSUMER == process.getType()) {
+            int retryCount = process.getStateCount() - 1;
+            if (retryCount > 0) {
+                var waitMillis = (1L << retryCount) * successWaitPeriodMillis;
+                long remainingWaitMillis = process.getStateTimestamp() + waitMillis - clock.millis();
+                if (remainingWaitMillis > 0) {
+                    monitor.debug(format("Process %s transfer retry #%d will not be attempted before %d ms.", process.getId(), retryCount, remainingWaitMillis));
+
+                    // Break lease
+                    transferProcessStore.update(process);
+
+                    return false;
+                }
+                monitor.debug(format("Process %s transfer retry #%d of %d.", process.getId(), retryCount, retryLimit));
+            }
             sendConsumerRequest(process, dataRequest);
             return true;
         } else {
@@ -445,7 +464,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             observable.invokeForEach(l -> l.inProgress(process));
         } else {
             if (ResponseStatus.ERROR_RETRY == response.getFailure().status()) {
-                monitor.severe("Error processing transfer request. Setting to retry: " + process.getId());
+                monitor.severe(format("Rrror processing transfer request: %s. Error details: %s", process.getId(), String.join(", ", response.getFailureMessages())));
                 process.transitionProvisioned();
                 transferProcessStore.update(process);
                 observable.invokeForEach(l -> l.provisioned(process));
@@ -459,35 +478,51 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     }
 
     private void sendConsumerRequest(TransferProcess process, DataRequest dataRequest) {
+        String id = process.getId();
+        monitor.debug(format("TransferProcessManager: Sending process %s request to %s", process.getId(), dataRequest.getConnectorAddress()));
         dispatcherRegistry.send(Object.class, dataRequest, process::getId)
                 .thenApply(result -> {
-                    var transferProcess = transferProcessStore.find(process.getId());
-
-                    if (transferProcess == null) {
-                        monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", process.getId()));
-                        throw new EdcException(format("TransferProcess %s not found", process.getId()));
-                    }
-
-                    transferProcess.transitionRequested();
-                    transferProcessStore.update(transferProcess);
-                    observable.invokeForEach(l -> l.requested(transferProcess));
+                    sendConsumerRequestSuccess(id);
                     return result;
                 })
-                .whenComplete((o, throwable) -> {
-                    if (throwable == null) {
-                        monitor.info("Object received: " + o);
-                        var transferProcess = transferProcessStore.find(process.getId());
-
-                        if (transferProcess == null) {
-                            monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", process.getId()));
-                            return;
-                        }
-
-                        transferProcess.transitionInProgressOrStreaming();
-                        transferProcessStore.update(transferProcess);
-                        observable.invokeForEach(l -> l.inProgress(transferProcess));
-                    }
+                .exceptionally(e -> {
+                    sendCustomerRequestFailure(id, e);
+                    return e;
                 });
+    }
+
+    private void sendConsumerRequestSuccess(String transferProcessId) {
+        TransferProcess transferProcess = getTransferProcess(transferProcessId);
+        transferProcess.transitionRequested();
+        transferProcessStore.update(transferProcess);
+        observable.invokeForEach(l -> l.requested(transferProcess));
+        monitor.debug("TransferProcessManager: Process " + transferProcessId + " is now " + TransferProcessStates.from(transferProcess.getState()));
+    }
+
+    private void sendCustomerRequestFailure(String transferProcessId, Throwable e) {
+        TransferProcess transferProcess = getTransferProcess(transferProcessId);
+        if (transferProcess.getStateCount() > retryLimit) {
+            transitionToError(transferProcessId, e, "Retry limit exceeded");
+            return;
+        }
+        String message = format("TransferProcessManager: attempt #%d failed to send transfer. TransferProcess %s stays in state %s.",
+                transferProcess.getStateCount(),
+                transferProcess.getId(),
+                TransferProcessStates.from(transferProcess.getState()));
+        monitor.info(message, e);
+        transferProcess.transitionRequesting();
+        transferProcessStore.update(transferProcess);
+        observable.invokeForEach(l -> l.requesting(transferProcess));
+    }
+
+    private TransferProcess getTransferProcess(String id) {
+        var transferProcess = transferProcessStore.find(id);
+
+        if (transferProcess == null) {
+            monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", id));
+            throw new EdcException(format("TransferProcess %s not found", id));
+        }
+        return transferProcess;
     }
 
     public static class Builder {
