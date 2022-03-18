@@ -13,7 +13,6 @@
  */
 package org.eclipse.dataspaceconnector.spi.query;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -49,13 +48,14 @@ class ReflectionBasedQueryResolverTest {
     }
 
     @Test
-    @Disabled
     void verifyQuery_criterionFilterIntProperty() {
-        var stream = IntStream.range(0, 10).mapToObj(FakeItem::new);
+        var stream = Stream.concat(
+                IntStream.range(0, 5).mapToObj(i -> new FakeItem(i, "Alice")),
+                IntStream.range(5, 10).mapToObj(i -> new FakeItem(i, "Bob")));
 
-        QuerySpec spec = QuerySpec.Builder.newInstance().filter(List.of(new Criterion("id", "=", 5))).build();
+        QuerySpec spec = QuerySpec.Builder.newInstance().filter(List.of(new Criterion("name", "=", "Bob"))).build();
         Collection<FakeItem> actual = queryResolver.query(stream, spec).collect(Collectors.toList());
-        assertThat(actual).hasSize(1).extracting(FakeItem::getId).containsExactly(5);
+        assertThat(actual).hasSize(5).extracting(FakeItem::getName).containsOnly("Bob");
     }
 
     @Test
