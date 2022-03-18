@@ -11,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
