@@ -52,8 +52,7 @@ public class MicrometerExtensionIntegrationTest {
         httpClient.newCall(new Request.Builder().url(HEALTH_ENDPOINT).build()).execute();
 
         // Collect the metrics.
-        Request request =  new Request.Builder().url(METRICS_ENDPOINT).get().build();
-        Response response = httpClient.newCall(request).execute();
+        Response response = httpClient.newCall(new Request.Builder().url(METRICS_ENDPOINT).build()).execute();
         String[] metrics = response.body().string().split("\n");
 
         for (String metricPrefix : METRIC_PREFIXES) {
