@@ -9,6 +9,7 @@
  *
  *  Contributors:
  *       Microsoft Corporation - initial API and implementation
+ *       Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
  *
  */
 
@@ -34,8 +35,8 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
-    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
-    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))
+    testCompileOnly(project(":system-tests:runtimes:file-transfer-provider"))
+    testCompileOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
 
 tasks.getByName<Test>("test") {
