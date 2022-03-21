@@ -39,7 +39,7 @@ public class MicrometerExtensionIntegrationTest {
     }
 
     @BeforeEach
-    void before(EdcExtension extension) {
+    void before() {
         System.setProperty("web.http.port", Integer.toString(CONNECTOR_PORT));
     }
 
