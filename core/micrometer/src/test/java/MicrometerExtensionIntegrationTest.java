@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
@@ -32,7 +33,7 @@ public class MicrometerExtensionIntegrationTest {
 
     @BeforeAll
     static void checkForAgent() {
-        var runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
         assertThat(runtimeMxBean.getInputArguments())
                 .withFailMessage("OpenTelemetry Agent JAR should be present. See README.md file for details.")
                 .anyMatch(arg -> arg.startsWith("-javaagent"));
