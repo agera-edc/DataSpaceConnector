@@ -11,7 +11,7 @@ In order to visualize and analyze the traces and metrics, we use [OpenTelemetry 
 
 ## Prerequisites
 
-Download the [opentelemetry-javaagent.jar](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.11.0/opentelemetry-javaagent.jar) and place it in the root folder of this sample.
+Download the [opentelemetry-javaagent.jar](https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.12.0/opentelemetry-javaagent.jar) and place it in the root folder of this sample.
 
 ## Run the sample
 
