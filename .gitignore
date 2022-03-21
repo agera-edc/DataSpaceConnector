@@ -51,5 +51,5 @@ launchers/demo-e2e/edc-config.properties
 *.hprof
 
 .env
-terraform_outputs.json
+runtime_settings.properties
 generated_backend.tf

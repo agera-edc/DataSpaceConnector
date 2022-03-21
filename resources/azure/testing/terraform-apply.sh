@@ -23,10 +23,11 @@ echo "== Running terraform apply =="
 terraform apply
 
 echo "== Collecting terraform outputs =="
-terraform output -json | $gh secret set TERRAFORM_OUTPUTS
+. ../util/terraform-download-output.sh
+
+$gh secret set RUNTIME_SETTINGS <<< runtime_settings.properties
 
 terraform output -raw ci_client_id | $gh secret set AZURE_CLIENT_ID
 terraform output -raw EDC_AZURE_SUBSCRIPTION_ID | $gh secret set AZURE_SUBSCRIPTION_ID
 terraform output -raw EDC_AZURE_TENANT_ID | $gh secret set AZURE_TENANT_ID
 
-. ../util/terraform-download-output.sh

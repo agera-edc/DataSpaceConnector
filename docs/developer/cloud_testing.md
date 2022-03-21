@@ -97,7 +97,7 @@ resources/azure/testing/terraform-apply.sh
 The script also configures your repository's GitHub Environment so that workflows can consume the resources. The following secrets are provisioned in the Environment:
 
 - `AZURE_TENANT_ID`, `AZURE_CLIENT_ID` , and `AZURE_SUBSCRIPTION_ID`, required to log in with the Federated Credential scenario.
-- `TERRAFORM_OUTPUTS`, a JSON string containing resource identifiers and other settings needed to connect tests to the resources deployed with Terraform.
+- `RUNTIME_SETTINGS`, a multiline string in key/value configuration file format containing resource identifiers and other settings needed to connect tests to the resources deployed with Terraform.
 
 Note that these values do not actually contain any sensitive information.
 
@@ -105,13 +105,13 @@ That is sufficient to have the cloud testing workflow run in your fork on every 
 
 ### Consuming Terraform resources locally
 
-For running cloud tests in local development, run this script to download a `terraform_outputs.json` file:
+For running cloud tests in local development, run this script to download a `runtime_settings.properties` file:
 
 ```bash
 ./terraform-fetch.sh
 ```
 
-This downloads a `terraform_outputs.json` file, which is read by cloud integration tests. This file should not be committed to the repository.
+This downloads a `runtime_settings.properties` file, which is read by cloud integration tests. This file should not be committed to the repository.
 
 ### Evolving Terraform configuration
 

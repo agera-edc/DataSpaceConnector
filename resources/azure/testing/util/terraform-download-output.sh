@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-output=terraform_outputs.json
+output=runtime_settings.properties
 
-terraform output -json > ../$output
+terraform output -json | jq -r 'keys[] as $k | "\($k | ascii_downcase | gsub("_";"."))=\(.[$k] | .value)"' > ../$output
 
 echo Created $output
 

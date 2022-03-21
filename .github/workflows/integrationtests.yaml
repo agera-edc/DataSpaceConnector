@@ -136,12 +136,9 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: "Fetch Terraform outputs"
-        run: printf "$TERRAFORM_OUTPUTS" > resources/azure/testing/terraform_outputs.json
+        run: printf "$RUNTIME_SETTINGS" > resources/azure/testing/runtime_settings.properties
         env:
-          TERRAFORM_OUTPUTS: ${{ secrets.TERRAFORM_OUTPUTS }}
-
-      - name: "List Terraform output keys" # for information/manual debugging only
-        run: cat resources/azure/testing/terraform_outputs.json | jq -r 'keys | .[]'
+          RUNTIME_SETTINGS: ${{ secrets.RUNTIME_SETTINGS }}
 
       - uses: actions/setup-java@v2
         with:

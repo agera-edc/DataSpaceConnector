@@ -21,20 +21,25 @@ import com.azure.storage.common.StorageSharedKeyCredential;
 import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.azure.testfixtures.TerraformOutputsExtension;
 import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureDataFactoryIntegrationTest;
+import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
 import org.eclipse.dataspaceconnector.dataplane.spi.store.DataPlaneStore;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Random;
 import java.util.UUID;
 
@@ -54,29 +59,35 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * across blob storage accounts using Azure Data Factory.
  */
 @AzureDataFactoryIntegrationTest
-@ExtendWith({TerraformOutputsExtension.class, EdcExtension.class})
+@ExtendWith(EdcExtension.class)
 class AzureDataFactoryCopyIntegrationTest {
 
     static List<Runnable> containerCleanup = new ArrayList<>();
+    static Properties savedProperties;
 
     String blobName = createBlobName();
 
-    Account providerStorage;
-    Account consumerStorage;
+    @BeforeAll
+    static void beforeAll() {
+        savedProperties = (Properties) System.getProperties().clone();
+        System.setProperty("edc.fs.config", new File(TestUtils.findBuildRoot(), "resources/azure/testing/runtime_settings.properties").getAbsolutePath());
+    }
 
     @AfterAll
-    static void tearDownClass() {
+    static void afterAll() {
+        System.setProperties(savedProperties);
         containerCleanup.parallelStream().forEach(Runnable::run);
     }
 
     @Test
     void transfer_success(
+            EdcExtension edc,
             AzureResourceManager azure,
             DataPlaneManager dataPlaneManager,
             DataPlaneStore store) {
         // Arrange
-        providerStorage = new Account(azure, "test_provider_storage_resourceid");
-        consumerStorage = new Account(azure, "test_consumer_storage_resourceid");
+        Account providerStorage = new Account(azure, edc, "test.provider.storage.resourceid");
+        Account consumerStorage = new Account(azure, edc, "test.consumer.storage.resourceid");
         byte[] randomBytes = new byte[1024];
         new Random().nextBytes(randomBytes);
 
@@ -119,8 +130,8 @@ class AzureDataFactoryCopyIntegrationTest {
                 .untilAsserted(() -> assertThat(store.getState(request.getProcessId()))
                         .isEqualTo(DataPlaneStore.State.COMPLETED));
         assertThat(destinationBlob.exists())
-                        .withFailMessage("should have copied blob between containers")
-                        .isTrue();
+                .withFailMessage("should have copied blob between containers")
+                .isTrue();
         assertThat(destinationBlob.getProperties().getBlobSize())
                 .isEqualTo(randomBytes.length);
     }
@@ -133,8 +144,8 @@ class AzureDataFactoryCopyIntegrationTest {
         final BlobServiceClient client;
         final String containerName = FAKER.lorem().characters(35, 40, false, false);
 
-        Account(AzureResourceManager azure, String setting) {
-            String accountId = Objects.requireNonNull(System.getProperty(setting), setting);
+        Account(AzureResourceManager azure, EdcExtension edc, String setting) {
+            String accountId = Objects.requireNonNull(edc.getContext().getConfig().getString(setting), setting);
             var account = azure.storageAccounts().getById(accountId);
             name = account.name();
             key = account.getKeys().stream().findFirst().orElseThrow().value();
