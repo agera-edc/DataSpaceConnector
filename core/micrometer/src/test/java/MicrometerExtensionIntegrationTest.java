@@ -18,8 +18,7 @@ import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFr
 @ExtendWith(EdcExtension.class)
 public class MicrometerExtensionIntegrationTest {
     static final int CONNECTOR_PORT = getFreePort();
-    static final String CONNECTOR_URL = String.format("http://localhost:%s", CONNECTOR_PORT);
-    static final String HEALTH_ENDPOINT = String.format("%s/api/check/health", CONNECTOR_URL);
+    static final String HEALTH_ENDPOINT = String.format("http://localhost:%s/api/check/health", CONNECTOR_PORT);
     static final String METRICS_ENDPOINT = "http://localhost:9464/metrics";
     static final String[] METRIC_PREFIXES = new String[] {
             "executor_", // ExecutorMetrics added by MicrometerExtension
