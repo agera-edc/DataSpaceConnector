@@ -37,6 +37,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -151,10 +152,11 @@ public class FileTransferIntegrationTest {
 
     @Test
     void transferFile_testTraces() throws Exception {
-        var runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        assertThat(runtimeMXBean.getInputArguments())
-                .withFailMessage("Agent JAR should be present. See README.md file.")
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        assertThat(runtimeMxBean.getInputArguments())
+                .withFailMessage("OpenTelemetry Agent JAR should be present. See README.md file for details.")
                 .anyMatch(arg -> arg.startsWith("-javaagent"));
+
         // Arrange
         // Create a file with test data on provider file system.
         var fileContent = "FileTransfer-test-" + UUID.randomUUID();
@@ -164,22 +166,19 @@ public class FileTransferIntegrationTest {
         runGatling(FileTransferLocalSimulation.class, FileTransferSimulationUtils.DESCRIPTION);
 
         // Assert
-        await().atMost(30, SECONDS).untilAsserted(() ->
-                {
-                    var spans =
-                            grpcServer
-                                    .traceRequests
-                                    .stream()
-                                    .flatMap(r -> r.getResourceSpansList().stream())
-                                    .flatMap(r -> r.getInstrumentationLibrarySpansList().stream())
-                                    .flatMap(r -> r.getSpansList().stream())
-                                    .collect(Collectors.toList());
+        await().atMost(30, SECONDS).untilAsserted(() -> {
+            var spans = grpcServer
+                    .traceRequests
+                    .stream()
+                    .flatMap(r -> r.getResourceSpansList().stream())
+                    .flatMap(r -> r.getInstrumentationLibrarySpansList().stream())
+                    .flatMap(r -> r.getSpansList().stream())
+                    .collect(Collectors.toList());
 
                     var consumerInitial = getSpanByName(spans, "ConsumerContractNegotiationManagerImpl.processInitial");
                     var providerConfirming = getSpanByName(spans, "ProviderContractNegotiationManagerImpl.processConfirming");
 
-                    assertThat(consumerInitial.getTraceId())
-                            .isEqualTo(providerConfirming.getTraceId());
+                    assertThat(consumerInitial.getTraceId()).isEqualTo(providerConfirming.getTraceId());
                 }
         );
     }
