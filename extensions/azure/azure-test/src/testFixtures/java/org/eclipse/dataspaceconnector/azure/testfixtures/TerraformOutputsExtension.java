@@ -31,6 +31,7 @@ public class TerraformOutputsExtension implements BeforeAllCallback, AfterAllCal
 
     @Override
     public void beforeAll(ExtensionContext context) {
+        savedProperties = (Properties) System.getProperties().clone();
         System.setProperty("edc.fs.config", new File(TestUtils.findBuildRoot(), "resources/azure/testing/runtime_settings.properties").getAbsolutePath());
     }
 
