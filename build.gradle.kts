@@ -78,13 +78,13 @@ subprojects {
                     val pathFromThisModule = artifact.file.relativeTo(project.projectDir).path
 
                     if (!dependency.name.endsWith("-spi") // modules may only depend on `-spi` modules (exceptions follow)
-                            && dependency.name != "spi" // exception: :spi module
-                            && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
-                            && !pathFromRoot.startsWith("common/") // exception: `common`
-                            && !pathFromRoot.startsWith("extensions/http/jetty/") // exception: `jetty` (this exception should be removed once there is an SPI for jetty)
-                            && !project.path.startsWith(":launchers:") // exception: launchers
-                            && !project.path.startsWith(":samples:") // exception: samples
-                            && !project.path.startsWith(":system-tests:") // exception: system-tests
+                            && dependency.name != "spi" // exception: modules may depend on spi module
+                            && !dependency.name.endsWith("-core") // exception: modules may depend on technology libs such as "blob-core"
+                            && !pathFromRoot.startsWith("common/") // exception: modules may depend on common module
+                            && !pathFromRoot.startsWith("extensions/http/jetty/") // exception: modules might depend on `jetty` (this exception should be removed once there is an SPI for jetty)
+                            && !project.path.startsWith(":launchers:") // exception: launchers may depend on other modules
+                            && !project.path.startsWith(":samples:") // exception: samples may depend on other modules
+                            && !project.path.startsWith(":system-tests:") // exception: system-tests may depend on other modules
                     ) {
                         dependencyError("modules may only depend on '*-spi' modules. Invalid dependency: $dependency")
                     }
@@ -94,8 +94,8 @@ subprojects {
                         dependencyError("modules may not depend on launcher modules. Invalid dependency: $dependency")
                     }
 
-                    if (pathFromRoot.startsWith("samples/") // no module may depend on samples
-                            && !project.path.startsWith(":samples:") // exception: other samples
+                    if (pathFromRoot.startsWith("samples/") // no module may depend on samples (exceptions follow)
+                            && !project.path.startsWith(":samples:") // exception: other samples might depend on samples
                     ) {
                         dependencyError("modules may not depend on samples modules. Invalid dependency: $dependency")
                     }
