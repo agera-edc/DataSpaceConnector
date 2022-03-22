@@ -108,7 +108,7 @@ That is sufficient to have the cloud testing workflow run in your fork on every 
 For running cloud tests in local development, run this script to download a `runtime_settings.properties` file:
 
 ```bash
-./terraform-fetch.sh
+resources/azure/testing/terraform-fetch.sh
 ```
 
 This downloads a `runtime_settings.properties` file, which is read by cloud integration tests. This file should not be committed to the repository.
