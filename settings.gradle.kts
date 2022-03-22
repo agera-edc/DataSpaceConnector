@@ -41,6 +41,9 @@ include(":data-protocols:ids:ids-core")
 include(":data-protocols:ids:ids-spi")
 include(":data-protocols:ids:ids-transform-v1")
 include(":data-protocols:ids:ids-token-validation")
+include(":data-protocols:ids:ids-api-configuration")
+
+include("extensions:sql:contract-definition:store")
 
 // modules for technology- or cloud-provider extensions
 include(":extensions:aws")
@@ -144,7 +147,6 @@ include(":samples:other:dataseed:dataseed-aws")
 include(":samples:other:dataseed:dataseed-azure")
 include(":samples:other:dataseed:dataseed-policy")
 include(":samples:other:run-from-junit")
-include(":samples:other:streaming")
 include(":samples:other:custom-runtime")
 
 
@@ -155,6 +157,7 @@ include(":spi:transfer-spi")
 include(":spi:contract-spi")
 include(":spi:catalog-spi")
 include(":spi:web-spi")
+include(":spi:transport-spi")
 
 //include(":openapi")
 

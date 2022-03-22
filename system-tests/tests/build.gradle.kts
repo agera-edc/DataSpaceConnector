@@ -9,6 +9,7 @@
  *
  *  Contributors:
  *       Microsoft Corporation - initial API and implementation
+ *       Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
  *
  */
 
@@ -42,8 +43,8 @@ dependencies {
     testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.14.0-alpha")
     testImplementation("org.awaitility:awaitility:${awaitility}")
 
-    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
-    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))
+    testCompileOnly(project(":system-tests:runtimes:file-transfer-provider"))
+    testCompileOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
 
 tasks.withType<Test> {

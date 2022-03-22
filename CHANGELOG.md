@@ -13,6 +13,7 @@ the detailed section referring to by linking pull requests or issues.
 
 * Removed deprecated code
 * Improved CosmosDB interaction
+* Updated Data Management API
 
 ### Detailed Changes
 
@@ -21,8 +22,12 @@ the detailed section referring to by linking pull requests or issues.
 * `ContractDefinitionStore` supports paging (#717)
 * Add okhttp client timeouts (#735)
 * Unit test framework for Dependency Injection (#843)
-* Implemented S3BucketReader (#675)
 * Add a deleteById method to the AssetLoader interface (#880)
+* Apply 2-state transition pattern to `ContractNegotiationManager`s (#870)
+* Implement S3BucketReader (#675)
+* Add configuration setting for state machine batch size (#872)
+* Add Jetty context alias for IDS API (#815)
+* Pass path information into http data source through DPF public API (#929)
 
 #### Changed
 
@@ -30,18 +35,24 @@ the detailed section referring to by linking pull requests or issues.
 * Refactor ids token validation as extension (#625)
 * All `CosmosDocument` subclasses now use a configurable partition key (#780)
 * Add `findAll` method to `TransferProcessStore` (#859)
-* Enabled pluggable transfer service in DPF (#844)
 * Add data-management api to the samples (#733)
+* Enable pluggable transfer service in DPF (#844)
+* Apply 2-state transition pattern to `ContractNegotiationManager`s (#870)
+* Apply 2-state transition pattern to `TransferProcessManager` (#831)
+* Refactor (=generify) transformer subsystem (#779)
+* Extract interfaces for every api controller class to improve swagger documentation (#891)
 
 #### Removed
 
 * Remove ION extension (#664)
 * Remove module `:samples:other:commandline` (#820)
 * Remove unneeded/unimplemented methods from `TransferProcessStore` (#859)
+* Remove module `:samples:other:streaming` (#889)
 
 #### Fixed
+
 * Flaky S3 StatusChecker Test (#794)
-* Added missing Data Management Asset controller openapi (#853) 
+* Added missing Data Management Asset controller openapi (#853)
 
 ---
 
@@ -182,6 +193,7 @@ the detailed section referring to by linking pull requests or issues.
 * Add endpoint to the control api to initiate a contract negotiation (#318)
 * Add `IN` operator to all `AssetIndex` implementations (#322)
 * Support IDS logical constraint transformations (#342)
+* Add SQL persistence for contract definitions (#460) (#461)
 
 #### Changed
 
