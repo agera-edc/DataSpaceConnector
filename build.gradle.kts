@@ -92,6 +92,27 @@ subprojects {
                         dependencyError("modules may only depend on '*-spi' modules. Invalid dependency: $dependency")
                     }
 
+                    if (pathFromRoot.startsWith("core/") // no module may depend directly on any core module
+                    ) {
+                        dependencyError("modules may not depend on core modules. Invalid dependency: $dependency")
+                    }
+
+                    if (pathFromRoot.startsWith("launchers/") // no module may depend on launchers
+                    ) {
+                        dependencyError("modules may not depend on launcher modules. Invalid dependency: $dependency")
+                    }
+
+                    if (pathFromRoot.startsWith("samples/") // no module may depend on samples
+                        && !project.path.startsWith(":samples:") // exception: other samples
+                    ) {
+                        dependencyError("modules may not depend on samples modules. Invalid dependency: $dependency")
+                    }
+
+                    if (pathFromRoot.startsWith("system-tests/") // no module may depend on system-tests
+                    ) {
+                        dependencyError("modules may not depend on system-tests modules. Invalid dependency: $dependency")
+                    }
+
                     if (pathFromThisModule.matches(Regex("\\.\\./[^.].*")) // there should not be "cross-module" dependencies at the same level
                         && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
                     ) {
