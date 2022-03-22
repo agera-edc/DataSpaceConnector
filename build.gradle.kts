@@ -71,30 +71,22 @@ subprojects {
                 }
             }
 
-            val dependencies = configurations["compileClasspath"].resolvedConfiguration.resolvedArtifacts
-
-            dependencies.forEach { artifact ->
+            fun dependencyRules(artifact: ResolvedArtifact) {
                 val dependency = artifact.moduleVersion.id
-
                 if (dependency.group == project.group) {
                     val pathFromRoot = artifact.file.relativeTo(project.rootDir).path
                     val pathFromThisModule = artifact.file.relativeTo(project.projectDir).path
 
                     if (!dependency.name.endsWith("-spi") // modules may only depend on `-spi` modules (exceptions follow)
-                        && dependency.name != "spi" // exception: :spi module
-                        && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
-                        && !pathFromRoot.startsWith("common/") // exception: `common`
-                        && !pathFromRoot.startsWith("extensions/http/jetty/") // exception: `jetty` (this exception should be removed once there is an SPI for jetty)
-                        && !project.path.startsWith(":launchers:") // exception: launchers
-                        && !project.path.startsWith(":samples:") // exception: samples
-                        && !project.path.startsWith(":system-tests:") // exception: system-tests
+                            && dependency.name != "spi" // exception: :spi module
+                            && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
+                            && !pathFromRoot.startsWith("common/") // exception: `common`
+                            && !pathFromRoot.startsWith("extensions/http/jetty/") // exception: `jetty` (this exception should be removed once there is an SPI for jetty)
+                            && !project.path.startsWith(":launchers:") // exception: launchers
+                            && !project.path.startsWith(":samples:") // exception: samples
+                            && !project.path.startsWith(":system-tests:") // exception: system-tests
                     ) {
                         dependencyError("modules may only depend on '*-spi' modules. Invalid dependency: $dependency")
-                    }
-
-                    if (pathFromRoot.startsWith("core/") // no module may depend directly on any core module
-                    ) {
-                        dependencyError("modules may not depend on core modules. Invalid dependency: $dependency")
                     }
 
                     if (pathFromRoot.startsWith("launchers/") // no module may depend on launchers
@@ -103,7 +95,7 @@ subprojects {
                     }
 
                     if (pathFromRoot.startsWith("samples/") // no module may depend on samples
-                        && !project.path.startsWith(":samples:") // exception: other samples
+                            && !project.path.startsWith(":samples:") // exception: other samples
                     ) {
                         dependencyError("modules may not depend on samples modules. Invalid dependency: $dependency")
                     }
@@ -114,7 +106,7 @@ subprojects {
                     }
 
                     if (pathFromThisModule.matches(Regex("\\.\\./[^.].*")) // there should not be "cross-module" dependencies at the same level
-                        && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
+                            && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
                     ) {
                         dependencyError("there should not be \"cross-module\" dependencies at the same level. Invalid dependency: $dependency")
                     }
@@ -128,6 +120,23 @@ subprojects {
                     }
                 }
             }
+
+            fun directDependencyRules(dependency: ResolvedDependency) {
+                if (dependency.moduleGroup == project.group) {
+                    dependency.moduleArtifacts.forEach { artifact ->
+                        val pathFromRoot = artifact.file.relativeTo(project.rootDir).path
+                        if (pathFromRoot.startsWith("core/") // no module may depend directly on any core module
+                                && !dependency.name.endsWith("-core") // exception: other core modules
+                        ) {
+                            dependencyError("modules may not depend directly on core modules. Invalid dependency: ${dependency.name}")
+                        }
+                    }
+                }
+            }
+
+            val compileConfiguration = configurations["compileClasspath"].resolvedConfiguration
+            compileConfiguration.resolvedArtifacts.forEach { artifact -> dependencyRules(artifact) }
+            compileConfiguration.firstLevelModuleDependencies.forEach { dependency -> directDependencyRules(dependency) }
         }
     }
 }
