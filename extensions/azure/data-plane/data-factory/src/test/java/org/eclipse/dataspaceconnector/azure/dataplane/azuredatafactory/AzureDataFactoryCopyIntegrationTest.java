@@ -84,9 +84,9 @@ class AzureDataFactoryCopyIntegrationTest {
             DataPlaneManager dataPlaneManager,
             DataPlaneStore store) {
         // Arrange
-        Account providerStorage = new Account(azure, edc, "test.provider.storage.resourceid");
-        Account consumerStorage = new Account(azure, edc, "test.consumer.storage.resourceid");
-        byte[] randomBytes = new byte[1024];
+        var providerStorage = new Account(azure, edc, "test.provider.storage.resourceid");
+        var consumerStorage = new Account(azure, edc, "test.consumer.storage.resourceid");
+        var randomBytes = new byte[1024];
         new Random().nextBytes(randomBytes);
 
         providerStorage.client
