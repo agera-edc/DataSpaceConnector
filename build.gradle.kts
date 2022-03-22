@@ -81,7 +81,7 @@ subprojects {
                     val pathFromThisModule = artifact.file.relativeTo(project.projectDir).path
 
                     if (!dependency.name.endsWith("-spi") // modules may only depend on `-spi` modules (exceptions follow)
-                        && !dependency.name.endsWith("spi")
+                        && dependency.name != "spi" // exception: :spi module
                         && !dependency.name.endsWith("-core") // exception: technology libs such as "blob-core"
                         && !pathFromRoot.startsWith("common/") // exception: `common`
                         && !pathFromRoot.startsWith("extensions/http/jetty/") // exception: `jetty` (this exception should be removed once there is an SPI for jetty)
