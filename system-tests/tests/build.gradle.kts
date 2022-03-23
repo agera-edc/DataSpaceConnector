@@ -43,6 +43,7 @@ dependencies {
     testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.14.0-alpha")
     testImplementation("org.awaitility:awaitility:${awaitility}")
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
+    testImplementation(testFixtures(project(":extensions:opentelemetry")))
 
     testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
     testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))

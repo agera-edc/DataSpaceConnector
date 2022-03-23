@@ -23,14 +23,16 @@ import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.trace.v1.Span;
-import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.OpenTelemetryIntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
+import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
+import org.eclipse.dataspaceconnector.opentelemetry.OpenTelemetryIntegrationTest;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.UncheckedIOException;
@@ -71,6 +73,7 @@ import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferInte
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 
 @OpenTelemetryIntegrationTest
+@ExtendWith(OpenTelemetryExtension.class)
 public class TracingIntegrationTests {
 
     String[] contractNegotiationSpanNames = new String[] {
@@ -114,14 +117,6 @@ public class TracingIntegrationTests {
                     "web.http.ids.path", "/api/v1/ids",
                     "edc.samples.04.asset.path", PROVIDER_ASSET_PATH,
                     "ids.webhook.address", PROVIDER_IDS_API));
-
-    @BeforeAll
-    static void checkForAgent() {
-        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-        assertThat(runtimeMxBean.getInputArguments())
-                .withFailMessage("OpenTelemetry Agent JAR should be present.")
-                .anyMatch(arg -> arg.startsWith("-javaagent"));
-    }
 
     static OtlpGrpcServer grpcServer;
 

@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.testfixtures.annotations;
+package org.eclipse.dataspaceconnector.opentelemetry;
 
 import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Tag;

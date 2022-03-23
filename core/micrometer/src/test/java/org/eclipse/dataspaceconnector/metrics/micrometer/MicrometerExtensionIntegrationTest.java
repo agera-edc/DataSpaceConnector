@@ -17,8 +17,9 @@ package org.eclipse.dataspaceconnector.metrics.micrometer;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.OpenTelemetryIntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
+import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
+import org.eclipse.dataspaceconnector.opentelemetry.OpenTelemetryIntegrationTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 
 @OpenTelemetryIntegrationTest
+@ExtendWith(OpenTelemetryExtension.class)
 @ExtendWith(EdcExtension.class)
 public class MicrometerExtensionIntegrationTest {
     static final int CONNECTOR_PORT = getFreePort();
@@ -46,14 +48,6 @@ public class MicrometerExtensionIntegrationTest {
             "jetty_", // Added by JettyMicrometerExtension
             "jersey_", // Added by JerseyMicrometerExtension
             "http_client_"}; // OkHttp metrics
-
-    @BeforeAll
-    static void checkForAgent() {
-        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-        assertThat(runtimeMxBean.getInputArguments())
-                .withFailMessage("OpenTelemetry Agent JAR should be present. See README.md file for details.")
-                .anyMatch(arg -> arg.startsWith("-javaagent"));
-    }
 
     @BeforeEach
     void before() {
