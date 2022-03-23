@@ -63,7 +63,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith(EdcExtension.class)
 public class AzureDataFactoryCopyIntegrationTest {
 
-    private static final List<Runnable> containerCleanup = new ArrayList<>();
+    private static List<Runnable> containerCleanup = new ArrayList<>();
     private static Properties savedProperties;
     private static final String RUNTIME_SETTINGS_PATH = "resources/azure/testing/runtime_settings.properties";
 
@@ -73,9 +73,9 @@ public class AzureDataFactoryCopyIntegrationTest {
     static void beforeAll() throws IOException {
         savedProperties = (Properties) System.getProperties().clone();
         var file = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH);
-        if(!file.exists()) {
+        if (!file.exists()) {
             throw new FileNotFoundException("Runtime settings file not found");
-        }else{
+        } else {
             Properties properties = new Properties();
             properties.load(new FileInputStream(file));
             properties.forEach((key, value) -> System.out.println(String.format("Runtime settings key is: %s", key)));
