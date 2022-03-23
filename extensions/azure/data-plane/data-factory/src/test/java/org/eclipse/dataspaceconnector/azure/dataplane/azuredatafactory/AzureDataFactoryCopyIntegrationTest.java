@@ -72,7 +72,7 @@ class AzureDataFactoryCopyIntegrationTest {
     private final String blobName = createBlobName();
 
     @BeforeAll
-    static void beforeAll() throws IOException {
+    static void beforeAll() throws FileNotFoundException {
         savedProperties = (Properties) System.getProperties().clone();
         var file = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH);
         if (!file.exists()) {

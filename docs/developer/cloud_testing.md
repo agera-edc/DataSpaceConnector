@@ -9,7 +9,7 @@ A cloud deployment is required to test the integration with resources that canno
 - A **GitHub environment** is used to encapsulate secrets.
 - An **application** is created to represent the system when running test. In Azure Active Directory, a service principal for the application is configured in the cloud tenant, and configured to trust the GitHub environment using Federated Identity Credentials. For running tests locally, developers should be assigned equivalent or higher permissions.
 - **Cloud resources** and **role assignments** are provisioned using Terraform. To simplify the configuration and reduce the risk of leakage of elevated credentials, Terraform is executed manually by privileged developers on their local machine (rather than in a GitHub workflow).
-- **Configuration** for connecting to cloud resources is provided using a Terraform outputs JSON file. The file is uploaded to GitHub as an Environment secret. For running tests locally, a script is provided to download this file locally.
+- **Configuration** for connecting to cloud resources is provided using `.properties` file, it is build upon Terraform outputs JSON. The file is uploaded to GitHub as an Environment secret. For running tests locally, a script is provided to download this file locally.
 
 ### Forks and pull requests
 
