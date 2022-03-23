@@ -245,7 +245,13 @@ Configure the `signing` plugin
 For example:
 
 ```java
-
+signing{
+    val signingKeyId = System.getenv("ORG_GRADLE_PROJECT_signingKeyId")
+    val signingKey = System.getenv("ORG_GRADLE_PROJECT_signingKey")
+    val signingPassword = System.getenv("ORG_GRADLE_PROJECT_signingPassword")
+    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    sign(publications["mavenJava"])
+}
 ```
 
 > More information can be found [here](https://docs.gradle.org/current/userguide/signing_plugin.html)

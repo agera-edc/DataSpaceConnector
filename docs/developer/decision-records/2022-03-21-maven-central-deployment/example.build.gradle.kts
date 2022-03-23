@@ -1,3 +1,5 @@
+import kotlin.math.sign
+
 /*
  *  Copyright (c) 2022 Microsoft Corporation
  *
@@ -17,10 +19,11 @@ plugins {
     `maven-publish`
     checkstyle
     jacoco
+    signing
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
 
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-    signing
+
 }
 
 repositories {
@@ -77,10 +80,6 @@ buildscript {
     }
 }
 
-signing{
-
-}
-
 allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
@@ -105,8 +104,6 @@ allprojects {
         withJavadocJar()
         withSourcesJar()
     }
-
-
 
     // EdcRuntimeExtension uses this to determine the runtime classpath of the module to run.
     tasks.register("printClasspath") {
@@ -134,6 +131,7 @@ allprojects {
             testImplementation("com.github.javafaker:javafaker:${faker}")
         }
 
+
         publishing {
             repositories {
                 maven {
@@ -151,6 +149,7 @@ allprojects {
                         username = System.getenv("OSSRH_USER")
                         password = System.getenv("OSSRH_PASSWORD")
                     }
+
                 }
             }
             publications{
@@ -177,9 +176,18 @@ allprojects {
                             }
                         }
                     }
+
                 }
             }
+            signing{
+                val signingKeyId = System.getenv("ORG_GRADLE_PROJECT_signingKeyId")
+                val signingKey = System.getenv("ORG_GRADLE_PROJECT_signingKey")
+                val signingPassword = System.getenv("ORG_GRADLE_PROJECT_signingPassword")
+                useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+                sign(publications["mavenJava"])
+            }
         }
+
 
     }
 
