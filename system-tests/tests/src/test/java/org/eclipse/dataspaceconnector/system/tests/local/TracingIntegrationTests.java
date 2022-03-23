@@ -39,14 +39,10 @@ import java.lang.management.RuntimeMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
@@ -76,6 +72,13 @@ public class TracingIntegrationTests {
             "ConsumerContractNegotiationManagerImpl.initiate",
             "ProviderContractNegotiationManagerImpl.requested",
             "ConsumerContractNegotiationManagerImpl.confirmed"
+    };
+
+    String[] transferProcessSpanNames = new String[] {
+            "TransferProcessManagerImpl.initiateConsumerRequest",
+            "TransferProcessManagerImpl.processInitial",
+            "TransferProcessManagerImpl.processProvisioned",
+            "TransferProcessManagerImpl.initiateProviderRequest"
     };
 
     @RegisterExtension
@@ -135,7 +138,7 @@ public class TracingIntegrationTests {
 
         // Arrange
         // Create a file with test data on provider file system.
-        var fileContent = "FileTransfer-test-" + UUID.randomUUID();
+        String fileContent = "FileTransfer-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         // Act
@@ -143,7 +146,8 @@ public class TracingIntegrationTests {
 
         // Assert
         await().atMost(30, SECONDS).untilAsserted(() -> {
-                    var spans = grpcServer
+                    // Get exported spans.
+                    List<Span> spans = grpcServer
                             .traceRequests
                             .stream()
                             .flatMap(r -> r.getResourceSpansList().stream())
@@ -151,23 +155,35 @@ public class TracingIntegrationTests {
                             .flatMap(r -> r.getSpansList().stream())
                             .collect(Collectors.toList());
 
-                    List<Span> contractNegotationSpans = Arrays.stream(contractNegotiationSpanNames)
-                            .map(spanName -> getSpanByName(spans, spanName)).collect(Collectors.toList());
+                    // Assert that expected spans are present.
+                    List<Span> contractNegotiationSpans = getSpans(spans, Arrays.stream(contractNegotiationSpanNames));
+                    List<Span> transferProcessSpans = getSpans(spans, Arrays.stream(transferProcessSpanNames));
 
-                    // Make sure that each span have the same traceId.
-                    contractNegotationSpans.stream().reduce((span1, span2) -> {
-                        assertThat(span1.getTraceId())
-                                .withFailMessage(format("Span %s should have the same traceId as span %s. They should be part of the same trace", span1.getName(), span2.getName()))
-                                .isEqualTo(span2.getTraceId());
-                        return span2;
-                    }).isPresent();
+                    // Assert that spans are part of the right trace.
+                    assertSpansHaveSameTrace(contractNegotiationSpans);
+                    assertSpansHaveSameTrace(transferProcessSpans);
                 }
         );
     }
 
+    private List<Span> getSpans(List<Span> spans, Stream<String> spanNames) {
+        return spanNames.map(spanName -> getSpanByName(spans, spanName)).collect(Collectors.toList());
+    }
+
+    private void assertSpansHaveSameTrace(List<Span> spans) {
+        spans.stream().reduce((span1, span2) -> {
+            assertThat(span1.getTraceId())
+                    .withFailMessage(format("Span %s should have the same traceId as span %s. They should be part of the same trace", span1.getName(), span2.getName()))
+                    .isEqualTo(span2.getTraceId());
+            return span2;
+        }).isPresent();
+    }
+
     private Span getSpanByName(Collection<Span> spans, String name) {
         var span = spans.stream().filter(s -> name.equals(s.getName())).findFirst();
-        assertThat(span).isPresent();
+        assertThat(span)
+                .withFailMessage(format("Span %s is missing", name))
+                .isPresent();
         return span.get();
     }
 
@@ -182,7 +198,7 @@ public class TracingIntegrationTests {
 
         @Override
         protected void configure(ServerBuilder sb) {
-            sb.http(4317); // default GRPC port https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#otlp-exporter-both-span-and-metric-exporters
+            sb.http(4317); // Default GRPC port https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#otlp-exporter-both-span-and-metric-exporters
 
             sb.service(
                     "/opentelemetry.proto.collector.trace.v1.TraceService/Export",
