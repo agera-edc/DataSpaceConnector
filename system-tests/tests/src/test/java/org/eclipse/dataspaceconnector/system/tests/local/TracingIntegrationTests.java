@@ -110,6 +110,14 @@ public class TracingIntegrationTests {
                     "edc.samples.04.asset.path", PROVIDER_ASSET_PATH,
                     "ids.webhook.address", PROVIDER_IDS_API));
 
+    @BeforeAll
+    static void checkForAgent() {
+        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
+        assertThat(runtimeMxBean.getInputArguments())
+                .withFailMessage("OpenTelemetry Agent JAR should be present.")
+                .anyMatch(arg -> arg.startsWith("-javaagent"));
+    }
+
     static OtlpGrpcServer grpcServer;
 
     @BeforeAll
