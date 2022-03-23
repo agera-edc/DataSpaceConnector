@@ -101,7 +101,7 @@ jobs:
       - name: Daps Integration Tests
         run: ./gradlew -p extensions/iam/daps test -DincludeTags="DapsIntegrationTest"
 
-  Micrometer-Integration-Tests:
+  OpenTelemetry-Integration-Tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
