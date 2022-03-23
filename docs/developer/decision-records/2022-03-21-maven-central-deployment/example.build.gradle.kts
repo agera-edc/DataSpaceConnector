@@ -77,6 +77,9 @@ buildscript {
     }
 }
 
+signing{
+
+}
 
 allprojects {
     apply(plugin = "maven-publish")
@@ -150,32 +153,32 @@ allprojects {
                     }
                 }
             }
-
             publications{
-
-
-                name.set(" :: ${project.name}")
-                description.set("aws-junit5 :: ${project.name}")
-                url.set("https://github.com/madhead/aws-junit5")
-                licenses {
-                    license {
-                        name.set("MIT")
-                        url.set("https://opensource.org/licenses/MIT")
+                create<MavenPublication>("mavenJava"){
+                    pom{
+                        name.set("ageraedc :: ${project.name}")
+                        description.set("ageraedc :: ${project.name}")
+                        url.set("https://github.com/agera-edc/DataSpaceConnector")
+                        licenses{
+                            license{
+                                name.set("The Apache License, Version 2.0")
+                                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            }
+                            developers{
+                                developer{
+                                    id.set("chlomoni")
+                                    name.set("C.B. Lomonico")
+                                    email.set("chlomoni@microsoft.com")
+                                }
+                            }
+                            scm{
+                                connection.set("scm:git:git@github.com:agera-edc/DataSpaceConnector.git")
+                                url.set("https://github.com/agera-edc/DataSpaceConnector")
+                            }
+                        }
                     }
-                }
-                developers {
-                    developer {
-                        id = "[dev id]"
-                        name = "[dev name]"
-                        email = "[dev email]"
-                    }
-                }
-                scm {
-                    connection.set("scm:git:git@github.com:agera-edc/DataSpaceConnector.git")
-                    url.set("https://github.com/agera-edc/DataSpaceConnector")
                 }
             }
-
         }
 
     }

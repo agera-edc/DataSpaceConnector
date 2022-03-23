@@ -178,6 +178,43 @@ pluginManager.withPlugin("java-library"){
 - The url: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/ is used for release deployements
 - For detailed information please see [OSSRH Guide - Getting Started](https://central.sonatype.org/publish/publish-guide/#accessing-repositories)
 
+### Adding Required Metadata to POM
+
+In order to successfully publish to `OSSRH` the generated `pom` file must be updated to include some additional 
+information for `licenses`,`developers` and `scm` sections
+
+For Example:
+```java
+  publications{
+      create<MavenPublication>("mavenJava"){
+          pom{
+              name.set("ageraedc :: ${project.name}")
+              description.set("ageraedc :: ${project.name}")
+              url.set("https://github.com/agera-edc/DataSpaceConnector")
+              licenses{
+                  license{
+                      name.set("The Apache License, Version 2.0")
+                      url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                  }
+                  developers{
+                      developer{
+                          id.set("chlomoni")
+                          name.set("C.B. Lomonico")
+                          email.set("chlomoni@microsoft.com")
+                      }
+                  }
+                  scm{
+                      connection.set("scm:git:git@github.com:agera-edc/DataSpaceConnector.git")
+                      url.set("https://github.com/agera-edc/DataSpaceConnector")
+                  }
+              }
+          }
+      }
+  }
+```
+
+> More information can be found [here](https://docs.gradle.org/current/userguide/publishing_maven.html#publishing_maven)
+
 ### Signing
 
 All deployments to Maven Central must be signed.  Using the same `key` generated above, export
@@ -203,14 +240,21 @@ ORG_GRADLE_PROJECT_signingPassword
 
 Modify `build.gradle.kts` to include the signing task
 
-> More information can be found [here](https://docs.gradle.org/current/userguide/signing_plugin.html)
+Configure the `signing` plugin
 
+For example:
+
+```java
+
+```
+
+> More information can be found [here](https://docs.gradle.org/current/userguide/signing_plugin.html)
 
 ## Remaining Tasks
 
-- Once OSSRH testing repo is complete, test and implement the approach documented
+- Once `OSSRH` spike staging repo is complete, test and implement the approach documented
 - Review `build.gradle.kts`  
-  - R
+
 
 
 
