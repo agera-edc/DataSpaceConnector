@@ -33,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,17 +59,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @AzureDataFactoryIntegrationTest
 @ExtendWith(EdcExtension.class)
-class AzureDataFactoryCopyIntegrationTest {
+public class AzureDataFactoryCopyIntegrationTest {
 
-    static List<Runnable> containerCleanup = new ArrayList<>();
-    static Properties savedProperties;
+    private static final List<Runnable> containerCleanup = new ArrayList<>();
+    private static Properties savedProperties;
+    private static final String RUNTIME_SETTINGS_PATH = "resources/azure/testing/runtime_settings.properties";
 
     String blobName = createBlobName();
 
     @BeforeAll
-    static void beforeAll() {
+    static void beforeAll() throws FileNotFoundException {
         savedProperties = (Properties) System.getProperties().clone();
-        System.setProperty("edc.fs.config", new File(TestUtils.findBuildRoot(), "resources/azure/testing/runtime_settings.properties").getAbsolutePath());
+        var file = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH);
+        if(!file.exists()) {
+            throw new FileNotFoundException("Runtime settings file not found");
+        }
+        System.setProperty("edc.fs.config", file.getAbsolutePath());
     }
 
     @AfterAll

@@ -136,7 +136,7 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: "Fetch Terraform outputs"
-        run: printf "$RUNTIME_SETTINGS" > resources/azure/testing/runtime_settings.properties
+        run: printf $RUNTIME_SETTINGS > resources/azure/testing/runtime_settings.properties
         env:
           RUNTIME_SETTINGS: ${{ secrets.RUNTIME_SETTINGS }}
 
