@@ -33,7 +33,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,11 +70,15 @@ public class AzureDataFactoryCopyIntegrationTest {
     String blobName = createBlobName();
 
     @BeforeAll
-    static void beforeAll() throws FileNotFoundException {
+    static void beforeAll() throws IOException {
         savedProperties = (Properties) System.getProperties().clone();
         var file = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH);
         if(!file.exists()) {
             throw new FileNotFoundException("Runtime settings file not found");
+        }else{
+            Properties properties = new Properties();
+            properties.load(new FileInputStream(file));
+            properties.forEach((key, value) -> System.out.println(String.format("Runtime settings key is: %s", key)));
         }
         System.setProperty("edc.fs.config", file.getAbsolutePath());
     }
