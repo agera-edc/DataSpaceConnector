@@ -180,13 +180,6 @@ allprojects {
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
     }
-
-    tasks.withType<Test> {
-        this.testLogging {
-            this.showStandardStreams = true
-        }
-    }
-
     tasks.withType<Checkstyle> {
         reports {
             // lets not generate any reports because that is done from within the Github Actions workflow
