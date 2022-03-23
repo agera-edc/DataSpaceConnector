@@ -20,6 +20,7 @@ plugins {
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
 
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
+    signing
 }
 
 repositories {
@@ -55,10 +56,6 @@ if (project.version == "unspecified") {
 } else {
     edcVersion = project.version as String
 }
-java{
-    withJavadocJar()
-    withSourcesJar()
-}
 
 subprojects {
 
@@ -80,10 +77,12 @@ buildscript {
     }
 }
 
+
 allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
     apply(plugin = "java")
+    apply(plugin = "signing")
 
     if (System.getenv("JACOCO") == "true") {
         apply(plugin = "jacoco")
@@ -100,7 +99,11 @@ allprojects {
         toolchain {
             languageVersion.set(JavaLanguageVersion.of(javaVersion))
         }
+        withJavadocJar()
+        withSourcesJar()
     }
+
+
 
     // EdcRuntimeExtension uses this to determine the runtime classpath of the module to run.
     tasks.register("printClasspath") {
@@ -168,8 +171,8 @@ allprojects {
                     }
                 }
                 scm {
-                    connection.set("scm:git:git@github.com:madhead/aws-junit5.git")
-                    url.set("https://github.com/madhead/aws-ju
+                    connection.set("scm:git:git@github.com:agera-edc/DataSpaceConnector.git")
+                    url.set("https://github.com/agera-edc/DataSpaceConnector")
                 }
             }
 

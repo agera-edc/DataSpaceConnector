@@ -9,6 +9,19 @@ Enable the publishing of artifacts to Maven Central from the [Eclipse Data Space
 A workflow in the EDC repository should exist to build and publish release artifacts to Maven Central to enable
 developers to utilize the tested and verified libraries. TODO
 
+## TL/DR
+
+- Create a SonarType Jira Account [here](https://issues.sonatype.org/secure/Signup!default.jspa)
+- Request namespace in  `OSSRH`.
+- Create a GPG key for signing purposes
+- Export public key part
+- Publish public key to well-known key servers
+- Configure plugins in `build.gradle.kts`
+- Export private key part
+- Configure signing in `build.gradle.kts` using the private key.
+- Stage artifacts to OSSRH.
+- Release staged artifacts.
+
 ## Steps
 In order to be able to deploy to Maven Central, the following steps must be carried out
 
@@ -164,7 +177,35 @@ pluginManager.withPlugin("java-library"){
 - The url: https://s01.oss.sonatype.org/content/repositories/snapshots/ is used for staging snapshots
 - The url: https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/ is used for release deployements
 - For detailed information please see [OSSRH Guide - Getting Started](https://central.sonatype.org/publish/publish-guide/#accessing-repositories)
-  
+
+### Signing
+
+All deployments to Maven Central must be signed.  Using the same `key` generated above, export
+the `private` part of key.
+
+For Example:
+```bash
+gpg --armor --export-secret-keys <key id> > key.pgp
+```
+
+Save the private key file securely; do not share or expose this value anywhere other than any relative CI/CD
+service which will be building, signing and publishing the artifacts.
+
+To use in-memory keys, create 3 environment variables to the associated values for the `private` key
+
+For Example:
+
+```bash
+ORG_GRADLE_PROJECT_signingKeyId
+ORG_GRADLE_PROJECT_signingKey
+ORG_GRADLE_PROJECT_signingPassword
+```
+
+Modify `build.gradle.kts` to include the signing task
+
+> More information can be found [here](https://docs.gradle.org/current/userguide/signing_plugin.html)
+
+
 ## Remaining Tasks
 
 - Once OSSRH testing repo is complete, test and implement the approach documented
