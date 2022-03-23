@@ -44,8 +44,8 @@ dependencies {
     testImplementation("org.awaitility:awaitility:${awaitility}")
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
 
-    testCompileOnly(project(":system-tests:runtimes:file-transfer-provider"))
-    testCompileOnly(project(":system-tests:runtimes:file-transfer-consumer"))
+    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
+    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
 
 tasks.withType<Test> {
