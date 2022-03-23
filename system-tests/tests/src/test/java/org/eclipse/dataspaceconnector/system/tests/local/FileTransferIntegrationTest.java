@@ -16,7 +16,6 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.junit.jupiter.api.Test;
