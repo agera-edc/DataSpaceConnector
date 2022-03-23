@@ -60,13 +60,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 @AzureDataFactoryIntegrationTest
 @ExtendWith(EdcExtension.class)
-public class AzureDataFactoryCopyIntegrationTest {
+class AzureDataFactoryCopyIntegrationTest {
 
     private static List<Runnable> containerCleanup = new ArrayList<>();
     private static Properties savedProperties;
     private static final String RUNTIME_SETTINGS_PATH = "resources/azure/testing/runtime_settings.properties";
+    private static final String EDC_FS_CONFIG = "edc.fs.config";
+    private static final String PROVIDER_STORAGE_RESOURCE_ID = "test.provider.storage.resourceid";
+    private static final String CONSUMER_STORAGE_RESOURCE_ID = "test.consumer.storage.resourceid";
 
-    String blobName = createBlobName();
+    private final String blobName = createBlobName();
 
     @BeforeAll
     static void beforeAll() throws IOException {
@@ -75,7 +78,7 @@ public class AzureDataFactoryCopyIntegrationTest {
         if (!file.exists()) {
             throw new FileNotFoundException("Runtime settings file not found");
         }
-        System.setProperty("edc.fs.config", file.getAbsolutePath());
+        System.setProperty(EDC_FS_CONFIG, file.getAbsolutePath());
     }
 
     @AfterAll
@@ -91,10 +94,11 @@ public class AzureDataFactoryCopyIntegrationTest {
             DataPlaneManager dataPlaneManager,
             DataPlaneStore store) {
         // Arrange
-        var providerStorage = new Account(azure, edc, "test.provider.storage.resourceid");
-        var consumerStorage = new Account(azure, edc, "test.consumer.storage.resourceid");
+        var providerStorage = new Account(azure, edc, PROVIDER_STORAGE_RESOURCE_ID);
+        var consumerStorage = new Account(azure, edc, CONSUMER_STORAGE_RESOURCE_ID);
         var randomBytes = new byte[1024];
-        new Random().nextBytes(randomBytes);
+        var random = new Random();
+        random.nextBytes(randomBytes);
 
         providerStorage.client
                 .getBlobContainerClient(providerStorage.containerName)
