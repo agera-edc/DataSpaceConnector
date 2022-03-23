@@ -26,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,6 +57,12 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 
 @OpenTelemetryIntegrationTest
 public class TracingIntegrationTests {
+
+    String[] contractNegotiationSpanNames = new String[] {
+            "ConsumerContractNegotiationManagerImpl.initiate",
+            "ProviderContractNegotiationManagerImpl.requested",
+            "ConsumerContractNegotiationManagerImpl.confirmed"
+    };
 
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -129,10 +137,16 @@ public class TracingIntegrationTests {
                             .flatMap(r -> r.getSpansList().stream())
                             .collect(Collectors.toList());
 
-                    var consumerInitial = getSpanByName(spans, "ConsumerContractNegotiationManagerImpl.processInitial");
-                    var providerConfirming = getSpanByName(spans, "ProviderContractNegotiationManagerImpl.processConfirming");
+                    List<Span> contractNegotationSpans = Arrays.stream(contractNegotiationSpanNames)
+                            .map(spanName -> getSpanByName(spans, spanName)).collect(Collectors.toList());
 
-                    assertThat(consumerInitial.getTraceId()).isEqualTo(providerConfirming.getTraceId());
+                    // Make sure that each span have the same traceId.
+                    contractNegotationSpans.stream().reduce((span1, span2) -> {
+                        assertThat(span1.getTraceId())
+                                .withFailMessage(format("Span %s should have the same traceId as span %s. They should be part of the same trace", span1.getName(), span2.getName()))
+                                .isEqualTo(span2.getTraceId());
+                        return span2;
+                    }).isPresent();
                 }
         );
     }
