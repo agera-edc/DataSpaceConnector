@@ -45,8 +45,8 @@ dependencies {
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testImplementation(testFixtures(project(":extensions:opentelemetry")))
 
-    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
-    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))
+    testCompileOnly(project(":system-tests:runtimes:file-transfer-provider"))
+    testCompileOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
 
 tasks.withType<Test> {
