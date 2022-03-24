@@ -17,10 +17,10 @@ package org.eclipse.dataspaceconnector.junit.launcher;
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * A JUnit extension to be used for tests that need to attach the OpenTelemetry java agent.
