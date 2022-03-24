@@ -13,7 +13,6 @@
  */
 package org.eclipse.dataspaceconnector.dataplane.framework;
 
-import org.eclipse.dataspaceconnector.core.executor.NoopExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.dataplane.framework.pipeline.PipelineServiceImpl;
 import org.eclipse.dataspaceconnector.dataplane.framework.registry.TransferServiceSelectionStrategy;
 import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
@@ -47,7 +46,7 @@ class DataPlaneFrameworkExtensionTest {
     public void setUp(ServiceExtensionContext context) {
         when(transferService1.canHandle(request)).thenReturn(true);
         when(transferService2.canHandle(request)).thenReturn(true);
-        context.registerService(ExecutorInstrumentation.class, new NoopExecutorInstrumentation());
+        context.registerService(ExecutorInstrumentation.class, ExecutorInstrumentation.noop());
     }
 
     @Test
