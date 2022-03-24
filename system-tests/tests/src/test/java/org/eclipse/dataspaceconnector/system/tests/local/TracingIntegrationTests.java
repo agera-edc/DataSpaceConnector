@@ -174,12 +174,9 @@ public class TracingIntegrationTests {
     }
 
     private void assertSpansHaveSameTrace(List<Span> spans) {
-        spans.stream().reduce((span1, span2) -> {
-            assertThat(span1.getTraceId())
-                    .withFailMessage(format("Span %s should have the same traceId as span %s. They should be part of the same trace", span1.getName(), span2.getName()))
-                    .isEqualTo(span2.getTraceId());
-            return span2;
-        }).isPresent();
+        assertThat(spans.stream().map(s -> s.getTraceId().toStringUtf8()))
+                .withFailMessage(() -> "Spans from the same trace should have the same traceId.")
+                .singleElement();
     }
 
     private Span getSpanByName(Collection<Span> spans, String name) {
