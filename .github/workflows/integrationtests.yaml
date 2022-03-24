@@ -28,7 +28,6 @@ jobs:
         run: ./gradlew -p extensions/azure test -DincludeTags="AzureStorageIntegrationTest"
 
   Check-Cosmos-Key:
-    environment: Azure-dev
     runs-on: ubuntu-latest
     steps:
       - id: has-cosmos-key
