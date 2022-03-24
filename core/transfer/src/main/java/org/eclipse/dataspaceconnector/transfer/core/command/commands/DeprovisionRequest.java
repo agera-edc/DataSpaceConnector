@@ -18,7 +18,7 @@ import org.eclipse.dataspaceconnector.transfer.core.command.handlers.Deprovision
 
 /**
  * Issues a request to start deprovisioning a transfer process by setting its state to
- * DEPROVISIONING_REQ
+ * {@link org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates#DEPROVISIONING DEPROVISIONING}.
  *
  * @see DeprovisionRequestHandler
  */
