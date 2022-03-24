@@ -46,6 +46,7 @@ jobs:
 
     env:
       COSMOS_KEY: ${{ secrets.COSMOS_KEY }}
+      COSMOS_URL: ${{ secrets.COSMOS_URL }}
 
     steps:
       - uses: actions/checkout@v2
