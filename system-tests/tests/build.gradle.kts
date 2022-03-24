@@ -20,6 +20,7 @@ plugins {
 val gatlingVersion: String by project
 val openTelemetryVersion: String by project
 val awaitility: String by project
+val armeriaVersion: String by project
 
 dependencies {
     testImplementation("io.gatling.highcharts:gatling-charts-highcharts:${gatlingVersion}") {
@@ -37,8 +38,8 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
-    testImplementation("com.linecorp.armeria:armeria-grpc-protocol:1.14.1")
-    testImplementation("com.linecorp.armeria:armeria-junit5:1.14.1")
+    testImplementation("com.linecorp.armeria:armeria-grpc-protocol:${armeriaVersion}")
+    testImplementation("com.linecorp.armeria:armeria-junit5:${armeriaVersion}")
     testImplementation("io.opentelemetry:opentelemetry-api:${openTelemetryVersion}")
     testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.14.0-alpha")
     testImplementation("org.awaitility:awaitility:${awaitility}")
