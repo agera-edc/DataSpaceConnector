@@ -139,11 +139,6 @@ public class TracingIntegrationTests {
 
     @Test
     void transferFile_testTraces() throws Exception {
-        RuntimeMXBean runtimeMxBean = ManagementFactory.getRuntimeMXBean();
-        assertThat(runtimeMxBean.getInputArguments())
-                .withFailMessage("OpenTelemetry Agent JAR should be present. See README.md file for details.")
-                .anyMatch(arg -> arg.startsWith("-javaagent"));
-
         // Arrange
         // Create a file with test data on provider file system.
         String fileContent = "FileTransfer-test-" + UUID.randomUUID();
