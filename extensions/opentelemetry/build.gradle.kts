@@ -19,9 +19,13 @@ plugins {
 }
 
 val jupiterVersion: String by project
+val armeriaVersion: String by project
 
 dependencies {
-    api(project(":spi"))
-    testFixturesApi(testFixtures(project(":common:util")))
-    testFixturesApi("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
+    testFixturesImplementation(project(":spi"))
+    testFixturesImplementation(testFixtures(project(":common:util")))
+    testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
+    testFixturesImplementation("com.linecorp.armeria:armeria-grpc-protocol:${armeriaVersion}")
+    testFixturesImplementation("com.linecorp.armeria:armeria-junit5:${armeriaVersion}")
+    testFixturesImplementation("io.opentelemetry.proto:opentelemetry-proto:0.14.0-alpha")
 }

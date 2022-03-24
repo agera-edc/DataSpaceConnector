@@ -33,7 +33,7 @@ dependencies {
     testFixturesImplementation("org.assertj:assertj-core:${assertj}")
     testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
     testFixturesRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jupiterVersion}")
-    testFixturesRuntimeOnly("extensions:opentelemetry")
+    testFixturesRuntimeOnly(project(":extensions:opentelemetry"))
 }
 
 publishing {

@@ -14,20 +14,13 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.linecorp.armeria.server.ServerBuilder;
-import com.linecorp.armeria.server.ServiceRequestContext;
-import com.linecorp.armeria.server.grpc.protocol.AbstractUnaryGrpcService;
-import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import io.opentelemetry.api.GlobalOpenTelemetry;
-import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
-import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.eclipse.dataspaceconnector.opentelemetry.OpenTelemetryIntegrationTest;
+import org.eclipse.dataspaceconnector.opentelemetry.OtlpGrpcServer;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,24 +28,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.io.UncheckedIOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
-import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -75,6 +62,8 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 @OpenTelemetryIntegrationTest
 @ExtendWith(OpenTelemetryExtension.class)
 public class TracingIntegrationTests {
+
+    static OtlpGrpcServer grpcServer;
 
     String[] contractNegotiationSpanNames = new String[] {
             "ConsumerContractNegotiationManagerImpl.initiate",
@@ -118,8 +107,6 @@ public class TracingIntegrationTests {
                     "edc.samples.04.asset.path", PROVIDER_ASSET_PATH,
                     "ids.webhook.address", PROVIDER_IDS_API));
 
-    static OtlpGrpcServer grpcServer;
-
     @BeforeAll
     static void startGrpcServer() {
         grpcServer = new OtlpGrpcServer();
@@ -162,6 +149,14 @@ public class TracingIntegrationTests {
                     List<Span> contractNegotiationSpans = getSpans(spans, Arrays.stream(contractNegotiationSpanNames));
                     List<Span> transferProcessSpans = getSpans(spans, Arrays.stream(transferProcessSpanNames));
 
+                    for (Span span: contractNegotiationSpans) {
+                        System.out.println(span.getName() + " " + span.getTraceId());
+                    }
+
+                    System.out.println(" ");
+                    for (Span span: transferProcessSpans) {
+                        System.out.println(span.getName() + " " + span.getTraceId());
+                    }
                     // Assert that spans are part of the right trace.
                     assertSpansHaveSameTrace(contractNegotiationSpans);
                     assertSpansHaveSameTrace(transferProcessSpans);
@@ -174,7 +169,7 @@ public class TracingIntegrationTests {
     }
 
     private void assertSpansHaveSameTrace(List<Span> spans) {
-        assertThat(spans.stream().map(s -> s.getTraceId().toStringUtf8()))
+        assertThat(spans.stream().map(s -> s.getTraceId().toStringUtf8()).distinct())
                 .withFailMessage(() -> "Spans from the same trace should have the same traceId.")
                 .singleElement();
     }
@@ -185,35 +180,5 @@ public class TracingIntegrationTests {
                 .withFailMessage(format("Span %s is missing", name))
                 .isPresent();
         return span.get();
-    }
-
-    // Class modeled on https://github.com/open-telemetry/opentelemetry-java/blob/338966e4786c027afdffa29ea9cc233ea0360409/integration-tests/otlp/src/main/java/io/opentelemetry/integrationtest/OtlpExporterIntegrationTest.java
-    private static class OtlpGrpcServer extends ServerExtension {
-
-        private final List<ExportTraceServiceRequest> traceRequests = new ArrayList<>();
-
-        private void reset() {
-            traceRequests.clear();
-        }
-
-        @Override
-        protected void configure(ServerBuilder sb) {
-            sb.http(4317); // Default GRPC port https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#otlp-exporter-both-span-and-metric-exporters
-
-            sb.service(
-                    "/opentelemetry.proto.collector.trace.v1.TraceService/Export",
-                    new AbstractUnaryGrpcService() {
-                        @Override
-                        protected @NotNull CompletionStage<byte[]> handleMessage(
-                                @NotNull ServiceRequestContext ctx, byte @NotNull [] message) {
-                            try {
-                                traceRequests.add(ExportTraceServiceRequest.parseFrom(message));
-                            } catch (InvalidProtocolBufferException e) {
-                                throw new UncheckedIOException(e);
-                            }
-                            return completedFuture(ExportTraceServiceResponse.getDefaultInstance().toByteArray());
-                        }
-                    });
-        }
     }
 }

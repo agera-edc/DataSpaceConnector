@@ -131,6 +131,7 @@ include(":extensions:data-plane:integration-tests")
 include(":extensions:sql:common")
 include(":extensions:sql:pool:apache-commons-pool")
 include(":extensions:http-receiver")
+include(":extensions:opentelemetry")
 
 // modules for launchers, i.e. runnable compositions of the app
 include(":launchers:basic")
@@ -196,4 +197,3 @@ include(":system-tests:e2e-transfer-test:data-plane")
 include(":system-tests:runtimes:file-transfer-provider")
 include(":system-tests:runtimes:file-transfer-consumer")
 include(":system-tests:tests")
-include("extensions:opentelemetry")
