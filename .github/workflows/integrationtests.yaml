@@ -40,6 +40,7 @@ jobs:
 
   Azure-CosmosDB-Integration-Test:
     # run only if COSMOS_KEY is present
+    needs: [ Check-Cosmos-Key ]
     if: needs.Check-Cosmos-Key.outputs.has-cosmos-key == 'true'
     runs-on: ubuntu-latest
 
