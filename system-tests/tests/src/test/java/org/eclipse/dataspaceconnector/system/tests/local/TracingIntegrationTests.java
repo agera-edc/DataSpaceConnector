@@ -16,7 +16,6 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.proto.trace.v1.Span;
-import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.eclipse.dataspaceconnector.opentelemetry.OpenTelemetryIntegrationTest;
 import org.eclipse.dataspaceconnector.opentelemetry.OtlpGrpcServer;
@@ -26,7 +25,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -34,7 +32,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -43,25 +40,11 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.API_KEY_CONTROL_AUTH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_CONNECTOR_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_CONNECTOR_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_IDS_API;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_IDS_API_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_MANAGEMENT_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_MANAGEMENT_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_ASSET_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_CONNECTOR_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_CONNECTOR_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_IDS_API;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_IDS_API_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_MANAGEMENT_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 
 @OpenTelemetryIntegrationTest
 @ExtendWith(OpenTelemetryExtension.class)
-public class TracingIntegrationTests {
+public class TracingIntegrationTests extends FileTransferEdcRuntime {
 
     static OtlpGrpcServer grpcServer;
 
@@ -77,35 +60,6 @@ public class TracingIntegrationTests {
             "TransferProcessManagerImpl.processProvisioned",
             "TransferProcessManagerImpl.initiateProviderRequest"
     };
-
-    @RegisterExtension
-    static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
-            ":system-tests:runtimes:file-transfer-consumer",
-            "consumer",
-            Map.of(
-                    "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
-                    "web.http.path", CONSUMER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT),
-                    "web.http.data.path", CONSUMER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
-                    "edc.api.control.auth.apikey.value", API_KEY_CONTROL_AUTH,
-                    "ids.webhook.address", CONSUMER_IDS_API));
-
-    @RegisterExtension
-    static EdcRuntimeExtension provider = new EdcRuntimeExtension(
-            ":system-tests:runtimes:file-transfer-provider",
-            "provider",
-            Map.of(
-                    "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
-                    "edc.test.asset.path", PROVIDER_ASSET_PATH,
-                    "web.http.path", PROVIDER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT),
-                    "web.http.data.path", PROVIDER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
-                    "edc.samples.04.asset.path", PROVIDER_ASSET_PATH,
-                    "ids.webhook.address", PROVIDER_IDS_API));
 
     @BeforeAll
     static void startGrpcServer() {
