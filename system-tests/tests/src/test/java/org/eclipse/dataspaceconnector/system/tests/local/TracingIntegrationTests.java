@@ -133,6 +133,6 @@ public class TracingIntegrationTests extends FileTransferEdcRuntime {
         assertThat(span)
                 .withFailMessage(format("Span %s is missing", name))
                 .isPresent();
-        return span.get();
+        return span.orElseThrow();
     }
 }
