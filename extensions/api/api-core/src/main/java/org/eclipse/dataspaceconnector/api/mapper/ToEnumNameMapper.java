@@ -1,4 +1,4 @@
-package org.eclipse.dataspaceconnector.api.transformer;
+package org.eclipse.dataspaceconnector.api.mapper;
 
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
 import org.jetbrains.annotations.NotNull;

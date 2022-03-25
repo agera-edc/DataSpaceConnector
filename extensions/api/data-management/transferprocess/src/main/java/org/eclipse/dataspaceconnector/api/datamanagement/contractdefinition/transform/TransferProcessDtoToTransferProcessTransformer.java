@@ -14,10 +14,9 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.transform;
 
 import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
+import org.eclipse.dataspaceconnector.api.mapper.StringToEnumMapper;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
-import org.eclipse.dataspaceconnector.common.string.StringUtils;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
-import org.eclipse.dataspaceconnector.spi.transformer.TypeTransformer;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
@@ -28,10 +27,10 @@ import java.util.Objects;
 
 public class TransferProcessDtoToTransferProcessTransformer implements DtoTransformer<TransferProcessDto, TransferProcess> {
 
-    private final TypeTransformer<String, TransferProcess.Type> typeEnumTransformer =
-            new StringToEnumTransformer<>(TransferProcess.Type.class, "TransferProcess.type");
-    private final TypeTransformer<String, TransferProcessStates> stateEnumTransformer =
-            new StringToEnumTransformer<>(TransferProcessStates.class, "TransferProcess.state");
+    private final StringToEnumMapper<TransferProcess.Type> typeMapper =
+            new StringToEnumMapper<>(TransferProcess.Type.class, "TransferProcess.type");
+    private final StringToEnumMapper<TransferProcessStates> stateMapper =
+            new StringToEnumMapper<>(TransferProcessStates.class, "TransferProcess.state");
 
     @Override
     public Class<TransferProcessDto> getInputType() {
@@ -57,44 +56,10 @@ public class TransferProcessDtoToTransferProcessTransformer implements DtoTransf
 
         return TransferProcess.Builder.newInstance()
                 .id(object.getId())
-                .type(typeEnumTransformer.transform(object.getType(), context))
-                .state(Objects.requireNonNullElse(stateEnumTransformer.transform(object.getState(), context), TransferProcessStates.UNSAVED).code())
+                .type(typeMapper.transform(object.getType(), context))
+                .state(Objects.requireNonNullElse(stateMapper.transform(object.getState(), context), TransferProcessStates.UNSAVED).code())
                 .dataRequest(context.transform(object.getDataRequest(), DataRequest.class))
                 .errorDetail(object.getErrorDetail())
                 .build();
-    }
-
-    static class StringToEnumTransformer<E extends Enum<E>> implements TypeTransformer<String, E> {
-
-        private final Class<E> outputType;
-        private final String fieldName;
-
-        StringToEnumTransformer(Class<E> outputType, String fieldName) {
-            this.outputType = outputType;
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public Class<String> getInputType() {
-            return String.class;
-        }
-
-        @Override
-        public Class<E> getOutputType() {
-            return outputType;
-        }
-
-        @Override
-        public @Nullable E transform(@Nullable String name, @NotNull TransformerContext context) {
-            if (StringUtils.isNullOrBlank(name)) {
-                return null;
-            }
-            try {
-                return Enum.valueOf(outputType, name);
-            } catch (IllegalArgumentException e) {
-                context.reportProblem(String.format("Invalid value for %s", fieldName));
-                return null;
-            }
-        }
     }
 }
