@@ -26,7 +26,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessS
 
 import static org.mockito.Mockito.mock;
 
-class TransferProcessTransformerTestData {
+public class TransferProcessTransformerTestData {
     static Faker faker = new Faker();
 
     DtoTransformerRegistry registry = mock(DtoTransformerRegistry.class);
@@ -41,14 +41,14 @@ class TransferProcessTransformerTestData {
             .build();
     DataRequestDto dataRequestDto = DataRequestDto.Builder.newInstance().build();
 
-    TransferProcess.Builder entity = TransferProcess.Builder.newInstance()
+    public TransferProcess.Builder entity = TransferProcess.Builder.newInstance()
             .id(id)
             .type(type)
             .state(state.code())
             .errorDetail(errorDetail)
             .dataRequest(dataRequest);
 
-    TransferProcessDto.Builder dto = TransferProcessDto.Builder.newInstance()
+    public TransferProcessDto.Builder dto = TransferProcessDto.Builder.newInstance()
             .id(id)
             .type(type.name())
             .state(state.name())

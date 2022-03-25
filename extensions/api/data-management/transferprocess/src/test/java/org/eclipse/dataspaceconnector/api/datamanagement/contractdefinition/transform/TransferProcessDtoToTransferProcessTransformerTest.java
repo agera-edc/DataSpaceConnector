@@ -14,9 +14,8 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.transform;
 
 import com.github.javafaker.Faker;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
 import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
-import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class TransferProcessDtoToTransferProcessTransformerTest {
@@ -37,9 +35,7 @@ class TransferProcessDtoToTransferProcessTransformerTest {
     TransferProcessTransformerTestData data = new TransferProcessTransformerTestData();
     String invalidValue = faker.lorem().word();
 
-    DtoTransformer<DataRequestDto, DataRequest> dataRequestTransformer = mock(DataRequestDtoToDataRequestTransformer.class);
-
-    TransferProcessDtoToTransferProcessTransformer transformer = new TransferProcessDtoToTransferProcessTransformer(dataRequestTransformer);
+    TransferProcessDtoToTransferProcessTransformer transformer = new TransferProcessDtoToTransferProcessTransformer();
     List<String> problems = new ArrayList<>();
 
     @Test
@@ -95,7 +91,7 @@ class TransferProcessDtoToTransferProcessTransformerTest {
     }
 
     void assertThatDtoTransformsToEntity() {
-        when(dataRequestTransformer.transform(data.dataRequestDto, data.context)).thenReturn(data.dataRequest);
+        when(data.registry.transform(data.dataRequestDto, DataRequest.class)).thenReturn(Result.success(data.dataRequest));
 
         var result = transformer.transform(data.dto.build(), data.context);
 

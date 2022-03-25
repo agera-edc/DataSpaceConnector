@@ -15,8 +15,7 @@ package org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.tra
 
 import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
 import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
-import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
-import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.junit.jupiter.api.Test;
@@ -25,15 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class TransferProcessToTransferProcessDtoTransformerTest {
     TransferProcessTransformerTestData data = new TransferProcessTransformerTestData();
 
-    DtoTransformer<DataRequest, DataRequestDto> dataRequestTransformer = mock(DataRequestToDataRequestDtoTransformer.class);
-
-    TransferProcessToTransferProcessDtoTransformer transformer = new TransferProcessToTransferProcessDtoTransformer(dataRequestTransformer);
+    TransferProcessToTransferProcessDtoTransformer transformer = new TransferProcessToTransferProcessDtoTransformer();
     List<String> problems = new ArrayList<>();
 
     @Test
@@ -54,8 +50,7 @@ class TransferProcessToTransferProcessDtoTransformerTest {
     @Test
     void transform_whenInvalidState() {
         var invalidStateCode = 0;
-        while (TransferProcessStates.from(invalidStateCode) != null)
-        {
+        while (TransferProcessStates.from(invalidStateCode) != null) {
             invalidStateCode++;
         }
         data.entity.state(invalidStateCode);
@@ -66,7 +61,7 @@ class TransferProcessToTransferProcessDtoTransformerTest {
     }
 
     void assertThatEntityTransformsToDto() {
-        when(dataRequestTransformer.transform(data.dataRequest, data.context)).thenReturn(data.dataRequestDto);
+        when(data.registry.transform(data.dataRequest, DataRequestDto.class)).thenReturn(Result.success(data.dataRequestDto));
 
         var result = transformer.transform(data.entity.build(), data.context);
 

@@ -18,7 +18,6 @@ import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.mode
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
 import org.eclipse.dataspaceconnector.spi.transformer.TypeTransformer;
-import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.jetbrains.annotations.NotNull;
@@ -29,14 +28,9 @@ import java.util.function.Function;
 
 public class TransferProcessToTransferProcessDtoTransformer implements DtoTransformer<TransferProcess, TransferProcessDto> {
 
-    private final DtoTransformer<DataRequest, DataRequestDto> dataRequestTransformer;
     private final TypeTransformer<Integer, String> typeEnumTransformer =
             new ToEnumNameTransformer<>(
                     new ToEnumTransformer<>(Integer.class, TransferProcessStates.class, TransferProcessStates::from, "TransferProcess.state"));
-
-    public TransferProcessToTransferProcessDtoTransformer(DtoTransformer<DataRequest, DataRequestDto> dataRequestTransformer) {
-        this.dataRequestTransformer = dataRequestTransformer;
-    }
 
     @Override
     public Class<TransferProcess> getInputType() {
@@ -64,7 +58,7 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
                 .type(object.getType().name())
                 .state(typeEnumTransformer.transform(object.getState(), context))
                 .errorDetail(object.getErrorDetail())
-                .dataRequest(dataRequestTransformer.transform(object.getDataRequest(), context))
+                .dataRequest(context.transform(object.getDataRequest(), DataRequestDto.class))
                 .build();
     }
 
