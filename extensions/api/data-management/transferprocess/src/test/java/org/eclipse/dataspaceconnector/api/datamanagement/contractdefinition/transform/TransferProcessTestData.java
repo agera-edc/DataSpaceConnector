@@ -1,0 +1,45 @@
+package org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.transform;
+
+import com.github.javafaker.Faker;
+import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
+import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
+import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistryImpl;
+import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
+import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
+class TransferProcessTestData {
+    static Faker faker = new Faker();
+
+    DtoTransformerRegistry registry = mock(DtoTransformerRegistry.class);
+    TransformerContext context = new DtoTransformerRegistryImpl.DtoTransformerContext(registry);
+    String id = faker.lorem().word();
+    TransferProcess.Type type = faker.options().option(TransferProcess.Type.class);
+    TransferProcessStates state = faker.options().option(TransferProcessStates.class);
+    String errorDetail = faker.lorem().word();
+
+    DataRequest dataRequest = DataRequest.Builder.newInstance()
+            .dataDestination(DataAddress.Builder.newInstance().type(faker.lorem().word()).build())
+            .build();
+    DataRequestDto dataRequestDto = DataRequestDto.Builder.newInstance().build();
+
+    TransferProcess.Builder entity = TransferProcess.Builder.newInstance()
+            .id(id)
+            .type(type)
+            .state(state.code())
+            .errorDetail(errorDetail)
+            .dataRequest(dataRequest);
+
+    TransferProcessDto.Builder dto = TransferProcessDto.Builder.newInstance()
+            .id(id)
+            .type(type.name())
+            .state(state.name())
+            .errorDetail(errorDetail)
+            .dataRequest(dataRequestDto);
+}
