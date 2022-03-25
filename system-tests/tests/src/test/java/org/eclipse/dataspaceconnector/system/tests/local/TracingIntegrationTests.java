@@ -109,14 +109,6 @@ public class TracingIntegrationTests extends FileTransferEdcRuntime {
                     List<Span> contractNegotiationSpans = getSpans(spans, Arrays.stream(contractNegotiationSpanNames));
                     List<Span> transferProcessSpans = getSpans(spans, Arrays.stream(transferProcessSpanNames));
 
-                    for (Span span: contractNegotiationSpans) {
-                        System.out.println(span.getName() + " " + span.getTraceId());
-                    }
-
-                    System.out.println(" ");
-                    for (Span span: transferProcessSpans) {
-                        System.out.println(span.getName() + " " + span.getTraceId());
-                    }
                     // Assert that spans are part of the right trace.
                     assertSpansHaveSameTrace(contractNegotiationSpans);
                     assertSpansHaveSameTrace(transferProcessSpans);
