@@ -31,7 +31,14 @@ import java.util.concurrent.CompletionStage;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-// Class modeled on https://github.com/open-telemetry/opentelemetry-java/blob/338966e4786c027afdffa29ea9cc233ea0360409/integration-tests/otlp/src/main/java/io/opentelemetry/integrationtest/OtlpExporterIntegrationTest.java
+/**
+ * The OtlpGrpcServer is meant to be used to test opentelemetry traces.
+ * This class provides an OtlpGrpcServer to collect the spans when using the OTLP exporter with grpc protocol.
+ * The default trace exporter of the opentelemetry java agent is the OTLP exporter with grpc protocol to export the spans.
+ * The OtlpGrpcServer collects the exporter spans.
+ * This class is modeled on https://github.com/open-telemetry/opentelemetry-java/blob/338966e4786c027afdffa29ea9cc233ea0360409/integration-tests/otlp/src/main/java/io/opentelemetry/integrationtest/OtlpExporterIntegrationTest.java
+ *
+ */
 public class OtlpGrpcServer extends ServerExtension {
 
     public final List<ExportTraceServiceRequest> traceRequests = new ArrayList<>();
