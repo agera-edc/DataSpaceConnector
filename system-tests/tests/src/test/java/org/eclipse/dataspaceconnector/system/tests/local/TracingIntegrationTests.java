@@ -42,6 +42,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 
+/**
+ * The role of this class is to test the opentelemetry traces.
+ * It only works if the opentelemetry java agent is attached.
+ * The default trace exporter used by the java agent is based is the OTLP exporter based on GRPC protocol.
+ * That's why an OtlpGrpcServer is used to collect the traces.
+ */
 @OpenTelemetryIntegrationTest
 @ExtendWith(OpenTelemetryExtension.class)
 public class TracingIntegrationTests extends FileTransferEdcRuntime {
