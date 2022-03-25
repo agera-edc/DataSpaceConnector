@@ -14,8 +14,6 @@
 
 package org.eclipse.dataspaceconnector.opentelemetry;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.server.ServerBuilder;
 import com.linecorp.armeria.server.ServiceRequestContext;
@@ -23,6 +21,7 @@ import com.linecorp.armeria.server.grpc.protocol.AbstractUnaryGrpcService;
 import com.linecorp.armeria.testing.junit5.server.ServerExtension;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
