@@ -16,21 +16,18 @@ package org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.tra
 import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
 import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
+import org.eclipse.dataspaceconnector.api.transformer.ToEnumNameMapper;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
-import org.eclipse.dataspaceconnector.spi.transformer.TypeTransformer;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 public class TransferProcessToTransferProcessDtoTransformer implements DtoTransformer<TransferProcess, TransferProcessDto> {
 
-    private final TypeTransformer<Integer, String> typeEnumTransformer =
-            new ToEnumNameTransformer<>(
-                    new ToEnumTransformer<>(Integer.class, TransferProcessStates.class, TransferProcessStates::from, "TransferProcess.state"));
+    private final ToEnumNameMapper<Integer> typeEnumTransformer = new ToEnumNameMapper<>(TransferProcessStates::from, "TransferProcess.state");
 
     @Override
     public Class<TransferProcess> getInputType() {
@@ -62,68 +59,4 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
                 .build();
     }
 
-    static class ToEnumTransformer<T, E extends Enum<E>> implements TypeTransformer<T, E> {
-
-        private final Class<T> inputType;
-        private final Class<E> outputType;
-        private final Function<T, E> converter;
-        private final String fieldName;
-
-        ToEnumTransformer(Class<T> inputType, Class<E> outputType, Function<T, E> converter, String fieldName) {
-            this.inputType = inputType;
-            this.outputType = outputType;
-            this.converter = converter;
-            this.fieldName = fieldName;
-        }
-
-        @Override
-        public Class<T> getInputType() {
-            return inputType;
-        }
-
-        @Override
-        public Class<E> getOutputType() {
-            return outputType;
-        }
-
-        @Override
-        public @Nullable E transform(@Nullable T value, @NotNull TransformerContext context) {
-            if (value == null) {
-                return null;
-            }
-            E result = converter.apply(value);
-            if (result == null) {
-                context.reportProblem(String.format("Invalid value for %s", fieldName));
-            }
-            return result;
-        }
-    }
-
-    static class ToEnumNameTransformer<T> implements TypeTransformer<T, String> {
-
-        private final ToEnumTransformer<T, ?> delegate;
-
-        ToEnumNameTransformer(ToEnumTransformer<T, ?> delegate) {
-            this.delegate = delegate;
-        }
-
-        @Override
-        public Class<T> getInputType() {
-            return delegate.getInputType();
-        }
-
-        @Override
-        public Class<String> getOutputType() {
-            return String.class;
-        }
-
-        @Override
-        public @Nullable String transform(@Nullable T value, @NotNull TransformerContext context) {
-            var result = delegate.transform(value, context);
-            if (result == null) {
-                return null;
-            }
-            return result.name();
-        }
-    }
 }
