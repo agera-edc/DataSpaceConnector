@@ -34,7 +34,7 @@ import static org.mockito.Mockito.when;
 class TransferProcessDtoToTransferProcessTransformerTest {
     static Faker faker = new Faker();
 
-    TransferProcessTestData data = new TransferProcessTestData();
+    TransferProcessTransformerTestData data = new TransferProcessTransformerTestData();
     String invalidValue = faker.lorem().word();
 
     DtoTransformer<DataRequestDto, DataRequest> dataRequestTransformer = mock(DataRequestDtoToDataRequestTransformer.class);

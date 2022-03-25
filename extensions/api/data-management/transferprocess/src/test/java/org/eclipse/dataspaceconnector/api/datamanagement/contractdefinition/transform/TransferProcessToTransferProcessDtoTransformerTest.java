@@ -18,6 +18,7 @@ import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.mode
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class TransferProcessToTransferProcessDtoTransformerTest {
-    TransferProcessTestData data = new TransferProcessTestData();
+    TransferProcessTransformerTestData data = new TransferProcessTransformerTestData();
 
     DtoTransformer<DataRequest, DataRequestDto> dataRequestTransformer = mock(DataRequestToDataRequestDtoTransformer.class);
 
@@ -47,6 +48,20 @@ class TransferProcessToTransferProcessDtoTransformerTest {
 
     @Test
     void transform() {
+        assertThatEntityTransformsToDto();
+    }
+
+    @Test
+    void transform_whenInvalidState() {
+        var invalidStateCode = 0;
+        while (TransferProcessStates.from(invalidStateCode) != null)
+        {
+            invalidStateCode++;
+        }
+        data.entity.state(invalidStateCode);
+        data.dto.state(null);
+        problems.add("Invalid value for TransferProcess.state");
+
         assertThatEntityTransformsToDto();
     }
 

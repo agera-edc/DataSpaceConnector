@@ -26,7 +26,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessS
 
 import static org.mockito.Mockito.mock;
 
-class TransferProcessTestData {
+class TransferProcessTransformerTestData {
     static Faker faker = new Faker();
 
     DtoTransformerRegistry registry = mock(DtoTransformerRegistry.class);
