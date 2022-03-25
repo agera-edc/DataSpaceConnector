@@ -24,10 +24,12 @@ plugins {
 
 dependencies {
     api(project(":spi:transfer-spi"))
+    api(project(":core:transfer"))
     implementation(project(":common:util"))
     implementation(project(":extensions:api:api-core"))
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
     implementation(project(":extensions:api:data-management:api-configuration"))
+    implementation(project(":extensions:transaction:transaction-spi"))
 
     testImplementation(project(":extensions:http"))
     testImplementation(testFixtures(project(":launchers:junit")))
