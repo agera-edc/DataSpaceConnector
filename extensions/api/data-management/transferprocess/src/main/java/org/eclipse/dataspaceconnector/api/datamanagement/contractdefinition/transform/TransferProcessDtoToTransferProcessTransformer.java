@@ -37,6 +37,11 @@ public class TransferProcessDtoToTransferProcessTransformer implements DtoTransf
     }
 
     @Override
+    public boolean canHandle(@NotNull Object object, @NotNull Class<?> outputType) {
+        return getInputType().isInstance(object) && getOutputType().equals(outputType);
+    }
+
+    @Override
     public @Nullable TransferProcess transform(@Nullable TransferProcessDto object, @NotNull TransformerContext context) {
         Objects.requireNonNull(context);
         if (object == null) {
