@@ -24,6 +24,7 @@ val armeriaVersion: String by project
 dependencies {
     testFixturesImplementation(project(":spi"))
     testFixturesImplementation(testFixtures(project(":common:util")))
+    testFixturesImplementation(testFixtures(project(":launchers:junit")))
     testFixturesImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
     testFixturesImplementation("com.linecorp.armeria:armeria-grpc-protocol:${armeriaVersion}")
     testFixturesImplementation("com.linecorp.armeria:armeria-junit5:${armeriaVersion}")

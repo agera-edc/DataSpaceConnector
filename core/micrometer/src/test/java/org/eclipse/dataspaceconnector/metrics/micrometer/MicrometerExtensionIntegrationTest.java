@@ -20,14 +20,11 @@ import okhttp3.Response;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.eclipse.dataspaceconnector.opentelemetry.OpenTelemetryIntegrationTest;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
