@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.opentelemetry;
 
+import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,5 +30,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Tag("OpenTelemetryIntegrationTest")
+@IntegrationTest
 public @interface OpenTelemetryIntegrationTest {
 }
