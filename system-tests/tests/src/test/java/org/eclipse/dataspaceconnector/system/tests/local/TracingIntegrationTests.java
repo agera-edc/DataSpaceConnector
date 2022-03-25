@@ -16,7 +16,6 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.proto.trace.v1.Span;
-import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.eclipse.dataspaceconnector.opentelemetry.OpenTelemetryIntegrationTest;
 import org.eclipse.dataspaceconnector.opentelemetry.OtlpGrpcServer;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
@@ -24,7 +23,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
