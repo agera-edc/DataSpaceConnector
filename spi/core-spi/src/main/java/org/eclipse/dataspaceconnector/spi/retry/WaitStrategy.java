@@ -7,11 +7,16 @@ public interface WaitStrategy {
      */
     long waitForMillis();
 
-
     /**
      * Marks the iteration as successful.
      */
     default void success() {
+    }
+
+    /**
+     * Marks the iteration as successful.
+     */
+    default void failures(int number) {
     }
 
     /**

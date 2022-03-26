@@ -25,6 +25,7 @@ import org.eclipse.dataspaceconnector.spi.command.CommandRunner;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.response.ResponseStatus;
+import org.eclipse.dataspaceconnector.spi.retry.ExponentialWaitStrategy;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
@@ -86,10 +87,6 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
  */
 public class TransferProcessManagerImpl implements TransferProcessManager {
 
-    private int retryLimit = 7;
-    private long successWaitPeriodMillis = 100;
-    private Clock clock = Clock.systemUTC();
-
     private int batchSize = 5;
     private WaitStrategy waitStrategy = () -> 5000L;  // default wait five seconds
     private ResourceManifestGenerator manifestGenerator;
@@ -107,6 +104,9 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
     private Monitor monitor;
     private Telemetry telemetry;
     private StateMachine stateMachine;
+    private int sendRetryLimit = 7;
+    private long sendRetryBaseDelay = 100L;
+    private Clock clock = Clock.systemUTC();
 
     private TransferProcessManagerImpl() {
     }
@@ -245,7 +245,9 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
         if (CONSUMER == process.getType()) {
             int retryCount = process.getStateCount() - 1;
             if (retryCount > 0) {
-                var waitMillis = (1L << retryCount) * successWaitPeriodMillis;
+                var delayStrategy = new ExponentialWaitStrategy(sendRetryBaseDelay);
+                delayStrategy.failures(retryCount);
+                var waitMillis = delayStrategy.waitForMillis();
                 long remainingWaitMillis = process.getStateTimestamp() + waitMillis - clock.millis();
                 if (remainingWaitMillis > 0) {
                     monitor.debug(format("Process %s transfer retry #%d will not be attempted before %d ms.", process.getId(), retryCount, remainingWaitMillis));
@@ -255,7 +257,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
                     return false;
                 }
-                monitor.debug(format("Process %s transfer retry #%d of %d.", process.getId(), retryCount, retryLimit));
+                monitor.debug(format("Process %s transfer retry #%d of %d.", process.getId(), retryCount, sendRetryLimit));
             }
             sendConsumerRequest(process, dataRequest);
             return true;
@@ -464,7 +466,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             observable.invokeForEach(l -> l.inProgress(process));
         } else {
             if (ResponseStatus.ERROR_RETRY == response.getFailure().status()) {
-                monitor.severe(format("Rrror processing transfer request: %s. Error details: %s", process.getId(), String.join(", ", response.getFailureMessages())));
+                monitor.severe(format("Error processing transfer request: %s. Error details: %s", process.getId(), String.join(", ", response.getFailureMessages())));
                 process.transitionProvisioned();
                 transferProcessStore.update(process);
                 observable.invokeForEach(l -> l.provisioned(process));
@@ -501,7 +503,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
     private void sendCustomerRequestFailure(String transferProcessId, Throwable e) {
         TransferProcess transferProcess = getTransferProcess(transferProcessId);
-        if (transferProcess.getStateCount() > retryLimit) {
+        if (transferProcess.getStateCount() > sendRetryLimit) {
             transitionToError(transferProcessId, e, "Retry limit exceeded");
             return;
         }
@@ -539,6 +541,21 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
 
         public Builder batchSize(int size) {
             manager.batchSize = size;
+            return this;
+        }
+
+        public Builder sendRetryLimit(int sendRetryLimit) {
+            manager.sendRetryLimit = sendRetryLimit;
+            return this;
+        }
+
+        public Builder sendRetryBaseDelay(long sendRetryBaseDelay) {
+            manager.sendRetryBaseDelay = sendRetryBaseDelay;
+            return this;
+        }
+
+        public Builder clock(Clock clock) {
+            manager.clock = clock;
             return this;
         }
 

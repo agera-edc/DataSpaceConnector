@@ -86,7 +86,7 @@ import static org.mockito.Mockito.when;
 class TransferProcessManagerImplTest {
 
     private static final String DESTINATION_TYPE = "test-type";
-    private static final long TIMEOUT = 5;
+    private static final long TIMEOUT = 10;
     private static final int TRANSFER_MANAGER_BATCHSIZE = 10;
     private final ProvisionManager provisionManager = mock(ProvisionManager.class);
     private final RemoteMessageDispatcherRegistry dispatcherRegistry = mock(RemoteMessageDispatcherRegistry.class);
@@ -209,9 +209,9 @@ class TransferProcessManagerImplTest {
     }
 
     @Test
-    void requesting_shouldTransitionToRequestedThenToInProgress() throws InterruptedException {
+    void requesting_shouldTransitionToRequested() throws InterruptedException {
         var process = createTransferProcess(REQUESTING);
-        var latch = countDownOnUpdateLatch(2);
+        var latch = countDownOnUpdateLatch(1);
         when(dispatcherRegistry.send(eq(Object.class), any(), any())).thenReturn(completedFuture("any"));
         when(store.nextForState(eq(REQUESTING.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
         when(store.find(process.getId())).thenReturn(process, process.toBuilder().state(REQUESTED.code()).build());
@@ -220,7 +220,6 @@ class TransferProcessManagerImplTest {
 
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
         verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTED.code()));
-        verify(store, times(1)).update(argThat(p -> p.getState() == IN_PROGRESS.code()));
     }
 
     @Test
