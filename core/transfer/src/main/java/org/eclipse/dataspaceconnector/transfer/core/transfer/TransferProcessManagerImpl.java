@@ -26,6 +26,7 @@ import org.eclipse.dataspaceconnector.spi.command.CommandRunner;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.response.ResponseStatus;
+import org.eclipse.dataspaceconnector.spi.retry.ExponentialWaitStrategy;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
@@ -49,6 +50,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.command.TransferProcessCommand;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -107,6 +109,9 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     private Telemetry telemetry;
     private ExecutorInstrumentation executorInstrumentation;
     private StateMachine stateMachine;
+    private int sendRetryLimit = 7;
+    private long sendRetryBaseDelay = 100L;
+    private Clock clock = Clock.systemUTC();
 
     private TransferProcessManagerImpl() {
     }
@@ -291,8 +296,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     private boolean processRequesting(TransferProcess process) {
         var dataRequest = process.getDataRequest();
         if (CONSUMER == process.getType()) {
-            sendConsumerRequest(process, dataRequest);
-            return true;
+            return processConsumerRequest(process, dataRequest);
         } else {
             // should never happen: a provider transfer cannot be REQUESTING
             return false;
@@ -467,40 +471,77 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
         }
     }
 
+    private boolean processConsumerRequest(TransferProcess process, DataRequest dataRequest) {
+        int retryCount = process.getStateCount() - 1;
+        if (retryCount > 0) {
+            var delayStrategy = new ExponentialWaitStrategy(sendRetryBaseDelay);
+            delayStrategy.failures(retryCount);
+            var waitMillis = delayStrategy.retryInMillis();
+            long remainingWaitMillis = process.getStateTimestamp() + waitMillis - clock.millis();
+            if (remainingWaitMillis > 0) {
+                monitor.debug(format("Process %s transfer retry #%d will not be attempted before %d ms.", process.getId(), retryCount, remainingWaitMillis));
+
+                // Break lease
+                transferProcessStore.update(process);
+
+                return false;
+            }
+            monitor.debug(format("Process %s transfer retry #%d of %d.", process.getId(), retryCount, sendRetryLimit));
+        }
+        sendConsumerRequest(process, dataRequest);
+        return true;
+    }
+
     private void sendConsumerRequest(TransferProcess process, DataRequest dataRequest) {
+        String id = process.getId();
+        monitor.debug(format("TransferProcessManager: Sending process %s request to %s", process.getId(), dataRequest.getConnectorAddress()));
         dispatcherRegistry.send(Object.class, dataRequest, process::getId)
                 .thenApply(result -> {
-                    var transferProcess = transferProcessStore.find(process.getId());
-
-                    if (transferProcess == null) {
-                        monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", process.getId()));
-                        throw new EdcException(format("TransferProcess %s not found", process.getId()));
-                    }
-
-                    transferProcess.transitionRequested();
-                    transferProcessStore.update(transferProcess);
-                    observable.invokeForEach(l -> l.preRequested(transferProcess));
+                    sendConsumerRequestSuccess(id);
                     return result;
                 })
-                .whenComplete((o, throwable) -> {
-                    if (throwable == null) {
-                        monitor.info("Object received: " + o);
-                        var transferProcess = transferProcessStore.find(process.getId());
-
-                        if (transferProcess == null) {
-                            monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", process.getId()));
-                            return;
-                        }
-
-                        transferProcess.transitionInProgressOrStreaming();
-                        updateTransferProcess(transferProcess, l -> l.preInProgress(transferProcess));
-                    }
+                .exceptionally(e -> {
+                    sendCustomerRequestFailure(id, e);
+                    return e;
                 });
+    }
+
+    private void sendConsumerRequestSuccess(String transferProcessId) {
+        var transferProcess = getTransferProcess(transferProcessId);
+        transferProcess.transitionRequested();
+        updateTransferProcess(transferProcess, l -> l.preRequested(transferProcess));
+        monitor.debug("TransferProcessManager: Process " + transferProcessId + " is now " + TransferProcessStates.from(transferProcess.getState()));
+    }
+
+    private void sendCustomerRequestFailure(String transferProcessId, Throwable e) {
+        TransferProcess transferProcess = getTransferProcess(transferProcessId);
+        if (transferProcess.getStateCount() > sendRetryLimit) {
+            transitionToError(transferProcessId, e, "Retry limit exceeded");
+            return;
+        }
+        String message = format("TransferProcessManager: attempt #%d failed to send transfer. TransferProcess %s stays in state %s.",
+                transferProcess.getStateCount(),
+                transferProcess.getId(),
+                TransferProcessStates.from(transferProcess.getState()));
+        monitor.info(message, e);
+        // update state count and timestamp
+        transferProcess.transitionRequesting();
+        transferProcessStore.update(transferProcess);
     }
 
     private void updateTransferProcess(TransferProcess transferProcess, Consumer<TransferProcessListener> observe) {
         observable.invokeForEach(observe);
         transferProcessStore.update(transferProcess);
+    }
+
+    private TransferProcess getTransferProcess(String id) {
+        var transferProcess = transferProcessStore.find(id);
+
+        if (transferProcess == null) {
+            monitor.severe(format("TransferProcessManager: no TransferProcess found with id %s", id));
+            throw new EdcException(format("TransferProcess %s not found", id));
+        }
+        return transferProcess;
     }
 
     public static class Builder {
@@ -518,6 +559,21 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
 
         public Builder batchSize(int size) {
             manager.batchSize = size;
+            return this;
+        }
+
+        public Builder sendRetryLimit(int sendRetryLimit) {
+            manager.sendRetryLimit = sendRetryLimit;
+            return this;
+        }
+
+        public Builder sendRetryBaseDelay(long sendRetryBaseDelay) {
+            manager.sendRetryBaseDelay = sendRetryBaseDelay;
+            return this;
+        }
+
+        public Builder clock(Clock clock) {
+            manager.clock = clock;
             return this;
         }
 
