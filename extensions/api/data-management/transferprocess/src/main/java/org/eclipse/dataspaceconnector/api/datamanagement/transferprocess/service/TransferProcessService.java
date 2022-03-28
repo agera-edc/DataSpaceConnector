@@ -19,28 +19,52 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 
 import java.util.Collection;
 
+/**
+ * Mediates access to and modification of {@link TransferProcess}es.
+ */
 public interface TransferProcessService {
 
     /**
-     * Returns an transferProcess by its id
+     * Returns a transferProcess by its id.
      *
      * @param transferProcessId id of the transferProcess
      * @return the transferProcess, null if it's not found
      */
     TransferProcess findById(String transferProcessId);
 
-
     /**
-     * Query transferProcesss
+     * Query transferProcess.
      *
      * @param query request
-     * @return the collection of transferProcesss that match the query
+     * @return the collection of transferProcesses that match the query
      */
     Collection<TransferProcess> query(QuerySpec query);
 
+    /**
+     * Returns the state of a transferProcess by its id.
+     *
+     * @param transferProcessId id of the transferProcess
+     * @return the transferProcess state name, null if it's not found
+     */
     String getState(String transferProcessId);
 
-    Result cancel(String transferProcessId);
+    /**
+     * Asynchronously requests cancellation of the transfer process.
+     * <p>
+     * The return result status only reflects the successful submission of the command.
+     *
+     * @param transferProcessId id of the transferProcess
+     * @return a result that is successful if the transfer process was found and is in a state that can be canceled
+     */
+    Result<?> cancel(String transferProcessId);
 
-    Result deprovision(String transferProcessId);
+    /**
+     * Asynchronously requests deprovisioning of the transfer process.
+     * <p>
+     * The return result status only reflects the successful submission of the command.
+     *
+     * @param transferProcessId id of the transferProcess
+     * @return a result that is successful if the transfer process was found and is in a state that can be deprovisioned
+     */
+    Result<?> deprovision(String transferProcessId);
 }

@@ -25,7 +25,6 @@ import org.eclipse.dataspaceconnector.transfer.core.command.commands.Deprovision
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.stream.Collectors.toList;
 
@@ -42,95 +41,65 @@ public class TransferProcessServiceImpl implements TransferProcessService {
 
     @Override
     public TransferProcess findById(String transferProcessId) {
-        var result = new AtomicReference<TransferProcess>();
-
-        transactionContext.execute(() -> result.set(findbyIdImpl(transferProcessId)));
-
-        return result.get();
-    }
-
-    private TransferProcess findbyIdImpl(String transferProcessId) {
-        return transferProcessStore.find(transferProcessId);
+        return transactionContext.execute(() -> transferProcessStore.find(transferProcessId));
     }
 
     @Override
     public Collection<TransferProcess> query(QuerySpec query) {
-        var result = new AtomicReference<Collection<TransferProcess>>();
-        transactionContext.execute(() -> result.set(queryImpl(query)));
-        return result.get();
-    }
-
-    private Collection<TransferProcess> queryImpl(QuerySpec query) {
-        return transferProcessStore.findAll(query).collect(toList());
+        return transactionContext.execute(() -> transferProcessStore.findAll(query).collect(toList()));
     }
 
     @Override
     public String getState(String transferProcessId) {
-        var result = new AtomicReference<String>();
-        transactionContext.execute(() -> result.set(getStateImpl(transferProcessId)));
-        return result.get();
-    }
-
-    private String getStateImpl(String transferProcessId) {
-        var process = transferProcessStore.find(transferProcessId);
-        if (process == null) {
-            return null;
-        }
-        return getStateName(process);
+        return transactionContext.execute(() -> {
+            var process = transferProcessStore.find(transferProcessId);
+            if (process == null) {
+                return null;
+            }
+            return getStateName(process);
+        });
     }
 
     @Override
     public Result<?> cancel(String transferProcessId) {
-        var result = new AtomicReference<Result<?>>();
+        return transactionContext.execute(() -> {
+            var transferProcess = transferProcessStore.find(transferProcessId);
 
-        transactionContext.execute(() -> result.set(cancelImpl(transferProcessId)));
+            if (transferProcess == null) {
+                return Result.failure("Not found " + transferProcessId);
+            }
 
-        return result.get();
-    }
+            try {
+                transferProcess.transitionCancelled();
+            } catch (IllegalStateException e) {
+                return Result.failure("Cannot cancel a transfer process in state " + getStateName(transferProcess));
+            }
 
-    private Result<?> cancelImpl(String transferProcessId) {
-        var transferProcess = transferProcessStore.find(transferProcessId);
+            manager.enqueueCommand(new CancelTransferCommand(transferProcessId));
 
-        if (transferProcess == null) {
-            return Result.failure("Not found " + transferProcessId);
-        }
-
-        try {
-            transferProcess.transitionCancelled();
-        } catch (IllegalStateException e) {
-            return Result.failure("Cannot cancel a transfer process in state " + getStateName(transferProcess));
-        }
-
-        manager.enqueueCommand(new CancelTransferCommand(transferProcessId));
-
-        return Result.success();
+            return Result.success();
+        });
     }
 
     @Override
     public Result<?> deprovision(String transferProcessId) {
-        var result = new AtomicReference<Result<?>>();
+        return transactionContext.execute(() -> {
+            var transferProcess = transferProcessStore.find(transferProcessId);
 
-        transactionContext.execute(() -> result.set(deprovisionImpl(transferProcessId)));
+            if (transferProcess == null) {
+                return Result.failure("Not found " + transferProcessId);
+            }
 
-        return result.get();
-    }
+            try {
+                transferProcess.transitionDeprovisioning();
+            } catch (IllegalStateException e) {
+                return Result.failure("Cannot deprovision a transfer process in state " + getStateName(transferProcess));
+            }
 
-    private Result<?> deprovisionImpl(String transferProcessId) {
-        var transferProcess = transferProcessStore.find(transferProcessId);
+            manager.enqueueCommand(new DeprovisionRequest(transferProcessId));
 
-        if (transferProcess == null) {
-            return Result.failure("Not found " + transferProcessId);
-        }
-
-        try {
-            transferProcess.transitionDeprovisioning();
-        } catch (IllegalStateException e) {
-            return Result.failure("Cannot deprovision a transfer process in state " + getStateName(transferProcess));
-        }
-
-        manager.enqueueCommand(new DeprovisionRequest(transferProcessId));
-
-        return Result.success();
+            return Result.success();
+        });
     }
 
     @NotNull

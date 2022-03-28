@@ -71,7 +71,7 @@ class TransferProcessServiceImplTest {
 
     @AfterEach
     void after() {
-        verify(transactionContext).execute(any());
+        verify(transactionContext).execute(any(TransactionContext.ResultTransactionBlock.class));
     }
 
     @Test
