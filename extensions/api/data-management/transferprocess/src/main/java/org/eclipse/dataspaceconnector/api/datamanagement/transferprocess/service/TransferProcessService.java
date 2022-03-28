@@ -11,7 +11,7 @@
  *       Microsoft Corporation - initial API and implementation
  *
  */
-package org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.service;
+package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.service;
 
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.result.Result;
