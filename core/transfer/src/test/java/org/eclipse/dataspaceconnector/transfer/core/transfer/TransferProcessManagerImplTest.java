@@ -15,6 +15,7 @@
 
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
+import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.command.CommandQueue;
 import org.eclipse.dataspaceconnector.spi.command.CommandRunner;
@@ -43,7 +44,10 @@ import org.eclipse.dataspaceconnector.transfer.core.TestResourceDefinition;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -84,6 +88,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class TransferProcessManagerImplTest {
+    static final Faker faker = new Faker();
 
     private static final String DESTINATION_TYPE = "test-type";
     private static final long TIMEOUT = 10;
@@ -94,7 +99,10 @@ class TransferProcessManagerImplTest {
     private final ResourceManifestGenerator manifestGenerator = mock(ResourceManifestGenerator.class);
     private final TransferProcessStore store = mock(TransferProcessStore.class);
     private final DataFlowManager dataFlowManager = mock(DataFlowManager.class);
+    private final Clock clock = mock(Clock.class);
     private TransferProcessManagerImpl manager;
+    private long sendRetryBaseDelay = faker.number().randomNumber();
+    private int sendRetryLimit = faker.number().numberBetween(5, 10);
 
     @BeforeEach
     void setup() {
@@ -112,6 +120,9 @@ class TransferProcessManagerImplTest {
                 .statusCheckerRegistry(statusCheckerRegistry)
                 .observable(mock(TransferProcessObservable.class))
                 .store(store)
+                .sendRetryBaseDelay(sendRetryBaseDelay)
+                .sendRetryLimit(sendRetryLimit)
+                .clock(clock)
                 .build();
     }
 
@@ -214,12 +225,83 @@ class TransferProcessManagerImplTest {
         var latch = countDownOnUpdateLatch(1);
         when(dispatcherRegistry.send(eq(Object.class), any(), any())).thenReturn(completedFuture("any"));
         when(store.nextForState(eq(REQUESTING.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
-        when(store.find(process.getId())).thenReturn(process, process.toBuilder().state(REQUESTED.code()).build());
+        when(store.find(process.getId())).thenReturn(process, process.toBuilder().state(REQUESTING.code()).build());
 
         manager.start();
 
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
         verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTED.code()));
+    }
+
+    @Test
+    void requesting_OnFailure_updatesStateCountForRetry() throws InterruptedException {
+        var process = createTransferProcess(REQUESTING);
+        var latch = countDownOnUpdateLatch(1);
+        when(dispatcherRegistry.send(eq(Object.class), any(), any())).thenReturn(failedFuture(new EdcException("send failed")));
+        when(store.nextForState(eq(REQUESTING.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
+        when(store.find(process.getId())).thenReturn(process, process.toBuilder().state(REQUESTING.code()).build());
+
+        manager.start();
+
+        assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
+        verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTING.code()));
+    }
+
+    @Test
+    void requesting_OnPreviousFailure_delaysWithExponentialRetry() throws InterruptedException {
+        var stateCount = 2;
+        var stateTimestamp = faker.number().randomNumber();
+        var process = TransferProcess.Builder.newInstance()
+                .type(TransferProcess.Type.CONSUMER)
+                .state(REQUESTING.code())
+                .id("s")
+                .stateCount(stateCount)
+                .stateTimestamp(stateTimestamp)
+                .build();
+        when(clock.millis()).thenReturn((long) (stateTimestamp + Math.pow(2, stateCount - 1) * sendRetryBaseDelay) - 1);
+        var latch = countDownOnUpdateLatch(1);
+        when(store.nextForState(eq(REQUESTING.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
+        when(store.find(process.getId())).thenReturn(process, process.toBuilder().state(REQUESTING.code()).build());
+
+        manager.start();
+
+        assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
+        verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTING.code()));
+        verifyNoInteractions(dispatcherRegistry);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void requesting_OnPreviousFailure_delaysWithExponentialRetry2(boolean beforeTimeout) throws InterruptedException {
+        var stateCount = 2;
+        var stateTimestamp = faker.number().randomNumber();
+        var process = TransferProcess.Builder.newInstance()
+                .type(TransferProcess.Type.CONSUMER)
+                .state(REQUESTING.code())
+                .id("s")
+                .stateCount(stateCount)
+                .stateTimestamp(stateTimestamp)
+                .dataRequest(DataRequest.Builder.newInstance().destinationType(DESTINATION_TYPE).build())
+                .build();
+        // set clock either just before timeout or just at timeout
+        var delay = beforeTimeout ? -1 : 0;
+        when(clock.millis()).thenReturn((long) (stateTimestamp + Math.pow(2, stateCount - 1) * sendRetryBaseDelay) + delay);
+        var latch = countDownOnUpdateLatch(1);
+        when(dispatcherRegistry.send(eq(Object.class), any(), any())).thenReturn(completedFuture("any"));
+        when(store.nextForState(eq(REQUESTING.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
+        when(store.find(process.getId())).thenReturn(process, process.toBuilder().state(REQUESTING.code()).build());
+
+        manager.start();
+
+        assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
+        if (beforeTimeout)
+        {
+            verifyNoInteractions(dispatcherRegistry);
+            verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTING.code()));
+        }
+        else {
+            verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTED.code()));
+        }
     }
 
     @Test

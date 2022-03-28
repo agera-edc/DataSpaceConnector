@@ -247,7 +247,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager {
             if (retryCount > 0) {
                 var delayStrategy = new ExponentialWaitStrategy(sendRetryBaseDelay);
                 delayStrategy.failures(retryCount);
-                var waitMillis = delayStrategy.waitForMillis();
+                var waitMillis = delayStrategy.retryInMillis();
                 long remainingWaitMillis = process.getStateTimestamp() + waitMillis - clock.millis();
                 if (remainingWaitMillis > 0) {
                     monitor.debug(format("Process %s transfer retry #%d will not be attempted before %d ms.", process.getId(), retryCount, remainingWaitMillis));
