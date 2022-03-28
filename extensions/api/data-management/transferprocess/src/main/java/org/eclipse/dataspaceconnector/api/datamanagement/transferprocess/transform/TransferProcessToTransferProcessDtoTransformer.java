@@ -15,7 +15,6 @@ package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transf
 
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.DataRequestDto;
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
-import org.eclipse.dataspaceconnector.api.mapper.ToEnumNameMapper;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
@@ -26,8 +25,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 
 public class TransferProcessToTransferProcessDtoTransformer implements DtoTransformer<TransferProcess, TransferProcessDto> {
-
-    private final ToEnumNameMapper<Integer> stateMapper = new ToEnumNameMapper<>(TransferProcessStates::from, "TransferProcess.state");
 
     @Override
     public Class<TransferProcess> getInputType() {
@@ -48,10 +45,18 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
         return TransferProcessDto.Builder.newInstance()
                 .id(object.getId())
                 .type(object.getType().name())
-                .state(stateMapper.transform(object.getState(), context))
+                .state(getState(object.getState(), context))
                 .errorDetail(object.getErrorDetail())
                 .dataRequest(context.transform(object.getDataRequest(), DataRequestDto.class))
                 .build();
     }
 
+    private String getState(int value, TransformerContext context) {
+        var result = TransferProcessStates.from(value);
+        if (result == null) {
+            context.reportProblem("Invalid value for TransferProcess.state");
+            return null;
+        }
+        return result.name();
+    }
 }
