@@ -63,7 +63,7 @@ Follow the instructions and provide the same information used for registration
 
 Export the public part of the key
 
-```ecma script level 4
+```script
 gpg --armor --output public-key.gpg --export [email addres used to generate key]
 ```
 View the exported key file `public-key.gpg` and ensure that it starts with `-----BEGIN PGP PUBLIC KEY BLOCK-----`
