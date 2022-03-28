@@ -14,8 +14,6 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.service;
 
 import com.github.javafaker.Faker;
-import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.service.TransferProcessService;
-import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.service.TransferProcessServiceImpl;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.transaction.NoopTransactionContext;
@@ -70,6 +68,7 @@ class TransferProcessServiceImplTest {
     TransferProcessService service = new TransferProcessServiceImpl(store, manager, transactionContext);
 
     @AfterEach
+    @SuppressWarnings("unchecked")
     void after() {
         verify(transactionContext).execute(any(TransactionContext.ResultTransactionBlock.class));
     }
@@ -87,8 +86,7 @@ class TransferProcessServiceImplTest {
 
     @Test
     void query() {
-        var stream = Stream.of(process1, process2);
-        when(store.findAll(query)).thenReturn(stream);
+        when(store.findAll(query)).thenReturn(Stream.of(process1, process2));
         assertThat(service.query(query)).containsExactly(process1, process2);
     }
 

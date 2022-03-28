@@ -69,6 +69,8 @@ public class TransferProcessServiceImpl implements TransferProcessService {
                 return Result.failure("Not found " + transferProcessId);
             }
 
+            // Attempt the transition only to verify that the transition is allowed.
+            // The updated transfer process is not persisted at this point, and is discarded.
             try {
                 transferProcess.transitionCancelled();
             } catch (IllegalStateException e) {
@@ -90,6 +92,8 @@ public class TransferProcessServiceImpl implements TransferProcessService {
                 return Result.failure("Not found " + transferProcessId);
             }
 
+            // Attempt the transition only to verify that the transition is allowed.
+            // The updated transfer process is not persisted at this point, and is discarded.
             try {
                 transferProcess.transitionDeprovisioning();
             } catch (IllegalStateException e) {
