@@ -13,7 +13,7 @@
  */
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform;
 
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.DataRequestDto;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.junit.jupiter.api.Test;
 

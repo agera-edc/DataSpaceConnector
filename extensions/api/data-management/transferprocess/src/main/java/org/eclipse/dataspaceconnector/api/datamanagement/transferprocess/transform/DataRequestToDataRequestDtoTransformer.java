@@ -13,7 +13,7 @@
  */
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform;
 
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.DataRequestDto;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
@@ -32,11 +32,6 @@ public class DataRequestToDataRequestDtoTransformer implements DtoTransformer<Da
     @Override
     public Class<DataRequestDto> getOutputType() {
         return DataRequestDto.class;
-    }
-
-    @Override
-    public boolean canHandle(@NotNull Object object, @NotNull Class<?> outputType) {
-        return getInputType().isInstance(object) && getOutputType().equals(outputType);
     }
 
     @Override

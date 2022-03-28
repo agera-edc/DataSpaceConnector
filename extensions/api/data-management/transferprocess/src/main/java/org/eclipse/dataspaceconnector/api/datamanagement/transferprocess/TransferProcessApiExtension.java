@@ -15,7 +15,7 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess;
 
 import org.eclipse.dataspaceconnector.api.datamanagement.configuration.DataManagementApiConfiguration;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.transform.DataRequestToDataRequestDtoTransformer;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform.DataRequestToDataRequestDtoTransformer;
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform.TransferProcessToTransferProcessDtoTransformer;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
 import org.eclipse.dataspaceconnector.spi.WebService;

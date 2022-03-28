@@ -2,9 +2,7 @@ package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess;
 
 import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.api.datamanagement.configuration.DataManagementApiConfiguration;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.TransferProcessApiController;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.TransferProcessApiExtension;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform.TransferProcessTransformerTestData;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistryImpl;

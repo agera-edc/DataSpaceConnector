@@ -13,8 +13,8 @@
  */
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform;
 
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.DataRequestDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;

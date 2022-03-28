@@ -13,8 +13,8 @@
  */
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform;
 
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.DataRequestDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.api.mapper.ToEnumNameMapper;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
@@ -37,11 +37,6 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
     @Override
     public Class<TransferProcessDto> getOutputType() {
         return TransferProcessDto.class;
-    }
-
-    @Override
-    public boolean canHandle(@NotNull Object object, @NotNull Class<?> outputType) {
-        return getInputType().isInstance(object) && getOutputType().equals(outputType);
     }
 
     @Override

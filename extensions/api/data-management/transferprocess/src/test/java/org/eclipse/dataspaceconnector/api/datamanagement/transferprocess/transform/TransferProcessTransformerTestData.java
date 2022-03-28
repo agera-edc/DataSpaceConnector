@@ -14,8 +14,8 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform;
 
 import com.github.javafaker.Faker;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.DataRequestDto;
-import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.TransferProcessDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.DataRequestDto;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistryImpl;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
