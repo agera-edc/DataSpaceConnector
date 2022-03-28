@@ -56,7 +56,6 @@ class TransferProcessServiceImplTest {
 
     String id = faker.lorem().word();
     TransferProcess process1 = transferProcess();
-
     TransferProcess process2 = transferProcess();
     QuerySpec query = QuerySpec.Builder.newInstance().limit(5).offset(2).build();
     ArgumentCaptor<SingleTransferProcessCommand> commandCaptor = ArgumentCaptor.forClass(SingleTransferProcessCommand.class);

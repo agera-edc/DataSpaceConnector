@@ -23,6 +23,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessS
 import org.eclipse.dataspaceconnector.transfer.core.command.commands.CancelTransferCommand;
 import org.eclipse.dataspaceconnector.transfer.core.command.commands.DeprovisionRequest;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -40,17 +41,17 @@ public class TransferProcessServiceImpl implements TransferProcessService {
     }
 
     @Override
-    public TransferProcess findById(String transferProcessId) {
+    public @Nullable TransferProcess findById(String transferProcessId) {
         return transactionContext.execute(() -> transferProcessStore.find(transferProcessId));
     }
 
     @Override
-    public Collection<TransferProcess> query(QuerySpec query) {
+    public @NotNull Collection<TransferProcess> query(QuerySpec query) {
         return transactionContext.execute(() -> transferProcessStore.findAll(query).collect(toList()));
     }
 
     @Override
-    public String getState(String transferProcessId) {
+    public @Nullable String getState(String transferProcessId) {
         return transactionContext.execute(() -> {
             var process = transferProcessStore.find(transferProcessId);
             if (process == null) {
@@ -61,7 +62,7 @@ public class TransferProcessServiceImpl implements TransferProcessService {
     }
 
     @Override
-    public Result<?> cancel(String transferProcessId) {
+    public @NotNull Result<?> cancel(String transferProcessId) {
         return transactionContext.execute(() -> {
             var transferProcess = transferProcessStore.find(transferProcessId);
 
@@ -84,7 +85,7 @@ public class TransferProcessServiceImpl implements TransferProcessService {
     }
 
     @Override
-    public Result<?> deprovision(String transferProcessId) {
+    public @NotNull Result<?> deprovision(String transferProcessId) {
         return transactionContext.execute(() -> {
             var transferProcess = transferProcessStore.find(transferProcessId);
 

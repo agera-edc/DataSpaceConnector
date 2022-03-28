@@ -16,6 +16,8 @@ package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.servic
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 
@@ -30,6 +32,7 @@ public interface TransferProcessService {
      * @param transferProcessId id of the transferProcess
      * @return the transferProcess, null if it's not found
      */
+    @Nullable
     TransferProcess findById(String transferProcessId);
 
     /**
@@ -38,6 +41,7 @@ public interface TransferProcessService {
      * @param query request
      * @return the collection of transferProcesses that match the query
      */
+    @NotNull
     Collection<TransferProcess> query(QuerySpec query);
 
     /**
@@ -46,6 +50,7 @@ public interface TransferProcessService {
      * @param transferProcessId id of the transferProcess
      * @return the transferProcess state name, null if it's not found
      */
+    @Nullable
     String getState(String transferProcessId);
 
     /**
@@ -56,6 +61,7 @@ public interface TransferProcessService {
      * @param transferProcessId id of the transferProcess
      * @return a result that is successful if the transfer process was found and is in a state that can be canceled
      */
+    @NotNull
     Result<?> cancel(String transferProcessId);
 
     /**
@@ -66,5 +72,6 @@ public interface TransferProcessService {
      * @param transferProcessId id of the transferProcess
      * @return a result that is successful if the transfer process was found and is in a state that can be deprovisioned
      */
+    @NotNull
     Result<?> deprovision(String transferProcessId);
 }
