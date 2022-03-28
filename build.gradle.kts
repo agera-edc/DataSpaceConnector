@@ -181,7 +181,8 @@ allprojects {
 
     tasks.withType<Test> {
         testLogging {
-            events("failed")
+            events("failed", "passed", "started", "skipped")
+            showStandardStreams = true
             showStackTraces = true
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
