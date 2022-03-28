@@ -65,6 +65,10 @@ public class CoreTransferExtension implements ServiceExtension {
 
     @EdcSetting
     private static final String TRANSFER_STATE_MACHINE_BATCH_SIZE = "edc.transfer.state-machine.batch-size";
+    @EdcSetting
+    private static final String TRANSFER_SEND_RETRY_LIMIT = "edc.transfer.send.retry.limit";
+    @EdcSetting
+    private static final String TRANSFER_SEND_RETRY_BASE_DELAY_MS = "edc.transfer.send.retry.base-delay.ms";
 
     @Inject
     private TransferProcessStore transferProcessStore;
@@ -137,6 +141,8 @@ public class CoreTransferExtension implements ServiceExtension {
                 .observable(observable)
                 .store(transferProcessStore)
                 .batchSize(context.getSetting(TRANSFER_STATE_MACHINE_BATCH_SIZE, 5))
+                .sendRetryLimit(context.getSetting(TRANSFER_SEND_RETRY_LIMIT, 7))
+                .sendRetryBaseDelay(context.getSetting(TRANSFER_SEND_RETRY_BASE_DELAY_MS, 100L))
                 .build();
 
         context.registerService(TransferProcessManager.class, processManager);
