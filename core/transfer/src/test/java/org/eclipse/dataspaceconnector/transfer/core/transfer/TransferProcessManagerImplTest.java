@@ -88,7 +88,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class TransferProcessManagerImplTest {
-    static final Faker faker = new Faker();
+    static Faker faker = new Faker();
 
     private static final String DESTINATION_TYPE = "test-type";
     private static final long TIMEOUT = 10;
@@ -294,12 +294,10 @@ class TransferProcessManagerImplTest {
         manager.start();
 
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
-        if (beforeTimeout)
-        {
+        if (beforeTimeout) {
             verifyNoInteractions(dispatcherRegistry);
             verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTING.code()));
-        }
-        else {
+        } else {
             verify(store, times(1)).update(argThat(p -> p.getState() == REQUESTED.code()));
         }
     }
