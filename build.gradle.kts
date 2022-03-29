@@ -251,6 +251,7 @@ if (project.hasProperty("dependency.analysis")) {
                 onAny {
                     severity(project.property("dependency.analysis").toString())
                     exclude(
+                        // reduce noise by excluding jetbrains annotations and jackson dependencies
                         "org.jetbrains:annotations",
                         "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",
                         "com.fasterxml.jackson.core:jackson-core",
