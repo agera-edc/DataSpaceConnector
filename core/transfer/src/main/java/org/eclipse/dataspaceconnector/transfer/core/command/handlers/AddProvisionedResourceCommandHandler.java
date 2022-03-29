@@ -15,7 +15,7 @@ package org.eclipse.dataspaceconnector.transfer.core.command.handlers;
 
 import org.eclipse.dataspaceconnector.spi.command.CommandHandler;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
-import org.eclipse.dataspaceconnector.transfer.core.command.commands.AddProvisionedResourceCommand;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.command.AddProvisionedResourceCommand;
 import org.eclipse.dataspaceconnector.transfer.core.transfer.ProvisionCompletionDelegate;
 
 import java.util.List;

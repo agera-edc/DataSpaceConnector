@@ -12,15 +12,15 @@
  *       Fraunhofer Institute for Software and Systems Engineering - refactored
  *
  */
-package org.eclipse.dataspaceconnector.transfer.core.command.commands;
+package org.eclipse.dataspaceconnector.spi.types.domain.transfer.command;
 
 /**
- * Cancels a transfer process by sending it to the ERROR state
+ * Issues a request to start deprovisioning a transfer process by setting its state to
+ * {@link org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates#DEPROVISIONING DEPROVISIONING}.
  */
-public class CancelTransferCommand extends SingleTransferProcessCommand {
+public class DeprovisionRequest extends SingleTransferProcessCommand {
 
-    public CancelTransferCommand(String transferProcessId) {
+    public DeprovisionRequest(String transferProcessId) {
         super(transferProcessId);
     }
-
 }
