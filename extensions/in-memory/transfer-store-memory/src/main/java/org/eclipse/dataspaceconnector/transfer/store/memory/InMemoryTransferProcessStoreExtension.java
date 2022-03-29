@@ -11,7 +11,6 @@
  *       Microsoft Corporation - initial API and implementation
  *
  */
-
 package org.eclipse.dataspaceconnector.transfer.store.memory;
 
 import org.eclipse.dataspaceconnector.spi.system.Provides;

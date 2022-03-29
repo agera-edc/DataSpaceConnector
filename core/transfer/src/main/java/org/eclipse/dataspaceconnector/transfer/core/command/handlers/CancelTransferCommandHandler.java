@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020-2022 Microsoft Corporation
+ *  Copyright (c) 2020 - 2022 Microsoft Corporation
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -19,7 +19,8 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.eclipse.dataspaceconnector.transfer.core.command.commands.CancelTransferCommand;
 
-public class CancelTransferCommandHandler extends SingleTransferProcessCommandHandler<CancelTransferCommand> {
+public class CancelTransferCommandHandler extends SingleTransferProcessCommandHandler<CancelTransferCommand>
+{
 
     public CancelTransferCommandHandler(TransferProcessStore store) {
         super(store);
