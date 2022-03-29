@@ -12,6 +12,7 @@
  *       Fraunhofer Institute for Software and Systems Engineering - refactored
  *
  */
+
 package org.eclipse.dataspaceconnector.transfer.core.command.commands;
 
 import org.eclipse.dataspaceconnector.spi.command.Command;

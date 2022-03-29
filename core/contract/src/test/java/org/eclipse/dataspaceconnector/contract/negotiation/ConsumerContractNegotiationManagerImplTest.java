@@ -16,6 +16,7 @@
  *       Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
  *
  */
+
 package org.eclipse.dataspaceconnector.contract.negotiation;
 
 import org.eclipse.dataspaceconnector.policy.model.Policy;

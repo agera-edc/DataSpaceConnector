@@ -12,6 +12,7 @@
  *       Fraunhofer Institute for Software and Systems Engineering - refactored
  *
  */
+
 package org.eclipse.dataspaceconnector.spi.command;
 
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;

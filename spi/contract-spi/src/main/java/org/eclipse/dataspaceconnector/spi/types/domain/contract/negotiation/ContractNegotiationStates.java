@@ -13,6 +13,7 @@
  *       Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
  *
  */
+
 package org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation;
 
 import java.util.Arrays;

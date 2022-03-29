@@ -12,6 +12,7 @@
  *       Fraunhofer Institute for Software and Systems Engineering
  *
  */
+
 package org.eclipse.dataspaceconnector.contract.validation;
 
 import org.eclipse.dataspaceconnector.spi.agent.ParticipantAgentService;

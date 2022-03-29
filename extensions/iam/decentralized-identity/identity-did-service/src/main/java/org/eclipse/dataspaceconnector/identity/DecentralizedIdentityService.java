@@ -12,6 +12,7 @@
  *       Fraunhofer Institute for Software and Systems Engineering
  *
  */
+
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jwt.SignedJWT;

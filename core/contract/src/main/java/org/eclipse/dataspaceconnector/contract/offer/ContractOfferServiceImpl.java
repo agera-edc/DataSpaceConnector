@@ -12,6 +12,7 @@
  *       Microsoft Corporation - Refactoring
  *
  */
+
 package org.eclipse.dataspaceconnector.contract.offer;
 
 import org.eclipse.dataspaceconnector.contract.common.ContractId;

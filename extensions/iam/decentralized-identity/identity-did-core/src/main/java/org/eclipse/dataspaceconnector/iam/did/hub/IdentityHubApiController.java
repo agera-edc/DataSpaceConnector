@@ -12,6 +12,7 @@
  *       Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
  *
  */
+
 package org.eclipse.dataspaceconnector.iam.did.hub;
 
 import jakarta.ws.rs.Consumes;

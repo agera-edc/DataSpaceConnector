@@ -12,6 +12,7 @@
  *       Fraunhofer Institute for Software and Systems Engineering
  *
  */
+
 package org.eclipse.dataspaceconnector.spi.system.configuration;
 
 import java.util.Map;
