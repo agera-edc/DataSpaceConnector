@@ -56,7 +56,7 @@ public abstract class DependencyRulesTask extends DefaultTask {
             var pathFromThisModule = project.getProjectDir().toPath().relativize(artifact.getFile().toPath());
 
             if (!dependency.getName().endsWith("-spi") && // modules may only depend on `-spi` modules (exceptions follow)
-                    dependency.getName() != "spi" && // exception: modules may depend on spi module
+                    !dependency.getName().equals("spi") && // exception: modules may depend on spi module
                     !dependency.getName().endsWith("-core") && // exception: modules may depend on technology libs such as "blob-core"
                     !pathFromRoot.startsWith("common/") && // exception: modules may depend on common module
                     !pathFromRoot.startsWith("extensions/http/jetty/") && // exception: modules might depend on `jetty` (this exception should be removed once there is an SPI for jetty)
