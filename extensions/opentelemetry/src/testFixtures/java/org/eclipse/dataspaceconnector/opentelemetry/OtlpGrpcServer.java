@@ -41,6 +41,8 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 public class OtlpGrpcServer extends ServerExtension {
 
     public final List<ExportTraceServiceRequest> traceRequests = new ArrayList<>();
+    // Default GRPC port https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#otlp-exporter-both-span-and-metric-exporters
+    private static final int GRPC_PORT = 4317;
 
     public void reset() {
         traceRequests.clear();
@@ -48,7 +50,7 @@ public class OtlpGrpcServer extends ServerExtension {
 
     @Override
     protected void configure(ServerBuilder sb) {
-        sb.http(4317); // Default GRPC port https://github.com/open-telemetry/opentelemetry-java/blob/main/sdk-extensions/autoconfigure/README.md#otlp-exporter-both-span-and-metric-exporters
+        sb.http(GRPC_PORT);
 
         sb.service(
                 "/opentelemetry.proto.collector.trace.v1.TraceService/Export",
