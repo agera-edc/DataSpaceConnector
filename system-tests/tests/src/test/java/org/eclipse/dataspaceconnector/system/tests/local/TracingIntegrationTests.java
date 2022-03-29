@@ -43,7 +43,7 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 /**
  * The role of this class is to test the opentelemetry traces.
  * It only works if the opentelemetry java agent is attached.
- * The default trace exporter used by the java agent is based is the OTLP exporter based on GRPC protocol.
+ * The default trace exporter used by the java agent is based is the OTLP exporter based on gRPC protocol.
  * That's why an OtlpGrpcServer is used to collect the traces.
  */
 @OpenTelemetryIntegrationTest
