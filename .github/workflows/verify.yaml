@@ -8,20 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # lets run Checkstyle explicitly (as opposed to within gradle) due to better reporting capabilities
-      - name: Run Checkstyle
-        uses: nikitasavinov/checkstyle-action@0.4.0
-        with:
-          checkstyle_config: resources/edc-checkstyle-config.xml
-          level: error
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          tool_name: 'checkstyle-enhanced'
-          checkstyle_version: '9.0'
-          # Filtering does not work on github-check, needs github-pr-check
-          reporter: 'github-pr-check'
-          # Include only violations on added or modified files
-          filter_mode: 'file'
-
       - uses: actions/setup-java@v2
         with:
           java-version: '17'
