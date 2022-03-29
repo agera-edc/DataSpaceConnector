@@ -48,7 +48,7 @@
 
   <module name="RegexpHeader">
     <property name="severity" value="warning"/>
-    <property name="headerFile" value="${base_dir}/resources/java.header"/>
+    <property name="headerFile" value="${base_dir}/resources/java.header" default="/github/workspace/resources/java.header"/>
     <property name="multiLines" value="11"/>
   </module>
 
