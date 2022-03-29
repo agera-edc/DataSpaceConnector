@@ -17,6 +17,9 @@ jobs:
       - name: Set checkstyle properties
         run: echo base_dir=$PWD > checkstyle.properties
 
+      - name: DUMMY
+        run: find $PWD
+
       # lets run Checkstyle explicitly (as opposed to within gradle) due to better reporting capabilities
       - name: Run Checkstyle
         uses: nikitasavinov/checkstyle-action@0.4.0
