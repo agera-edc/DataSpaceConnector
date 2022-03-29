@@ -31,8 +31,8 @@ dependencies {
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":common:util")))
 
-    testRuntimeOnly(project(":extensions:http:jersey-micrometer"))
-    testRuntimeOnly(project(":extensions:http:jetty-micrometer"))
+    testCompileOnly(project(":extensions:http:jersey-micrometer"))
+    testCompileOnly(project(":extensions:http:jetty-micrometer"))
 }
 
 tasks.withType<Test> {
