@@ -14,6 +14,9 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      - name: Set checkstyle properties
+        run: echo base_dir=$PWD > checkstyle.properties
+
       # lets run Checkstyle explicitly (as opposed to within gradle) due to better reporting capabilities
       - name: Run Checkstyle
         uses: nikitasavinov/checkstyle-action@0.4.0
@@ -25,6 +28,7 @@ jobs:
           checkstyle_version: '9.0'
           reporter: 'github-check'
           filter_mode: 'nofilter'
+          properties_file: 'checkstyle.properties'
 
       - name: Gradle Test Core
         env:
