@@ -177,14 +177,15 @@ allprojects {
                 }
             }
         }
+    }
+
+    tasks.withType<Test> {
         testLogging {
-            events("failed", "passed", "started", "skipped")
-            showStandardStreams = true
+            events("failed")
             showStackTraces = true
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
     }
-
     tasks.withType<Checkstyle> {
         reports {
             // lets not generate any reports because that is done from within the Github Actions workflow
