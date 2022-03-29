@@ -11,8 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static org.eclipse.dataspaceconnector.boot.system.ExtensionLoader.loadTelemetry;
-
 public class CustomRuntime extends BaseRuntime {
 
     /**
