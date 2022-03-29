@@ -194,10 +194,10 @@ class CosmosTransferProcessStoreIntegrationTest {
         List<TransferProcess> processesBeforeLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 2);
         assertThat(processesBeforeLeaseBreak).isEmpty();
 
-        await().atMost(Duration.ofSeconds(20)).pollInterval(Duration.ofSeconds(2)).pollDelay(Duration.ofSeconds(5)).untilAsserted( () -> {
-            List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 2);
-            assertThat(processesAfterLeaseBreak).hasSize(1);
-            }
+        await().atMost(Duration.ofSeconds(20)).pollInterval(Duration.ofSeconds(2)).pollDelay(Duration.ofSeconds(5)).untilAsserted(() -> {
+                    List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 2);
+                    assertThat(processesAfterLeaseBreak).hasSize(1);
+                }
         );
     }
 
