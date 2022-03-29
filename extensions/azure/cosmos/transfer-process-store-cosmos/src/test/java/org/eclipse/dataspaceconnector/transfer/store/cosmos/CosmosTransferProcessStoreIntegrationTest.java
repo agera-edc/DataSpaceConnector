@@ -44,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -55,6 +56,7 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.transfer.store.cosmos.TestHelper.createTransferProcess;
 import static org.eclipse.dataspaceconnector.transfer.store.cosmos.TestHelper.createTransferProcessDocument;
 
@@ -156,7 +158,7 @@ class CosmosTransferProcessStoreIntegrationTest {
     }
 
     @Test
-    void nextForState() throws InterruptedException {
+    void nextForState_fetchMaxNewest() throws InterruptedException {
 
         String id1 = UUID.randomUUID().toString();
         var tp = createTransferProcess(id1, TransferProcessStates.UNSAVED);
@@ -181,6 +183,26 @@ class CosmosTransferProcessStoreIntegrationTest {
     }
 
     @Test
+    void nextForState_leaseByAnotherHolderExpired() {
+        String id1 = UUID.randomUUID().toString();
+        var tp = createTransferProcess(id1, TransferProcessStates.UNSAVED);
+        store.create(tp);
+        TransferProcessDocument item = readDocument(id1);
+        item.acquireLease("another-connector", Duration.ofSeconds(5));
+        container.upsertItem(item);
+
+        List<TransferProcess> processesBeforeLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 2);
+        assertThat(processesBeforeLeaseBreak).isEmpty();
+
+        await().atMost(Duration.ofSeconds(20)).pollInterval(Duration.ofSeconds(2)).pollDelay(Duration.ofSeconds(5)).untilAsserted( () -> {
+            List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 2);
+            assertThat(processesAfterLeaseBreak).hasSize(1);
+            }
+        );
+    }
+
+
+    @Test
     void nextForState_shouldOnlyReturnFreeItems() {
         String id1 = "process1";
         var tp = createTransferProcess(id1, TransferProcessStates.UNSAVED);
@@ -193,7 +215,6 @@ class CosmosTransferProcessStoreIntegrationTest {
         TransferProcessDocument item = readDocument(id2);
         item.acquireLease("test-leaser");
         container.upsertItem(item);
-
 
         //act - one should be ignored
         List<TransferProcess> processes = store.nextForState(TransferProcessStates.INITIAL.code(), 5);
