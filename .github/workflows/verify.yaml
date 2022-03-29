@@ -15,7 +15,7 @@ jobs:
           cache: 'gradle'
 
       - name: Set checkstyle properties
-        run: echo base_dir=$PWD > checkstyle.properties
+        run: echo base_dir=/github/workspace > checkstyle.properties
 
       - name: DUMMY
         run: find $PWD
