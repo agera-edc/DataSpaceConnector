@@ -34,7 +34,6 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -102,6 +101,7 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
 
         dataPlaneManager = DataPlaneManagerImpl.Builder.newInstance()
                 .queueCapacity(queueCapacity)
+                .executorInstrumentation(executorInstrumentation)
                 .workers(workers)
                 .waitTimeout(waitTimeout)
                 .pipelineService(pipelineService)
