@@ -251,7 +251,7 @@ if (project.hasProperty("dependency.analysis")) {
                 onAny {
                     severity(project.property("dependency.analysis").toString())
                     exclude(
-                        // reduce noise by excluding jetbrains annotations and jackson dependencies
+                        // dependencies declared at the root level for all modules
                         "org.jetbrains:annotations",
                         "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",
                         "com.fasterxml.jackson.core:jackson-core",
@@ -261,7 +261,7 @@ if (project.hasProperty("dependency.analysis")) {
                 }
                 onUnusedDependencies {
                     exclude(
-                        // test dependencies
+                        // dependencies declared at the root level for all modules
                         "com.github.javafaker:javafaker",
                         "org.assertj:assertj-core",
                         "org.junit.jupiter:junit-jupiter-api",
