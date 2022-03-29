@@ -11,6 +11,7 @@
  *       Bayerische Motoren Werke Aktiengesellschaft (BMW AG)
  *
  */
+
 package org.eclipse.dataspaceconnector.api.control;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;

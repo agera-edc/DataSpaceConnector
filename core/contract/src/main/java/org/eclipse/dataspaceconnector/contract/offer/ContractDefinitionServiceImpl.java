@@ -11,6 +11,7 @@
  *       Daimler TSS GmbH - Initial API and Implementation
  *       Microsoft Corporation - Refactoring
  */
+
 package org.eclipse.dataspaceconnector.contract.offer;
 
 import org.eclipse.dataspaceconnector.spi.agent.ParticipantAgent;

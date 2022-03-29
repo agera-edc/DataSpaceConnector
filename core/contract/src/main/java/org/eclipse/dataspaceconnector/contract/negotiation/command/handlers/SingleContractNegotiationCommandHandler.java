@@ -11,6 +11,7 @@
  *       Fraunhofer Institute for Software and Systems Engineering - initial API and implementation
  *
  */
+
 package org.eclipse.dataspaceconnector.contract.negotiation.command.handlers;
 
 import org.eclipse.dataspaceconnector.contract.negotiation.command.commands.SingleContractNegotiationCommand;

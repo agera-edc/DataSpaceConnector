@@ -11,6 +11,7 @@
  *       Microsoft Corporation - initial API and implementation
  *       Daimler TSS GmbH - verify exceptions are re-thrown
  */
+
 package org.eclipse.dataspaceconnector.transaction.local;
 
 import org.eclipse.dataspaceconnector.spi.EdcException;

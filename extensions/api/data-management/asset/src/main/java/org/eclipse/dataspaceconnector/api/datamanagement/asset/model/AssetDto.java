@@ -11,6 +11,7 @@
  *    ZF Friedrichshafen AG - Initial API and Implementation
  */
 
+
 package org.eclipse.dataspaceconnector.api.datamanagement.asset.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;

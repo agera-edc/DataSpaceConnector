@@ -11,6 +11,7 @@
  *      Catena-X Consortium - initial API and implementation
  *
  */
+
 package org.eclipse.dataspaceconnector.logger;
 
 import com.github.javafaker.Faker;

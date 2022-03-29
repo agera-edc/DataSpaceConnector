@@ -11,6 +11,7 @@
  *       Microsoft Corporation - initial API and implementation
  *       Fraunhofer Institute for Software and Systems Engineering - refactored
  */
+
 package org.eclipse.dataspaceconnector.spi.command;
 
 import org.junit.jupiter.api.BeforeEach;

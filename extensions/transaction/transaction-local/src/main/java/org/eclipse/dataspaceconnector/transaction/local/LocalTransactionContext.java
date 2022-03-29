@@ -11,6 +11,7 @@
  *       Microsoft Corporation - initial API and implementation
  *       Daimler TSS GmbH - wrap and re-throw handled exceptions
  */
+
 package org.eclipse.dataspaceconnector.transaction.local;
 
 import org.eclipse.dataspaceconnector.spi.EdcException;

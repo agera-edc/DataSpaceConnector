@@ -11,6 +11,7 @@
  *       Microsoft Corporation - initial API and implementation
  *
  */
+
 package org.eclipse.dataspaceconnector.transfer.core.command.commands;
 
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.ProvisionResponse;
