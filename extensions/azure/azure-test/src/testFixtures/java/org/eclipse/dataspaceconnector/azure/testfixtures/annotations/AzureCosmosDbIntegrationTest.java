@@ -12,8 +12,9 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.common.annotations;
+package org.eclipse.dataspaceconnector.azure.testfixtures.annotations;
 
+import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Tag;
 
 import java.lang.annotation.ElementType;
@@ -22,11 +23,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Composite annotation for Azure Storage integration testing.It applies specific Junit Tag.
+ * Composite annotation for Azure Cosmos DB integration testing.It applies specific Junit Tag.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @IntegrationTest
-@Tag("AzureStorageIntegrationTest")
-public @interface AzureStorageIntegrationTest {
+@Tag("AzureCosmosDbIntegrationTest")
+public @interface AzureCosmosDbIntegrationTest {
 }
