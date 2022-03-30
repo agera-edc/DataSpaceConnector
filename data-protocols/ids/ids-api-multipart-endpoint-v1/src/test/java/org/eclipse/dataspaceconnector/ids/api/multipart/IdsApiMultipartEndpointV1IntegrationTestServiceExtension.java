@@ -71,6 +71,7 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.emptyList;
 
+@ComponentTest
 @Provides({AssetIndex.class,
         DataAddressResolver.class,
         ContractDefinitionStore.class,
