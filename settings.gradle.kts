@@ -141,7 +141,6 @@ include(":extensions:sql:lease")
 include(":extensions:sql:pool:apache-commons-pool")
 include(":extensions:sql:transfer-process-store")
 include(":extensions:http-receiver")
-include(":extensions:opentelemetry")
 
 // modules for launchers, i.e. runnable compositions of the app
 include(":launchers:basic")
