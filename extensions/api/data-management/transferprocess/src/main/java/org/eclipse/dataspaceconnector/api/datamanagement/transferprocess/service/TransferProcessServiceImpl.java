@@ -107,8 +107,7 @@ public class TransferProcessServiceImpl implements TransferProcessService {
         });
     }
 
-    @NotNull
-    private String getStateName(TransferProcess process) {
+    private @NotNull String getStateName(TransferProcess process) {
         return TransferProcessStates.from(process.getState()).name();
     }
 }
