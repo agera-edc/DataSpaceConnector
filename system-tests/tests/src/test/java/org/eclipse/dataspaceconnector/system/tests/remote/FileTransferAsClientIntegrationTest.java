@@ -23,7 +23,6 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 /**
  * Runs {@see FileTransferAsClientSimulation}.
  */
-@ComponentTest
 public class FileTransferAsClientIntegrationTest {
 
     @Test
