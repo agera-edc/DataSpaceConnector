@@ -179,7 +179,7 @@ allprojects {
         }
 
         testLogging {
-            if (System.getProperty("verboseTest") != null) {
+            if (project.hasProperty("verboseTest")) {
                 events("started", "passed", "skipped", "failed", "standard_out", "standard_error")
             } else {
                 events("failed")

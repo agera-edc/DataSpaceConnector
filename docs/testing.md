@@ -5,7 +5,7 @@
 To run tests verbosely (displaying test events and output and error streams to the console), use the following system property:
 
 ```shell
-./gradlew test -D verboseTest
+./gradlew test -Dorg.gradle.project.verboseTest
 ```
 
 ## Definition and distinction
