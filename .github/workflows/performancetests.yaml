@@ -4,9 +4,7 @@ on:
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:
-  push:
-    branches:
-      - feature/28/60-performance-test-example
+
 jobs:
 
   Performance-Test:
