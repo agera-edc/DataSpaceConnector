@@ -22,7 +22,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for End to End integration testing. When the entire system is involved in a test.
+ * Annotation for End to End integration testing, when the entire system is involved in a test.
  * It applies a specific Junit Tag.
  */
 @Target({ElementType.TYPE})
