@@ -16,9 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.String.format;
@@ -55,12 +53,18 @@ public class BaseRuntime {
     }
 
     /**
-     * Main entry point to runtime initialization. Calls all methods.
+     * Main entry point to runtime initialization. Calls all methods
+     * and sets up a context shutdown hook at runtime shutdown.
      */
     protected void boot() {
         boot(true);
     }
 
+    /**
+     * Main entry point to runtime initialization. Calls all methods.
+     *
+     * @param addShutdownHook if {@code true}, sets up a context shutdown hook at runtime shutdown
+     */
     protected void boot(boolean addShutdownHook) {
         ServiceExtensionContext context = createServiceExtensionContext();
 
