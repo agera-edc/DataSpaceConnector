@@ -9,7 +9,7 @@ jobs:
 
     env:
       REPEAT: 1
-      AT_ONCE_USERS: 1
+      AT_ONCE_USERS: 10
       MAX_RESPONSE_TIME: 5000
       SUCCESS_PERCENTAGE: 100.0
 
