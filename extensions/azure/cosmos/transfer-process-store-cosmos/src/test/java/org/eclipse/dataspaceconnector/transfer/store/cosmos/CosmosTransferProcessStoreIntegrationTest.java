@@ -183,7 +183,7 @@ class CosmosTransferProcessStoreIntegrationTest {
                 .untilAsserted(() -> {
                             List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 10);
                             assertThat(processesAfterLeaseBreak).hasSize(1);
-                        }
+                    }
                 );
     }
 
