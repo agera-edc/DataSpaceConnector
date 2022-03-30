@@ -22,7 +22,6 @@ val okHttpVersion: String by project
 val jodahFailsafeVersion: String by project
 val micrometerVersion: String by project
 
-
 dependencies {
     api(project(":core:base"))
     api("com.squareup.okhttp3:okhttp:${okHttpVersion}")

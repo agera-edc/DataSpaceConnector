@@ -47,7 +47,7 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
  * That's why an OtlpGrpcServer is used to collect the traces.
  */
 @OpenTelemetryIntegrationTest
-public class TracingIntegrationTests extends FileTransferEdcRuntime {
+public class TracingIntegrationTest extends FileTransferEdcRuntime {
 
     static OtlpGrpcServer grpcServer;
 
