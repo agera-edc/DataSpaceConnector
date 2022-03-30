@@ -49,7 +49,7 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 @OpenTelemetryIntegrationTest
 public class TracingIntegrationTest extends FileTransferEdcRuntime {
 
-    static OtlpGrpcServer grpcServer;
+    static OtlpGrpcServer grpcServer = new OtlpGrpcServer();
 
     String[] contractNegotiationSpanNames = new String[] {
             "ConsumerContractNegotiationManagerImpl.initiate",
@@ -66,7 +66,6 @@ public class TracingIntegrationTest extends FileTransferEdcRuntime {
 
     @BeforeAll
     static void startGrpcServer() {
-        grpcServer = new OtlpGrpcServer();
         grpcServer.start();
     }
 
