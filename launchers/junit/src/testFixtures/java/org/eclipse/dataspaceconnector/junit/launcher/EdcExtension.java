@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.eclipse.dataspaceconnector.common.types.Cast.cast;
 
@@ -55,7 +54,6 @@ import static org.eclipse.dataspaceconnector.common.types.Cast.cast;
 public class EdcExtension extends BaseRuntime implements BeforeTestExecutionCallback, AfterTestExecutionCallback, ParameterResolver {
     private final LinkedHashMap<Class<?>, Object> serviceMocks = new LinkedHashMap<>();
     private final LinkedHashMap<Class<? extends SystemExtension>, List<SystemExtension>> systemExtensions = new LinkedHashMap<>();
-    private List<ServiceExtension> runningServiceExtensions;
     private DefaultServiceExtensionContext context;
 
     /**
@@ -76,23 +74,18 @@ public class EdcExtension extends BaseRuntime implements BeforeTestExecutionCall
 
     @Override
     public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
-        boot();
+        boot(false);
     }
 
     @Override
     public void afterTestExecution(ExtensionContext context) throws Exception {
-        // TODO: this shutdown is duplicated but it's necessary to DataPlaneHttpIntegrationTests, needs to be fixed
-        if (runningServiceExtensions != null) {
-            shutdown(runningServiceExtensions, getMonitor());
-        }
-
+        shutdown();
         // clear the systemExtensions map to prevent it from piling up between subsequent runs
         systemExtensions.clear();
     }
 
     @Override
     protected void bootExtensions(ServiceExtensionContext context, List<InjectionContainer<ServiceExtension>> serviceExtensions) {
-        this.runningServiceExtensions = serviceExtensions.stream().map(InjectionContainer::getInjectionTarget).collect(Collectors.toList());
         super.bootExtensions(context, serviceExtensions);
     }
 

@@ -14,7 +14,9 @@ import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -40,7 +42,8 @@ import static org.eclipse.dataspaceconnector.boot.system.ExtensionLoader.loadTel
 public class BaseRuntime {
 
     private final AtomicReference<HealthCheckResult> startupStatus = new AtomicReference<>(HealthCheckResult.failed("Startup not complete"));
-    private Monitor monitor;
+    protected Monitor monitor;
+    private List<ServiceExtension> serviceExtensions = new ArrayList<>();
 
     public static void main(String[] args) {
         BaseRuntime runtime = new BaseRuntime();
@@ -55,15 +58,22 @@ public class BaseRuntime {
      * Main entry point to runtime initialization. Calls all methods.
      */
     protected void boot() {
+        boot(true);
+    }
+
+    protected void boot(boolean addShutdownHook) {
         ServiceExtensionContext context = createServiceExtensionContext();
 
         var name = getRuntimeName(context);
         try {
             initializeVault(context);
-            List<InjectionContainer<ServiceExtension>> serviceExtensions = createExtensions(context);
-            var seList = serviceExtensions.stream().map(InjectionContainer::getInjectionTarget).collect(Collectors.toList());
-            getRuntime().addShutdownHook(new Thread(() -> shutdown(seList, monitor)));
-            bootExtensions(context, serviceExtensions);
+            List<InjectionContainer<ServiceExtension>> newExtensions = createExtensions(context);
+            bootExtensions(context, newExtensions);
+
+            newExtensions.stream().map(InjectionContainer::getInjectionTarget).forEach(serviceExtensions::add);
+            if (addShutdownHook) {
+                getRuntime().addShutdownHook(new Thread(() -> shutdown()));
+            }
 
             var healthCheckService = context.getService(HealthCheckService.class);
             healthCheckService.addStartupStatusProvider(this::getStartupStatus);
@@ -155,16 +165,14 @@ public class BaseRuntime {
     /**
      * Hook that is called when a runtime is shutdown (e.g. after a CTRL-C command on a command line). It is highly advisable to
      * forward this signal to all extensions through their {@link ServiceExtension#shutdown()} callback.
-     *
-     * @param serviceExtensions All extensions that should receive the shutdown signal.
-     * @param monitor A monitor - should you need one.
      */
-    protected void shutdown(List<ServiceExtension> serviceExtensions, Monitor monitor) {
+    protected void shutdown() {
         var iter = serviceExtensions.listIterator(serviceExtensions.size());
         while (iter.hasPrevious()) {
             var extension = iter.previous();
             extension.shutdown();
             monitor.info("Shutdown " + extension.name());
+            iter.remove();
         }
         monitor.info("Shutdown complete");
     }

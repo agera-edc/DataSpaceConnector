@@ -3,15 +3,10 @@ package org.eclipse.dataspaceconnector.demo.runtime;
 import org.eclipse.dataspaceconnector.boot.system.DefaultServiceExtensionContext;
 import org.eclipse.dataspaceconnector.boot.system.runtime.BaseRuntime;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
-import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
-import static org.eclipse.dataspaceconnector.boot.system.ExtensionLoader.loadTelemetry;
 
 public class CustomRuntime extends BaseRuntime {
 
@@ -35,8 +30,8 @@ public class CustomRuntime extends BaseRuntime {
     }
 
     @Override
-    protected void shutdown(List<ServiceExtension> serviceExtensions, Monitor monitor) {
-        super.shutdown(serviceExtensions, monitor);
+    protected void shutdown() {
+        super.shutdown();
 
         //this is the custom part here:
         monitor.info(" CUSTOM RUNTIME SHUTDOWN ! ");
