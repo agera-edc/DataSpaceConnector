@@ -29,7 +29,7 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimu
 /**
  * Class providing a consumer and provider EdcRuntimeExtension used to test a file transfer.
  */
-public class FileTransferEdcRuntime {
+public abstract class FileTransferEdcRuntime {
     public static final String CONSUMER_ASSET_PATH = tempDirectory();
     public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
     public static final int CONSUMER_MANAGEMENT_PORT = getFreePort();
@@ -44,14 +44,13 @@ public class FileTransferEdcRuntime {
     public static final int PROVIDER_MANAGEMENT_PORT = getFreePort();
     public static final String PROVIDER_CONNECTOR_PATH = "/api";
     public static final String PROVIDER_MANAGEMENT_PATH = "/api/v1/data";
-    public static final String PROVIDER_CONNECTOR_HOST = "http://localhost:" + PROVIDER_CONNECTOR_PORT;
     public static final int PROVIDER_IDS_API_PORT = getFreePort();
     public static final String PROVIDER_IDS_API = "http://localhost:" + PROVIDER_IDS_API_PORT;
 
     public static final String API_KEY_CONTROL_AUTH = "password";
 
     @RegisterExtension
-    static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
+    protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":system-tests:runtimes:file-transfer-consumer",
             "consumer",
             Map.of(
@@ -65,7 +64,7 @@ public class FileTransferEdcRuntime {
                     "ids.webhook.address", CONSUMER_IDS_API));
 
     @RegisterExtension
-    static EdcRuntimeExtension provider = new EdcRuntimeExtension(
+    protected static EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":system-tests:runtimes:file-transfer-provider",
             "provider",
             Map.of(
