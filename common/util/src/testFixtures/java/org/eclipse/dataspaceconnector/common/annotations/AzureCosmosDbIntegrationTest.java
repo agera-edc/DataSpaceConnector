@@ -12,9 +12,8 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.testfixtures.annotations;
+package org.eclipse.dataspaceconnector.common.annotations;
 
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Tag;
 
 import java.lang.annotation.ElementType;
@@ -23,11 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Composite annotation for OpenTelemetry integration testing. It applies specific Junit Tag.
+ * Composite annotation for Azure Cosmos DB integration testing.It applies specific Junit Tag.
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Tag("OpenTelemetryIntegrationTest")
 @IntegrationTest
-public @interface OpenTelemetryIntegrationTest {
+@Tag("AzureCosmosDbIntegrationTest")
+public @interface AzureCosmosDbIntegrationTest {
 }
