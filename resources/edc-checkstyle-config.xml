@@ -417,6 +417,5 @@
       <metadata name="altname" value="TypeName"/>
     </module>
     <module name="TypecastParenPad"/>
-    <module name="SuppressWarningsHolder" />
   </module>
 </module>
