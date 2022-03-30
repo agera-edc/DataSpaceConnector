@@ -497,26 +497,24 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
         monitor.debug(format("TransferProcessManager: Sending process %s request to %s", process.getId(), dataRequest.getConnectorAddress()));
         dispatcherRegistry.send(Object.class, dataRequest, process::getId)
                 .thenApply(result -> {
-                    sendConsumerRequestSuccess(id);
+                    sendConsumerRequestSuccess(process);
                     return result;
                 })
                 .exceptionally(e -> {
-                    sendCustomerRequestFailure(id, e);
+                    sendCustomerRequestFailure(process, e);
                     return e;
                 });
     }
 
-    private void sendConsumerRequestSuccess(String transferProcessId) {
-        var transferProcess = getTransferProcess(transferProcessId);
+    private void sendConsumerRequestSuccess(TransferProcess transferProcess) {
         transferProcess.transitionRequested();
         updateTransferProcess(transferProcess, l -> l.preRequested(transferProcess));
-        monitor.debug("TransferProcessManager: Process " + transferProcessId + " is now " + TransferProcessStates.from(transferProcess.getState()));
+        monitor.debug("TransferProcessManager: Process " + transferProcess.getId() + " is now " + TransferProcessStates.from(transferProcess.getState()));
     }
 
-    private void sendCustomerRequestFailure(String transferProcessId, Throwable e) {
-        TransferProcess transferProcess = getTransferProcess(transferProcessId);
+    private void sendCustomerRequestFailure(TransferProcess transferProcess, Throwable e) {
         if (transferProcess.getStateCount() > sendRetryLimit) {
-            transitionToError(transferProcessId, e, "Retry limit exceeded");
+            transitionToError(transferProcess.getId(), e, "Retry limit exceeded");
             return;
         }
         String message = format("TransferProcessManager: attempt #%d failed to send transfer. TransferProcess %s stays in state %s.",

@@ -101,9 +101,9 @@ class TransferProcessManagerImplTest {
     private final TransferProcessStore store = mock(TransferProcessStore.class);
     private final DataFlowManager dataFlowManager = mock(DataFlowManager.class);
     private final Clock clock = mock(Clock.class);
+    private final long sendRetryBaseDelay = faker.number().randomNumber();
+    private final int sendRetryLimit = faker.number().numberBetween(5, 10);
     private TransferProcessManagerImpl manager;
-    private long sendRetryBaseDelay = faker.number().randomNumber();
-    private int sendRetryLimit = faker.number().numberBetween(5, 10);
 
     @SuppressWarnings("unchecked")
     @BeforeEach
