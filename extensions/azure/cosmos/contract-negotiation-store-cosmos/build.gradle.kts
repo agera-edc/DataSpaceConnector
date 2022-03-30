@@ -31,6 +31,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
+    testImplementation(testFixtures(project(":extensions:azure:cosmos:cosmos-common")))
     testImplementation("org.awaitility:awaitility:${awaitility}")
 }
 

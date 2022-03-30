@@ -17,7 +17,6 @@ package org.eclipse.dataspaceconnector.contract.negotiation.store;
 import com.azure.cosmos.CosmosContainer;
 import com.azure.cosmos.CosmosDatabase;
 import com.azure.cosmos.implementation.BadRequestException;
-import com.azure.cosmos.models.CosmosStoredProcedureProperties;
 import com.azure.cosmos.models.PartitionKey;
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApiImpl;
@@ -45,7 +44,6 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Scanner;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -53,6 +51,7 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
+import static org.eclipse.dataspaceconnector.azure.cosmos.util.StoredProcedureTestUtils.uploadStoredProcedure;
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateDocument;
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateNegotiation;
 
@@ -82,27 +81,6 @@ class CosmosContractNegotiationStoreIntegrationTest {
         if (database != null) {
             var delete = database.delete();
             assertThat(delete.getStatusCode()).isBetween(200, 300);
-        }
-    }
-
-    private static void uploadStoredProcedure(CosmosContainer container, String name) {
-        // upload stored procedure
-        var sprocName = ".js";
-        var is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name + sprocName);
-        if (is == null) {
-            throw new AssertionError("The input stream referring to the " + name + " file cannot be null!");
-        }
-
-        var s = new Scanner(is).useDelimiter("\\A");
-        if (!s.hasNext()) {
-            throw new IllegalArgumentException("Error loading resource with name " + sprocName);
-        }
-        var body = s.next();
-        var props = new CosmosStoredProcedureProperties(name, body);
-
-        var scripts = container.getScripts();
-        if (scripts.readAllStoredProcedures().stream().noneMatch(sp -> sp.getId().equals(name))) {
-            scripts.createStoredProcedure(props);
         }
     }
 
