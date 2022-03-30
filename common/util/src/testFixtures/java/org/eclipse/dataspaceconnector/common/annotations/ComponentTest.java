@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation for ComponentTest.
- * The ComponentTest do not use an external system but uses collaborator objects instead of mocks. For example in-memory implementations.
+ * The tests with the ComponentTest tag do not use an external system but uses collaborator objects instead of mocks. For example in-memory implementations.
  * It applies a specific Junit Tag.
  */
 @Target({ElementType.TYPE})
