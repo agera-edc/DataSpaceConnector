@@ -181,10 +181,10 @@ class CosmosTransferProcessStoreIntegrationTest {
                 .pollInterval(Duration.ofSeconds(1))
                 .pollDelay(leaseDuration) //give the lease time to expire
                 .untilAsserted(() -> {
-                    List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 10);
-                    assertThat(processesAfterLeaseBreak).hasSize(1);
-                }
-        );
+                            List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 10);
+                            assertThat(processesAfterLeaseBreak).hasSize(1);
+                        }
+                );
     }
 
     @Test
