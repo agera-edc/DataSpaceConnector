@@ -74,7 +74,7 @@ public class EdcExtension extends BaseRuntime implements BeforeTestExecutionCall
 
     @Override
     public void beforeTestExecution(ExtensionContext extensionContext) throws Exception {
-        boot(false);
+        bootWithoutShutdownHook();
     }
 
     @Override

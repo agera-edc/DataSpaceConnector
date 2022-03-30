@@ -62,10 +62,12 @@ public class BaseRuntime {
 
     /**
      * Main entry point to runtime initialization. Calls all methods.
-     *
-     * @param addShutdownHook if {@code true}, sets up a context shutdown hook at runtime shutdown
      */
-    protected void boot(boolean addShutdownHook) {
+    protected void bootWithoutShutdownHook() {
+        boot(false);
+    }
+
+    private void boot(boolean addShutdownHook) {
         ServiceExtensionContext context = createServiceExtensionContext();
 
         var name = getRuntimeName(context);
