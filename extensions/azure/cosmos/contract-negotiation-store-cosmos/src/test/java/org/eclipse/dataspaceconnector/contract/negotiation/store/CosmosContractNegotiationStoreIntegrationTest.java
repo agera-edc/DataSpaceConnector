@@ -327,8 +327,7 @@ class CosmosContractNegotiationStoreIntegrationTest {
                 .untilAsserted(() -> {
                             List<ContractNegotiation> negotiationsAfterLeaseExpired = store.nextForState(state.code(), 10);
                             assertThat(negotiationsAfterLeaseExpired).hasSize(1).allSatisfy(neg -> assertThat(neg).usingRecursiveComparison().isEqualTo(n));
-                    }
-                );
+                });
     }
 
     @Test
