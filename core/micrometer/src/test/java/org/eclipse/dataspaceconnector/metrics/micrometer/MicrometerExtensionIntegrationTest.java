@@ -19,7 +19,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
-import org.eclipse.dataspaceconnector.opentelemetry.OpenTelemetryIntegrationTest;
+import org.eclipse.dataspaceconnector.common.annotations.OpenTelemetryIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
