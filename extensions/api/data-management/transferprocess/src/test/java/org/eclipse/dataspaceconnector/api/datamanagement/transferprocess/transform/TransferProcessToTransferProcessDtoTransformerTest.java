@@ -49,11 +49,7 @@ class TransferProcessToTransferProcessDtoTransformerTest {
 
     @Test
     void transform_whenInvalidState() {
-        var invalidStateCode = 0;
-        while (TransferProcessStates.from(invalidStateCode) != null) {
-            invalidStateCode++;
-        }
-        data.entity.state(invalidStateCode);
+        data.entity.state(invalidStateCode());
         data.dto.state(null);
         problems.add("Invalid value for TransferProcess.state");
 
@@ -70,5 +66,13 @@ class TransferProcessToTransferProcessDtoTransformerTest {
                 .isEqualTo(data.dto.build());
 
         assertThat(data.context.getProblems()).containsExactlyElementsOf(problems);
+    }
+
+    private int invalidStateCode() {
+        var stateCode = 0;
+        while (TransferProcessStates.from(stateCode) != null) {
+            stateCode++;
+        }
+        return stateCode;
     }
 }
