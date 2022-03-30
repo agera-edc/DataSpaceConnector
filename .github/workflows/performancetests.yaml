@@ -4,11 +4,6 @@ on:
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment for resources'
-        required: true
-        default: 'dev'
 
 jobs:
 
