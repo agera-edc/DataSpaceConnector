@@ -12,8 +12,9 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.common.annotations;
+package org.eclipse.dataspaceconnector.aws.testfixtures.annotations;
 
+import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
 import org.junit.jupiter.api.Tag;
 
 import java.lang.annotation.ElementType;

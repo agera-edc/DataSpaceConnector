@@ -5,7 +5,7 @@ import org.eclipse.dataspaceconnector.aws.s3.core.AwsTemporarySecretToken;
 import org.eclipse.dataspaceconnector.aws.s3.core.S3BucketSchema;
 import org.eclipse.dataspaceconnector.aws.s3.core.S3ClientProvider;
 import org.eclipse.dataspaceconnector.aws.testfixtures.AbstractS3Test;
-import org.eclipse.dataspaceconnector.common.annotations.AwsS3IntegrationTest;
+import org.eclipse.dataspaceconnector.aws.testfixtures.annotations.AwsS3IntegrationTest;
 import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
