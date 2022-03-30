@@ -3,6 +3,7 @@ name: Performance Tests Nightly
 on:
   schedule:
     - cron: '15 3 * * *'
+  workflow_dispatch:
 
 jobs:
 
