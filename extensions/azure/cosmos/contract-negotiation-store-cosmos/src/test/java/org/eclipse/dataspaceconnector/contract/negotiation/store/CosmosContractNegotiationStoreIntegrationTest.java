@@ -55,7 +55,7 @@ import static org.eclipse.dataspaceconnector.azure.cosmos.util.StoredProcedureTe
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateDocument;
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateNegotiation;
 
-@AzureCosmosDbIntegrationTest
+//@AzureCosmosDbIntegrationTest
 class CosmosContractNegotiationStoreIntegrationTest {
     public static final String CONNECTOR_ID = "test-connector";
     private static final String TEST_ID = UUID.randomUUID().toString();
@@ -311,7 +311,7 @@ class CosmosContractNegotiationStoreIntegrationTest {
         var state = ContractNegotiationStates.CONFIRMED;
         var n = generateNegotiation(state);
         var doc = new ContractNegotiationDocument(n, partitionKey);
-        Duration leaseDuration = Duration.ofMillis(5);
+        Duration leaseDuration = Duration.ofSeconds(5);
         doc.acquireLease("another-connector", leaseDuration);
         container.createItem(doc);
 
