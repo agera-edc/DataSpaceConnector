@@ -1,4 +1,4 @@
-name: Performance Tests Nightly
+name: Performance Tests
 
 on:
   schedule:
