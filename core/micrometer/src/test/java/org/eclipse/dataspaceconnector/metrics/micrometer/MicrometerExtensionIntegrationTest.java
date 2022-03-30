@@ -17,7 +17,7 @@ package org.eclipse.dataspaceconnector.metrics.micrometer;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.eclipse.dataspaceconnector.common.annotations.OpenTelemetryIntegrationTest;
+import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.OpenTelemetryIntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
