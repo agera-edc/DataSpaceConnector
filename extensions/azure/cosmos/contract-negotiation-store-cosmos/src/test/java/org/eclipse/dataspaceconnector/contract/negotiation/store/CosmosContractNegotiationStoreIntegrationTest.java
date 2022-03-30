@@ -55,7 +55,7 @@ import static org.eclipse.dataspaceconnector.azure.cosmos.util.StoredProcedureTe
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateDocument;
 import static org.eclipse.dataspaceconnector.contract.negotiation.store.TestFunctions.generateNegotiation;
 
-//@AzureCosmosDbIntegrationTest
+@AzureCosmosDbIntegrationTest
 class CosmosContractNegotiationStoreIntegrationTest {
     public static final String CONNECTOR_ID = "test-connector";
     private static final String TEST_ID = UUID.randomUUID().toString();
