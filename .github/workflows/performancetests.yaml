@@ -23,4 +23,10 @@ jobs:
           cache: 'gradle'
 
       - name: Performance Tests
-        run: ./gradlew test -DincludeTags="PerformanceTest"
+        run: ./gradlew -p system-tests/tests test -DincludeTags="PerformanceTest"
+
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Gatling reports
+          path: '**/build/reports/gatling/**'
