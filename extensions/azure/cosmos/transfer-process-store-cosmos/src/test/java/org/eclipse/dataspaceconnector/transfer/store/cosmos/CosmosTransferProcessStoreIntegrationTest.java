@@ -186,21 +186,24 @@ class CosmosTransferProcessStoreIntegrationTest {
     void nextForState_leaseByAnotherHolderExpired() {
         String id1 = UUID.randomUUID().toString();
         var tp = createTransferProcess(id1, TransferProcessStates.UNSAVED);
-        store.create(tp);
-        TransferProcessDocument item = readDocument(id1);
-        item.acquireLease("another-connector", Duration.ofSeconds(5));
+        TransferProcessDocument item = new TransferProcessDocument(tp, partitionKey);
+        Duration leaseDuration = Duration.ofSeconds(5);
+        item.acquireLease("another-connector", leaseDuration);
         container.upsertItem(item);
 
         List<TransferProcess> processesBeforeLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 2);
         assertThat(processesBeforeLeaseBreak).isEmpty();
 
-        await().atMost(Duration.ofSeconds(20)).pollInterval(Duration.ofSeconds(2)).pollDelay(Duration.ofSeconds(5)).untilAsserted(() -> {
+        await()
+                .atMost(Duration.ofSeconds(20))
+                .pollInterval(Duration.ofSeconds(1))
+                .pollDelay(leaseDuration) //give the lease time to expire
+                .untilAsserted(() -> {
                     List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 2);
                     assertThat(processesAfterLeaseBreak).hasSize(1);
                 }
         );
     }
-
 
     @Test
     void nextForState_shouldOnlyReturnFreeItems() {
@@ -501,7 +504,7 @@ class CosmosTransferProcessStoreIntegrationTest {
     }
 
     @Test
-    void invokeStoreProcedure() {
+    void invokeStoredProcedure() {
         //create one item
         var tp = createTransferProcess("proc1");
         store.create(tp);
