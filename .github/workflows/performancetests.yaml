@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      REPEAT: 1
+      REPEAT: 5
       AT_ONCE_USERS: 10
       MAX_RESPONSE_TIME: 5000
       SUCCESS_PERCENTAGE: 100.0
