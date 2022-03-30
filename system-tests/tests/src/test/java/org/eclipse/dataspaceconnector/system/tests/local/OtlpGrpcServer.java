@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.opentelemetry;
+package org.eclipse.dataspaceconnector.system.tests.local;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.linecorp.armeria.server.ServerBuilder;

@@ -17,7 +17,6 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.eclipse.dataspaceconnector.common.annotations.OpenTelemetryIntegrationTest;
-import org.eclipse.dataspaceconnector.opentelemetry.OtlpGrpcServer;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
