@@ -277,18 +277,6 @@ class CosmosContractNegotiationStoreIntegrationTest {
     }
 
     @Test
-    void nextForState_leasedByAnother() {
-        var state = ContractNegotiationStates.CONFIRMED;
-        var n = generateNegotiation(state);
-        var doc = new ContractNegotiationDocument(n, partitionKey);
-        doc.acquireLease("another-connector");
-        container.createItem(doc);
-
-        var result = store.nextForState(state.code(), 10);
-        assertThat(result).isEmpty();
-    }
-
-    @Test
     void nextForState_leasedBySelf() {
         var state = ContractNegotiationStates.CONFIRMED;
         var n = generateNegotiation(state);
@@ -307,7 +295,7 @@ class CosmosContractNegotiationStoreIntegrationTest {
     }
 
     @Test
-    void nextForState_leaseByAnotherExpired() {
+    void nextForState_leasedByAnotherExpired() {
         var state = ContractNegotiationStates.CONFIRMED;
         var n = generateNegotiation(state);
         var doc = new ContractNegotiationDocument(n, partitionKey);
@@ -318,7 +306,6 @@ class CosmosContractNegotiationStoreIntegrationTest {
         // before the lease expired
         var negotiationsBeforeLeaseExpired = store.nextForState(state.code(), 10);
         assertThat(negotiationsBeforeLeaseExpired).isEmpty();
-
         // after the lease expired
         await()
                 .atMost(Duration.ofSeconds(20))
