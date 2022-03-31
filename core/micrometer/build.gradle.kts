@@ -17,9 +17,7 @@ plugins {
     `maven-publish`
 }
 
-val jupiterVersion: String by project
 val okHttpVersion: String by project
-val jodahFailsafeVersion: String by project
 val micrometerVersion: String by project
 
 dependencies {
