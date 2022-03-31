@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.extensions.api;
 
 import org.eclipse.dataspaceconnector.dataloading.AssetLoader;
+import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
@@ -34,6 +35,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDe
 import org.eclipse.dataspaceconnector.transfer.core.inline.InlineDataFlowController;
 
 import java.nio.file.Path;
+import java.util.concurrent.Executors;
 
 public class FileTransferExtension implements ServiceExtension {
 
@@ -49,14 +51,20 @@ public class FileTransferExtension implements ServiceExtension {
     private ContractDefinitionStore contractStore;
     @Inject
     private AssetLoader loader;
+    @Inject
+    private PipelineService pipelineService;
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        var vault = context.getService(Vault.class);
-        dataOperatorRegistry.registerStreamPublisher(new FileTransferDataStreamPublisher(context.getMonitor(), dataAddressResolver));
+        var monitor = context.getMonitor();
 
-        DataFlowController dataFlowController = new InlineDataFlowController(vault, context.getMonitor(), dataOperatorRegistry, dataAddressResolver);
-        dataFlowMgr.register(dataFlowController);
+        var executorService = Executors.newFixedThreadPool(10);
+
+        var sourceFactory = new FileTransferDataSourceFactory();
+        pipelineService.registerFactory(sourceFactory);
+
+        var sinkFactory = new FileTransferDataSinkFactory(monitor, executorService, 5);
+        pipelineService.registerFactory(sinkFactory);
 
         var policy = createPolicy();
 
