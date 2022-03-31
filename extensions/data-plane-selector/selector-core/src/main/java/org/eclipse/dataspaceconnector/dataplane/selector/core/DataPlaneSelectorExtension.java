@@ -19,7 +19,6 @@ import org.eclipse.dataspaceconnector.dataplane.selector.DataPlaneSelectorServic
 import org.eclipse.dataspaceconnector.dataplane.selector.DataPlaneSelectorServiceImpl;
 import org.eclipse.dataspaceconnector.dataplane.selector.store.DataPlaneInstanceStore;
 import org.eclipse.dataspaceconnector.dataplane.selector.strategy.DefaultSelectionStrategyRegistry;
-import org.eclipse.dataspaceconnector.dataplane.selector.strategy.RandomSelectionStrategy;
 import org.eclipse.dataspaceconnector.dataplane.selector.strategy.SelectionStrategyRegistry;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
@@ -35,10 +34,8 @@ public class DataPlaneSelectorExtension implements ServiceExtension {
     @Override
     public void initialize(ServiceExtensionContext context) {
         DataPlaneSelectorImpl selector = new DataPlaneSelectorImpl(instanceStore);
-
         DefaultSelectionStrategyRegistry strategy = new DefaultSelectionStrategyRegistry();
-        strategy.add(new RandomSelectionStrategy());
-
+        
         context.registerService(DataPlaneSelector.class, selector);
         context.registerService(SelectionStrategyRegistry.class, strategy);
         context.registerService(DataPlaneSelectorService.class, new DataPlaneSelectorServiceImpl(selector, instanceStore, strategy));
