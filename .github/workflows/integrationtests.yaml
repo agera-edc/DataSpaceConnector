@@ -127,6 +127,12 @@ jobs:
       - name: "End to End Integration Tests"
         run: ./gradlew test -DincludeTags="EndToEndTest"
 
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Gatling reports
+          path: '**/build/reports/gatling/**'
+
   Component-Tests:
     runs-on: ubuntu-latest
     steps:
