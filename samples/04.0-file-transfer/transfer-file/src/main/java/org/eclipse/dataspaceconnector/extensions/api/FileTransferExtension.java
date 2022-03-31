@@ -20,19 +20,13 @@ import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
-import org.eclipse.dataspaceconnector.spi.asset.DataAddressResolver;
 import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitionStore;
-import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
-import org.eclipse.dataspaceconnector.spi.transfer.flow.DataFlowController;
-import org.eclipse.dataspaceconnector.spi.transfer.flow.DataFlowManager;
-import org.eclipse.dataspaceconnector.spi.transfer.inline.DataOperatorRegistry;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDefinition;
-import org.eclipse.dataspaceconnector.transfer.core.inline.InlineDataFlowController;
 
 import java.nio.file.Path;
 import java.util.concurrent.Executors;
@@ -41,12 +35,6 @@ public class FileTransferExtension implements ServiceExtension {
 
     public static final String USE_POLICY = "use-eu";
     private static final String EDC_ASSET_PATH = "edc.samples.04.asset.path";
-    @Inject
-    private DataFlowManager dataFlowMgr;
-    @Inject
-    private DataAddressResolver dataAddressResolver;
-    @Inject
-    private DataOperatorRegistry dataOperatorRegistry;
     @Inject
     private ContractDefinitionStore contractStore;
     @Inject
