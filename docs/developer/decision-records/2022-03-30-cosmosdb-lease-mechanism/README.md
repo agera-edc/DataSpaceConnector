@@ -2,7 +2,7 @@
 
 ## Decision
 
-Cosmos DB stores for managing contract negotiations and data transfers should use a lease mechanism to control the processing of the items.
+Cosmos DB stores for managing contract negotiations and data transfers use a lease mechanism to control the processing of the items.
 
 ## Rationale
 
