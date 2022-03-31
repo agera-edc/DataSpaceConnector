@@ -1,8 +1,10 @@
 name: Performance Tests
 
 on:
+  # Runs daily at 1 AM UTC time.
   schedule:
     - cron: '0 1 * * *'
+  # For manual execution.
   workflow_dispatch:
 
 jobs:
