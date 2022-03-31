@@ -47,11 +47,11 @@ class FileTransferDataSinkFactory implements DataSinkFactory {
 
     @Override
     public DataSink createSink(DataFlowRequest request) {
-        var source = request.getSourceDataAddress();
         var destination = request.getDestinationDataAddress();
 
         // verify destination path
-        var destinationFile = new File(destination.getProperty("path"));
+        String path = destination.getProperty("path");
+        var destinationFile = new File(path.replaceAll("\\.", ".").replaceAll("/", "/"));
 
         return FileTransferDataSink.Builder.newInstance()
                 .file(destinationFile)
