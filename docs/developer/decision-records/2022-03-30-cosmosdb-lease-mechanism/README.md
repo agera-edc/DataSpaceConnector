@@ -1,4 +1,4 @@
-# CosmosDb lease mechanism
+# Cosmos DB lease mechanism
 
 ## Decision
 
@@ -31,6 +31,6 @@ CosmosDb stores are using 2 stored procedures that handle the lease logic:
 
 1. [`nextForState.js`](/extensions/azure/cosmos/cosmos-common/src/main/resources/nextForState.js) - queries the database to look for all items that has no
    lease or expired lease. It applies a new lease on all returned items. This
-   stored procedure is used to get all elements that are next to process for given state.
+   stored procedure is used to get batch of elements that are next to be processed for given state.
 
 More about stored procedures in CosmosDb: [stored procedures doc](https://docs.microsoft.com/rest/api/cosmos-db/stored-procedures).
