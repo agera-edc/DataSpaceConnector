@@ -28,6 +28,7 @@ dependencies {
     api("io.micrometer:micrometer-core:${micrometerVersion}")
 
     testImplementation(project(":extensions:api:observability"))
+    testImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":common:util")))
 
