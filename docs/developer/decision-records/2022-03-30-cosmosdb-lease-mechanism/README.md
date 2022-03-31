@@ -33,4 +33,4 @@ CosmosDb stores are using 2 stored procedures that handle the lease logic:
    lease or expired lease. It applies a new lease on all returned items. This
    stored procedure is used to get all elements that are next to process for given state.
 
-More about stored procedures in CosmosDb: [stored procedures doc](https://docs.microsoft.com/en-us/rest/api/cosmos-db/stored-procedures).
+More about stored procedures in CosmosDb: [stored procedures doc](https://docs.microsoft.com/rest/api/cosmos-db/stored-procedures).
