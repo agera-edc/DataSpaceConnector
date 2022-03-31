@@ -285,7 +285,7 @@ class CosmosContractNegotiationStoreIntegrationTest {
 
         // let's verify that the first invocation correctly sets the lease
         var result = store.nextForState(state.code(), 10);
-        assertThat(result).hasSize(1).extracting(ContractNegotiation::getId).containsExactly(n.getId()); //should contain the lease already
+        assertThat(result).hasSize(1); //should contain the lease already
         var storedNegotiation = readItem(n.getId());
         assertThat(storedNegotiation.getLease()).isNotNull().hasFieldOrPropertyWithValue("leasedBy", CONNECTOR_ID);
 
