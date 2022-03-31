@@ -15,7 +15,8 @@ introduced in the transfer and contract negotiation processes.
 Cosmos document is extended with lease information: a lease holder, time when the lease was acquired and a lease duration.
 
 Lease acts as an exclusive lock: a party leasing a document owns an exclusive lock until the lease expires or it has been explicitly broken.
-Any attempt to acquire or break the lease on a document that has been leased by someone else results in an exception.
+Any attempt to acquire or break the lease on a document that has been leased by someone else results in an exception. If lease is not removed by a
+holder then it expires after some duration. Currently, the lease duration is hardcoded to 60 seconds.
 
 CosmosDb stores are using 2 stored procedures that handle the lease logic:
 
