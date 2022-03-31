@@ -8,6 +8,7 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,25 +41,10 @@ class FileTransferDataSinkFactory implements DataSinkFactory {
         var destination = request.getDestinationDataAddress();
 
         // verify destination path
-        var destinationPath = Path.of(destination.getProperty("path"));
-        var sourceFileName = source.getProperty("filename");
-
-        if (!destinationPath.toFile().exists()) { // interpret as directory
-            monitor.debug("Destination path " + destinationPath + " does not exist, will attempt to create");
-            try {
-                Files.createDirectory(destinationPath);
-                monitor.debug("Successfully created destination path " + destinationPath);
-            } catch (IOException e) {
-                String message = "Error creating directory: " + e.getMessage();
-                monitor.severe(message);
-                throw new EdcException(e);
-            }
-        } else if (destinationPath.toFile().isDirectory()) {
-            destinationPath = Path.of(destinationPath.toString(), sourceFileName);
-        }
+        var destinationFile = new File(destination.getProperty("path"));
 
         return FileTransferDataSink.Builder.newInstance()
-                .file(destinationPath.toFile())
+                .file(destinationFile)
                 .requestId(request.getId())
                 .partitionSize(partitionSize)
                 .executorService(executorService)
