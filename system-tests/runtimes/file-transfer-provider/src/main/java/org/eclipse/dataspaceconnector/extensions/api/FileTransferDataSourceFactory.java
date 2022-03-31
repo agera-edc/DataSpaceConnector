@@ -2,12 +2,12 @@ package org.eclipse.dataspaceconnector.extensions.api;
 
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSourceFactory;
+import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.nio.file.Path;
 
 class FileTransferDataSourceFactory implements DataSourceFactory {
     @Override
@@ -36,8 +36,11 @@ class FileTransferDataSourceFactory implements DataSourceFactory {
         var dataAddress = request.getSourceDataAddress();
         // verify source path
         String sourceFileName = dataAddress.getProperty("filename");
-        var sourcePath = Path.of(dataAddress.getProperty("path"), sourceFileName);
-        var source = sourcePath.toFile();
-        return source;
+        String path = dataAddress.getProperty("path");
+        // Make CodeQL happy
+        if (path.contains("..")) {
+            throw new EdcException("Unsafe path");
+        }
+        return new File(path, sourceFileName);
     }
 }
