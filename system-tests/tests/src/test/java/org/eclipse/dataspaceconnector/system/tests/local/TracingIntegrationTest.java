@@ -83,7 +83,7 @@ public class TracingIntegrationTest extends FileTransferEdcRuntime {
     void transferFile_testTraces() throws Exception {
         // Arrange
         // Create a file with test data on provider file system.
-        String fileContent = "FileTransfer-test-" + UUID.randomUUID();
+        String fileContent = "FileTransfer-tracing-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         // Act
