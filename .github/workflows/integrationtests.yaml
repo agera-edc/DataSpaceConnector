@@ -127,6 +127,7 @@ jobs:
       - name: "End to End Integration Tests"
         run: ./gradlew test -DincludeTags="EndToEndTest"
 
+      - name: "Publish Gatling report"
       - uses: actions/upload-artifact@v2
         if: always()
         with:
