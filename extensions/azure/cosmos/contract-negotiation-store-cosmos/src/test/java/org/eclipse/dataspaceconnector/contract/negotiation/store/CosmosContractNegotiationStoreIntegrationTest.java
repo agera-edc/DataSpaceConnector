@@ -325,8 +325,8 @@ class CosmosContractNegotiationStoreIntegrationTest {
                 .pollInterval(Duration.ofSeconds(1))
                 .pollDelay(leaseDuration) //give the lease time to expire
                 .untilAsserted(() -> {
-                            List<ContractNegotiation> negotiationsAfterLeaseExpired = store.nextForState(state.code(), 10);
-                            assertThat(negotiationsAfterLeaseExpired).hasSize(1).allSatisfy(neg -> assertThat(neg).usingRecursiveComparison().isEqualTo(n));
+                    List<ContractNegotiation> negotiationsAfterLeaseExpired = store.nextForState(state.code(), 10);
+                    assertThat(negotiationsAfterLeaseExpired).hasSize(1).allSatisfy(neg -> assertThat(neg).usingRecursiveComparison().isEqualTo(n));
                 });
     }
 
