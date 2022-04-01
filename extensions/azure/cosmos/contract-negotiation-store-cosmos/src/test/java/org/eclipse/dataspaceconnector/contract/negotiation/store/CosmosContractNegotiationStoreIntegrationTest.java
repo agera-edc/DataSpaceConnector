@@ -299,7 +299,7 @@ class CosmosContractNegotiationStoreIntegrationTest {
         var state = ContractNegotiationStates.CONFIRMED;
         var n = generateNegotiation(state);
         var doc = new ContractNegotiationDocument(n, partitionKey);
-        Duration leaseDuration = Duration.ofSeconds(5);
+        Duration leaseDuration = Duration.ofSeconds(2);
         doc.acquireLease("another-connector", leaseDuration);
         container.createItem(doc);
 
@@ -308,8 +308,8 @@ class CosmosContractNegotiationStoreIntegrationTest {
         assertThat(negotiationsBeforeLeaseExpired).isEmpty();
         // after the lease expired
         await()
-                .atMost(Duration.ofSeconds(20))
-                .pollInterval(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(10))
+                .pollInterval(Duration.ofMillis(500))
                 .pollDelay(leaseDuration) //give the lease time to expire
                 .untilAsserted(() -> {
                     List<ContractNegotiation> negotiationsAfterLeaseExpired = store.nextForState(state.code(), 10);

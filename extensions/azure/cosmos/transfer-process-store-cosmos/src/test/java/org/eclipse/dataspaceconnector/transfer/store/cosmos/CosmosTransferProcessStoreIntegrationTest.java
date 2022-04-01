@@ -169,7 +169,7 @@ class CosmosTransferProcessStoreIntegrationTest {
         String id1 = UUID.randomUUID().toString();
         var tp = createTransferProcess(id1, TransferProcessStates.INITIAL);
         TransferProcessDocument item = new TransferProcessDocument(tp, partitionKey);
-        Duration leaseDuration = Duration.ofSeconds(5);
+        Duration leaseDuration = Duration.ofSeconds(2);
         item.acquireLease("another-connector", leaseDuration);
         container.upsertItem(item);
 
@@ -177,8 +177,8 @@ class CosmosTransferProcessStoreIntegrationTest {
         assertThat(processesBeforeLeaseBreak).isEmpty();
 
         await()
-                .atMost(Duration.ofSeconds(20))
-                .pollInterval(Duration.ofSeconds(1))
+                .atMost(Duration.ofSeconds(10))
+                .pollInterval(Duration.ofMillis(500))
                 .pollDelay(leaseDuration) //give the lease time to expire
                 .untilAsserted(() -> {
                     List<TransferProcess> processesAfterLeaseBreak = store.nextForState(TransferProcessStates.INITIAL.code(), 10);
