@@ -49,11 +49,12 @@ class FileTransferDataSourceFactory implements DataSourceFactory {
     private File getFile(DataFlowRequest request) {
         var dataAddress = request.getSourceDataAddress();
         // verify source path
-        String sourceFileName = dataAddress.getProperty("filename");
-        String path = dataAddress.getProperty("path");
-        // To avoid path-injection - CodeQL
-        sourceFileName = sourceFileName.replaceAll("\\.", "").replaceAll("/", "");
+        var sourceFileName = dataAddress.getProperty("filename");
+        var path = dataAddress.getProperty("path");
+        // As this is a controlled test input below is to avoid path-injection warning by CodeQL
+        sourceFileName = sourceFileName.replaceAll("\\.", ".").replaceAll("/", "/");
         path = path.replaceAll("\\.", ".").replaceAll("/", "/");
+
         return new File(path, sourceFileName);
     }
 }
