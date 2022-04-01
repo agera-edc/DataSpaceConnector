@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.extensions.api;
 
 import org.eclipse.dataspaceconnector.dataloading.AssetLoader;
+import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataTransferExecutorServiceContainer;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
@@ -29,7 +30,6 @@ import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDefinition;
 
 import java.nio.file.Path;
-import java.util.concurrent.Executors;
 
 public class FileTransferExtension implements ServiceExtension {
 
@@ -41,17 +41,17 @@ public class FileTransferExtension implements ServiceExtension {
     private AssetLoader loader;
     @Inject
     private PipelineService pipelineService;
+    @Inject
+    private DataTransferExecutorServiceContainer executorContainer;
 
     @Override
     public void initialize(ServiceExtensionContext context) {
         var monitor = context.getMonitor();
 
-        var executorService = Executors.newFixedThreadPool(10);
-
         var sourceFactory = new FileTransferDataSourceFactory();
         pipelineService.registerFactory(sourceFactory);
 
-        var sinkFactory = new FileTransferDataSinkFactory(monitor, executorService, 5);
+        var sinkFactory = new FileTransferDataSinkFactory(monitor, executorContainer.getExecutorService(), 5);
         pipelineService.registerFactory(sinkFactory);
 
         var policy = createPolicy();
