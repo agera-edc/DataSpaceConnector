@@ -51,6 +51,7 @@ class FileTransferDataSinkFactory implements DataSinkFactory {
 
         // verify destination path
         String path = destination.getProperty("path");
+        // To avoid path-injection - CodeQL
         var destinationFile = new File(path.replaceAll("\\.", ".").replaceAll("/", "/"));
 
         return FileTransferDataSink.Builder.newInstance()

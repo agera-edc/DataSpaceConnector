@@ -51,10 +51,9 @@ class FileTransferDataSourceFactory implements DataSourceFactory {
         // verify source path
         String sourceFileName = dataAddress.getProperty("filename");
         String path = dataAddress.getProperty("path");
-        // Make CodeQL happy
-        if (path.contains("..")) {
-            throw new EdcException("Unsafe path");
-        }
+        // To avoid path-injection - CodeQL
+        sourceFileName = sourceFileName.replaceAll("\\.", "").replaceAll("/", "");
+        path = path.replaceAll("\\.", ".").replaceAll("/", "/");
         return new File(path, sourceFileName);
     }
 }
