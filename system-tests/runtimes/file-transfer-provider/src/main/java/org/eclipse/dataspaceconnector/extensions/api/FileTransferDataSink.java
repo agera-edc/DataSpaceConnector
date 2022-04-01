@@ -67,6 +67,7 @@ class FileTransferDataSink extends ParallelSink {
             return this;
         }
 
+        @Override
         protected void validate() {
             Objects.requireNonNull(sink.file, "file");
         }
