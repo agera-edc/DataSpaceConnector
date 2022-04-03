@@ -39,3 +39,14 @@ dependencies {
     testCompileOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
 
+
+// TODO: testing for #936, remove before merging
+tasks.withType<Test> {
+    val agent = rootDir.resolve("opentelemetry-javaagent.jar")
+    if (agent.exists()) {
+        jvmArgs("-javaagent:${agent.absolutePath}")
+        environment("OTEL_TRACES_EXPORTER", "jaeger")
+        environment("OTEL_EXPORTER_JAEGER_ENDPOINT", "http://localhost:14250")
+        environment("OTEL_SERVICE_NAME", "integrationtest")
+    }
+}
