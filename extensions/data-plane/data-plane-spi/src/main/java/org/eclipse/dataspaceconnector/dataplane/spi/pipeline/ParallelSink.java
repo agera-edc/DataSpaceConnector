@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.dataplane.spi.pipeline;
 
+import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.common.stream.PartitionIterator;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.response.StatusResult;
@@ -43,6 +44,7 @@ public abstract class ParallelSink implements DataSink {
     protected Monitor monitor;
     protected Telemetry telemetry;
 
+    @WithSpan
     @Override
     public CompletableFuture<StatusResult<Void>> transfer(DataSource source) {
         try (var partStream = source.openPartStream()) {
