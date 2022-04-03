@@ -54,6 +54,7 @@ public class Telemetry {
 
     /**
      * Returns a trace carrier object containing the trace context from the current thread
+     *
      * @return The trace carrier
      */
     public TraceCarrier getTraceCarrierWithCurrentContext() {
