@@ -17,13 +17,24 @@ plugins {
     `maven-publish`
     checkstyle
     jacoco
+    signing
+
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
+    id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
 }
 
 repositories {
     mavenCentral()
 }
 
+nexusPublishing{
+    repositories{
+        sonatype{
+            username.set(System.getenv("OSSRH_USER")  ?: "")
+            password.set(System.getenv("OSSRH_PASSWORD")  ?: "")
+        }
+    }
+}
 
 val jetBrainsAnnotationsVersion: String by project
 val jacksonVersion: String by project
@@ -68,6 +79,7 @@ allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
     apply(plugin = "java")
+    apply(plugin = "signing")
 
     if (System.getenv("JACOCO") == "true") {
         apply(plugin = "jacoco")
@@ -120,6 +132,14 @@ allprojects {
 
         publishing {
             repositories {
+//                mavenCentral {
+//                    name = "sonatype"
+//                    url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+//                    credentials {
+//                        username = ossrhUser
+//                        password = ossrhPassword
+//                    }
+//                }
                 maven {
                     name = "GitHubPackages"
                     url = uri("https://maven.pkg.github.com/eclipse-dataspaceconnector/DataSpaceConnector")
@@ -128,6 +148,53 @@ allprojects {
                         password = System.getenv("GITHUB_TOKEN")
                     }
                 }
+            }
+            publications{
+                create<MavenPublication>("mavenJava") {
+                    java{
+                        withJavadocJar()
+                        withSourcesJar()
+                    }
+
+                    pom {
+                        val edcDeveloperId : String = System.getenv("EDC_DEVELOPER_ID") ?: "jimmarino"
+                        val edcDeveloperName : String = System.getenv("EDC_DEVELOPER_NAME") ?: "Jim Marino"
+                        val edcDeveloperEmail : String = System.getenv("EDC_DEVELOPER_EMAIL") ?: "jmarino@metaformsystems.com"
+                        val edcScmConnection : String = System.getenv("EDC_SCM_CONNECTION") ?: "scm:git:git@github.com:eclipse-dataspaceconnector/DataSpaceConnector.git"
+                        val edcScmUrl : String = System.getenv("EDC_SCM_URL") ?: "https://github.com/eclipse-dataspaceconnector/DataSpaceConnector.git"
+                        val edcWebsiteUrl : String = System.getenv("EDC_WEB_URL") ?: "https://github.com/eclipse-dataspaceconnector/DataSpaceConnector"
+
+                        name.set("edc :: ${project.name}")
+                        description.set("edc :: ${project.name}")
+                        url.set(edcWebsiteUrl)
+                        licenses {
+                            license {
+                                name.set("The Apache License, Version 2.0")
+                                url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                            }
+                            developers {
+                                developer {
+                                    id.set(edcDeveloperId)
+                                    name.set(edcDeveloperName)
+                                    email.set(edcDeveloperEmail)
+                                }
+                            }
+                            scm {
+                                connection.set(edcScmConnection)
+                                url.set(edcScmUrl)
+                            }
+                        }
+                    }
+                }
+            }
+
+            signing{
+                val signingKeyId : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_KEY_ID")  ?: ""
+                val signingKey : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_KEY")  ?: ""
+                val signingPassword : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_PASSWORD")  ?: ""
+
+                useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+                sign(publications["mavenJava"])
             }
         }
 

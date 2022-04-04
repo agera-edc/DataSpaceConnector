@@ -86,11 +86,11 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
  * A data transfer processes transitions through a series of states, which allows the system to model both terminating and non-terminating (e.g. streaming) transfers. Transitions
  * occur asynchronously, since long-running processes such as resource provisioning may need to be completed before transitioning to a subsequent state. The permissible state
  * transitions are defined by {@link org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates}.
- * <br/>
+ * <br>
  * The transfer manager performs continual iterations, which seek to advance the state of transfer processes, including recovery, in a FIFO state-based ordering.
  * Each iteration will seek to transition a set number of processes for each state to avoid situations where an excessive number of processes in one state block progress of
  * processes in other states.
- * <br/>
+ * <br>
  * If no processes need to be transitioned, the transfer manager will wait according to the defined {@link WaitStrategy} before conducting the next iteration.
  * A wait strategy may implement a backoff scheme.
  */
@@ -200,7 +200,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process INITIAL transfer<br/>
+     * Process INITIAL transfer<br>
      * set it to PROVISIONING
      *
      * @param process the INITIAL transfer fetched
@@ -233,9 +233,9 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process PROVISIONING transfer<br/>
+     * Process PROVISIONING transfer<br>
      * Launch provision process. On completion, set to PROVISIONED if succeeded, ERROR otherwise
-     * <br/>
+     * <br>
      * On a consumer, provisioning may entail setting up a data destination and supporting infrastructure. On a provider, provisioning is initiated when a request is received and
      * map involve preprocessing data or other operations.
      *
@@ -261,7 +261,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process PROVISIONED transfer<br/>
+     * Process PROVISIONED transfer<br>
      * If CONSUMER, set it to REQUESTING, if PROVIDER initiate data transfer
      *
      * @param process the PROVISIONED transfer fetched
@@ -280,7 +280,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process REQUESTING transfer<br/>
+     * Process REQUESTING transfer<br>
      * If CONSUMER, send request to the provider, should never be PROVIDER
      *
      * @param process the REQUESTING transfer fetched
@@ -299,7 +299,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process REQUESTED transfer<br/>
+     * Process REQUESTED transfer<br>
      * If is managed or there are provisioned resources set IN_PROGRESS or STREAMING, do nothing otherwise
      *
      * @param process the REQUESTED transfer fetched
@@ -319,7 +319,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process IN PROGRESS transfer<br/>
+     * Process IN PROGRESS transfer<br>
      * if is completed or there's no checker and it's not managed, set to COMPLETE, nothing otherwise.
      *
      * @param process the IN PROGRESS transfer fetched
@@ -355,7 +355,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process DEPROVISIONING transfer<br/>
+     * Process DEPROVISIONING transfer<br>
      * Launch deprovision process. On completion, set to DEPROVISIONED if succeeded, ERROR otherwise
      *
      * @param process the DEPROVISIONING transfer fetched
@@ -382,7 +382,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     /**
-     * Process DEPROVISIONED transfer<br/>
+     * Process DEPROVISIONED transfer<br>
      * Set it to ENDED.
      *
      * @param process the DEPROVISIONED transfer fetched

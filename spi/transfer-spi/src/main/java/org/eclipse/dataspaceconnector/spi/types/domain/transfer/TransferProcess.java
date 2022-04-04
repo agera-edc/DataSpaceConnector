@@ -57,42 +57,42 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
 
 /**
  * Represents a data transfer process.
- * <br/>
+ * <br>
  * A data transfer process exists on both the consumer and provider connector; it is a representation of the data sharing transaction from the perspective of each endpoint. The data
  * transfer process is modeled as a "loosely" coordinated state machine on each connector. The state transitions are symmetric on the consumer and provider with the exception that
  * the consumer process has two additional states for request/request ack.
- * <br/>
+ * <br>
  * The consumer transitions are:
  *
  * <pre>
- * {@link TransferProcessStates#INITIAL} ->
- * {@link TransferProcessStates#PROVISIONING} ->
- * {@link TransferProcessStates#PROVISIONED} ->
- * {@link TransferProcessStates#REQUESTING} ->
- * {@link TransferProcessStates#REQUESTED} ->
- * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} ->
- * {@link TransferProcessStates#COMPLETED} ->
- * {@link TransferProcessStates#DEPROVISIONING} ->
- * {@link TransferProcessStates#DEPROVISIONED} ->
- * {@link TransferProcessStates#ENDED} ->
- * {@link TransferProcessStates#CANCELLED} -> optional, reachable from every state except ENDED, COMPLETED or ERROR
+ * {@link TransferProcessStates#INITIAL} -&gt;
+ * {@link TransferProcessStates#PROVISIONING} -&gt;
+ * {@link TransferProcessStates#PROVISIONED} -&gt;
+ * {@link TransferProcessStates#REQUESTING} -&gt;
+ * {@link TransferProcessStates#REQUESTED} -&gt;
+ * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} -&gt;
+ * {@link TransferProcessStates#COMPLETED} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONING} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONED} -&gt;
+ * {@link TransferProcessStates#ENDED} -&gt;
+ * {@link TransferProcessStates#CANCELLED} -&gt; optional, reachable from every state except ENDED, COMPLETED or ERROR
  * </pre>
- * <br/>
- * <br/>
+ * <br>
+ * <br>
  * The provider transitions are:
  *
  * <pre>
- * {@link TransferProcessStates#INITIAL} ->
- * {@link TransferProcessStates#PROVISIONING} ->
- * {@link TransferProcessStates#PROVISIONED} ->
- * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} ->
- * {@link TransferProcessStates#COMPLETED} ->
- * {@link TransferProcessStates#DEPROVISIONING} ->
- * {@link TransferProcessStates#DEPROVISIONED} ->
- * {@link TransferProcessStates#ENDED} ->
- * {@link TransferProcessStates#CANCELLED} -> optional, reachable from every state except ENDED, COMPLETED or ERROR
+ * {@link TransferProcessStates#INITIAL} -&gt;
+ * {@link TransferProcessStates#PROVISIONING} -&gt;
+ * {@link TransferProcessStates#PROVISIONED} -&gt;
+ * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} -&gt;
+ * {@link TransferProcessStates#COMPLETED} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONING} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONED} -&gt;
+ * {@link TransferProcessStates#ENDED} -&gt;
+ * {@link TransferProcessStates#CANCELLED} -&gt; optional, reachable from every state except ENDED, COMPLETED or ERROR
  * </pre>
- * <br/>
+ * <br>
  */
 @JsonTypeName("dataspaceconnector:transferprocess")
 @JsonDeserialize(builder = TransferProcess.Builder.class)

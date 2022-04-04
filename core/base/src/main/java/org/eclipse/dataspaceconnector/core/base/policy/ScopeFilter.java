@@ -40,7 +40,7 @@ import static java.util.stream.Collectors.toList;
  * <ul>
  *     <li>If root rule (i.e. directly contained in the {@link Policy} is processed and it rule action is not bound to a scope, the rule will be removed.</li>
  *     <li>If a root rule's action is bound but the action of a contained child rule is not, the root rule will be included but the child will be removed.</li>
- *     <li>If an {@link AtomicConstraint}'s left-operand </li> is not bound, it will be removed from the containing {@link Rule} or {@link MultiplicityConstraint}.
+ *     <li>If an {@link AtomicConstraint}'s left-operand  is not bound, it will be removed from the containing {@link Rule} or {@link MultiplicityConstraint}.</li>
  * </ul>
  *
  * It is possible that all constraints in a rule are filtered. In this case, the rule will always evaluate to true. Filtering also has the potential to alter the semantics of
