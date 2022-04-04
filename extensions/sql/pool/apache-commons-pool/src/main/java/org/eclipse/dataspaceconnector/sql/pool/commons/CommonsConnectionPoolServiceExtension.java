@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.sql.pool.commons;
 
+import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -35,6 +36,33 @@ import javax.sql.DataSource;
 
 public class CommonsConnectionPoolServiceExtension implements ServiceExtension {
     static final String EDC_DATASOURCE_PREFIX = "edc.datasource";
+
+    @EdcSetting
+    static final String POOL_MAX_IDLE_CONNECTIONS = "pool.maxIdleConnections";
+
+    @EdcSetting
+    static final String POOL_MAX_TOTAL_CONNECTIONS = "pool.maxTotalConnections";
+
+    @EdcSetting
+    static final String POOL_MIN_IDLE_CONNECTIONS = "pool.minIdleConnections";
+
+    @EdcSetting
+    static final String POOL_TEST_CONNECTION_ON_BORROW = "pool.testConnectionOnBorrow";
+
+    @EdcSetting
+    static final String POOL_TEST_CONNECTION_ON_CREATE = "pool.testConnectionOnCreate";
+
+    @EdcSetting
+    static final String POOL_TEST_CONNECTION_ON_RETURN = "pool.testConnectionOnReturn";
+
+    @EdcSetting
+    static final String POOL_TEST_CONNECTION_WHILE_IDLE = "pool.testConnectionWhileIdle";
+
+    @EdcSetting
+    static final String POOL_TEST_QUERY = "pool.testQuery";
+
+    @EdcSetting
+    static final String URL = "url";
 
     @Inject
     private DataSourceRegistry dataSourceRegistry;
@@ -82,7 +110,7 @@ public class CommonsConnectionPoolServiceExtension implements ServiceExtension {
     }
 
     private DataSource createDataSource(Config config) {
-        String jdbcUrl = Objects.requireNonNull(config.getString(CommonsConnectionPoolConfigKeys.URL));
+        String jdbcUrl = Objects.requireNonNull(config.getString(URL));
 
         Properties properties = new Properties();
         properties.putAll(config.getRelativeEntries());
@@ -95,14 +123,14 @@ public class CommonsConnectionPoolServiceExtension implements ServiceExtension {
     private CommonsConnectionPool createConnectionPool(DataSource unPooledDataSource, Config config) {
         CommonsConnectionPoolConfig.Builder builder = CommonsConnectionPoolConfig.Builder.newInstance();
 
-        setIfProvidedInt(CommonsConnectionPoolConfigKeys.POOL_MAX_IDLE_CONNECTIONS, builder::maxIdleConnections, config);
-        setIfProvidedInt(CommonsConnectionPoolConfigKeys.POOL_MAX_TOTAL_CONNECTIONS, builder::maxTotalConnections, config);
-        setIfProvidedInt(CommonsConnectionPoolConfigKeys.POOL_MIN_IDLE_CONNECTIONS, builder::minIdleConnections, config);
-        setIfProvidedBoolean(CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_BORROW, builder::testConnectionOnBorrow, config);
-        setIfProvidedBoolean(CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_CREATE, builder::testConnectionOnCreate, config);
-        setIfProvidedBoolean(CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_RETURN, builder::testConnectionOnReturn, config);
-        setIfProvidedBoolean(CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_WHILE_IDLE, builder::testConnectionWhileIdle, config);
-        setIfProvidedString(CommonsConnectionPoolConfigKeys.POOL_TEST_QUERY, builder::testQuery, config);
+        setIfProvidedInt(POOL_MAX_IDLE_CONNECTIONS, builder::maxIdleConnections, config);
+        setIfProvidedInt(POOL_MAX_TOTAL_CONNECTIONS, builder::maxTotalConnections, config);
+        setIfProvidedInt(POOL_MIN_IDLE_CONNECTIONS, builder::minIdleConnections, config);
+        setIfProvidedBoolean(POOL_TEST_CONNECTION_ON_BORROW, builder::testConnectionOnBorrow, config);
+        setIfProvidedBoolean(POOL_TEST_CONNECTION_ON_CREATE, builder::testConnectionOnCreate, config);
+        setIfProvidedBoolean(POOL_TEST_CONNECTION_ON_RETURN, builder::testConnectionOnReturn, config);
+        setIfProvidedBoolean(POOL_TEST_CONNECTION_WHILE_IDLE, builder::testConnectionWhileIdle, config);
+        setIfProvidedString(POOL_TEST_QUERY, builder::testQuery, config);
 
         return new CommonsConnectionPool(unPooledDataSource, builder.build());
     }

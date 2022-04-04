@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -32,7 +33,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.IntStream;
-import javax.sql.DataSource;
+
+import static org.eclipse.dataspaceconnector.sql.pool.commons.CommonsConnectionPoolServiceExtension.POOL_TEST_CONNECTION_ON_BORROW;
+import static org.eclipse.dataspaceconnector.sql.pool.commons.CommonsConnectionPoolServiceExtension.POOL_TEST_CONNECTION_ON_CREATE;
+import static org.eclipse.dataspaceconnector.sql.pool.commons.CommonsConnectionPoolServiceExtension.POOL_TEST_CONNECTION_ON_RETURN;
+import static org.eclipse.dataspaceconnector.sql.pool.commons.CommonsConnectionPoolServiceExtension.POOL_TEST_CONNECTION_WHILE_IDLE;
 
 //sometimes hangs and causes the test to never finish.
 @Disabled
@@ -44,15 +49,15 @@ class CommonsConnectionPoolServiceExtensionTest extends AbstractCommonsConnectio
     private final Map<String, String> systemProperties = new HashMap<>() {
         {
             put("edc.datasource." + DS_1_NAME + ".url", DS_1_NAME);
-            put("edc.datasource." + DS_1_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_CREATE, "false");
-            put("edc.datasource." + DS_1_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_RETURN, "false");
-            put("edc.datasource." + DS_1_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_BORROW, "false");
-            put("edc.datasource." + DS_1_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_WHILE_IDLE, "false");
+            put("edc.datasource." + DS_1_NAME + "." + POOL_TEST_CONNECTION_ON_CREATE, "false");
+            put("edc.datasource." + DS_1_NAME + "." + POOL_TEST_CONNECTION_ON_RETURN, "false");
+            put("edc.datasource." + DS_1_NAME + "." + POOL_TEST_CONNECTION_ON_BORROW, "false");
+            put("edc.datasource." + DS_1_NAME + "." + POOL_TEST_CONNECTION_WHILE_IDLE, "false");
             put("edc.datasource." + DS_2_NAME + ".url", DS_2_NAME);
-            put("edc.datasource." + DS_2_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_CREATE, "false");
-            put("edc.datasource." + DS_2_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_RETURN, "false");
-            put("edc.datasource." + DS_2_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_ON_BORROW, "false");
-            put("edc.datasource." + DS_2_NAME + "." + CommonsConnectionPoolConfigKeys.POOL_TEST_CONNECTION_WHILE_IDLE, "false");
+            put("edc.datasource." + DS_2_NAME + "." + POOL_TEST_CONNECTION_ON_CREATE, "false");
+            put("edc.datasource." + DS_2_NAME + "." + POOL_TEST_CONNECTION_ON_RETURN, "false");
+            put("edc.datasource." + DS_2_NAME + "." + POOL_TEST_CONNECTION_ON_BORROW, "false");
+            put("edc.datasource." + DS_2_NAME + "." + POOL_TEST_CONNECTION_WHILE_IDLE, "false");
         }
     };
 

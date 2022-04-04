@@ -20,17 +20,23 @@ import okhttp3.dnsoverhttps.DnsOverHttps;
 import org.eclipse.dataspaceconnector.common.string.StringUtils;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.iam.did.web.resolution.WebDidResolver;
+import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
 import static java.util.Objects.requireNonNull;
-import static org.eclipse.dataspaceconnector.iam.did.web.ConfigurationKeys.DNS_OVER_HTTPS;
 
 /**
  * Initializes support for resolving Web DIDs.
  */
 public class WebDidExtension implements ServiceExtension {
+
+    /**
+     * If set, the resolver will use the endpoint to resolve DIDs using DNS over HTTPS.
+     */
+    @EdcSetting
+    static final String DNS_OVER_HTTPS = "edc.webdid.doh.url";
 
     @Inject
     private DidResolverRegistry resolverRegistry;
