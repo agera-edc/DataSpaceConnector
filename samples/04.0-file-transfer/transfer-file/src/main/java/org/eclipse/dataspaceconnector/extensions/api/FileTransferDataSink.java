@@ -38,10 +38,10 @@ class FileTransferDataSink extends ParallelSink {
                     try {
                         input.transferTo(output);
                     } catch (Exception e) {
-                        return getTransferResult(e, "Error transferring file for %s on %s", fileName, null);
+                        return getTransferResult(e, "Error transferring file for %s on %s", fileName);
                     }
                 } catch (Exception e) {
-                    return getTransferResult(e, "Error creating file for %s on %s", fileName, null);
+                    return getTransferResult(e, "Error creating file for %s on %s", fileName);
                 }
             } catch (Exception e) {
                 return getTransferResult(e, "Error reading file %s", fileName);
