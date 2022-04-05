@@ -3,7 +3,7 @@ description: "Run tests and archive test results for subsequent publication"
 inputs:
   command:
     required: true
-    description: "The"
+    description: "The shell command to run tests"
 runs:
   using: "composite"
   steps:
@@ -11,9 +11,9 @@ runs:
       shell: bash
       run: ${{ inputs.command }}
 
-    - name: Upload Unit Test Results
+    - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Unit Test Results (Python ${{ matrix.python-version }})
-        path: pytest.xml
+        name: Test Results ${{ env.GITHUB_JOB }}
+        path: "**/test-results/**/*.xml"
