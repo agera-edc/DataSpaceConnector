@@ -13,7 +13,7 @@
  */
 package org.eclipse.dataspaceconnector.common.configuration;
 
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -30,22 +30,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ConfigurationFunctionsTest {
 
     public static final String DEFAULT = "default";
-    public static final String VAR_1 = "VAR_1";
-    public static final String VAR_2 = "VAR_2";
-    public static final String VAR_3 = "VAR_3";
-    private static final String PROP_1 = "property1";
-    private static final String PROP_2 = "property2";
-    private static final String PROP_3 = "property3";
+    public static final String ENV_VAR_1 = "EDC_KEY1";
+    public static final String ENV_VAR_2 = "EDC_KEY2";
+    public static final String EDC_VAR_3 = "EDC_KEY3";
+    private static final String PROP_1 = "edc.key1";
+    private static final String PROP_2 = "edc.key2";
+    private static final String PROP_3 = "edc.key3";
     public static final String VALUE_1 = "value1";
 
-    @AfterAll
-    @ClearEnvironmentVariable(key = VAR_1)
-    @ClearEnvironmentVariable(key = VAR_2)
-    @ClearEnvironmentVariable(key = VAR_3)
+    @AfterEach
+    @ClearEnvironmentVariable(key = ENV_VAR_1)
+    @ClearEnvironmentVariable(key = ENV_VAR_2)
+    @ClearEnvironmentVariable(key = EDC_VAR_3)
     @ClearSystemProperty(key = PROP_1)
     @ClearSystemProperty(key = PROP_2)
     @ClearSystemProperty(key = PROP_3)
-    public static void cleanUp() {
+    public void cleanUp() {
         // clear env vars and system properties
     }
 
@@ -60,9 +60,9 @@ class ConfigurationFunctionsTest {
     }
 
     @ParameterizedTest
-    @SetEnvironmentVariable(key = VAR_1, value = VALUE_1)
-    @SetEnvironmentVariable(key = VAR_2, value = "")
-    @SetEnvironmentVariable(key = VAR_3, value = "    ")
+    @SetEnvironmentVariable(key = ENV_VAR_1, value = VALUE_1)
+    @SetEnvironmentVariable(key = ENV_VAR_2, value = "")
+    @SetEnvironmentVariable(key = EDC_VAR_3, value = "    ")
     @MethodSource("envVarsSource")
     public void returnEnv(String key, String expected) {
         String resultValue = ConfigurationFunctions.propOrEnv(key, DEFAULT);
@@ -85,10 +85,10 @@ class ConfigurationFunctionsTest {
 
     private static Stream<Arguments> envVarsSource() {
         return Stream.of(
-                Arguments.of(VAR_1, VALUE_1),
-                Arguments.of("var.1", VALUE_1),
-                Arguments.of(VAR_2, DEFAULT),
-                Arguments.of(VAR_3, DEFAULT)
+                Arguments.of(ENV_VAR_1, VALUE_1),
+                Arguments.of(PROP_1, VALUE_1),
+                Arguments.of(ENV_VAR_2, DEFAULT),
+                Arguments.of(EDC_VAR_3, DEFAULT)
         );
     }
 }
