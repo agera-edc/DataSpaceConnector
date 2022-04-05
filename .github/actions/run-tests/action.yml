@@ -1,5 +1,5 @@
-name: "Deploy "
-description: "Builds and deploys "
+name: "Run tests"
+description: "Run tests and archive test results for subsequent publication"
 inputs:
   command:
     required: true
@@ -8,6 +8,7 @@ runs:
   using: "composite"
   steps:
     - name: Run Tests
+      shell: bash
       run: ${{ inputs.command }}
 
     - name: Upload Unit Test Results
