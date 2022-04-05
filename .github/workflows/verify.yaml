@@ -59,6 +59,7 @@ jobs:
   Upload-Test-Report:
     needs:
       - Unit-Test
+      - Azure-Storage-Integration-Test
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts

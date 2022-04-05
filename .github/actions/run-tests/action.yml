@@ -15,5 +15,5 @@ runs:
       if: always()
       uses: actions/upload-artifact@v2
       with:
-        name: Test Results ${{ env.GITHUB_JOB }}
+        name: Test Results ${{ github.job }}
         path: "**/test-results/**/*.xml"
