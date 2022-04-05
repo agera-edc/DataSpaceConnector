@@ -1,5 +1,9 @@
+name: "Deploy "
+description: "Builds and deploys "
 inputs:
   command:
+    required: true
+    description: "The"
 runs:
   using: "composite"
   steps:
