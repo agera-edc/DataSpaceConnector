@@ -35,8 +35,8 @@ jobs:
           filter_mode: 'nofilter'
 
       - uses: resources/actions/run-tests@v1
-      with:
-        command: ./gradlew test jacocoTestReport
+        with:
+          command: ./gradlew test jacocoTestReport
 
       - name: CodeCov
         uses: codecov/codecov-action@v2
