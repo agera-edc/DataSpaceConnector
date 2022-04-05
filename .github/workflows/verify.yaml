@@ -34,7 +34,7 @@ jobs:
           reporter: 'github-check'
           filter_mode: 'nofilter'
 
-      - uses: resources/actions/run-tests@v1
+      - uses: ./resources/actions/run-tests
         with:
           command: ./gradlew test jacocoTestReport
 
