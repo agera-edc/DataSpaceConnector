@@ -33,27 +33,27 @@ class ConfigurationFunctionsTest {
     public static final String ENV_VAR_1 = "EDC_KEY1";
     public static final String ENV_VAR_2 = "EDC_KEY2";
     public static final String EDC_VAR_3 = "EDC_KEY3";
-    private static final String PROP_1 = "edc.key1";
-    private static final String PROP_2 = "edc.key2";
-    private static final String PROP_3 = "edc.key3";
+    private static final String SYS_PROP_1 = "edc.key1";
+    private static final String SYS_PROP_2 = "edc.key2";
+    private static final String SYS_PROP_3 = "edc.key3";
     public static final String VALUE_1 = "value1";
 
     @AfterEach
     @ClearEnvironmentVariable(key = ENV_VAR_1)
     @ClearEnvironmentVariable(key = ENV_VAR_2)
     @ClearEnvironmentVariable(key = EDC_VAR_3)
-    @ClearSystemProperty(key = PROP_1)
-    @ClearSystemProperty(key = PROP_2)
-    @ClearSystemProperty(key = PROP_3)
+    @ClearSystemProperty(key = SYS_PROP_1)
+    @ClearSystemProperty(key = SYS_PROP_2)
+    @ClearSystemProperty(key = SYS_PROP_3)
     public void cleanUp() {
         // clear env vars and system properties
     }
 
     @ParameterizedTest
     @MethodSource("propertiesSource")
-    @SetSystemProperty(key = PROP_1, value = VALUE_1)
-    @SetSystemProperty(key = PROP_2, value = "")
-    @SetSystemProperty(key = PROP_3, value = "    ")
+    @SetSystemProperty(key = SYS_PROP_1, value = VALUE_1)
+    @SetSystemProperty(key = SYS_PROP_2, value = "")
+    @SetSystemProperty(key = SYS_PROP_3, value = "    ")
     public void returnSystemProperty(String key, String expected) {
         String resultValue = ConfigurationFunctions.propOrEnv(key, DEFAULT);
         assertThat(resultValue).isEqualTo(expected);
@@ -77,16 +77,16 @@ class ConfigurationFunctionsTest {
 
     private static Stream<Arguments> propertiesSource() {
         return Stream.of(
-                Arguments.of(PROP_1, VALUE_1),
-                Arguments.of(PROP_2, DEFAULT),
-                Arguments.of(PROP_3, DEFAULT)
+                Arguments.of(SYS_PROP_1, VALUE_1),
+                Arguments.of(SYS_PROP_2, DEFAULT),
+                Arguments.of(SYS_PROP_3, DEFAULT)
         );
     }
 
     private static Stream<Arguments> envVarsSource() {
         return Stream.of(
                 Arguments.of(ENV_VAR_1, VALUE_1),
-                Arguments.of(PROP_1, VALUE_1),
+                Arguments.of(SYS_PROP_1, VALUE_1),
                 Arguments.of(ENV_VAR_2, DEFAULT),
                 Arguments.of(EDC_VAR_3, DEFAULT)
         );
