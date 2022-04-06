@@ -76,8 +76,10 @@ public class TransferProcessServiceImpl implements TransferProcessService {
 
     @Override
     public @NotNull String initiateTransfer(DataRequest request) {
-        TransferInitiateResult transferInitiateResult = manager.initiateConsumerRequest(request);
-        return transferInitiateResult.getContent();
+        return transactionContext.execute(() -> {
+            TransferInitiateResult transferInitiateResult = manager.initiateConsumerRequest(request);
+            return transferInitiateResult.getContent();
+        });
     }
 
     private ServiceResult<TransferProcess> apply(String transferProcessId, Function<TransferProcess, ServiceResult<TransferProcess>> function) {
