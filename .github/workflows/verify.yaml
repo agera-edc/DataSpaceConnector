@@ -178,6 +178,12 @@ jobs:
     needs:
       - Unit-Test
       - Azure-Storage-Integration-Test
+      - Azure-CosmosDB-Integration-Test
+      - Aws-Integration-Test
+      - Daps-Integration-Test
+      - End-To-End-Tests
+      - Component-Tests
+      - Micrometer-Integration-Tests
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
