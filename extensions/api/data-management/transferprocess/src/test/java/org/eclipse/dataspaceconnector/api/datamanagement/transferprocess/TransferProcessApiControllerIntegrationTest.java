@@ -17,6 +17,8 @@ package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.service.TransferProcessService;
+import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.extension.jersey.CorsFilterConfiguration;
 import org.eclipse.dataspaceconnector.extension.jersey.JerseyRestService;
@@ -49,7 +51,7 @@ class TransferProcessApiControllerIntegrationTest {
         config.portMapping(new PortMapping("data", port, "/api/v1/data"));
         var jetty = new JettyService(config, monitor);
 
-        var ctrl = new TransferProcessApiController(monitor);
+        var ctrl = new TransferProcessApiController(monitor, mock(TransferProcessService.class), mock(DtoTransformerRegistry.class));
         var jerseyService = new JerseyRestService(jetty, new TypeManager(), mock(CorsFilterConfiguration.class), monitor);
         jetty.start();
         jerseyService.registerResource("data", ctrl);

@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess;
 
 import org.eclipse.dataspaceconnector.api.datamanagement.configuration.DataManagementApiConfiguration;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.service.TransferProcessService;
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform.DataRequestToDataRequestDtoTransformer;
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform.TransferProcessToTransferProcessDtoTransformer;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
@@ -33,9 +34,12 @@ public class TransferProcessApiExtension implements ServiceExtension {
     @Inject
     private DtoTransformerRegistry transformerRegistry;
 
+    @Inject
+    private TransferProcessService transferProcessService;
+
     @Override
     public void initialize(ServiceExtensionContext context) {
-        webService.registerResource(configuration.getContextAlias(), new TransferProcessApiController(context.getMonitor()));
+        webService.registerResource(configuration.getContextAlias(), new TransferProcessApiController(context.getMonitor(), transferProcessService, transformerRegistry));
 
         transformerRegistry.register(new DataRequestToDataRequestDtoTransformer());
         transformerRegistry.register(new TransferProcessToTransferProcessDtoTransformer());
