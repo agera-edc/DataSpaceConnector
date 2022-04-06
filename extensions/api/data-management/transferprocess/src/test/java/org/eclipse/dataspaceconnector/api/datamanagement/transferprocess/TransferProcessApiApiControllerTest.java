@@ -127,6 +127,7 @@ class TransferProcessApiApiControllerTest {
 
         assertThatThrownBy(() -> controller.getTransferProcessState(id)).isInstanceOf(ObjectNotFoundException.class);
     }
+
     @Test
     void deprovision() {
         TransferProcess transferProcess = transferProcess();

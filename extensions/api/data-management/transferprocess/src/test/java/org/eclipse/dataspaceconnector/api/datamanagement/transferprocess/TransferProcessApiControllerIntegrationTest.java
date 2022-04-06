@@ -29,7 +29,10 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
-import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.*;
+import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.COMPLETED;
+import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.INITIAL;
+import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.IN_PROGRESS;
+import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates.PROVISIONING;
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(EdcExtension.class)
@@ -96,14 +99,13 @@ class TransferProcessApiControllerIntegrationTest {
 
     @Test
     void getSingleTransferProcess(TransferProcessStore store) {
-        String processId = PROCESS_ID;
-        store.create(createTransferProcess(processId));
+        store.create(createTransferProcess(PROCESS_ID));
         baseRequest()
-                .get("/transferprocess/" + processId)
+                .get("/transferprocess/" + PROCESS_ID)
                 .then()
                 .statusCode(200)
                 .contentType(JSON)
-                .body("id", is(processId));
+                .body("id", is(PROCESS_ID));
 
     }
 
@@ -120,7 +122,7 @@ class TransferProcessApiControllerIntegrationTest {
         store.create(createTransferProcess(PROCESS_ID, PROVISIONING.code()));
 
         var state = baseRequest()
-                .get("/transferprocess/" + PROCESS_ID +"/state")
+                .get("/transferprocess/" + PROCESS_ID + "/state")
                 .then()
                 .statusCode(200)
                 .contentType(JSON)
