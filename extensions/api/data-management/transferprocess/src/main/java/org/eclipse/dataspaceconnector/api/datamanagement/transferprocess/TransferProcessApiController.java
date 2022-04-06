@@ -109,31 +109,15 @@ public class TransferProcessApiController implements TransferProcessApi {
     @Path("/{id}/request")
     @Override
     public String initiateTransfer(@PathParam("id") String assetId, TransferRequestDto transferRequest) {
-//        if (!isValid(initiateDto)) {
-//            throw new IllegalArgumentException("Negotiation request is invalid");
-//        }
-//
-//        var transformResult = transformerRegistry.transform(initiateDto, ContractOfferRequest.class);
-//        if (transformResult.failed()) {
-//            throw new IllegalArgumentException("Negotiation request is invalid");
-//        }
-//
-//        var request = transformResult.getContent();
-//
-//        ContractNegotiation contractNegotiation = service.initiateNegotiation(request);
-//        return contractNegotiation.getId();
-//        if (StringUtils.isNullOrBlank(assetId)) {
-//            throw new IllegalArgumentException("Asset ID not valid");
-//        }
-//
-//        if (!isValid(transferRequest)) {
-//            throw new IllegalArgumentException("Transfer request body not valid");
-//        }
-//        monitor.debug("Starting transfer for asset " + assetId + "to " + transferRequest.getDataDestination());
-//
-//        var transformResult = transformerRegistry.transform(transferRequest, DataRequest.class);
-//        service.initiateTranfer(transformResult);
-        return null; //will be the transfer process id
+        if (StringUtils.isNullOrBlank(assetId)) {
+            throw new IllegalArgumentException("Asset ID not valid");
+        }
+
+        if (!isValid(transferRequest)) {
+            throw new IllegalArgumentException("Transfer request body not valid");
+        }
+        monitor.debug("Starting transfer for asset " + assetId + "to " + transferRequest.getDataDestination());
+        return "not-implemented"; //will be the transfer process id
     }
 
     @POST
