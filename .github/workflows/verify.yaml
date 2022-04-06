@@ -9,24 +9,6 @@ on:
       - 'docs/**'
 
 jobs:
-  Unit-Test:
-    runs-on: ubuntu-latest
-    env:
-      JACOCO: true
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Java
-        uses: ./.github/actions/setup-java
-
-      - name: Run unit tests
-        uses: ./.github/actions/run-tests
-        with:
-          command: ./gradlew test jacocoTestReport
-
-      - name: CodeCov
-        uses: codecov/codecov-action@v2
-
 
   Azure-Storage-Integration-Test:
     runs-on: ubuntu-latest
@@ -82,108 +64,10 @@ jobs:
         with:
           command: ./gradlew -p extensions/azure/cosmos test -DincludeTags="AzureCosmosDbIntegrationTest"
 
-  Aws-Integration-Test:
-    runs-on: ubuntu-latest
-    env:
-      S3_ACCESS_KEY_ID: root
-      S3_SECRET_ACCESS_KEY: password
-
-    services:
-      minio:
-        image: bitnami/minio:latest
-        ports:
-          - 9000:9000
-        env:
-          MINIO_ROOT_USER: root
-          MINIO_ROOT_PASSWORD: password
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Java
-        uses: ./.github/actions/setup-java
-
-      - name: AWS S3 Tests
-        uses: ./.github/actions/run-tests
-        with:
-          command: ./gradlew -p extensions/aws/s3 test -DincludeTags="AwsS3IntegrationTest"
-
-  Daps-Integration-Test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: reset permissions to permit checkout (because the omejdn volumes)
-        run: sudo chown -R $USER:$USER ${{ github.workspace }}
-
-      - uses: actions/checkout@v2
-
-      - run: docker run -d --rm -p 4567:4567 -v ${{ github.workspace }}/extensions/iam/daps/src/test/resources/config:/opt/config -v ${{ github.workspace }}/extensions/iam/daps/src/test/resources/keys:/opt/keys ghcr.io/fraunhofer-aisec/omejdn-server:1.3.1
-
-      - name: Setup Java
-        uses: ./.github/actions/setup-java
-
-      - name: Daps Integration Tests
-        uses: ./.github/actions/run-tests
-        with:
-          command: ./gradlew -p extensions/iam/daps test -DincludeTags="DapsIntegrationTest"
-
-  End-To-End-Tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Java
-        uses: ./.github/actions/setup-java
-
-      - name: End to End Integration Tests
-        uses: ./.github/actions/run-tests
-        with:
-          command: ./gradlew test -DincludeTags="EndToEndTest"
-
-      - name: "Publish Gatling report"
-        uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: Gatling reports
-          path: '**/build/reports/gatling/**'
-
-  Component-Tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Java
-        uses: ./.github/actions/setup-java
-
-      - name: Component Tests
-        uses: ./.github/actions/run-tests
-        with:
-          command: ./gradlew test -DincludeTags="ComponentTest"
-
-  Micrometer-Integration-Tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Java
-        uses: ./.github/actions/setup-java
-
-      - name: Download opentelemetry javaagent.
-        run: wget -q https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.12.0/opentelemetry-javaagent.jar
-      - name: Micrometer Integration Tests
-        uses: ./.github/actions/run-tests
-        with:
-          command: ./gradlew -p core/micrometer test -DincludeTags="OpenTelemetryIntegrationTest"
-
   Upload-Test-Report:
     needs:
-      - Unit-Test
       - Azure-Storage-Integration-Test
       - Azure-CosmosDB-Integration-Test
-      - Aws-Integration-Test
-      - Daps-Integration-Test
-      - End-To-End-Tests
-      - Component-Tests
-      - Micrometer-Integration-Tests
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts
