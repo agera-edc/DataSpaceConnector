@@ -17,8 +17,10 @@ package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.servic
 import org.eclipse.dataspaceconnector.api.result.ServiceResult;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.transaction.TransactionContext;
+import org.eclipse.dataspaceconnector.spi.transfer.TransferInitiateResult;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.command.CancelTransferCommand;
@@ -70,6 +72,12 @@ public class TransferProcessServiceImpl implements TransferProcessService {
     @Override
     public @NotNull ServiceResult<TransferProcess> deprovision(String transferProcessId) {
         return apply(transferProcessId, this::deprovisionImpl);
+    }
+
+    @Override
+    public @NotNull String initiateTransfer(DataRequest request) {
+        TransferInitiateResult transferInitiateResult = manager.initiateConsumerRequest(request);
+        return transferInitiateResult.getContent();
     }
 
     private ServiceResult<TransferProcess> apply(String transferProcessId, Function<TransferProcess, ServiceResult<TransferProcess>> function) {

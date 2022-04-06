@@ -36,6 +36,7 @@ import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
 import org.eclipse.dataspaceconnector.spi.result.Result;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 
 import java.util.List;
@@ -117,7 +118,7 @@ public class TransferProcessApiController implements TransferProcessApi {
             throw new IllegalArgumentException("Transfer request body not valid");
         }
         monitor.debug("Starting transfer for asset " + assetId + "to " + transferRequest.getDataDestination());
-        return "not-implemented"; //will be the transfer process id
+        return service.initiateTransfer(dataRequest(assetId, transferRequest));
     }
 
     @POST
@@ -144,6 +145,22 @@ public class TransferProcessApiController implements TransferProcessApi {
         } else {
             handleFailedResult(result, id);
         }
+    }
+
+    private DataRequest dataRequest(String assetId, TransferRequestDto object) {
+        return DataRequest.Builder.newInstance()
+                .assetId(assetId)
+                .connectorId(object.getConnectorId())
+                .dataDestination(object.getDataDestination())
+                .connectorAddress(object.getConnectorAddress())
+                .contractId(object.getContractId())
+                .transferType(object.getTransferType())
+                .destinationType(object.getDataDestination().getType())
+                .properties(object.getProperties())
+                .managedResources(object.isManagedResources())
+                .protocol(object.getProtocol())
+                .dataDestination(object.getDataDestination())
+                .build();
     }
 
     private boolean isValid(TransferRequestDto transferRequest) {

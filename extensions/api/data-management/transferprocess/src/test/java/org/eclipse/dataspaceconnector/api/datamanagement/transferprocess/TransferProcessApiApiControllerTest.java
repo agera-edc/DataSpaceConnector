@@ -30,7 +30,6 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -38,6 +37,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -182,7 +182,27 @@ class TransferProcessApiApiControllerTest {
         assertThatThrownBy(() -> controller.cancelTransferProcess(transferProcess.getId())).isInstanceOf(ObjectNotFoundException.class);
     }
 
-    @Disabled
+    @Test
+    void initiateTransfer() {
+        var rq = transferRequestDto();
+        String processId = "processId";
+        when(service.initiateTransfer(any())).thenReturn(processId);
+
+        String result = controller.initiateTransfer("assetId", rq);
+        assertThat(result).isEqualTo(processId);
+    }
+
+    private TransferRequestDto transferRequestDto() {
+        return TransferRequestDto.Builder.newInstance()
+                .connectorAddress("http://some-contract")
+                .contractId("some-contract")
+                .protocol("test-asset")
+                .dataDestination(DataAddress.Builder.newInstance().type("test-type").build())
+                .connectorId("connectorId")
+                .properties(Map.of("prop", "value"))
+                .build();
+    }
+
     @ParameterizedTest
     @MethodSource("getInvalidRequestParams")
     void initiateTransfer_invalidRequest(String connectorAddress, String contractId, String assetId, String protocol, DataAddress destination) {
