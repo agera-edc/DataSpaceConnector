@@ -185,6 +185,7 @@ jobs:
       - Component-Tests
       - Micrometer-Integration-Tests
     runs-on: ubuntu-latest
+    if: always()
     steps:
       - name: Download Artifacts
         uses: actions/download-artifact@v2
