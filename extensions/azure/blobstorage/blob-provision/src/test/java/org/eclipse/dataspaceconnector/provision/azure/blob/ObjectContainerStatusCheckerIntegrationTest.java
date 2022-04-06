@@ -61,7 +61,7 @@ class ObjectContainerStatusCheckerIntegrationTest extends AbstractAzureBlobTest 
 
         boolean complete = checker.isComplete(transferProcess, emptyList());
 
-        assertThat(complete).isTrue();
+        assertThat(complete).isFalse();
     }
 
     @Test
