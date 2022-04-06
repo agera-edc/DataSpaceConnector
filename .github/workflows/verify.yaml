@@ -80,10 +80,3 @@ jobs:
         if: always()
         with:
           files: "**/test-results/**/*.xml"
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: always()
-        with:
-          name: Test Report
-          path: "**/test-results/**/*.xml"
-          reporter: java-junit
