@@ -90,14 +90,14 @@ public class DataFlowRequest implements Polymorphic, TraceCarrier {
     }
 
     /**
-     * @return Trace context for this carrier
+     * Trace context for this carrier
      */
     public Map<String, String> getTraceContext() {
         return Collections.unmodifiableMap(traceContext);
     }
 
     /**
-     * @return A builder initialized with the current DataFlowRequest
+     * A builder initialized with the current DataFlowRequest
      */
     public Builder toBuilder() {
         return new Builder(this);
