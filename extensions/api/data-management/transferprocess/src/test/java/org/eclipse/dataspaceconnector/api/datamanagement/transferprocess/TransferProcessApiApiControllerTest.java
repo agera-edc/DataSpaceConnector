@@ -28,6 +28,7 @@ import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.SortOrder;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -184,11 +185,27 @@ class TransferProcessApiApiControllerTest {
 
     @Test
     void initiateTransfer() {
-        var rq = transferRequestDto();
+        var transferReq = transferRequestDto();
         String processId = "processId";
+        String assetId = "assetId";
         when(service.initiateTransfer(any())).thenReturn(processId);
 
-        String result = controller.initiateTransfer("assetId", rq);
+        String result = controller.initiateTransfer(assetId, transferReq);
+
+        var dataRequestCaptor = ArgumentCaptor.forClass(DataRequest.class);
+        verify(service).initiateTransfer(dataRequestCaptor.capture());
+        DataRequest dataRequest = dataRequestCaptor.getValue();
+        assertThat(dataRequest.getAssetId()).isEqualTo(assetId);
+        assertThat(dataRequest.getConnectorAddress()).isEqualTo(transferReq.getConnectorAddress());
+        assertThat(dataRequest.getConnectorId()).isEqualTo(transferReq.getConnectorId());
+        assertThat(dataRequest.getDataDestination()).isEqualTo(transferReq.getDataDestination());
+        assertThat(dataRequest.getDestinationType()).isEqualTo(transferReq.getDataDestination().getType());
+        assertThat(dataRequest.getContractId()).isEqualTo(transferReq.getContractId());
+        assertThat(dataRequest.getProtocol()).isEqualTo(transferReq.getProtocol());
+        assertThat(dataRequest.getProperties()).isEqualTo(transferReq.getProperties());
+        assertThat(dataRequest.getTransferType()).isEqualTo(transferReq.getTransferType());
+        assertThat(dataRequest.isManagedResources()).isEqualTo(transferReq.isManagedResources());
+
         assertThat(result).isEqualTo(processId);
     }
 
