@@ -284,6 +284,7 @@ class TransferProcessApiApiControllerTest {
                 Arguments.of("http://someurl", "some-contract", "  ", "ids-multipart", DataAddress.Builder.newInstance().type("test-type").build())
         );
     }
+
     private void assertQuerySpec(int limit, int offset, SortOrder sortOrder, String sortField, Criterion... criterions) {
         ArgumentCaptor<QuerySpec> captor = ArgumentCaptor.forClass(QuerySpec.class);
         verify(service).query(captor.capture());
