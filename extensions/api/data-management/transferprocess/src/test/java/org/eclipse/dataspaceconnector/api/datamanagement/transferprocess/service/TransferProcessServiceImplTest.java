@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.service;
 
 import com.github.javafaker.Faker;
+import org.eclipse.dataspaceconnector.api.result.ServiceResult;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.transaction.NoopTransactionContext;
 import org.eclipse.dataspaceconnector.spi.transaction.TransactionContext;
@@ -144,7 +145,7 @@ class TransferProcessServiceImplTest {
         String processId = "processId";
 
         when(manager.initiateConsumerRequest(dataRequest)).thenReturn(TransferInitiateResult.success(processId));
-        assertThat(service.initiateTransfer(dataRequest)).isEqualTo(processId);
+        assertThat(service.initiateTransfer(dataRequest)).isEqualTo(ServiceResult.success(processId));
     }
 
     public static List<TransferProcessStates> cancellableStates() {

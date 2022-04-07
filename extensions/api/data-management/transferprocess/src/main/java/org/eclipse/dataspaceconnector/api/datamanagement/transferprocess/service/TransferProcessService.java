@@ -84,8 +84,8 @@ public interface TransferProcessService {
      * Initiate transfer request.
      *
      * @param request for the transfer.
-     * @return id of created transferProcess.
+     * @return a result that is successful if the transfer process was initiated with id of created transferProcess.
      */
     @NotNull
-    String initiateTransfer(DataRequest request);
+    ServiceResult<String> initiateTransfer(DataRequest request);
 }

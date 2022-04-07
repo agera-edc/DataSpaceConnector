@@ -188,33 +188,52 @@ class TransferProcessApiApiControllerTest {
     void initiateTransfer() {
         var transferReq = transferRequestDto();
         String processId = "processId";
-        String assetId = "assetId";
-        when(service.initiateTransfer(any())).thenReturn(processId);
+        DataRequest request = dataRequest(transferReq);
+        when(transformerRegistry.transform(isA(TransferRequestDto.class), eq(DataRequest.class))).thenReturn(Result.success(request));
+        when(service.initiateTransfer(any())).thenReturn(ServiceResult.success(processId));
 
-        String result = controller.initiateTransfer(assetId, transferReq);
+        String result = controller.initiateTransfer(transferReq);
 
         var dataRequestCaptor = ArgumentCaptor.forClass(DataRequest.class);
         verify(service).initiateTransfer(dataRequestCaptor.capture());
         DataRequest dataRequest = dataRequestCaptor.getValue();
-        assertThat(dataRequest.getAssetId()).isEqualTo(assetId);
-        assertThat(dataRequest.getConnectorAddress()).isEqualTo(transferReq.getConnectorAddress());
-        assertThat(dataRequest.getConnectorId()).isEqualTo(transferReq.getConnectorId());
-        assertThat(dataRequest.getDataDestination()).isEqualTo(transferReq.getDataDestination());
-        assertThat(dataRequest.getDestinationType()).isEqualTo(transferReq.getDataDestination().getType());
-        assertThat(dataRequest.getContractId()).isEqualTo(transferReq.getContractId());
-        assertThat(dataRequest.getProtocol()).isEqualTo(transferReq.getProtocol());
-        assertThat(dataRequest.getProperties()).isEqualTo(transferReq.getProperties());
-        assertThat(dataRequest.getTransferType()).isEqualTo(transferReq.getTransferType());
-        assertThat(dataRequest.isManagedResources()).isEqualTo(transferReq.isManagedResources());
+        assertThat(dataRequest.getAssetId()).isEqualTo(request.getAssetId());
+        assertThat(dataRequest.getConnectorAddress()).isEqualTo(request.getConnectorAddress());
+        assertThat(dataRequest.getConnectorId()).isEqualTo(request.getConnectorId());
+        assertThat(dataRequest.getDataDestination()).isEqualTo(request.getDataDestination());
+        assertThat(dataRequest.getDestinationType()).isEqualTo(request.getDataDestination().getType());
+        assertThat(dataRequest.getContractId()).isEqualTo(request.getContractId());
+        assertThat(dataRequest.getProtocol()).isEqualTo(request.getProtocol());
+        assertThat(dataRequest.getProperties()).isEqualTo(request.getProperties());
+        assertThat(dataRequest.getTransferType()).isEqualTo(request.getTransferType());
+        assertThat(dataRequest.isManagedResources()).isEqualTo(request.isManagedResources());
 
         assertThat(result).isEqualTo(processId);
     }
 
     @Test
+    void initiateTransfer_failureTransformingRequest() {
+        when(transformerRegistry.transform(isA(TransferRequestDto.class), eq(DataRequest.class))).thenReturn(Result.failure("failure"));
+
+        assertThatThrownBy(() -> controller.initiateTransfer(transferRequestDto())).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void initiateTransfer_failure() {
+        var dataRequest = dataRequest();
+        when(transformerRegistry.transform(isA(TransferRequestDto.class), eq(DataRequest.class))).thenReturn(Result.success(dataRequest));
+        when(service.initiateTransfer(any())).thenReturn(ServiceResult.conflict("failure"));
+
+        assertThatThrownBy(() -> controller.initiateTransfer(transferRequestDto())).isInstanceOf(EdcException.class);
+    }
+
+    @Test
+    void initiateTransfer_exceptionThrown() {
+        var dataRequest = dataRequest();
+        when(transformerRegistry.transform(isA(TransferRequestDto.class), eq(DataRequest.class))).thenReturn(Result.success(dataRequest));
         when(service.initiateTransfer(any())).thenThrow(new RuntimeException());
 
-        assertThatThrownBy(() -> controller.initiateTransfer("assetId", transferRequestDto())).isInstanceOf(EdcException.class);
+        assertThatThrownBy(() -> controller.initiateTransfer(transferRequestDto())).isInstanceOf(EdcException.class);
     }
 
     @ParameterizedTest
@@ -225,13 +244,14 @@ class TransferProcessApiApiControllerTest {
                 .contractId(contractId)
                 .protocol(protocol)
                 .dataDestination(destination)
+                .assetId(assetId)
                 .build();
-        assertThatThrownBy(() -> controller.initiateTransfer(assetId, rq)).isInstanceOfAny(IllegalArgumentException.class);
+        assertThatThrownBy(() -> controller.initiateTransfer(rq)).isInstanceOfAny(IllegalArgumentException.class);
     }
-
 
     private TransferRequestDto transferRequestDto() {
         return TransferRequestDto.Builder.newInstance()
+                .assetId("assetId")
                 .connectorAddress("http://some-contract")
                 .contractId("some-contract")
                 .protocol("test-asset")
@@ -241,7 +261,12 @@ class TransferProcessApiApiControllerTest {
                 .build();
     }
 
+    private DataRequest dataRequest() {
+        return DataRequest.Builder.newInstance().build();
+    }
+
     // provides invalid values for a TransferRequestDto
+
     public static Stream<Arguments> getInvalidRequestParams() {
         return Stream.of(
                 Arguments.of(null, "some-contract", "test-asset", "ids-multipart", DataAddress.Builder.newInstance().type("test-type").build()),
@@ -259,7 +284,6 @@ class TransferProcessApiApiControllerTest {
                 Arguments.of("http://someurl", "some-contract", "  ", "ids-multipart", DataAddress.Builder.newInstance().type("test-type").build())
         );
     }
-
     private void assertQuerySpec(int limit, int offset, SortOrder sortOrder, String sortField, Criterion... criterions) {
         ArgumentCaptor<QuerySpec> captor = ArgumentCaptor.forClass(QuerySpec.class);
         verify(service).query(captor.capture());
@@ -281,5 +305,21 @@ class TransferProcessApiApiControllerTest {
 
     private TransferProcess transferProcess(String id) {
         return TransferProcess.Builder.newInstance().id(id).build();
+    }
+
+    private DataRequest dataRequest(TransferRequestDto dto) {
+        return DataRequest.Builder.newInstance()
+                .assetId(dto.getAssetId())
+                .connectorId(dto.getConnectorId())
+                .dataDestination(dto.getDataDestination())
+                .connectorAddress(dto.getConnectorAddress())
+                .contractId(dto.getContractId())
+                .transferType(dto.getTransferType())
+                .destinationType(dto.getDataDestination().getType())
+                .properties(dto.getProperties())
+                .managedResources(dto.isManagedResources())
+                .protocol(dto.getProtocol())
+                .dataDestination(dto.getDataDestination())
+                .build();
     }
 }

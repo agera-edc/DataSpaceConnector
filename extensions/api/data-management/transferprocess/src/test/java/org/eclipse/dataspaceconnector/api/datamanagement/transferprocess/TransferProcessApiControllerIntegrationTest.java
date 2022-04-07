@@ -203,11 +203,11 @@ class TransferProcessApiControllerIntegrationTest {
 
     @Test
     void initiateRequest(TransferProcessStore store) {
-        var assetId = "assetId";
         var request = TransferRequestDto.Builder.newInstance()
                 .connectorAddress("http://some-contract")
                 .contractId("some-contract")
                 .protocol("test-asset")
+                .assetId("assetId")
                 .dataDestination(DataAddress.Builder.newInstance().type("test-type").build())
                 .connectorId("connectorId")
                 .properties(Map.of("prop", "value"))
@@ -216,7 +216,7 @@ class TransferProcessApiControllerIntegrationTest {
         var result = baseRequest()
                 .contentType(JSON)
                 .body(request)
-                .post("/transferprocess/" + assetId + "/request")
+                .post("/transferprocess/request")
                 .then()
                 .statusCode(200)
                 .extract().body().asString();
@@ -230,7 +230,7 @@ class TransferProcessApiControllerIntegrationTest {
         baseRequest()
                 .contentType(JSON)
                 .body("bad-request")
-                .post("/transferprocess/assetId/request")
+                .post("/transferprocess/request")
                 .then()
                 .statusCode(400)
                 .extract().body().asString();
