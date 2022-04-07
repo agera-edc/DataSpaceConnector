@@ -192,17 +192,6 @@ class TransferProcessApiApiControllerTest {
         assertThat(result).isEqualTo(processId);
     }
 
-    private TransferRequestDto transferRequestDto() {
-        return TransferRequestDto.Builder.newInstance()
-                .connectorAddress("http://some-contract")
-                .contractId("some-contract")
-                .protocol("test-asset")
-                .dataDestination(DataAddress.Builder.newInstance().type("test-type").build())
-                .connectorId("connectorId")
-                .properties(Map.of("prop", "value"))
-                .build();
-    }
-
     @ParameterizedTest
     @MethodSource("getInvalidRequestParams")
     void initiateTransfer_invalidRequest(String connectorAddress, String contractId, String assetId, String protocol, DataAddress destination) {
@@ -215,6 +204,17 @@ class TransferProcessApiApiControllerTest {
         assertThatThrownBy(() -> controller.initiateTransfer(assetId, rq)).isInstanceOfAny(IllegalArgumentException.class);
     }
 
+
+    private TransferRequestDto transferRequestDto() {
+        return TransferRequestDto.Builder.newInstance()
+                .connectorAddress("http://some-contract")
+                .contractId("some-contract")
+                .protocol("test-asset")
+                .dataDestination(DataAddress.Builder.newInstance().type("test-type").build())
+                .connectorId("connectorId")
+                .properties(Map.of("prop", "value"))
+                .build();
+    }
 
     // provides invalid values for a TransferRequestDto
     public static Stream<Arguments> getInvalidRequestParams() {
