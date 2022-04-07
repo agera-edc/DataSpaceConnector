@@ -22,6 +22,7 @@ import org.eclipse.dataspaceconnector.api.exception.ObjectExistsException;
 import org.eclipse.dataspaceconnector.api.exception.ObjectNotFoundException;
 import org.eclipse.dataspaceconnector.api.result.ServiceResult;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
+import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.query.Criterion;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
@@ -207,6 +208,13 @@ class TransferProcessApiApiControllerTest {
         assertThat(dataRequest.isManagedResources()).isEqualTo(transferReq.isManagedResources());
 
         assertThat(result).isEqualTo(processId);
+    }
+
+    @Test
+    void initiateTransfer_failure() {
+        when(service.initiateTransfer(any())).thenThrow(new RuntimeException());
+
+        assertThatThrownBy(() -> controller.initiateTransfer("assetId", transferRequestDto())).isInstanceOf(EdcException.class);
     }
 
     @ParameterizedTest

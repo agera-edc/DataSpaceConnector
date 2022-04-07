@@ -117,8 +117,14 @@ public class TransferProcessApiController implements TransferProcessApi {
         if (!isValid(transferRequest)) {
             throw new IllegalArgumentException("Transfer request body not valid");
         }
+
         monitor.debug("Starting transfer for asset " + assetId);
-        return service.initiateTransfer(dataRequest(assetId, transferRequest));
+        try {
+            return service.initiateTransfer(dataRequest(assetId, transferRequest));
+        } catch (Exception e) {
+            monitor.severe("Error during initiating the transfer with assetId:" + assetId);
+            throw new EdcException("Error during initiating the transfer with assetId:" + assetId, e);
+        }
     }
 
     @POST
