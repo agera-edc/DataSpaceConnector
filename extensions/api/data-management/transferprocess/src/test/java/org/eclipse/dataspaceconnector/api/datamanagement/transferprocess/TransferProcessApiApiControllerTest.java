@@ -227,15 +227,6 @@ class TransferProcessApiApiControllerTest {
         assertThatThrownBy(() -> controller.initiateTransfer(transferRequestDto())).isInstanceOf(EdcException.class);
     }
 
-    @Test
-    void initiateTransfer_exceptionThrown() {
-        var dataRequest = dataRequest();
-        when(transformerRegistry.transform(isA(TransferRequestDto.class), eq(DataRequest.class))).thenReturn(Result.success(dataRequest));
-        when(service.initiateTransfer(any())).thenThrow(new RuntimeException());
-
-        assertThatThrownBy(() -> controller.initiateTransfer(transferRequestDto())).isInstanceOf(EdcException.class);
-    }
-
     @ParameterizedTest
     @MethodSource("getInvalidRequestParams")
     void initiateTransfer_invalidRequest(String connectorAddress, String contractId, String assetId, String protocol, DataAddress destination) {
@@ -262,11 +253,12 @@ class TransferProcessApiApiControllerTest {
     }
 
     private DataRequest dataRequest() {
-        return DataRequest.Builder.newInstance().build();
+        return DataRequest.Builder.newInstance()
+                .dataDestination(DataAddress.Builder.newInstance().type("dataaddress-type").build())
+                .build();
     }
 
     // provides invalid values for a TransferRequestDto
-
     public static Stream<Arguments> getInvalidRequestParams() {
         return Stream.of(
                 Arguments.of(null, "some-contract", "test-asset", "ids-multipart", DataAddress.Builder.newInstance().type("test-type").build()),

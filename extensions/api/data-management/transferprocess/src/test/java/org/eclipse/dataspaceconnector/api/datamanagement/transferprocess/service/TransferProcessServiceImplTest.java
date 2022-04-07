@@ -145,7 +145,9 @@ class TransferProcessServiceImplTest {
         String processId = "processId";
 
         when(manager.initiateConsumerRequest(dataRequest)).thenReturn(TransferInitiateResult.success(processId));
-        assertThat(service.initiateTransfer(dataRequest)).isEqualTo(ServiceResult.success(processId));
+        ServiceResult<String> result = service.initiateTransfer(dataRequest);
+        assertThat(result.succeeded()).isTrue();
+        assertThat(result.getContent()).isEqualTo(processId);
     }
 
     public static List<TransferProcessStates> cancellableStates() {

@@ -80,6 +80,7 @@ public class TransferProcessServiceImpl implements TransferProcessService {
         return transactionContext.execute(() -> {
             TransferInitiateResult transferInitiateResult = manager.initiateConsumerRequest(request);
             return Optional.ofNullable(transferInitiateResult)
+                    .filter(AbstractResult::succeeded)
                     .map(AbstractResult::getContent)
                     .map(ServiceResult::success)
                     .orElse(ServiceResult.conflict("Request couldn't be initialised."));
