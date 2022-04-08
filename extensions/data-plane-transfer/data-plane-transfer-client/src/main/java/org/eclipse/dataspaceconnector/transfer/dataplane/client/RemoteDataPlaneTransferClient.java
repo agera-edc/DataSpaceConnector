@@ -16,7 +16,6 @@ package org.eclipse.dataspaceconnector.transfer.dataplane.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.opentelemetry.extension.annotations.WithSpan;
 import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.RetryPolicy;
 import okhttp3.MediaType;
@@ -58,7 +57,6 @@ public class RemoteDataPlaneTransferClient implements DataPlaneTransferClient {
         this.mapper = mapper;
     }
 
-    @WithSpan
     @Override
     public TransferResult transfer(DataFlowRequest request) {
         var instance = selectorClient.find(request.getSourceDataAddress(), request.getDestinationDataAddress(), selectorStrategy);

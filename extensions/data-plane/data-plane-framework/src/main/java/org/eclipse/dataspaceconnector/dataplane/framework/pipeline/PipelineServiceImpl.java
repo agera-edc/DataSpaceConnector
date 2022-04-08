@@ -14,7 +14,6 @@
 
 package org.eclipse.dataspaceconnector.dataplane.framework.pipeline;
 
-import io.opentelemetry.extension.annotations.WithSpan;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSink;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSinkFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
@@ -74,7 +73,6 @@ public class PipelineServiceImpl implements PipelineService {
         return Result.success(true);
     }
 
-    @WithSpan
     @Override
     public CompletableFuture<TransferResult> transfer(DataFlowRequest request) {
         var sourceFactory = getSourceFactory(request);

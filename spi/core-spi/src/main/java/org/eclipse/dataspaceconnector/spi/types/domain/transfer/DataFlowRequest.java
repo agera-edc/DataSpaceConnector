@@ -18,12 +18,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.eclipse.dataspaceconnector.spi.telemetry.TraceCarrier;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.Polymorphic;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -32,7 +29,7 @@ import java.util.Objects;
  */
 @JsonTypeName("dataspaceconnector:dataflowrequest")
 @JsonDeserialize(builder = DataFlowRequest.Builder.class)
-public class DataFlowRequest implements Polymorphic, TraceCarrier {
+public class DataFlowRequest implements Polymorphic {
     private String id;
     private String processId;
 
@@ -42,7 +39,6 @@ public class DataFlowRequest implements Polymorphic, TraceCarrier {
     private boolean trackable;
 
     private Map<String, String> properties = Map.of();
-    private Map<String, String> traceContext = Map.of();
 
     private DataFlowRequest() {
     }
@@ -89,30 +85,12 @@ public class DataFlowRequest implements Polymorphic, TraceCarrier {
         return properties;
     }
 
-    /**
-     * Trace context for this carrier
-     */
-    public Map<String, String> getTraceContext() {
-        return Collections.unmodifiableMap(traceContext);
-    }
-
-    /**
-     * A builder initialized with the current DataFlowRequest
-     */
-    public Builder toBuilder() {
-        return new Builder(this);
-    }
-
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private final DataFlowRequest request;
 
         private Builder() {
-            this(new DataFlowRequest());
-        }
-
-        private Builder(DataFlowRequest request) {
-            this.request = request;
+            request = new DataFlowRequest();
         }
 
         @JsonCreator
@@ -159,16 +137,10 @@ public class DataFlowRequest implements Polymorphic, TraceCarrier {
             return this;
         }
 
-        public Builder traceContext(Map<String, String> value) {
-            request.traceContext = value == null ? null : Map.copyOf(value);
-            return this;
-        }
-
         public DataFlowRequest build() {
             Objects.requireNonNull(request.processId, "processId");
             Objects.requireNonNull(request.sourceDataAddress, "sourceDataAddress");
             Objects.requireNonNull(request.destinationDataAddress, "destinationDataAddress");
-            Objects.requireNonNull(request.traceContext, "traceContext");
             return request;
         }
 
