@@ -47,6 +47,7 @@ the detailed section referring to by linking pull requests or issues.
 * Implement TransferProcess service for Data Management API (#1005)
 * Support for HTTP-based provisioning (#963)
 * Let Control Plane delegate data transfer to Data Plane (#988)
+* Add integration tests for traces (#1035)
 * CosmosDb based `PolicyStore` (#826)
 * Implement SQL-based PolicyStore (#866)
 * Http Provisioner Webhook endpoint (#1039)

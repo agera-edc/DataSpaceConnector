@@ -18,6 +18,9 @@ plugins {
 }
 
 val gatlingVersion: String by project
+val openTelemetryVersion: String by project
+val awaitility: String by project
+val armeriaVersion: String by project
 
 dependencies {
     testImplementation("io.gatling.highcharts:gatling-charts-highcharts:${gatlingVersion}") {
@@ -35,18 +38,25 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
+    testImplementation("com.linecorp.armeria:armeria-grpc-protocol:${armeriaVersion}")
+    testImplementation("com.linecorp.armeria:armeria-junit5:${armeriaVersion}")
+    testImplementation("io.opentelemetry:opentelemetry-api:${openTelemetryVersion}")
+    testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.14.0-alpha")
+    testImplementation("org.awaitility:awaitility:${awaitility}")
+
     testCompileOnly(project(":system-tests:runtimes:file-transfer-provider"))
     testCompileOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
 
-
-// TODO: testing for #936, remove before merging
 tasks.withType<Test> {
     val agent = rootDir.resolve("opentelemetry-javaagent.jar")
     if (agent.exists()) {
         jvmArgs("-javaagent:${agent.absolutePath}")
-        environment("OTEL_TRACES_EXPORTER", "jaeger")
-        environment("OTEL_EXPORTER_JAEGER_ENDPOINT", "http://localhost:14250")
-        environment("OTEL_SERVICE_NAME", "integrationtest")
+    }
+}
+
+tasks.getByName<Test>("test") {
+    testLogging {
+        showStandardStreams = true
     }
 }
