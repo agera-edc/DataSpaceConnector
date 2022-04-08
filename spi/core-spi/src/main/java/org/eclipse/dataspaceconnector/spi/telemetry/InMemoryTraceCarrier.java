@@ -11,18 +11,23 @@
  *       Microsoft Corporation - Initial implementation
  *
  */
-
 package org.eclipse.dataspaceconnector.spi.telemetry;
 
 import java.util.Map;
 
 /**
- * Interface for trace context carrier entities.
- *
- * Use in combination with {@link Telemetry#contextPropagationMiddleware} to propagate the tracing context stored in the entity to the current thread.
+ * Simple TraceCarrier to use in situations where no entity is persisted for asynchronous processing
  */
-public interface TraceCarrier {
+class InMemoryTraceCarrier implements TraceCarrier {
 
-    Map<String, String> getTraceContext();
+    private final Map<String, String> traceContext;
 
+    public InMemoryTraceCarrier(Map<String, String> traceContext) {
+        this.traceContext = traceContext;
+    }
+
+    @Override
+    public Map<String, String> getTraceContext() {
+        return traceContext;
+    }
 }
