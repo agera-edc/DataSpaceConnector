@@ -42,7 +42,7 @@ dependencies {
 //    implementation(project(":extensions:in-memory:contractdefinition-store-memory"))
     implementation(project(":extensions:api:data-management:transferprocess"))
 
-//    implementation(project(":extensions:api:observability"))
+    implementation(project(":extensions:api:observability"))
 //
     implementation(project(":extensions:filesystem:configuration-fs"))
 //    implementation(project(":extensions:iam:iam-mock"))
