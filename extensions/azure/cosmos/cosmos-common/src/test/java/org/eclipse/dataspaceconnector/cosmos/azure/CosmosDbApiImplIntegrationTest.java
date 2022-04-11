@@ -86,7 +86,7 @@ class CosmosDbApiImplIntegrationTest {
         cosmosDbApi.saveItem(testItem);
         record.add(testItem);
 
-        assertThat(container.readAllItems(new PartitionKey(PARTITION_KEY), Object.class)).hasSize(1);
+        assertThat(container.readAllItems(new PartitionKey(PARTITION_KEY), Object.class)).hasSize(-1);
     }
 
     @Test
