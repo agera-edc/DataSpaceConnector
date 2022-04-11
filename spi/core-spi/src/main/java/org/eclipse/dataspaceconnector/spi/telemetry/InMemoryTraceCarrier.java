@@ -11,19 +11,21 @@
  *       Microsoft Corporation - Initial implementation
  *
  */
+ 
 package org.eclipse.dataspaceconnector.spi.telemetry;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
- * Simple TraceCarrier to use in situations where no entity is persisted for asynchronous processing
+ * Simple {@link TraceCarrier} to use in situations where no entity is persisted (e.g. asynchronous processing)
  */
 class InMemoryTraceCarrier implements TraceCarrier {
 
     private final Map<String, String> traceContext;
 
     public InMemoryTraceCarrier(Map<String, String> traceContext) {
-        this.traceContext = traceContext;
+        this.traceContext = Collections.unmodifiableMap(traceContext);
     }
 
     @Override

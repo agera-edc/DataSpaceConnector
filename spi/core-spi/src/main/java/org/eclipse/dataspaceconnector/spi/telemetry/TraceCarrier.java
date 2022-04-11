@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Interface for trace context carrier entities.
  *
- * Use in combination with {@link Telemetry#contextPropagationMiddleware} to propagate the tracing context stored in the entity to the current thread.
+ * Use in combination with the various overloads of {@link Telemetry#contextPropagationMiddleware} to propagate the tracing context stored in the entity to the current thread.
  */
 public interface TraceCarrier {
 

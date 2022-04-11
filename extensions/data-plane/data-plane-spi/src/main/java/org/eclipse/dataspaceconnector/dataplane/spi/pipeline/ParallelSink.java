@@ -67,8 +67,8 @@ public abstract class ParallelSink implements DataSink {
     }
 
     @NotNull
-    private CompletableFuture<TransferResult> processPartsAsync(List<DataSource.Part> parts, TraceCarrier traceCarrier) {
-        Supplier<TransferResult> supplier = () -> transferParts(parts);
+    private CompletableFuture<StatusResult<Void>> processPartsAsync(List<DataSource.Part> parts, TraceCarrier traceCarrier) {
+        Supplier<StatusResult<Void>> supplier = () -> transferParts(parts);
         return supplyAsync(telemetry.contextPropagationMiddleware(supplier, traceCarrier), executorService);
     }
 

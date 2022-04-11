@@ -90,10 +90,11 @@ public class DataFlowRequest implements Polymorphic, TraceCarrier {
     }
 
     /**
-     * Trace context for this carrier
+     * Trace context for this request
      */
+    @Override
     public Map<String, String> getTraceContext() {
-        return Collections.unmodifiableMap(traceContext);
+        return traceContext;
     }
 
     /**
@@ -160,7 +161,7 @@ public class DataFlowRequest implements Polymorphic, TraceCarrier {
         }
 
         public Builder traceContext(Map<String, String> value) {
-            request.traceContext = value == null ? null : Map.copyOf(value);
+            request.traceContext = value;
             return this;
         }
 
