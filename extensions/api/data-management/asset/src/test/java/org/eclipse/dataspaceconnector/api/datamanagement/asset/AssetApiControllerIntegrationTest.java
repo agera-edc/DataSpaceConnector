@@ -97,6 +97,8 @@ public class AssetApiControllerIntegrationTest {
         var assetEntryDto = createAssetEntryDto("assetId");
 
         baseRequest()
+                .log()
+                .all()
                 .body(assetEntryDto)
                 .contentType(JSON)
                 .post("/assets")
