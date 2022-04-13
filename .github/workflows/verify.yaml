@@ -362,6 +362,18 @@ jobs:
         with:
           command: ./gradlew -p core/micrometer test -DincludeTags="OpenTelemetryIntegrationTest"
 
+  Check-Cloud-Environments:
+    environment: Peeyush-Test
+    runs-on: ubuntu-latest
+    steps:
+      - id: has-azure
+        env:
+          HAS_AZURE: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        if: "${{ env.HAS_AZURE != '' }}"
+        run: echo "::set-output name=defined::true"
+    outputs:
+      has-azure: ${{ steps.has-azure.outputs.defined }}
+
   Upload-Test-Report:
     needs:
       - Unit-Tests
