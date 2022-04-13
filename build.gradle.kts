@@ -134,7 +134,7 @@ allprojects {
                 }
             }
             signing {
-                sign(publications["GitHubPackages"])
+                sign(publications)
             }
         }
 
