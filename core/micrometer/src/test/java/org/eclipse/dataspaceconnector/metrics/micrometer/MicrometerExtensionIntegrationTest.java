@@ -42,7 +42,7 @@ public class MicrometerExtensionIntegrationTest {
             "system_cpu_", // ProcessorMetrics added by MicrometerExtension
             "jvm_threads_", // JvmThreadMetrics added by MicrometerExtension
             "jetty_", // Added by JettyMicrometerExtension
-            "jersey_", // Added by JerseyMicrometerExtension
+            "xxxjersey_", // Added by JerseyMicrometerExtension
             "http_client_"}; // OkHttp metrics
 
     @BeforeEach
