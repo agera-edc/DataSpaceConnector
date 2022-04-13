@@ -17,6 +17,7 @@ plugins {
     `maven-publish`
     checkstyle
     jacoco
+    signing
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
     id ("org.eclipse.dataspaceconnector.dependency-rules") apply(false)
     id("com.autonomousapps.dependency-analysis") version "1.0.0-rc05" apply (false)
@@ -132,7 +133,11 @@ allprojects {
                     }
                 }
             }
+            signing {
+                sign(publications["mavenJava"])
+            }
         }
+
 
     }
 
@@ -240,6 +245,12 @@ openApiMerger {
     }
 }
 
+
+
+java{
+    withJavadocJar()
+    withSourcesJar()
+}
 // Dependency analysis active if property "dependency.analysis" is set. Possible values are <'fail'|'warn'|'ignore'>.
 if (project.hasProperty("dependency.analysis")) {
     apply(plugin = "org.eclipse.dataspaceconnector.dependency-rules")
