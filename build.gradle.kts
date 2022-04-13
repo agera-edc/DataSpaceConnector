@@ -189,11 +189,11 @@ allprojects {
             }
 
             signing{
-                val signingKeyId : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_KEY_ID")  ?: ""
-                val signingKey : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_KEY")  ?: ""
-                val signingPassword : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_PASSWORD")  ?: ""
-
-                useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+//                val signingKeyId : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_KEY_ID")  ?: ""
+//                val signingKey : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_KEY")  ?: ""
+//                val signingPassword : String  = System.getenv("ORG_GRADLE_PROJECT_SIGNING_PASSWORD")  ?: ""
+//
+//                useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
                 sign(publications["mavenJava"])
             }
         }
