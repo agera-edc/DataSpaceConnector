@@ -361,8 +361,8 @@ jobs:
         uses: ./.github/actions/run-tests
         with:
           command: |
-          ./gradlew -p core/micrometer test -DincludeTags="OpenTelemetryIntegrationTest"
-          ./gradlew -p system-tests/tests test -DincludeTags="OpenTelemetryIntegrationTest"
+            ./gradlew -p core/micrometer test -DincludeTags="OpenTelemetryIntegrationTest"
+            ./gradlew -p system-tests/tests test -DincludeTags="OpenTelemetryIntegrationTest"
 
   Upload-Test-Report:
     needs:
