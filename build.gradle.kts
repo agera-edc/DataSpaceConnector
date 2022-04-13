@@ -134,7 +134,7 @@ allprojects {
                 }
             }
             signing {
-                sign(publications["mavenJava"])
+                sign(publications["GitHubPackages"])
             }
         }
 
