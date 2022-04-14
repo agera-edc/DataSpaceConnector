@@ -23,7 +23,6 @@ services:
     ports:
       - "9191:9191"
       - "9192:9192"
-      - "9292:9292"
     entrypoint: java
       -javaagent:/samples/04.3-open-telemetry/opentelemetry-javaagent.jar
       -Djava.util.logging.config.file=/samples/04.3-open-telemetry/logging.properties
@@ -46,7 +45,6 @@ services:
     ports:
       - "8181:8181"
       - "8182:8182"
-      - "8282:8282"
     entrypoint: java
       -javaagent:/samples/04.3-open-telemetry/opentelemetry-javaagent.jar
       -Djava.util.logging.config.file=/samples/04.3-open-telemetry/logging.properties
