@@ -147,6 +147,18 @@ public abstract class FileTransferSimulationUtils {
 
     @NotNull
     private static HttpRequestActionBuilder initiateFileTransfer(String destinationPath, String connectorAddress) {
+
+        return http("Initiate file transfer")
+                .post("/transferprocess")
+                .body(StringBody(session -> transferRequest(session.getString(CONTRACT_AGREEMENT_ID), destinationPath, connectorAddress)))
+                .header(CONTENT_TYPE, "application/json")
+                .check(status().is(200))
+                .check(bodyString()
+                        .notNull()
+                        .saveAs(TRANSFER_PROCESS_ID));
+    }
+
+    private static String transferRequest(String contractAgreementId, String destinationPath, String connectorAddress){
         var request = Map.of(
                 "contractId", contractAgreementId,
                 "assetId", PROVIDER_ASSET_NAME,
@@ -165,14 +177,8 @@ public abstract class FileTransferSimulationUtils {
                         .build()
         );
 
-        return http("Initiate file transfer")
-                .post("/transferprocess")
-                .body(StringBody(new TypeManager().writeValueAsString(request)))
-                .header(CONTENT_TYPE, "application/json")
-                .check(status().is(200))
-                .check(bodyString()
-                        .notNull()
-                        .saveAs(TRANSFER_PROCESS_ID));
+        return new TypeManager().writeValueAsString(request);
+
     }
 
     /**
