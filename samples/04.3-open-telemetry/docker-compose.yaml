@@ -17,7 +17,6 @@ services:
       WEB_HTTP_IDS_PATH: /api/v1/ids
       IDS_WEBHOOK_ADDRESS: http://consumer:9292
       EDC_API_AUTH_KEY: password
-      EDC_IDS_ID: urn:connector:consumer
     volumes:
       - ../:/samples
     ports:
@@ -39,7 +38,6 @@ services:
       WEB_HTTP_DATA_PORT: 8182
       WEB_HTTP_DATA_PATH: /api/v1/data
       IDS_WEBHOOK_ADDRESS: http://provider:8282
-      EDC_IDS_ID: urn:connector:provider
     volumes:
       - ../:/samples
     ports:
