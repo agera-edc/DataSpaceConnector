@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.junit;
 
 import org.eclipse.dataspaceconnector.aws.s3.core.S3BucketSchema;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.ids.spi.Protocols;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 @Disabled
 public class ConsumerRunner {
     private static final String PROVIDER_CONNECTOR = "http://localhost:8181/";

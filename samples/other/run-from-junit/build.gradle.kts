@@ -34,6 +34,7 @@ dependencies {
     testImplementation(project(":extensions:azure:vault"))
     testImplementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     testImplementation(project(":extensions:in-memory:policy-store-memory"))
+    testImplementation(testFixtures(project(":common:util")))
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${jupiterVersion}")

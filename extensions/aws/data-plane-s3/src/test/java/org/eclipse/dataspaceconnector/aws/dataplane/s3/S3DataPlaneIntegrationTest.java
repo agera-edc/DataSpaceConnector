@@ -18,7 +18,7 @@ import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.aws.s3.core.S3BucketSchema;
 import org.eclipse.dataspaceconnector.aws.testfixtures.AbstractS3Test;
 import org.eclipse.dataspaceconnector.aws.testfixtures.TestS3ClientProvider;
-import org.eclipse.dataspaceconnector.common.annotations.IntegrationTest;
+import org.eclipse.dataspaceconnector.aws.testfixtures.annotations.AwsS3IntegrationTest;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -39,7 +39,7 @@ import static org.eclipse.dataspaceconnector.aws.s3.core.S3BucketSchema.BUCKET_N
 import static org.eclipse.dataspaceconnector.aws.s3.core.S3BucketSchema.SECRET_ACCESS_KEY;
 import static org.mockito.Mockito.mock;
 
-@IntegrationTest
+@AwsS3IntegrationTest
 public class S3DataPlaneIntegrationTest extends AbstractS3Test {
 
     static Faker faker = new Faker();

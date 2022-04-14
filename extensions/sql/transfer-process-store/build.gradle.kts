@@ -33,6 +33,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":extensions:sql:lease")))
+    testImplementation(testFixtures(project(":common:util")))
     testImplementation(project(":core:base"))
     testImplementation(project(":extensions:sql:pool:apache-commons-pool"))
     testImplementation(project(":extensions:transaction:transaction-local"))

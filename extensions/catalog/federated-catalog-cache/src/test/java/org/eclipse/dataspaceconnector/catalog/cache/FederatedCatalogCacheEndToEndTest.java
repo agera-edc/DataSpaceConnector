@@ -21,6 +21,8 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.eclipse.dataspaceconnector.catalog.spi.FederatedCacheStore;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
+import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
@@ -44,6 +46,7 @@ import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.testO
 
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 class FederatedCatalogCacheEndToEndTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

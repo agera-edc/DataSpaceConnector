@@ -15,6 +15,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":extensions:iam:decentralized-identity:identity-common-test")))
     testImplementation(testFixtures(project(":launchers:junit")))
+    testImplementation(testFixtures(project(":common:util")))
 }
 
 publishing {

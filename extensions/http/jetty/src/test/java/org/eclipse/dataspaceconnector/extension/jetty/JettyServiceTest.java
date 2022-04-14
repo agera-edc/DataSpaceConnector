@@ -20,6 +20,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.system.configuration.ConfigFactory;
@@ -43,6 +44,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.testOkHttpClient;
 
+@ComponentTest
 class JettyServiceTest {
     private JettyService jettyService;
     private Monitor monitor;

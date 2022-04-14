@@ -20,6 +20,7 @@ import de.fraunhofer.iais.eis.Representation;
 import de.fraunhofer.iais.eis.Resource;
 import de.fraunhofer.iais.eis.ResourceCatalog;
 import de.fraunhofer.iais.eis.util.RdfResource;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.ids.spi.IdsId;
 import org.eclipse.dataspaceconnector.ids.spi.transform.IdsTransformerRegistry;
 import org.eclipse.dataspaceconnector.ids.spi.transform.IdsTypeTransformer;
@@ -62,6 +63,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 
 @ExtendWith(DependencyInjectionExtension.class)
+@ComponentTest
 class IdsTransformServiceExtensionTest {
 
     private Map<Class<?>, List<Class<?>>> knownConvertibles;

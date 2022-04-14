@@ -22,6 +22,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.eclipse.dataspaceconnector.api.exception.mappers.EdcApiExceptionMapper;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.dataplane.selector.DataPlaneSelectorServiceImpl;
 import org.eclipse.dataspaceconnector.dataplane.selector.core.DataPlaneSelectorImpl;
@@ -54,6 +55,7 @@ import static org.eclipse.dataspaceconnector.dataplane.selector.TestFunctions.cr
 import static org.eclipse.dataspaceconnector.dataplane.selector.TestFunctions.createInstanceBuilder;
 import static org.mockito.Mockito.mock;
 
+@ComponentTest
 class DataplaneSelectorApiControllerIntegrationTest {
 
 

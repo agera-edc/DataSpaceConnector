@@ -79,7 +79,7 @@ class CosmosContractNegotiationStoreIntegrationTest {
 
         var response = client.createDatabaseIfNotExists(DATABASE_NAME);
         database = client.getDatabase(response.getProperties().getId());
-
+        deleteDatabase();
     }
 
     @AfterAll

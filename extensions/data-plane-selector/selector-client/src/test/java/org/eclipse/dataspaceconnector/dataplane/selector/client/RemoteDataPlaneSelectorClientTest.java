@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.dataplane.selector.client;
 
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.api.exception.mappers.EdcApiExceptionMapper;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.dataplane.selector.DataPlaneSelectorService;
 import org.eclipse.dataspaceconnector.dataplane.selector.api.DataplaneSelectorApiController;
@@ -45,6 +46,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ComponentTest
 class RemoteDataPlaneSelectorClientTest {
 
     private static final String BASE_URL = "http://localhost:%d/api/v1/dataplane/instances";

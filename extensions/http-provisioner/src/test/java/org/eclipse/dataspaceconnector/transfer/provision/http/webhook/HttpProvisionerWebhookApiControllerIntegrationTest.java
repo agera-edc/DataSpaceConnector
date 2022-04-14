@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.transfer.provision.http.webhook;
 
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.api.auth.AuthenticationService;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
@@ -43,6 +44,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThan;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 class HttpProvisionerWebhookApiControllerIntegrationTest {
 
     private static final String PROVISIONER_BASE_PATH = "/api/v1/provisioner";

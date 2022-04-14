@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.dataplane.selector;
 
 import org.eclipse.dataspaceconnector.api.exception.mappers.EdcApiExceptionMapper;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.dataplane.selector.api.DataplaneSelectorApiController;
 import org.eclipse.dataspaceconnector.dataplane.selector.store.DataPlaneInstanceStore;
 import org.eclipse.dataspaceconnector.dataplane.selector.strategy.SelectionStrategyRegistry;
@@ -32,6 +33,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(DependencyInjectionExtension.class)
+@ComponentTest
 class DataPlaneSelectorApiExtensionTest {
     private DataPlaneSelectorApiExtension extension;
     private WebService webServiceMock;

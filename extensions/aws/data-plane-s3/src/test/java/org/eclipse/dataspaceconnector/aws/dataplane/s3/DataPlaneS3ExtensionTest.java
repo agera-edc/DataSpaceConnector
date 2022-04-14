@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.aws.dataplane.s3;
 
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -25,6 +26,7 @@ import java.util.UUID;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 class DataPlaneS3ExtensionTest {
 
     @Test

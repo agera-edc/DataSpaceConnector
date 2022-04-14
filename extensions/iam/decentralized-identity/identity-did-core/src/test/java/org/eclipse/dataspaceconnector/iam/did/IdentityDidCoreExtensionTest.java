@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.iam.did;
 
 import okhttp3.OkHttpClient;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubApiController;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubClientImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubImpl;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(DependencyInjectionExtension.class)
+@ComponentTest
 class IdentityDidCoreExtensionTest {
 
     private IdentityDidCoreExtension extension;

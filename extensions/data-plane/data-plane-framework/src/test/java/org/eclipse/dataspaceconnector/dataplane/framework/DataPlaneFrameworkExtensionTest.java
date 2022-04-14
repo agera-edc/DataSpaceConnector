@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.dataplane.framework;
 
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.dataplane.framework.pipeline.PipelineServiceImpl;
 import org.eclipse.dataspaceconnector.dataplane.framework.registry.TransferServiceSelectionStrategy;
 import org.eclipse.dataspaceconnector.dataplane.spi.manager.DataPlaneManager;
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(DependencyInjectionExtension.class)
+@ComponentTest
 class DataPlaneFrameworkExtensionTest {
 
     TransferService transferService1 = mock(TransferService.class);

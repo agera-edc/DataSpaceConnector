@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.api.observability;
 
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.DependencyInjectionExtension;
 import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(DependencyInjectionExtension.class)
+@ComponentTest
 class ObservabilityApiExtensionTest {
 
     private ObservabilityApiExtension extension;

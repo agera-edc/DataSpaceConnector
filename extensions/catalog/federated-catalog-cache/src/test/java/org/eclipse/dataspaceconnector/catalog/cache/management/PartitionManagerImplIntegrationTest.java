@@ -25,6 +25,7 @@ import org.eclipse.dataspaceconnector.catalog.spi.WorkItemQueue;
 import org.eclipse.dataspaceconnector.catalog.spi.model.ExecutionPlan;
 import org.eclipse.dataspaceconnector.catalog.spi.model.UpdateRequest;
 import org.eclipse.dataspaceconnector.catalog.spi.model.UpdateResponse;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -56,6 +57,7 @@ import static org.mockito.Mockito.when;
  * This tests the PartitionManagerImpl with real crawlers and in a real multithreading environment.
  * It uses several dummy classes which are private static classes.
  */
+@ComponentTest
 class PartitionManagerImplIntegrationTest {
     public static final int WORK_ITEM_COUNT = 1000;
     private final Monitor monitorMock = mock(Monitor.class);

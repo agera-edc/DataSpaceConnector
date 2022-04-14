@@ -22,6 +22,7 @@ import jakarta.ws.rs.container.ContainerRequestFilter;
 import jakarta.ws.rs.core.MediaType;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.extension.jetty.JettyConfiguration;
 import org.eclipse.dataspaceconnector.extension.jetty.JettyService;
 import org.eclipse.dataspaceconnector.extension.jetty.PortMapping;
@@ -50,6 +51,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+@ComponentTest
 public class JerseyRestServiceTest {
     private final int httpPort = getFreePort();
     private JerseyRestService jerseyRestService;

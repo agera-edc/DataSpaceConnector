@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.core.health;
 
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.spi.system.ExecutorInstrumentation;
 import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckResult;
 import org.eclipse.dataspaceconnector.spi.system.health.LivenessProvider;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@ComponentTest
 class HealthCheckServiceImplTest {
 
     private static final Duration PERIOD = Duration.ofMillis(500);

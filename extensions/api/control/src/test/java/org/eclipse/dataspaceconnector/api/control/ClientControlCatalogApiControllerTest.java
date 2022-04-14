@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.api.control;
 
 import io.restassured.RestAssured;
 import io.restassured.path.json.JsonPath;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
 import static org.eclipse.dataspaceconnector.api.control.ControlApiServiceExtension.EDC_API_CONTROL_AUTH_APIKEY_KEY;
 import static org.eclipse.dataspaceconnector.api.control.ControlApiServiceExtension.EDC_API_CONTROL_AUTH_APIKEY_VALUE;
 
+@ComponentTest
 class ClientControlCatalogApiControllerTest extends AbstractClientControlCatalogApiControllerTest {
     private static final String CONNECTOR_ID = UUID.randomUUID().toString();
     private static final String API_KEY_HEADER = "X-Api-Key";

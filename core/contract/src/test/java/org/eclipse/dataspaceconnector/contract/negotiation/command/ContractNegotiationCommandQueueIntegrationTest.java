@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.contract.negotiation.command;
 
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.contract.negotiation.ConsumerContractNegotiationManagerImpl;
 import org.eclipse.dataspaceconnector.contract.negotiation.ProviderContractNegotiationManagerImpl;
 import org.eclipse.dataspaceconnector.contract.negotiation.command.commands.SingleContractNegotiationCommand;
@@ -40,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ComponentTest
 class ContractNegotiationCommandQueueIntegrationTest {
 
     private final ContractNegotiationStore store = mock(ContractNegotiationStore.class);

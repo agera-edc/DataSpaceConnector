@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.api.datamanagement.policy;
 
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitionStore;
@@ -36,6 +37,7 @@ import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFr
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 public class PolicyApiControllerIntegrationTest {
 
     private final int port = getFreePort();

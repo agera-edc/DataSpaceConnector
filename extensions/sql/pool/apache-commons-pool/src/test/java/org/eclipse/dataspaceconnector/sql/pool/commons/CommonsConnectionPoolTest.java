@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.sql.pool.commons;
 
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.spi.persistence.EdcPersistenceException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 
+@ComponentTest
 class CommonsConnectionPoolTest {
 
     @Test

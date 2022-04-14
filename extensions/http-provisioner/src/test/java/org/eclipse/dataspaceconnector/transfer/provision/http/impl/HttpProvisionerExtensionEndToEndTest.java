@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.transfer.provision.http.impl;
 
 import okhttp3.Interceptor;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.dataloading.AssetLoader;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
@@ -53,7 +54,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@ExtendWith({ EdcExtension.class })
+@ExtendWith(EdcExtension.class)
+@ComponentTest
 public class HttpProvisionerExtensionEndToEndTest {
     private static final String ASSET_ID = "1";
     private static final String CONTRACT_ID = "2";

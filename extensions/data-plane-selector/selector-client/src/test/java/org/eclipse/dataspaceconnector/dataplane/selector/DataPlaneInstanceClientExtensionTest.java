@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.dataplane.selector;
 
 import net.jodah.failsafe.RetryPolicy;
 import okhttp3.OkHttpClient;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.dataplane.selector.client.DataPlaneSelectorClient;
 import org.eclipse.dataspaceconnector.dataplane.selector.client.EmbeddedDataPlaneSelectorClient;
 import org.eclipse.dataspaceconnector.dataplane.selector.client.RemoteDataPlaneSelectorClient;
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(DependencyInjectionExtension.class)
+@ComponentTest
 class DataPlaneInstanceClientExtensionTest {
 
     private static final String EDC_DPF_SELECTOR_URL_SETTING = "edc.dpf.selector.url";

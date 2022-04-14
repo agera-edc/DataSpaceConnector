@@ -59,6 +59,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 public class EndToEndTest {
     private static final String ASSET_ID = "test123";
     private static final String CONTRACT_ID = "contract1";

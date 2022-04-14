@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.core;
 
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.system.Hostname;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.core.CoreServicesExtension.HOSTNAME_SETTING;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 class CoreServicesExtensionIntegrationTest {
 
     @BeforeEach

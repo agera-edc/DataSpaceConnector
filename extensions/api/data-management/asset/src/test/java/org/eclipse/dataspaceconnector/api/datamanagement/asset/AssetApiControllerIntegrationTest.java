@@ -16,6 +16,7 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.asset;
 
 import io.restassured.specification.RequestSpecification;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.dataloading.AssetLoader;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 public class AssetApiControllerIntegrationTest {
 
     private final int port = getFreePort();

@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.transfer.provision.http.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.Interceptor;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.policy.PolicyEngine;
@@ -38,6 +39,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@ComponentTest
 class HttpProviderProvisionerTest {
     private HttpProviderProvisioner provisioner;
     private Interceptor delegate;

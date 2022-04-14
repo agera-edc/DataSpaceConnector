@@ -33,6 +33,7 @@ dependencies {
     implementation(project(":core:policy:policy-engine"))
 
     testImplementation(testFixtures(project(":launchers:junit")))
+    testImplementation(testFixtures(project(":common:util")))
     testImplementation("org.awaitility:awaitility:${awaitility}")
     testImplementation("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
 }

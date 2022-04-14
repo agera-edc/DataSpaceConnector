@@ -16,6 +16,7 @@
 package org.eclipse.dataspaceconnector.api.datamanagement.contractagreement;
 
 import io.restassured.specification.RequestSpecification;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.store.ContractNegotiationStore;
@@ -37,6 +38,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 public class ContractAgreementApiControllerIntegrationTest {
 
     private final int port = getFreePort();

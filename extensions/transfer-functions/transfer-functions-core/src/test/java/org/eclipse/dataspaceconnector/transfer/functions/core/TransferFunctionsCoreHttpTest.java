@@ -17,6 +17,7 @@ package org.eclipse.dataspaceconnector.transfer.functions.core;
 import okhttp3.MediaType;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.asset.DataAddressResolver;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
@@ -47,6 +48,7 @@ import static org.mockito.Mockito.when;
 /**
  * Verifies the HTTP flow controller works.
  */
+@ComponentTest
 @ExtendWith(EdcExtension.class)
 public class TransferFunctionsCoreHttpTest {
 

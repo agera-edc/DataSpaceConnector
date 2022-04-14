@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess;
 
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferRequestDto;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -38,6 +39,7 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
 import static org.hamcrest.Matchers.is;
 
 @ExtendWith(EdcExtension.class)
+@ComponentTest
 class TransferProcessApiControllerIntegrationTest {
 
     public static final String PROCESS_ID = "processId";

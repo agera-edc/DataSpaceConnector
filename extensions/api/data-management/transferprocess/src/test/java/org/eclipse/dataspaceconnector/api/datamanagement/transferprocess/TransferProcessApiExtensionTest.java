@@ -20,6 +20,7 @@ import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.T
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.transform.TransferProcessTransformerTestData;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistry;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformerRegistryImpl;
+import org.eclipse.dataspaceconnector.common.annotations.ComponentTest;
 import org.eclipse.dataspaceconnector.junit.launcher.DependencyInjectionExtension;
 import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(DependencyInjectionExtension.class)
+@ComponentTest
 class TransferProcessApiExtensionTest {
     static Faker faker = new Faker();
     TransferProcessTransformerTestData data = new TransferProcessTransformerTestData();
