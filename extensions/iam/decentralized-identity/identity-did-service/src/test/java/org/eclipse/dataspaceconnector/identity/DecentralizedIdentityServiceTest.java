@@ -20,8 +20,12 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
+import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
+import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
@@ -34,6 +38,7 @@ import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
+import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +47,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -68,36 +75,23 @@ abstract class DecentralizedIdentityServiceTest {
     }
 
     @Test
-    void verifyObtainClientCredentials() throws Exception {
-        var result = identityService.obtainClientCredentials("Foo");
-
+    void generateAndVerifyJwtToken_valid() {
+        var result = identityService.obtainClientCredentials("Foo", "Bar");
         assertTrue(result.succeeded());
 
-        var jwt = SignedJWT.parse(result.getContent().getToken());
-        var verifier = publicKey.verifier();
-        assertTrue(jwt.verify(verifier));
+        Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent(), "Bar");
+        assertTrue(verificationResult.succeeded());
+        assertEquals("eu", verificationResult.getContent().getClaims().get("region"));
     }
 
     @Test
-    void verifyJwtToken() throws Exception {
-        var signer = privateKey.signer();
-
-        var expiration = new Date().getTime() + TimeUnit.MINUTES.toMillis(10);
-        var claimsSet = new JWTClaimsSet.Builder()
-                .subject("foo")
-                .issuer("did:ion:123abc")
-                .expirationTime(new Date(expiration))
-                .build();
-
-        var jwt = new SignedJWT(new JWSHeader.Builder(getHeaderAlgorithm()).keyID("primary").build(), claimsSet);
-        jwt.sign(signer);
-
-        var token = jwt.serialize();
-
-        var result = identityService.verifyJwtToken(token);
-
+    void generateAndVerifyJwtToken_wrongAudience() {
+        var result = identityService.obtainClientCredentials("Foo", "Bar");
         assertTrue(result.succeeded());
-        assertEquals("eu", result.getContent().getClaims().get("region"));
+
+
+        Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent(), "Bar2");
+        assertTrue(verificationResult.failed());
     }
 
     @BeforeEach
@@ -112,7 +106,7 @@ abstract class DecentralizedIdentityServiceTest {
         DidResolverRegistry didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
 
         CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
-        identityService = new DecentralizedIdentityService(() -> VerifiableCredentialFactory.create(privateKey, Map.of("region", "us"), "test-issuer"), didResolver, verifier, new Monitor() {
+        identityService = new DecentralizedIdentityService((audience) -> VerifiableCredentialFactory.create(privateKey, Map.of("region", "us"), "test-issuer", audience), didResolver, verifier, new Monitor() {
         });
 
     }
