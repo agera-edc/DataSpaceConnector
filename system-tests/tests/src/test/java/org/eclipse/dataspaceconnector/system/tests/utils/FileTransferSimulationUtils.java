@@ -158,7 +158,7 @@ public abstract class FileTransferSimulationUtils {
                         .saveAs(TRANSFER_PROCESS_ID));
     }
 
-    private static String transferRequest(String contractAgreementId, String destinationPath, String connectorAddress){
+    private static String transferRequest(String contractAgreementId, String destinationPath, String connectorAddress) {
         var request = Map.of(
                 "contractId", contractAgreementId,
                 "assetId", PROVIDER_ASSET_NAME,
