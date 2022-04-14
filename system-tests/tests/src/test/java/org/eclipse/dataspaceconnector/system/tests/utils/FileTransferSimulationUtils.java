@@ -176,8 +176,9 @@ public abstract class FileTransferSimulationUtils {
                         .isFinite(true)
                         .build()
         );
-
-        return new TypeManager().writeValueAsString(request);
+        var json = new TypeManager().writeValueAsString(request);
+        System.out.println(json);
+        return json;
 
     }
 
