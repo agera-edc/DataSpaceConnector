@@ -38,6 +38,7 @@ services:
       WEB_HTTP_DATA_PORT: 8182
       WEB_HTTP_DATA_PATH: /api/v1/data
       IDS_WEBHOOK_ADDRESS: http://provider:8282
+      EDC_SAMPLES_04_ASSET_PATH: /samples/04.3-open-telemetry/input-file.txt
     volumes:
       - ../:/samples
     ports:
