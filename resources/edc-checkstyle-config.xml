@@ -418,5 +418,6 @@
     </module>
     <module name="TypecastParenPad"/>
     <module name="InnerAssignment"/>
+    <module name="VisibilityModifier"/>
   </module>
 </module>
