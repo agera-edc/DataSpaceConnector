@@ -79,7 +79,8 @@ allprojects {
     checkstyle {
         toolVersion = "9.0"
         configFile = rootProject.file("resources/edc-checkstyle-config.xml")
-        maxErrors = 0 // does not tolerate errors
+        maxErrors = 0 // does not tolerate errors ...
+        maxWarnings = 0 // ... or warnings
     }
 
     java {
