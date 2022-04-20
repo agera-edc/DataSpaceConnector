@@ -1,5 +1,11 @@
 # JWT hardening
 
+## Decision
+
+A JWT token sent to another participant than the one it was initially intended for must be rejected. Use the DID of the message receiver as the JWT "audience" claim to achieve this. Use a central registry to resolve DIDs for dataspace participants. 
+
+## Discussion
+
 [Json Web Tokens (JWT)](https://datatracker.ietf.org/doc/html/rfc7519) are used in EDC as means to authenticate IDS requests. The current implementation allows for a malicious entity that gets ahold of a JWT to impersonate the original sender, and thus send requests to any other participant. Two categories or impersonation attacks are possible depending on how the JWT used for the impersonation attack is obtained:
 
 1. "JWT reuse": A malicious participant might reuse JWTs sent to him as provider, to send requests to other participants as a consumer impersonating the signer of the JWT.
@@ -7,7 +13,7 @@
  
 Next we discuss solutions for these two cases.
 
-## JWT reuse
+### JWT reuse
 
 The JWT spec defines the [audience](https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.3) claim to identify the JWT target of a token to protect from this security issue. A JWT token sent to a participant different than the one it was initially intended for will be rejected.
 
@@ -19,7 +25,7 @@ The DID of the target participant needs to be used as JWT audience as this is th
 
 As a first step we will implement a solution based on the second item, as this involves the least effort and bases on an already existing component in the current dataspace implementations (the registry).
 
-## JWT leak
+### JWT leak
 
 This is a less critical case as the first one, as it involves a previous JWT leak through a system security hole.
 
