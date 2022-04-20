@@ -4,7 +4,7 @@
 
 A JWT token sent to another participant than the one it was initially intended for must be rejected. Use the DID of the message receiver as the JWT "audience" claim to achieve this. Use a central registry to resolve DIDs for dataspace participants. 
 
-## Discussion
+## Rationale
 
 [Json Web Tokens (JWT)](https://datatracker.ietf.org/doc/html/rfc7519) are used in EDC as means to authenticate IDS requests. The current implementation allows for a malicious entity that gets ahold of a JWT to impersonate the original sender, and thus send requests to any other participant. Two categories or impersonation attacks are possible depending on how the JWT used for the impersonation attack is obtained:
 
