@@ -2,7 +2,7 @@
 
 ## Decision
 
-A JWT token sent to another participant than the one it was initially intended for must be rejected. Use the DID of the message receiver as the JWT "audience" claim to achieve this. Use a central registry to resolve DIDs for dataspace participants. 
+A JWT token sent to another participant other than the one it was initially intended for must be rejected. Use the DID of the message receiver as the JWT "audience" claim to achieve this. Use a central registry to resolve DIDs for dataspace participants. 
 
 ## Rationale
 
