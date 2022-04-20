@@ -9,7 +9,7 @@ A JWT token sent to another participant than the one it was initially intended f
 [Json Web Tokens (JWT)](https://datatracker.ietf.org/doc/html/rfc7519) are used in EDC as means to authenticate IDS requests. The current implementation allows for a malicious entity that gets ahold of a JWT to impersonate the original sender, and thus send requests to any other participant. Two categories or impersonation attacks are possible depending on how the JWT used for the impersonation attack is obtained:
 
 1. "JWT reuse": A malicious participant might reuse JWTs sent to him as provider, to send requests to other participants as a consumer impersonating the signer of the JWT.
-1. "JWT leak": A malicious attacker that gets ahold of a leaked JWT token might use it to send request to any participant impersonating the signer of the JWT.
+2. "JWT leak": A malicious attacker that gets hold of a leaked JWT token might use it to send request to any participant impersonating the signer of the JWT.
  
 Next we discuss solutions for these two cases.
 
@@ -31,4 +31,4 @@ This is a less critical case as the first one, as it involves a previous JWT lea
 
 DID domain matching (solution 3. in the previous section) might also solve this security issue in some scenarios. The DID of the consumer available as issuer of the JWT can be matched against the URL of the request sender. Nonetheless, resolving the origin URL can have complications as this can be manipulated by network components like gateways, leaving with no reliable way to get to this information.
 
-Initially we decide to go with no solution other than preventing JWT leaks themselves through common security best practices. 
+Given the lower probability of this security issue, we decide to go with no solution other than preventing JWT leaks themselves through common security best practices. 
