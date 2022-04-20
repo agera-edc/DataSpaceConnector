@@ -6,7 +6,7 @@ A JWT token sent to another participant other than the one it was initially inte
 
 ## Rationale
 
-[Json Web Tokens (JWT)](https://datatracker.ietf.org/doc/html/rfc7519) are used in EDC as means to authenticate IDS requests. The current implementation allows for a malicious entity that gets ahold of a JWT to impersonate the original sender, and thus send requests to any other participant. Two categories or impersonation attacks are possible depending on how the JWT used for the impersonation attack is obtained:
+[Json Web Tokens (JWT)](https://datatracker.ietf.org/doc/html/rfc7519) are used in EDC as means to authenticate IDS requests. The current implementation allows for a malicious entity that gets hold of a JWT to impersonate the original sender, and thus send requests to any other participant. Two categories or impersonation attacks are possible depending on how the JWT used for the impersonation attack is obtained:
 
 1. "JWT reuse": A malicious participant might reuse JWTs sent to him as provider, to send requests to other participants as a consumer impersonating the signer of the JWT.
 2. "JWT leak": A malicious attacker that gets hold of a leaked JWT token might use it to send request to any participant impersonating the signer of the JWT.
