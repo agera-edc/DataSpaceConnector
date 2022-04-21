@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator;
+package org.eclipse.dataspaceconnector.azure.blob.validator;
 
 
 import org.eclipse.dataspaceconnector.common.string.StringUtils;

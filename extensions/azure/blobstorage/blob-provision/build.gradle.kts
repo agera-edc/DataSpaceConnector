@@ -22,6 +22,7 @@ val jodahFailsafeVersion: String by project
 
 dependencies {
     api(project(":spi"))
+    api(project(":extensions:azure:blobstorage:blob-common"))
     api(project(":extensions:azure:blobstorage:blob-core"))
 
     implementation("com.azure:azure-storage-blob:${storageBlobVersion}")

@@ -26,6 +26,7 @@ plugins {
 dependencies {
     implementation(project(":extensions:azure:data-plane:common"))
     implementation(project(":common:util"))
+    implementation(project(":extensions:azure:blobstorage:blob-common"))
     implementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
 

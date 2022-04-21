@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.validator;
+package org.eclipse.dataspaceconnector.azure.blob.validator;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;

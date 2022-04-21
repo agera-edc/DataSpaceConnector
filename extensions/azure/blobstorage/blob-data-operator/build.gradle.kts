@@ -21,6 +21,7 @@ val storageBlobVersion: String by project
 dependencies {
     api(project(":spi"))
 
+    implementation(project(":extensions:azure:blobstorage:blob-common"))
     implementation(project(":extensions:azure:blobstorage:blob-core"))
 }
 
