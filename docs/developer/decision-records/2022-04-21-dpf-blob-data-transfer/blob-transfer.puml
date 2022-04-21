@@ -1,0 +1,30 @@
+'
+'  Copyright (c) 2022 Microsoft Corporation
+'
+'  This program and the accompanying materials are made available under the
+'  terms of the Apache License, Version 2.0 which is available at
+'  https://www.apache.org/licenses/LICENSE-2.0
+'
+'  SPDX-License-Identifier: Apache-2.0
+'
+'  Contributors:
+'       Microsoft Corporation - Initial document
+'
+'
+
+@startuml
+Client -> Consumer: Call DM API: POST /transferprocess \n - Storage account name \n - Blob name
+Consumer -> "Consumer Vault": Get dest Storage Account key
+Consumer -> "Consumer Storage Account": Create container
+Consumer -> Provider: IDS message providing: \n - Account name \n - Container name \n - Blob name \n - Write-only dest SAS token
+Provider -> "Provider Vault": Store SAS token
+Provider -> "Provider DPF": DPF call: \n - Account name \n - Container name \n - Blob name
+"Provider DPF" -> "Provider Vault": Get source Storage Account Key
+"Provider DPF" -> "Provider Vault": Get dest SAS token
+"Provider DPF" -> "Provider Storage Account": Read
+"Provider DPF" -> "Consumer Storage Account": Write
+Client -> Consumer: Poll for completion
+Client -> "Consumer Storage Account": Read result
+Client -> "Consumer Storage Account": Call DM API: POST /deprovision \n - Account name \n - Blob name
+Consumer -> "Consumer Storage Account": Delete container
+@enduml
