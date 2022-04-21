@@ -18,7 +18,11 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
+import org.eclipse.dataspaceconnector.junit.launcher.MockVault;
+import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -35,12 +39,24 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 @PerformanceTest
 public class BlobTransferIntegrationTest extends FileTransferEdcRuntime {
 
+    static Vault consumerVault = new MockVault();
+    static Vault providerVault = new MockVault();
+
+    @BeforeAll
+    static void beforeAll() {
+        consumer.registerServiceMock(Vault.class, consumerVault);
+        provider.registerServiceMock(Vault.class, providerVault);
+    }
+
     @Test
     public void transferFile_success() throws Exception {
         // Arrange
         // Create a file with test data on provider file system.
         var fileContent = "FileTransfer-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
+        // Write Key to vault
+//        consumerVault.storeSecret();
+//        providerVault.storeSecret();
 
         // Act
         runGatling(FileTransferLocalSimulation.class, FileTransferSimulationUtils.DESCRIPTION);
