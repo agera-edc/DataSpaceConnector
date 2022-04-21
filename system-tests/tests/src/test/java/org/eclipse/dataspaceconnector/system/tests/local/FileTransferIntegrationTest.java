@@ -27,6 +27,8 @@ import java.nio.file.Path;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_ASSET_PATH;
+import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_ASSET_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 
 @EndToEndTest

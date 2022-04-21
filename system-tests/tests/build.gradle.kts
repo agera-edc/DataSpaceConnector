@@ -18,6 +18,7 @@ plugins {
     `java-test-fixtures`
 }
 
+val jupiterVersion: String by project
 val gatlingVersion: String by project
 val openTelemetryVersion: String by project
 val awaitility: String by project
@@ -38,6 +39,7 @@ dependencies {
 
     testFixturesApi(testFixtures(project(":common:util")))
     testFixturesApi(testFixtures(project(":launchers:junit")))
+    testFixturesApi("org.junit.jupiter:junit-jupiter-api:${jupiterVersion}")
     testImplementation("io.opentelemetry:opentelemetry-api:${openTelemetryVersion}")
     testImplementation("io.opentelemetry.proto:opentelemetry-proto:0.14.0-alpha")
     testImplementation("org.awaitility:awaitility:${awaitility}")

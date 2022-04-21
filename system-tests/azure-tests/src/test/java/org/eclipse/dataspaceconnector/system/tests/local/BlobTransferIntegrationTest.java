@@ -18,65 +18,22 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
-import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_ASSET_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_CONNECTOR_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_IDS_API;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_IDS_API_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_MANAGEMENT_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_ASSET_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_CONNECTOR_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_CONNECTOR_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_IDS_API;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_IDS_API_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 
 @EndToEndTest
 @PerformanceTest
-public class BlobTransferIntegrationTest {
-
-    @RegisterExtension
-    static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
-            ":system-tests:runtimes:file-transfer-consumer",
-            "consumer",
-            Map.of(
-                    "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
-                    "web.http.path", CONSUMER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT),
-                    "web.http.data.path", CONSUMER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
-                    "ids.webhook.address", CONSUMER_IDS_API));
-
-    @RegisterExtension
-    static EdcRuntimeExtension provider = new EdcRuntimeExtension(
-            ":system-tests:runtimes:file-transfer-provider",
-            "provider",
-            Map.of(
-                    "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
-                    "edc.test.asset.path", PROVIDER_ASSET_PATH,
-                    "web.http.path", PROVIDER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT),
-                    "web.http.data.path", PROVIDER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
-                    "edc.samples.04.asset.path", PROVIDER_ASSET_PATH,
-                    "ids.webhook.address", PROVIDER_IDS_API));
+public class BlobTransferIntegrationTest extends FileTransferEdcRuntime {
 
     @Test
     public void transferFile_success() throws Exception {

@@ -39,6 +39,7 @@ import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_ASSET_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
