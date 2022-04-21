@@ -16,11 +16,15 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
+import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.MockVault;
+import org.eclipse.dataspaceconnector.spi.security.CertificateResolver;
+import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
+import org.eclipse.dataspaceconnector.spi.system.NullVaultExtension;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -53,7 +57,7 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
 
 @EndToEndTest
 @PerformanceTest
-public class BlobTransferIntegrationTest {
+public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
 
     // FIXME delete
     public static final String CONSUMER_ASSET_PATH = new File(tempDirectory(), "output.txt").getAbsolutePath();
@@ -61,7 +65,7 @@ public class BlobTransferIntegrationTest {
 
     @RegisterExtension
     protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
-            ":system-tests:runtimes:file-transfer-consumer",
+            ":system-tests:runtimes:azure-storage-transfer-consumer",
             "consumer",
             Map.of(
                     "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
@@ -74,7 +78,7 @@ public class BlobTransferIntegrationTest {
 
     @RegisterExtension
     protected static EdcRuntimeExtension provider = new EdcRuntimeExtension(
-            ":system-tests:runtimes:file-transfer-provider",
+            ":system-tests:runtimes:azure-storage-transfer-provider",
             "provider",
             Map.of(
                     "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
@@ -85,13 +89,15 @@ public class BlobTransferIntegrationTest {
                     "web.http.ids.path", "/api/v1/ids",
                     "ids.webhook.address", PROVIDER_IDS_API));
 
-    static Vault consumerVault = new MockVault();
-    static Vault providerVault = new MockVault();
+    static final Vault consumerVault = new MockVault();
+    static final Vault providerVault = new MockVault();
 
     @BeforeAll
     static void beforeAll() {
         consumer.registerServiceMock(Vault.class, consumerVault);
         provider.registerServiceMock(Vault.class, providerVault);
+        consumer.registerServiceMock(PrivateKeyResolver.class, new NullVaultExtension().getPrivateKeyResolver());
+        consumer.registerServiceMock(CertificateResolver.class, new NullVaultExtension().getCertificateResolver());
     }
 
     @Test
@@ -101,6 +107,9 @@ public class BlobTransferIntegrationTest {
         var fileContent = "FileTransfer-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
         // Write Key to vault
+//        blobServiceClient1
+//                .getBlobContainerClient(account1ContainerName)
+//
 //        consumerVault.storeSecret();
 //        providerVault.storeSecret();
 

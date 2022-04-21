@@ -18,6 +18,7 @@ plugins {
 }
 
 val gatlingVersion: String by project
+val storageBlobVersion: String by project;
 
 dependencies {
     testImplementation("io.gatling.highcharts:gatling-charts-highcharts:${gatlingVersion}") {
@@ -35,6 +36,8 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":system-tests:tests")))
+    testImplementation(testFixtures(project(":extensions:azure:azure-test")))
+    testImplementation("com.azure:azure-storage-blob:${storageBlobVersion}")
 
     testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
     testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))
