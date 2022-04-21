@@ -16,16 +16,18 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 
 import io.gatling.javaapi.core.Simulation;
 
+import java.io.File;
+
 import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
 import static io.gatling.javaapi.core.CoreDsl.global;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
+import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_ASSET_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_CONNECTOR_MANAGEMENT_URL;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_MANAGEMENT_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.PROVIDER_IDS_API;
+import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
+import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
 import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.DESCRIPTION;
+import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.PROVIDER_ASSET_NAME;
 import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.contractNegotiationAndFileTransfer;
 
 /**
@@ -33,6 +35,23 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimu
  * {@see FileTransferIntegrationTest}.
  */
 public class FileTransferLocalSimulation extends Simulation {
+    public static final String CONSUMER_ASSET_PATH = new File(tempDirectory(), "output.txt").getAbsolutePath();
+    public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
+    public static final int CONSUMER_MANAGEMENT_PORT = getFreePort();
+    public static final String CONSUMER_CONNECTOR_PATH = "/api";
+    public static final String CONSUMER_MANAGEMENT_PATH = "/api/v1/data";
+    public static final String CONSUMER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + CONSUMER_MANAGEMENT_PORT;
+    public static final int CONSUMER_IDS_API_PORT = getFreePort();
+    public static final String CONSUMER_IDS_API = "http://localhost:" + CONSUMER_IDS_API_PORT;
+
+    public static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
+    public static final int PROVIDER_CONNECTOR_PORT = getFreePort();
+    public static final int PROVIDER_MANAGEMENT_PORT = getFreePort();
+    public static final String PROVIDER_CONNECTOR_PATH = "/api";
+    public static final String PROVIDER_MANAGEMENT_PATH = "/api/v1/data";
+    public static final int PROVIDER_IDS_API_PORT = getFreePort();
+    public static final String PROVIDER_IDS_API = "http://localhost:" + PROVIDER_IDS_API_PORT;
+
 
     private static final int REPEAT = Integer.parseInt(propOrEnv("repeat", "1"));
     private static final int AT_ONCE_USERS = Integer.parseInt(propOrEnv("at.once.users", "1"));

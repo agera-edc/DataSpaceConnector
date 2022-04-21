@@ -34,6 +34,7 @@ dependencies {
 
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
+    testImplementation(testFixtures(project(":system-tests:tests")))
 
     testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
     testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))

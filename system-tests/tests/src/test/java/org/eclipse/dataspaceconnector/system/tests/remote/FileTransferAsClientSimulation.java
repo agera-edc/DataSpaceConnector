@@ -23,7 +23,7 @@ import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
 import static io.gatling.javaapi.core.CoreDsl.global;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferIntegrationTest.CONSUMER_MANAGEMENT_PATH;
+import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.DESCRIPTION;
 import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.contractNegotiationAndFileTransfer;
 
