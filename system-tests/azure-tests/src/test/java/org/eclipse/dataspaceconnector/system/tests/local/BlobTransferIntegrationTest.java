@@ -52,6 +52,7 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
 
 @EndToEndTest
 @PerformanceTest
@@ -97,9 +98,12 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     @Test
     public void transferFile_success() throws Exception {
         // Arrange
-        // Create a file with test data on provider file system.
-        var fileContent = "FileTransfer-test-" + UUID.randomUUID();
-        Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
+        // Upload a file with test data on provider blob container.
+        var fileContent = "BlobTransferIntegrationTest-" + UUID.randomUUID();
+        var providerAssetPath = Path.of(PROVIDER_ASSET_PATH);
+        Files.write(providerAssetPath, fileContent.getBytes(StandardCharsets.UTF_8));
+        putBlob(PROVIDER_ASSET_NAME, providerAssetPath.toFile());
+
         // Write Key to vault
         consumerVault.storeSecret(account1Name, account1Key);
         providerVault.storeSecret(account2Name, account2Key);
