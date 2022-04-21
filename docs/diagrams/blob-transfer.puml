@@ -13,7 +13,8 @@
 '
 
 @startuml
-Client -> Consumer: Call DM API: POST /transferprocess \n - Storage account name \n - Blob name
+autonumber "<b>(0)"
+Client -> Consumer: Call DM API: POST /transferprocess \n - managedResources=true\n - Storage account name \n - Blob name
 Consumer -> "Consumer Vault": Get dest Storage Account key
 Consumer -> "Consumer Storage Account": Create container
 Consumer -> Provider: IDS message providing: \n - Account name \n - Container name \n - Blob name \n - Write-only dest SAS token
@@ -25,6 +26,6 @@ Provider -> "Provider DPF": DPF call: \n - Account name \n - Container name \n -
 "Provider DPF" -> "Consumer Storage Account": Write
 Client -> Consumer: Poll for completion
 Client -> "Consumer Storage Account": Read result
-Client -> "Consumer Storage Account": Call DM API: POST /deprovision \n - Account name \n - Blob name
+Client -> "Consumer": Call DM API: POST /deprovision \n - Account name \n - Blob name
 Consumer -> "Consumer Storage Account": Delete container
 @enduml
