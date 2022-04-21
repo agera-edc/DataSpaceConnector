@@ -18,7 +18,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.eclipse.dataspaceconnector.common.annotations.OpenTelemetryIntegrationTest;
-import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
+import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -93,7 +93,7 @@ public class TracingIntegrationTest extends FileTransferEdcRuntime {
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         // Act
-        runGatling(FileTransferLocalSimulation.class, FileTransferSimulationUtils.DESCRIPTION);
+        runGatling(FileTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
 
         // Assert
         await().atMost(30, SECONDS).untilAsserted(() -> {

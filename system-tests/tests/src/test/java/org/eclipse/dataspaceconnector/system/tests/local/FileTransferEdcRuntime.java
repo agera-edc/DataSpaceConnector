@@ -21,19 +21,19 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.util.Map;
 
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_CONNECTOR_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_IDS_API;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_IDS_API_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_MANAGEMENT_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.CONSUMER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_ASSET_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_CONNECTOR_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_CONNECTOR_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_IDS_API;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_IDS_API_PORT;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
-import static org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_IDS_API;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_IDS_API_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_MANAGEMENT_PATH;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_MANAGEMENT_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_PATH;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_IDS_API;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_IDS_API_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 
 /**
  * Class providing a consumer and provider EdcRuntimeExtension used to test a file transfer.

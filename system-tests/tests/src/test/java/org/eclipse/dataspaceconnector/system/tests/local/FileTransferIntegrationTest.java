@@ -18,7 +18,7 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
-import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
+import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -43,7 +43,7 @@ public class FileTransferIntegrationTest extends FileTransferEdcRuntime {
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
 
         // Act
-        runGatling(FileTransferLocalSimulation.class, FileTransferSimulationUtils.DESCRIPTION);
+        runGatling(FileTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
 
         // Assert
         var copiedFilePath = Path.of(CONSUMER_ASSET_PATH);

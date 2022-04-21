@@ -17,12 +17,12 @@ package org.eclipse.dataspaceconnector.system.tests;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
-import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
+import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferRequestFactory;
 
 import java.util.Map;
 
-import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
 
 public class FileTransferRequestFactory implements TransferRequestFactory {
 
@@ -33,7 +33,7 @@ public class FileTransferRequestFactory implements TransferRequestFactory {
     }
 
     @Override
-    public String apply(FileTransferSimulationUtils.TransferInitiationData transferInitiationData) {
+    public String apply(TransferSimulationUtils.TransferInitiationData transferInitiationData) {
         var request = Map.of(
                 "contractId", transferInitiationData.contractAgreementId,
                 "assetId", PROVIDER_ASSET_NAME,

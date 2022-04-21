@@ -23,8 +23,8 @@ import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
-import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.DESCRIPTION;
-import static org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils.contractNegotiationAndTransfer;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.DESCRIPTION;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.contractNegotiationAndTransfer;
 
 /**
  * Runs a single iteration of contract negotiation and file transfer, getting settings from

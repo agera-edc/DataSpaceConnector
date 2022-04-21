@@ -43,7 +43,7 @@ import static java.lang.String.format;
 /**
  * Utility methods for building a Gatling simulation for performing contract negotiation and file transfer.
  */
-public abstract class FileTransferSimulationUtils {
+public abstract class TransferSimulationUtils {
 
     public static final String CONTRACT_AGREEMENT_ID = "contractAgreementId";
     public static final String CONTRACT_NEGOTIATION_REQUEST_ID = "contractNegotiationRequestId";
@@ -53,7 +53,7 @@ public abstract class FileTransferSimulationUtils {
 
     public static final String PROVIDER_ASSET_NAME = "test-document";
 
-    private FileTransferSimulationUtils() {
+    private TransferSimulationUtils() {
     }
 
     /**
