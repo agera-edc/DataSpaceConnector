@@ -14,8 +14,6 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-import org.eclipse.dataspaceconnector.system.tests.FileTransferRequestFactory;
-
 import java.io.File;
 
 import static java.lang.String.format;
@@ -31,6 +29,6 @@ public class BlobTransferLocalSimulation extends TransferLocalSimulation {
     public static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
 
     public BlobTransferLocalSimulation() {
-        super(new FileTransferRequestFactory(CONSUMER_ASSET_PATH));
+        super(new BlobTransferRequestFactory(CONSUMER_ASSET_PATH));
     }
 }

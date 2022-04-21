@@ -84,8 +84,8 @@ public class BlobTransferIntegrationTest {
 
     @BeforeAll
     static void beforeAll() {
-        consumer.registerServiceMock(Vault.class, consumerVault);
-        provider.registerServiceMock(Vault.class, providerVault);
+        // consumer.registerServiceMock(Vault.class, consumerVault);
+        // provider.registerServiceMock(Vault.class, providerVault);
     }
 
     @Test
