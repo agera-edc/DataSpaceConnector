@@ -21,10 +21,8 @@ import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.PolicyType;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
-import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
-import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -64,10 +62,10 @@ public abstract class FileTransferSimulationUtils {
      * @param providerUrl     URL for the Provider API, as accessed from the Consumer runtime.
      * @param destinationPath File copy destination path. If it includes the character sequence {@code %s}, that sequence is replaced with a random string in each iteration.
      */
-    public static ChainBuilder contractNegotiationAndFileTransfer(String providerUrl, String destinationPath) {
+    public static ChainBuilder contractNegotiationAndTransfer(String providerUrl, TransferRequestFactory requestFactory) {
         return startContractAgreement(providerUrl)
                 .exec(waitForContractAgreement())
-                .exec(startFileTransfer(providerUrl, destinationPath))
+                .exec(startTransfer(providerUrl, requestFactory))
                 .exec(waitForTransferCompletion());
     }
 
@@ -76,7 +74,7 @@ public abstract class FileTransferSimulationUtils {
      * <p>
      * Saves the Contract Negotiation Request ID into the {@see CONTRACT_NEGOTIATION_REQUEST_ID} session key.
      *
-     * @param providerUrl       URL for the Provider API, as accessed from the Consumer runtime.
+     * @param providerUrl URL for the Provider API, as accessed from the Consumer runtime.
      */
     private static ChainBuilder startContractAgreement(String providerUrl) {
         var connectorAddress = format("%s/api/v1/ids/data", providerUrl);
@@ -103,7 +101,6 @@ public abstract class FileTransferSimulationUtils {
      * Expects the Contract Negotiation Request ID to be provided in the {@see CONTRACT_NEGOTIATION_REQUEST_ID} session key.
      * <p>
      * Saves the Contract Agreement ID into the {@see CONTRACT_AGREEMENT_ID} session key.
-     *
      */
     private static ChainBuilder waitForContractAgreement() {
         return exec(session -> session.set("status", -1))
@@ -139,46 +136,32 @@ public abstract class FileTransferSimulationUtils {
      * @param providerUrl     URL for the Provider API, as accessed from the Consumer runtime.
      * @param destinationPath File copy destination path.
      */
-    private static ChainBuilder startFileTransfer(String providerUrl, String destinationPath) {
+    private static ChainBuilder startTransfer(String providerUrl, TransferRequestFactory requestFactory) {
         String connectorAddress = format("%s/api/v1/ids/data", providerUrl);
         return group("Initiate transfer")
-                .on(exec(initiateFileTransfer(destinationPath, connectorAddress)));
+                .on(exec(initiateTransfer(requestFactory, connectorAddress)));
+    }
+
+    public static class TransferInitiationData {
+        public final String contractAgreementId;
+        public final String connectorAddress;
+
+        TransferInitiationData(String contractAgreementId, String connectorAddress) {
+            this.contractAgreementId = contractAgreementId;
+            this.connectorAddress = connectorAddress;
+        }
     }
 
     @NotNull
-    private static HttpRequestActionBuilder initiateFileTransfer(String destinationPath, String connectorAddress) {
-
+    private static HttpRequestActionBuilder initiateTransfer(TransferRequestFactory requestFactory, String connectorAddress) {
         return http("Initiate file transfer")
                 .post("/transferprocess")
-                .body(StringBody(session -> transferRequest(session.getString(CONTRACT_AGREEMENT_ID), destinationPath, connectorAddress)))
+                .body(StringBody(session -> requestFactory.apply(new TransferInitiationData(session.getString(CONTRACT_AGREEMENT_ID), connectorAddress))))
                 .header(CONTENT_TYPE, "application/json")
                 .check(status().is(200))
                 .check(bodyString()
                         .notNull()
                         .saveAs(TRANSFER_PROCESS_ID));
-    }
-
-    private static String transferRequest(String contractAgreementId, String destinationPath, String connectorAddress) {
-        var request = Map.of(
-                "contractId", contractAgreementId,
-                "assetId", PROVIDER_ASSET_NAME,
-                "connectorId", "consumer",
-                "connectorAddress", connectorAddress,
-                "protocol", "ids-multipart",
-                "dataDestination", DataAddress.Builder.newInstance()
-                        .keyName("keyName")
-                        .type("File")
-                        .property("path", destinationPath)
-                        .build(),
-                "managedResources", false,
-                "transferType", TransferType.Builder.transferType()
-                        .contentType("application/octet-stream")
-                        .isFinite(true)
-                        .build()
-        );
-
-        return new TypeManager().writeValueAsString(request);
-
     }
 
     /**
