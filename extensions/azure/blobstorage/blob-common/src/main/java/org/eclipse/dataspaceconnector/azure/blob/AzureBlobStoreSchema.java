@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 Microsoft Corporation
+ *  Copyright (c) 2020, 2021 Microsoft Corporation
  *
  *  This program and the accompanying materials are made available under the
  *  terms of the Apache License, Version 2.0 which is available at
@@ -12,22 +12,20 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.schema;
+package org.eclipse.dataspaceconnector.azure.blob;
 
-
-import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 
 /**
- * Constants used in Azure Blob storage data address {@link DataAddress#getProperties() properties}.
+ * Constants used in Azure Blob storage data address properties.
  */
 public class AzureBlobStoreSchema {
 
     private AzureBlobStoreSchema() {
     }
 
-    public static final String TYPE = "AzureStorageBlobData";
-    public static final String ACCOUNT_NAME = "account";
+    public static final String TYPE = "AzureStorage";
     public static final String CONTAINER_NAME = "container";
-    public static final String BLOB_NAME = "blob";
+    public static final String ACCOUNT_NAME = "account";
+    public static final String BLOB_NAME = "blobname";
     public static final String SHARED_KEY = "sharedKey";
 }

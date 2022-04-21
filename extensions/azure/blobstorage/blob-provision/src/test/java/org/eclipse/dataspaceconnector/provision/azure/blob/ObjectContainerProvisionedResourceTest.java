@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.provision.azure.blob;
 
-import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
+import org.eclipse.dataspaceconnector.azure.blob.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.junit.jupiter.api.BeforeEach;

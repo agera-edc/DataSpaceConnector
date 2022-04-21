@@ -12,16 +12,19 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.blob.core;
+plugins {
+    `java-library`
+}
 
+dependencies {
+    api(project(":common:util"))
+}
 
-public class AzureBlobStoreSchema {
-
-    private AzureBlobStoreSchema() {
+publishing {
+    publications {
+        create<MavenPublication>("blob-common") {
+            artifactId = "blob-common"
+            from(components["java"])
+        }
     }
-
-    public static final String TYPE = "AzureStorage";
-    public static final String CONTAINER_NAME = "container";
-    public static final String ACCOUNT_NAME = "account";
-    public static final String BLOB_NAME = "blobname";
 }
