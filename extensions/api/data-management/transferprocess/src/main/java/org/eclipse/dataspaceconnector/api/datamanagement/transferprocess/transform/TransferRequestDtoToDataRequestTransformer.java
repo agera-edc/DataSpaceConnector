@@ -42,6 +42,7 @@ public class TransferRequestDtoToDataRequestTransformer implements DtoTransforme
             return null;
         }
         return DataRequest.Builder.newInstance()
+                .id(object.getId())
                 .assetId(object.getAssetId())
                 .connectorId(object.getConnectorId())
                 .dataDestination(object.getDataDestination())

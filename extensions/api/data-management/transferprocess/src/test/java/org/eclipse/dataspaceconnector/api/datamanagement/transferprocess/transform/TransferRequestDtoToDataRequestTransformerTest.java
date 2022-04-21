@@ -47,6 +47,7 @@ class TransferRequestDtoToDataRequestTransformerTest {
         var context = mock(TransformerContext.class);
         var transferReq = transferRequestDto();
         var dataRequest = transformer.transform(transferReq, context);
+        assertThat(dataRequest.getId()).isEqualTo(transferReq.getId());
         assertThat(dataRequest.getAssetId()).isEqualTo(transferReq.getAssetId());
         assertThat(dataRequest.getConnectorAddress()).isEqualTo(transferReq.getConnectorAddress());
         assertThat(dataRequest.getConnectorId()).isEqualTo(transferReq.getConnectorId());
@@ -61,6 +62,7 @@ class TransferRequestDtoToDataRequestTransformerTest {
 
     private TransferRequestDto transferRequestDto() {
         return TransferRequestDto.Builder.newInstance()
+                .id(faker.lorem().word())
                 .connectorAddress(faker.internet().url())
                 .assetId(faker.lorem().word())
                 .contractId(faker.lorem().word())
