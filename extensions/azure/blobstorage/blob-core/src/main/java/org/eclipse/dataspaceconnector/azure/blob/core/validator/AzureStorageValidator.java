@@ -12,7 +12,11 @@
  *
  */
 
+<<<<<<<< HEAD:extensions/azure/blobstorage/blob-core/src/main/java/org/eclipse/dataspaceconnector/azure/blob/core/validator/AzureStorageValidator.java
 package org.eclipse.dataspaceconnector.azure.blob.core.validator;
+========
+package org.eclipse.dataspaceconnector.azure.blob.validator;
+>>>>>>>> 5908caab1 (blob-common):extensions/azure/blobstorage/blob-common/src/main/java/org/eclipse/dataspaceconnector/azure/blob/validator/AzureStorageValidator.java
 
 
 import org.eclipse.dataspaceconnector.common.string.StringUtils;

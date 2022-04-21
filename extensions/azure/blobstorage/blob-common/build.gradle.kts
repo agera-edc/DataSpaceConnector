@@ -16,21 +16,14 @@ plugins {
     `java-library`
 }
 
-val storageBlobVersion: String by project
-
 dependencies {
-    api(project(":spi"))
     api(project(":common:util"))
-
-    implementation(project(":extensions:azure:blobstorage:blob-common"))
-    implementation(project(":extensions:azure:blobstorage:blob-core"))
-    implementation("com.azure:azure-storage-blob:${storageBlobVersion}")
 }
 
 publishing {
     publications {
-        create<MavenPublication>("blob-operator") {
-            artifactId = "blob-operator"
+        create<MavenPublication>("blob-common") {
+            artifactId = "blob-common"
             from(components["java"])
         }
     }
