@@ -101,11 +101,8 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         var fileContent = "FileTransfer-test-" + UUID.randomUUID();
         Files.write(Path.of(PROVIDER_ASSET_PATH), fileContent.getBytes(StandardCharsets.UTF_8));
         // Write Key to vault
-//        blobServiceClient1
-//                .getBlobContainerClient(account1ContainerName)
-//
-//        consumerVault.storeSecret();
-//        providerVault.storeSecret();
+        consumerVault.storeSecret(account1Name, account1Key);
+        providerVault.storeSecret(account2Name, account2Key);
 
         // Act
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
