@@ -30,12 +30,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.restassured.RestAssured.given;
+import static io.restassured.http.ContentType.JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.CONSUMER_ASSET_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.PROVIDER_ASSET_PATH;
@@ -120,5 +123,33 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         assertThat(actualFileContent)
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(fileContent);
+    }
+
+    private void createAsset(URI instance, String assetId, String providerUrl) {
+        var asset = Map.of(
+                "asset", Map.of(
+                        "properties", Map.of(
+                                "asset:prop:id", assetId,
+                                "asset:prop:name", "asset name",
+                                "asset:prop:contenttype", "text/plain",
+                                "asset:prop:policy-id", "use-eu"
+                        )
+                ),
+                "dataAddress", Map.of(
+                        "properties", Map.of(
+                                "endpoint", providerUrl + "/api/service/data",
+                                "type", "HttpData"
+                        )
+                )
+        );
+
+        given()
+                .baseUri(instance.toString())
+                .contentType(JSON)
+                .body(asset)
+                .when()
+                .post("/api/assets")
+                .then()
+                .statusCode(204);
     }
 }
