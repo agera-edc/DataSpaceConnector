@@ -12,23 +12,23 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.system.tests;
+package org.eclipse.dataspaceconnector.system.tests.local;
 
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
-import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferRequestFactory;
+import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 
 import java.util.Map;
 
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
 
-public class FileTransferRequestFactory implements TransferRequestFactory {
+public class BlobTransferRequestFactory implements TransferRequestFactory {
 
     private final String destinationPath;
 
-    public FileTransferRequestFactory(String destinationPath) {
+    public BlobTransferRequestFactory(String destinationPath) {
         this.destinationPath = destinationPath;
     }
 
