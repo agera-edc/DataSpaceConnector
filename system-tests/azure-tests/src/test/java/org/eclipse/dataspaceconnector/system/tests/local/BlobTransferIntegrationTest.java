@@ -207,6 +207,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
 
     private void seedProviderData(String path, Object requestBody) {
         givenProviderBaseRequest()
+                .log().all()
                 .contentType(JSON)
                 .body(requestBody)
                 .when()
@@ -217,8 +218,6 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
 
     private RequestSpecification givenProviderBaseRequest() {
         return given()
-                .baseUri(PROVIDER_CONNECTOR_MANAGEMENT_URL)
-                .basePath(PROVIDER_MANAGEMENT_PATH)
-                .when();
+                .baseUri(PROVIDER_CONNECTOR_MANAGEMENT_URL+PROVIDER_MANAGEMENT_PATH);
     }
 }
