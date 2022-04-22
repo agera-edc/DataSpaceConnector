@@ -21,7 +21,8 @@ after the client triggered the data deletion.
 1. The client calls the data management API to trigger a transfer process. managedResources is set to true, which means that the consumer should provision the blob container.  
 2. Consumer gets the destination storage account access key in its Vault.  
 3. Consumer creates a container where the Provider DPF may write blobs. The container is created only if the client specifies managedResources=true.
-   The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for creating the container and for generating a SAS token to access the container. This token will be communicated to the Provider in the next steps.  
+   The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for provisioning the container and for generating a SAS token to access the container.
+   It creates the container and the SAS token by using the [BlobStoreApi](). [BlobStoreApiImpl]() retrieves the storage account access key in the consumer vault. Then it can create the container and generate the SAS token.  
 4. Consumer sends an IDS message to the provider, to provide the information needed to write the blob: for example, the blob name and the SAS token needed to write it.  
 5. Provider store the SAS token in its Vault.  
 6. Provider requests the blob transfer on the Provider DPF. The provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider requests the transfer via an HTTP request.  
