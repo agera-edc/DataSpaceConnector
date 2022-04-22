@@ -16,7 +16,6 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-import org.apache.commons.lang3.StringUtils;
 import com.azure.core.util.BinaryData;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
@@ -24,6 +23,11 @@ import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.MockVault;
+import org.eclipse.dataspaceconnector.policy.model.Action;
+import org.eclipse.dataspaceconnector.policy.model.Permission;
+import org.eclipse.dataspaceconnector.policy.model.Policy;
+import org.eclipse.dataspaceconnector.policy.model.PolicyType;
+import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
 import org.eclipse.dataspaceconnector.spi.security.CertificateResolver;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
@@ -33,10 +37,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
@@ -67,7 +67,9 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     private static final Vault CONSUMER_VAULT = new MockVault();
     private static final Vault PROVIDER_VAULT = new MockVault();
     private static final String ASSETS_PATH = "/assets";
-    private static final String SOURCE_BLOB_CONTAINER = "src-container";
+    private static final String POLICIES_PATH = "/policies";
+    private static final String CONTRACT_DEFINITIONS_PATH = "/contractdefinitions";
+    private static final String PROVIDER_CONTAINER_NAME = UUID.randomUUID().toString();
 
     @RegisterExtension
     protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -83,14 +85,13 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                     "web.http.ids.path", "/api/v1/ids",
                     "ids.webhook.address", CONSUMER_IDS_API));
 
-    protected static String providerContainerName = UUID.randomUUID().toString();
     @RegisterExtension
     protected static EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":system-tests:runtimes:azure-storage-transfer-provider",
             "provider",
             Map.of(
                     "edc.blobstore.endpoint.template", "http://127.0.0.1:10000/%s",
-                    "edc.test.asset.container.name", providerContainerName,
+                    "edc.test.asset.container.name", PROVIDER_CONTAINER_NAME,
                     "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
                     "web.http.path", PROVIDER_CONNECTOR_PATH,
                     "web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT),
@@ -117,10 +118,15 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         // Arrange
         // Upload a blob with test data on provider blob container (in account1).
         var blobContent = "BlobTransferIntegrationTest-" + UUID.randomUUID();
-        createContainer(blobServiceClient1, providerContainerName);
-        blobServiceClient1.getBlobContainerClient(providerContainerName)
+        createContainer(blobServiceClient1, PROVIDER_CONTAINER_NAME);
+        blobServiceClient1.getBlobContainerClient(PROVIDER_CONTAINER_NAME)
                 .getBlobClient(PROVIDER_ASSET_NAME)
                 .upload(BinaryData.fromString(blobContent));
+
+        // Seed data to provider
+        createAsset();
+        var policyId = createPolicy();
+        createContractDefinition(policyId);
 
         // Write Key to vault
         CONSUMER_VAULT.storeSecret(account2Name + "-key1", account2Key);
@@ -141,7 +147,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(blobContent);
     }
-    
+
     private void createAsset() {
         var asset = Map.of(
                 "asset", Map.of(
@@ -157,7 +163,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                         "properties", Map.of(
                                 "type", "AzureStorage",
                                 "account", account1Name,
-                                "container", SOURCE_BLOB_CONTAINER,
+                                "container", PROVIDER_CONTAINER_NAME,
                                 "blobname", format("%s.txt", PROVIDER_ASSET_NAME),
                                 "keyName", format("%s-key1", account1Name)
                         )
@@ -165,6 +171,38 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         );
 
         seedProviderData(ASSETS_PATH, asset);
+    }
+
+    private String createPolicy() {
+        var policy = Policy.Builder.newInstance()
+                .permission(Permission.Builder.newInstance()
+                        .target(PROVIDER_ASSET_NAME)
+                        .action(Action.Builder.newInstance().type("USE").build())
+                        .build())
+                .type(PolicyType.SET)
+                .build();
+
+        seedProviderData(POLICIES_PATH, policy);
+
+        return policy.getUid();
+    }
+
+    private void createContractDefinition(String policyId) {
+
+        var criteria = AssetSelectorExpression.Builder.newInstance()
+                .constraint("asset:prop:id",
+                        "=",
+                        PROVIDER_ASSET_NAME)
+                .build();
+
+        var contractDefinition = Map.of(
+                "id", "1",
+                "accessPolicyId", policyId,
+                "contractPolicyId", policyId,
+                "criteria", criteria
+        );
+
+        seedProviderData(CONTRACT_DEFINITIONS_PATH, contractDefinition);
     }
 
     private void seedProviderData(String path, Object requestBody) {
