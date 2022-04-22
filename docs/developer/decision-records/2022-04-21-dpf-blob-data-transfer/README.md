@@ -27,8 +27,9 @@ after the client triggered the data deletion.
 6. Provider requests the blob transfer on the Provider DPF. The provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider requests the transfer via an HTTP request.  
 7. The Provider DPF gets the source storage account key.  
 8. The Provider DPF gets the SAS token needed to write the blob to the consumer blob container.  
-9. The Provider DPF reads the data that needs to be transfered.  
-10. The Provider DPF writes the data to the destination blob so that the consumer can access the data.  
+9. The Provider DPF reads the data that needs to be transfered. The [AzureStorageDataSource](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSource.java) provides the source data stream.  
+10. The Provider DPF writes the data to the destination blob so that the consumer can access the data. 
+The [AzureStorageDataSink](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSink.java) transfers the data to the blob destination.  
 11. In the meantime, the client polls regularly to check if the data transfer is finished.  
 12. When the transfer is finished, the client can read the blob.  
 13. Then, the client can call the Data Management API to destroy the data.  
