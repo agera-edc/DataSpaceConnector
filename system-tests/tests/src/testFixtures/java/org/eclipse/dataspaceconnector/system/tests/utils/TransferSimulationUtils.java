@@ -59,6 +59,8 @@ public abstract class TransferSimulationUtils {
     public static final String TRANSFER_PROCESSES_PATH = "/transferprocess";
     public static final String IDS_PATH = "/api/v1/ids";
 
+    public static final String TRANSFER_SUCCESSFUL = "Transfer successful";
+
     private TransferSimulationUtils() {
     }
 

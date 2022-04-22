@@ -16,7 +16,7 @@ package org.eclipse.dataspaceconnector.provision.azure.blob;
 
 import com.azure.storage.blob.models.BlobStorageException;
 import net.jodah.failsafe.RetryPolicy;
-import org.eclipse.dataspaceconnector.azure.blob.core.AzureSasToken;
+import org.eclipse.dataspaceconnector.azure.blob.AzureSasToken;
 import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
