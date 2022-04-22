@@ -128,8 +128,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(fileContent);
     }
-
-    //TODO: FixMe
+    
     private void createAsset() {
         var asset = Map.of(
                 "asset", Map.of(
