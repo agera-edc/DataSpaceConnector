@@ -16,6 +16,7 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
@@ -35,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -60,6 +62,9 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
 @EndToEndTest
 @PerformanceTest
 public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
+    private static final Vault consumerVault = new MockVault();
+    private static final Vault providerVault = new MockVault();
+    private static final String PROVIDER_URL = "PROVIDER_URL";
 
     @RegisterExtension
     protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -87,8 +92,6 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                     "web.http.ids.path", "/api/v1/ids",
                     "ids.webhook.address", PROVIDER_IDS_API));
 
-    static final Vault consumerVault = new MockVault();
-    static final Vault providerVault = new MockVault();
 
     @BeforeAll
     static void beforeAll() {
@@ -126,7 +129,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     }
 
     //TODO: FixMe
-    private void createAsset(URI instance, String assetId, String providerUrl) {
+    private void createAsset(URI instance, String assetId) {
         var asset = Map.of(
                 "asset", Map.of(
                         "properties", Map.of(
@@ -138,11 +141,12 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                 ),
                 "dataAddress", Map.of(
                         "properties", Map.of(
-                                "endpoint", providerUrl + "/api/service/data",
+                                "endpoint", getFromEnv(PROVIDER_URL) + "/api/service/data",
                                 "type", "HttpData"
                         )
                 )
         );
+
 
         given()
                 .baseUri(instance.toString())
@@ -152,5 +156,9 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                 .post("/api/assets")
                 .then()
                 .statusCode(204);
+    }
+
+    private static String getFromEnv(String env) {
+        return Objects.requireNonNull(StringUtils.trimToNull(System.getenv(env)), env);
     }
 }
