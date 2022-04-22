@@ -16,7 +16,7 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-import org.apache.commons.lang3.StringUtils;
+import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
@@ -31,16 +31,15 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.CONSUMER_ASSET_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.PROVIDER_ASSET_PATH;
@@ -50,6 +49,7 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_IDS_API_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_MANAGEMENT_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_MANAGEMENT_URL;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_IDS_API;
@@ -62,9 +62,10 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
 @EndToEndTest
 @PerformanceTest
 public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
-    private static final Vault consumerVault = new MockVault();
-    private static final Vault providerVault = new MockVault();
-    private static final String PROVIDER_URL = "PROVIDER_URL";
+    private static final Vault CONSUMER_VAULT = new MockVault();
+    private static final Vault PROVIDER_VAULT = new MockVault();
+    private static final String ASSETS_PATH = "/assets";
+    private static final String SOURCE_BLOB_CONTAINER = "src-container";
 
     @RegisterExtension
     protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -95,8 +96,8 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
 
     @BeforeAll
     static void beforeAll() {
-        consumer.registerServiceMock(Vault.class, consumerVault);
-        provider.registerServiceMock(Vault.class, providerVault);
+        consumer.registerServiceMock(Vault.class, CONSUMER_VAULT);
+        provider.registerServiceMock(Vault.class, PROVIDER_VAULT);
         consumer.registerServiceMock(PrivateKeyResolver.class, new NullVaultExtension().getPrivateKeyResolver());
         consumer.registerServiceMock(CertificateResolver.class, new NullVaultExtension().getCertificateResolver());
     }
@@ -111,8 +112,8 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         putBlob(PROVIDER_ASSET_NAME, providerAssetPath.toFile());
 
         // Write Key to vault
-        consumerVault.storeSecret(account1Name, account1Key);
-        providerVault.storeSecret(account2Name, account2Key);
+        PROVIDER_VAULT.storeSecret(account1Name, account1Key);
+        CONSUMER_VAULT.storeSecret(account2Name, account2Key);
 
         // Act
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
@@ -129,36 +130,45 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     }
 
     //TODO: FixMe
-    private void createAsset(URI instance, String assetId) {
+    private void createAsset() {
         var asset = Map.of(
                 "asset", Map.of(
                         "properties", Map.of(
-                                "asset:prop:id", assetId,
-                                "asset:prop:name", "asset name",
+                                "asset:prop:name", PROVIDER_ASSET_NAME,
                                 "asset:prop:contenttype", "text/plain",
-                                "asset:prop:policy-id", "use-eu"
+                                "asset:prop:version", "1.0",
+                                "asset:prop:id", PROVIDER_ASSET_NAME,
+                                "type", "AzureStorage"
                         )
                 ),
                 "dataAddress", Map.of(
                         "properties", Map.of(
-                                "endpoint", getFromEnv(PROVIDER_URL) + "/api/service/data",
-                                "type", "HttpData"
+                                "type", "AzureStorage",
+                                "account", account1Name,
+                                "container", SOURCE_BLOB_CONTAINER,
+                                "blobname", format("%s.txt", PROVIDER_ASSET_NAME),
+                                "keyName", format("%s-key1", account1Name)
                         )
                 )
         );
 
+        seedProviderData(ASSETS_PATH, asset);
+    }
 
-        given()
-                .baseUri(instance.toString())
+    private void seedProviderData(String path, Object requestBody) {
+        givenProviderBaseRequest()
                 .contentType(JSON)
-                .body(asset)
+                .body(requestBody)
                 .when()
-                .post("/api/assets")
+                .post(path)
                 .then()
                 .statusCode(204);
     }
 
-    private static String getFromEnv(String env) {
-        return Objects.requireNonNull(StringUtils.trimToNull(System.getenv(env)), env);
+    private RequestSpecification givenProviderBaseRequest() {
+        return given()
+                .baseUri(PROVIDER_CONNECTOR_MANAGEMENT_URL)
+                .basePath(PROVIDER_MANAGEMENT_PATH)
+                .when();
     }
 }
