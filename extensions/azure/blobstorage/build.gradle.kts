@@ -21,6 +21,7 @@ plugins {
 dependencies {
     api(project(":spi"))
     api(project(":extensions:azure:blobstorage:blob-data-operator"))
+    api(project(":extensions:azure:blobstorage:blob-common"))
     api(project(":extensions:azure:blobstorage:blob-core"))
     api(project(":extensions:azure:blobstorage:blob-provision"))
 }

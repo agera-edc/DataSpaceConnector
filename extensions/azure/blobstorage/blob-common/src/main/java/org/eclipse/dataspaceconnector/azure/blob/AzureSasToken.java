@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.azure.blob.core;
+package org.eclipse.dataspaceconnector.azure.blob;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;

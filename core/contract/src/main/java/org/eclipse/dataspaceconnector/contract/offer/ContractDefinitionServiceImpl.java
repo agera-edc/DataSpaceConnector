@@ -23,6 +23,7 @@ import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitio
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.policy.PolicyEngine;
 import org.eclipse.dataspaceconnector.spi.policy.store.PolicyStore;
+import org.eclipse.dataspaceconnector.spi.response.StatusResult;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDefinition;
 import org.jetbrains.annotations.NotNull;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.FATAL_ERROR;
 
 /**
  * Determines the contract definitions applicable to a {@link ParticipantAgent} by evaluating the access control and usage policies associated with a set of assets as defined by
@@ -93,6 +95,6 @@ public class ContractDefinitionServiceImpl implements ContractDefinitionService 
         return Optional.of(policyId)
                 .map(policyStore::findById)
                 .map(policy -> policyEngine.evaluate(NEGOTIATION_SCOPE, policy, agent))
-                .orElse(Result.failure(format("Policy %s not found", policyId)));
+                .orElseGet(() -> Result.failure(format("Policy %s not found", policyId)));
     }
 }

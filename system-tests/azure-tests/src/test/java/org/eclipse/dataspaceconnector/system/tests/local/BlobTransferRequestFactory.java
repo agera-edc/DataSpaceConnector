@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
+import org.eclipse.dataspaceconnector.azure.blob.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
@@ -26,10 +27,10 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
 
 public class BlobTransferRequestFactory implements TransferRequestFactory {
 
-    private final String destinationPath;
+    private final String accountName;
 
-    public BlobTransferRequestFactory(String destinationPath) {
-        this.destinationPath = destinationPath;
+    public BlobTransferRequestFactory(String accountName) {
+        this.accountName = accountName;
     }
 
     @Override
@@ -41,11 +42,10 @@ public class BlobTransferRequestFactory implements TransferRequestFactory {
                 "connectorAddress", transferInitiationData.connectorAddress,
                 "protocol", "ids-multipart",
                 "dataDestination", DataAddress.Builder.newInstance()
-                        .keyName("keyName")
-                        .type("File")
-                        .property("path", destinationPath)
+                        .type(AzureBlobStoreSchema.TYPE)
+                        .property(AzureBlobStoreSchema.ACCOUNT_NAME, accountName)
                         .build(),
-                "managedResources", false,
+                "managedResources", true,
                 "transferType", TransferType.Builder.transferType()
                         .contentType("application/octet-stream")
                         .isFinite(true)
