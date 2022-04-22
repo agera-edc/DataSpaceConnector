@@ -45,6 +45,7 @@ public class TransferLocalSimulation extends Simulation {
     public static final int PROVIDER_MANAGEMENT_PORT = getFreePort();
     public static final String PROVIDER_CONNECTOR_PATH = "/api";
     public static final String PROVIDER_MANAGEMENT_PATH = "/api/v1/data";
+    public static final String PROVIDER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + PROVIDER_MANAGEMENT_PORT;
     public static final int PROVIDER_IDS_API_PORT = getFreePort();
     public static final String PROVIDER_IDS_API = "http://localhost:" + PROVIDER_IDS_API_PORT;
 
