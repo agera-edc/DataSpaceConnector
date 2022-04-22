@@ -129,8 +129,8 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         createContractDefinition(policyId);
 
         // Write Key to vault
-        CONSUMER_VAULT.storeSecret(account2Name + "-key1", account2Key);
-        PROVIDER_VAULT.storeSecret(account1Name + "-key1", account1Key);
+        CONSUMER_VAULT.storeSecret(format("%s-key1", account2Name), account2Key);
+        PROVIDER_VAULT.storeSecret(format("%s-key1", account1Name), account1Key);
 
         // Act
         System.setProperty(ACCOUNT_NAME_PROPERTY, account2Name);
