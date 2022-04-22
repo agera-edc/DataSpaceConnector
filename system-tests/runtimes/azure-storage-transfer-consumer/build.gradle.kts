@@ -39,6 +39,8 @@ dependencies {
 
     implementation(project(":data-protocols:ids"))
 
+    implementation(project(":extensions:azure:blobstorage"))
+
     api(project(":spi"))
     implementation(project(":common:util"))
 

@@ -14,21 +14,11 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-import java.io.File;
 
-import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.tempDirectory;
-import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
-
-/**
- * Runs a single iteration of contract negotiation and file transfer, getting settings from
- * {@see FileTransferIntegrationTest}.
- */
 public class BlobTransferLocalSimulation extends TransferLocalSimulation {
-    public static final String CONSUMER_ASSET_PATH = new File(tempDirectory(), "output.txt").getAbsolutePath();
-    public static final String PROVIDER_ASSET_PATH = format("%s/%s.txt", tempDirectory(), PROVIDER_ASSET_NAME);
+    static final String ACCOUNT_NAME_PROPERTY = "BlobTransferLocalSimulation-account-name";
 
     public BlobTransferLocalSimulation() {
-        super(new BlobTransferRequestFactory(CONSUMER_ASSET_PATH));
+        super(new BlobTransferRequestFactory(System.getProperty(ACCOUNT_NAME_PROPERTY)));
     }
 }

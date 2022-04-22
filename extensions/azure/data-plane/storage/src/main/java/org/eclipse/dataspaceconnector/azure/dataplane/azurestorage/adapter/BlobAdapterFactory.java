@@ -14,24 +14,34 @@
 
 package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter;
 
+import com.azure.core.credential.AzureSasCredential;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
-
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Factory class for {@link BlobAdapter}.
  */
 public class BlobAdapterFactory {
-    private final String blobstoreEndpoint;
+    private final String blobstoreEndpointTemplate;
 
-    public BlobAdapterFactory(String blobstoreEndpoint) {
-        this.blobstoreEndpoint = blobstoreEndpoint;
+    public BlobAdapterFactory(String blobstoreEndpointTemplate) {
+        this.blobstoreEndpointTemplate = blobstoreEndpointTemplate;
     }
 
     public BlobAdapter getBlobAdapter(String accountName, String containerName, String blobName, String sharedKey) {
-        var blobServiceClient = new BlobServiceClientBuilder()
-                .credential(new StorageSharedKeyCredential(accountName, sharedKey))
+        BlobServiceClientBuilder builder = new BlobServiceClientBuilder().credential(new StorageSharedKeyCredential(accountName, sharedKey));
+        return getBlobAdapter(accountName, containerName, blobName, builder);
+    }
+
+    public BlobAdapter getBlobAdapter(String accountName, String containerName, String blobName, AzureSasCredential credential) {
+        BlobServiceClientBuilder builder = new BlobServiceClientBuilder().credential(credential);
+        return getBlobAdapter(accountName, containerName, blobName, builder);
+    }
+
+    @NotNull
+    private BlobAdapter getBlobAdapter(String accountName, String containerName, String blobName, BlobServiceClientBuilder builder) {
+        var blobServiceClient = builder
                 .endpoint(createEndpoint(accountName))
                 .buildClient();
 
@@ -44,7 +54,7 @@ public class BlobAdapterFactory {
     }
 
     private String createEndpoint(String accountName) {
-        return Objects.requireNonNullElseGet(blobstoreEndpoint, () -> "https://" + accountName + ".blob.core.windows.net");
+        return String.format(blobstoreEndpointTemplate, accountName);
     }
 
 }

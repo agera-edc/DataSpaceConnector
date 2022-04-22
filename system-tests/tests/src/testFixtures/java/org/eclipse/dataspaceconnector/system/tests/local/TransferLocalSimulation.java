@@ -18,12 +18,14 @@ import io.gatling.javaapi.core.Simulation;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferRequestFactory;
 
 import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
+import static io.gatling.javaapi.core.CoreDsl.details;
 import static io.gatling.javaapi.core.CoreDsl.global;
 import static io.gatling.javaapi.core.CoreDsl.scenario;
 import static io.gatling.javaapi.http.HttpDsl.http;
 import static org.eclipse.dataspaceconnector.common.configuration.ConfigurationFunctions.propOrEnv;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.DESCRIPTION;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_SUCCESSFUL;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.contractNegotiationAndTransfer;
 
 /**
@@ -58,6 +60,7 @@ public class TransferLocalSimulation extends Simulation {
                 .injectOpen(atOnceUsers(AT_ONCE_USERS)))
                 .protocols(http.baseUrl(CONSUMER_CONNECTOR_MANAGEMENT_URL + "/" + CONSUMER_MANAGEMENT_PATH))
                 .assertions(
+                        details(TRANSFER_SUCCESSFUL).successfulRequests().count().is((long) (AT_ONCE_USERS * REPEAT)),
                         global().responseTime().max().lt(MAX_RESPONSE_TIME),
                         global().successfulRequests().percent().is(SUCCESS_PERCENTAGE)
                 );

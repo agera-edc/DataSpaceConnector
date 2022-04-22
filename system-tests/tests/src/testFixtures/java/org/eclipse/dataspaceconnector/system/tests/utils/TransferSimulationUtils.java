@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.system.tests.utils;
 
 import io.gatling.javaapi.core.ChainBuilder;
+import io.gatling.javaapi.core.Session;
 import io.gatling.javaapi.http.HttpRequestActionBuilder;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
@@ -52,6 +53,8 @@ public abstract class TransferSimulationUtils {
     public static final String DESCRIPTION = "[Contract negotiation and file transfer]";
 
     public static final String PROVIDER_ASSET_NAME = "test-document";
+
+    public static final String TRANSFER_SUCCESSFUL = "Transfer successful";
 
     private TransferSimulationUtils() {
     }
@@ -105,9 +108,14 @@ public abstract class TransferSimulationUtils {
     private static ChainBuilder waitForContractAgreement() {
         return exec(session -> session.set("status", -1))
                 .group("Wait for agreement")
-                .on(doWhileDuring(session -> session.getString(CONTRACT_AGREEMENT_ID) == null, Duration.ofSeconds(30))
+                .on(doWhileDuring(session -> contractAgreementNotCompleted(session), Duration.ofSeconds(30))
                         .on(exec(getContractStatus()).pace(Duration.ofSeconds(1)))
-                );
+                )
+                .exitHereIf(session -> contractAgreementNotCompleted(session));
+    }
+
+    private static boolean contractAgreementNotCompleted(Session session) {
+        return session.getString(CONTRACT_AGREEMENT_ID) == null;
     }
 
     @NotNull
@@ -171,12 +179,24 @@ public abstract class TransferSimulationUtils {
      * Expects the Transfer Process ID to be provided in the {@see TRANSFER_PROCESS_ID} session key.
      */
     private static ChainBuilder waitForTransferCompletion() {
-        return group("Wait for transfer").on(
-                exec(session -> session.set("status", "INITIAL"))
-                        .doWhileDuring(session -> !session.getString("status").equals(TransferProcessStates.COMPLETED.name()),
+        return group("Wait for transfer")
+                .on(exec(session -> session.set("status", "INITIAL"))
+                        .doWhileDuring(session -> transferNotCompleted(session),
                                 Duration.ofSeconds(30))
-                        .on(exec(getTransferStatus()).pace(Duration.ofSeconds(1)))
-        );
+                        .on(exec(getTransferStatus()).pace(Duration.ofSeconds(1))))
+
+                .exitHereIf(session -> transferNotCompleted(session))
+
+                // Perform one additional request if the transfer successful.
+                // This allows running Gatling assertions to validate that the transfer actually succeeded
+                // (and timeout was not reached).
+                .group(TRANSFER_SUCCESSFUL)
+                .on(exec(getTransferStatus()));
+    }
+
+    @NotNull
+    private static Boolean transferNotCompleted(Session session) {
+        return !session.getString("status").equals(TransferProcessStates.COMPLETED.name());
     }
 
     @NotNull
