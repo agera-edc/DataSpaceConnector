@@ -18,10 +18,13 @@ import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.D
 import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.api.transformer.DtoTransformer;
 import org.eclipse.dataspaceconnector.spi.transformer.TransformerContext;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.ProvisionedResourceSet;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 public class TransferProcessToTransferProcessDtoTransformer implements DtoTransformer<TransferProcess, TransferProcessDto> {
 
@@ -40,11 +43,13 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
         if (object == null) {
             return null;
         }
+        ProvisionedResourceSet provisionedResourceSet = object.getProvisionedResourceSet();
         return TransferProcessDto.Builder.newInstance()
                 .id(object.getId())
                 .type(object.getType().name())
                 .state(getState(object.getState(), context))
                 .errorDetail(object.getErrorDetail())
+                .provisionedResources(provisionedResourceSet != null ? provisionedResourceSet.getResources() : List.of())
                 .dataRequest(context.transform(object.getDataRequest(), DataRequestDto.class))
                 .build();
     }
