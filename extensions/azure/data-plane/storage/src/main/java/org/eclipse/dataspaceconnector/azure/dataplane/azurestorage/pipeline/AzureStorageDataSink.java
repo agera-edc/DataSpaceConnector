@@ -60,6 +60,17 @@ public class AzureStorageDataSink extends ParallelSink {
         return StatusResult.success();
     }
 
+    @Override
+    protected StatusResult<Void> complete() {
+        try {
+            blobAdapterFactory.getBlobAdapter(accountName, containerName, "out.complete", new AzureSasCredential(sharedAccessSignature))
+                    .getOutputStream().close();
+        } catch (Exception e) {
+            return getTransferResult(e, "Error creating blob for %s on account %s", "out.complete", accountName);
+        }
+        return super.complete();
+    }
+
     @NotNull
     private StatusResult<Void> getTransferResult(Exception e, String logMessage, Object... args) {
         String message = format(logMessage, args);
