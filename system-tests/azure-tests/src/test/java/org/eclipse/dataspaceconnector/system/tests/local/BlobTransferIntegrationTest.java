@@ -199,7 +199,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                 "id", "1",
                 "accessPolicyId", policyId,
                 "contractPolicyId", policyId,
-                "criteria", criteria
+                "criteria", criteria.getCriteria()
         );
 
         seedProviderData(CONTRACT_DEFINITIONS_PATH, contractDefinition);
@@ -218,6 +218,6 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
 
     private RequestSpecification givenProviderBaseRequest() {
         return given()
-                .baseUri(PROVIDER_CONNECTOR_MANAGEMENT_URL+PROVIDER_MANAGEMENT_PATH);
+                .baseUri(PROVIDER_CONNECTOR_MANAGEMENT_URL + PROVIDER_MANAGEMENT_PATH);
     }
 }
