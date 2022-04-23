@@ -17,7 +17,9 @@
 package org.eclipse.dataspaceconnector.system.tests.local;
 
 import com.azure.core.util.BinaryData;
+import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
+import org.eclipse.dataspaceconnector.azure.blob.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
@@ -45,6 +47,7 @@ import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_MANAGEMENT_URL;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_IDS_API;
@@ -60,6 +63,7 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
 
 @EndToEndTest
 @PerformanceTest
@@ -137,7 +141,8 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
 
         // Assert
-        var destinationBlob = blobServiceClient2.getBlobContainerClient("TODO-replace-with-resultContainerName")
+        var container = getProvisionedContainerName();
+        var destinationBlob = blobServiceClient2.getBlobContainerClient(container)
                 .getBlobClient(PROVIDER_ASSET_NAME);
         assertThat(destinationBlob.exists())
                 .withFailMessage("Destination blob %s not created", destinationBlob)
@@ -146,6 +151,18 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         assertThat(actualBlobContent)
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(blobContent);
+    }
+
+    private String getProvisionedContainerName() {
+        JsonPath jsonPath = given()
+                .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
+                .log().all()
+                .when()
+                .get(TRANSFER_PROCESSES_PATH)
+                .then()
+                .statusCode(200)
+                .extract().body().jsonPath();
+        return jsonPath.getString("[0].provisionedResources[0].dataAddress.properties.container");
     }
 
     private void createAsset() {
@@ -161,10 +178,10 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                 ),
                 "dataAddress", Map.of(
                         "properties", Map.of(
-                                "type", "AzureStorage",
-                                "account", account1Name,
-                                "container", PROVIDER_CONTAINER_NAME,
-                                "blobname", format("%s.txt", PROVIDER_ASSET_NAME),
+                                "type", AzureBlobStoreSchema.TYPE,
+                                AzureBlobStoreSchema.ACCOUNT_NAME, account1Name,
+                                AzureBlobStoreSchema.CONTAINER_NAME, PROVIDER_CONTAINER_NAME,
+                                AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_NAME,
                                 "keyName", format("%s-key1", account1Name)
                         )
                 )

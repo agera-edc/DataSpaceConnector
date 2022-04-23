@@ -59,7 +59,7 @@ public class TransferLocalSimulation extends Simulation {
                 .repeat(REPEAT)
                 .on(contractNegotiationAndTransfer(PROVIDER_IDS_API, requestFactory))
                 .injectOpen(atOnceUsers(AT_ONCE_USERS)))
-                .protocols(http.baseUrl(CONSUMER_CONNECTOR_MANAGEMENT_URL + "/" + CONSUMER_MANAGEMENT_PATH))
+                .protocols(http.baseUrl(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH))
                 .assertions(
                         details(TRANSFER_SUCCESSFUL).successfulRequests().count().is((long) (AT_ONCE_USERS * REPEAT)),
                         global().responseTime().max().lt(MAX_RESPONSE_TIME),

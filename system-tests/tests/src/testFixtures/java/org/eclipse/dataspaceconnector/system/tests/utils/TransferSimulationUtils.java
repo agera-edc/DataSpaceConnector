@@ -56,6 +56,8 @@ public abstract class TransferSimulationUtils {
 
     public static final String TRANSFER_SUCCESSFUL = "Transfer successful";
 
+    public static final String TRANSFER_PROCESSES_PATH = "/transferprocess";
+
     private TransferSimulationUtils() {
     }
 
@@ -163,7 +165,7 @@ public abstract class TransferSimulationUtils {
     @NotNull
     private static HttpRequestActionBuilder initiateTransfer(TransferRequestFactory requestFactory, String connectorAddress) {
         return http("Initiate file transfer")
-                .post("/transferprocess")
+                .post(TRANSFER_PROCESSES_PATH)
                 .body(StringBody(session -> requestFactory.apply(new TransferInitiationData(session.getString(CONTRACT_AGREEMENT_ID), connectorAddress))))
                 .header(CONTENT_TYPE, "application/json")
                 .check(status().is(200))
