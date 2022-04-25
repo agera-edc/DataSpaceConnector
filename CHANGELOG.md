@@ -10,14 +10,17 @@ in the detailed section referring to by linking pull requests or issues.
 ## [Unreleased]
 
 ### Overview
-Bugfixing DataManagementApi
-*
+* Bugfixing DataManagementApi
+* Build improvements
 
 ### Detailed Changes
 
 #### Added
 
 * Add domain model documentation (#1158)
+* Add gradle test summary (#1148)
+* Check to avoid duplicated module names (#1190)
+* Implement Catalog service for Data Management API (#1195)
 
 #### Changed
 
@@ -35,6 +38,7 @@ Bugfixing DataManagementApi
 * Fix Postgres column name (#1108)
 * Fix problem with interpreting contractId/negotiationId (#1140)
 * Fixed DMgmtApi content types (#1126)
+* Fix HTTPS termination in Jetty (#1133)
 
 ## [milestone-3] - 2022-04-08
 

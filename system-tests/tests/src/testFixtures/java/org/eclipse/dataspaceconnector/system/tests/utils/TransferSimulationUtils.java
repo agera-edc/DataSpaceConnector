@@ -22,8 +22,10 @@ import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.PolicyType;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
+import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -172,6 +174,29 @@ public abstract class TransferSimulationUtils {
                 .check(bodyString()
                         .notNull()
                         .saveAs(TRANSFER_PROCESS_ID));
+    }
+
+    private static String transferRequest(String contractAgreementId, String destinationPath, String connectorAddress) {
+        var request = Map.of(
+                "contractId", contractAgreementId,
+                "assetId", PROVIDER_ASSET_NAME,
+                "connectorId", "consumer",
+                "connectorAddress", connectorAddress,
+                "protocol", "ids-multipart",
+                "dataDestination", DataAddress.Builder.newInstance()
+                        .keyName("keyName")
+                        .type("File")
+                        .property("path", destinationPath)
+                        .build(),
+                "managedResources", false,
+                "transferType", TransferType.Builder.transferType()
+                        .contentType("application/octet-stream")
+                        .isFinite(true)
+                        .build()
+        );
+
+        return new TypeManager().writeValueAsString(request);
+
     }
 
     /**
