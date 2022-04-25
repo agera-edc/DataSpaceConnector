@@ -496,7 +496,7 @@ class TransferProcessManagerImplTest {
             latch.countDown();
             return List.of(process);
         });
-        when(statusCheckerRegistry.resolve(anyString())).thenReturn((i, l) -> false);
+        when(statusCheckerRegistry.resolve(anyString())).thenReturn((tp, resources) -> false);
         doThrow(new AssertionError("update() should not be called as process was not updated"))
                 .when(transferProcessStore).update(process);
 
