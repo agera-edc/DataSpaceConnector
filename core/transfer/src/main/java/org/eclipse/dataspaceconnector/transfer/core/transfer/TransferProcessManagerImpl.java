@@ -195,6 +195,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
         if (process.getState() == TransferProcessStates.UNSAVED.code()) {
             process.transitionInitial();
         }
+        monitor.debug("Process " + process.getId() + " initiated with type " + process.getType() + " in state " + TransferProcessStates.from(process.getState()));
         observable.invokeForEach(l -> l.preCreated(process));
         transferProcessStore.create(process);
         return StatusResult.success(process.getId());
@@ -354,6 +355,11 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
                 return false;
             }
         }
+    }
+
+    private void breakLease(TransferProcess process) {
+        // Break lease
+        transferProcessStore.update(process);
     }
 
     /**
