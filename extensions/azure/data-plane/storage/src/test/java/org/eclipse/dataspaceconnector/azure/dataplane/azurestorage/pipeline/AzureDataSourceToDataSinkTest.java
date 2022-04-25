@@ -30,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,6 +41,7 @@ class AzureDataSourceToDataSinkTest {
     Monitor monitor = mock(Monitor.class);
     FakeBlobAdapter fakeSource = new FakeBlobAdapter();
     FakeBlobAdapter fakeSink = new FakeBlobAdapter();
+    FakeBlobAdapter fakeCompletionMarker = new FakeBlobAdapter();
     String sourceAccountName = AzureStorageTestFixtures.createAccountName();
     String sourceContainerName = AzureStorageTestFixtures.createContainerName();
     String sourceSharedKey = AzureStorageTestFixtures.createSharedKey();
@@ -79,6 +82,12 @@ class AzureDataSourceToDataSinkTest {
                 fakeSource.name,
                 sinkSharedKey
         )).thenReturn(fakeSink);
+        when(fakeSinkFactory.getBlobAdapter(
+                eq(sinkAccountName),
+                eq(sinkContainerName),
+                argThat(name -> name.endsWith(".complete")),
+                eq(sinkSharedKey)
+        )).thenReturn(fakeCompletionMarker);
 
         var dataSink = AzureStorageDataSink.Builder.newInstance()
                 .accountName(sinkAccountName)
