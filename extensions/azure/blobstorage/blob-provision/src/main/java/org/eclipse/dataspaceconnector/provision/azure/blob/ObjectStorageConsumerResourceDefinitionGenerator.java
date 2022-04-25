@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.provision.azure.blob;
 
-import org.eclipse.dataspaceconnector.azure.blob.AzureBlobStoreSchema;
+import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.transfer.provision.ConsumerResourceDefinitionGenerator;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;

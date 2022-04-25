@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.azure.blob.operator;
 
-import org.eclipse.dataspaceconnector.azure.blob.AzureBlobStoreSchema;
+import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.transfer.inline.DataReader;
