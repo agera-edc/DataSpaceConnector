@@ -18,7 +18,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.eclipse.dataspaceconnector.common.annotations.OpenTelemetryIntegrationTest;
-import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.eclipse.dataspaceconnector.system.tests.utils.FileTransferSimulationUtils;
 import org.junit.jupiter.api.AfterAll;
