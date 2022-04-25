@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline;
 
+import com.azure.core.credential.AzureSasCredential;
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.ParallelSink;
@@ -30,6 +31,9 @@ import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.ERROR_R
  * Writes data into an Azure storage container.
  */
 public class AzureStorageDataSink extends ParallelSink {
+    // Name of the empty blob used to indicate completion. Used by consumer-side status checker.
+    public static final String COMPLETE_BLOB_NAME = ".complete";
+
     private String accountName;
     private String containerName;
     private String sharedKey;
@@ -57,6 +61,18 @@ public class AzureStorageDataSink extends ParallelSink {
             }
         }
         return StatusResult.success();
+    }
+
+    @Override
+    protected StatusResult<Void> complete() {
+        try {
+            // Write an empty blob to indicate completion
+            blobAdapterFactory.getBlobAdapter(accountName, containerName, COMPLETE_BLOB_NAME, sharedKey)
+                    .getOutputStream().close();
+        } catch (Exception e) {
+            return getTransferResult(e, "Error creating blob %s on account %s", COMPLETE_BLOB_NAME, accountName);
+        }
+        return super.complete();
     }
 
     @NotNull
