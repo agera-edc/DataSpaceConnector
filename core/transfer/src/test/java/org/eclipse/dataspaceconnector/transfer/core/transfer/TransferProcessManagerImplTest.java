@@ -454,7 +454,7 @@ class TransferProcessManagerImplTest {
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
 
         when(transferProcessStore.nextForState(eq(IN_PROGRESS.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
-        when(statusCheckerRegistry.resolve(anyString())).thenReturn((i, l) -> true);
+        when(statusCheckerRegistry.resolve(anyString())).thenReturn((tp, resources) -> true);
 
         var latch = countDownOnUpdateLatch();
 
@@ -473,7 +473,7 @@ class TransferProcessManagerImplTest {
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
 
         when(transferProcessStore.nextForState(eq(IN_PROGRESS.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
-        when(statusCheckerRegistry.resolve(anyString())).thenReturn((i, l) -> true);
+        when(statusCheckerRegistry.resolve(anyString())).thenReturn((tp, resources) -> true);
         var latch = countDownOnUpdateLatch();
 
         manager.start();
