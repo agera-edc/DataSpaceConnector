@@ -504,7 +504,7 @@ class TransferProcessManagerImplTest {
 
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
         verify(transferProcessStore, atLeastOnce()).nextForState(anyInt(), anyInt());
-        verify(transferProcessStore).update(argThat(p -> p.getState() == IN_PROGRESS.code()));
+        verify(transferProcessStore).update(argThat(tp -> tp.getState() == IN_PROGRESS.code()));
     }
 
     @Test
