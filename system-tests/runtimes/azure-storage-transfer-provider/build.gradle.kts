@@ -34,10 +34,8 @@ dependencies {
     implementation(project(":extensions:azure:data-plane:storage"))
 
     implementation(project(":extensions:data-plane:data-plane-spi"))
-    implementation(project(":extensions:azure:blobstorage:blob-common")) //FIXME
 
     implementation(project(":extensions:in-memory:assetindex-memory"))
-    api(project(":extensions:dataloading")) //FIXME
 
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
 

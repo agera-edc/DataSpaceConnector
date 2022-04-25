@@ -34,11 +34,11 @@ dependencies {
         exclude(group = "io.gatling", module="gatling-graphite")
     }
 
+    testImplementation(project(":extensions:azure:blobstorage:blob-core"))
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":system-tests:tests")))
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
-    testImplementation(project(":extensions:azure:blobstorage:blob-common"))
     testImplementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
 

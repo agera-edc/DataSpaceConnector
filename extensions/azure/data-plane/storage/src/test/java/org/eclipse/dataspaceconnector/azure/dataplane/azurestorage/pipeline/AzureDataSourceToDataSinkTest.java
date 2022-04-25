@@ -16,9 +16,9 @@ package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline;
 
 import com.github.javafaker.Faker;
 import net.jodah.failsafe.RetryPolicy;
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapter;
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageTestFixtures.FakeBlobAdapter;
+import org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures;
+import org.eclipse.dataspaceconnector.azure.blob.core.adapter.BlobAdapter;
+import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.junit.jupiter.api.Test;
 
@@ -53,7 +53,7 @@ class AzureDataSourceToDataSinkTest {
      */
     @Test
     void transfer_success() {
-        var fakeSourceFactory = mock(BlobAdapterFactory.class);
+        var fakeSourceFactory = mock(BlobStoreApi.class);
         when(fakeSourceFactory.getBlobAdapter(
                 sourceAccountName,
                 sourceContainerName,
@@ -68,11 +68,11 @@ class AzureDataSourceToDataSinkTest {
                 .blobName(fakeSource.name)
                 .requestId(requestId)
                 .retryPolicy(new RetryPolicy<>())
-                .blobAdapterFactory(fakeSourceFactory)
+                .blobStoreApi(fakeSourceFactory)
                 .monitor(monitor)
                 .build();
 
-        var fakeSinkFactory = mock(BlobAdapterFactory.class);
+        var fakeSinkFactory = mock(BlobStoreApi.class);
         when(fakeSinkFactory.getBlobAdapter(
                 sinkAccountName,
                 sinkContainerName,
@@ -85,7 +85,7 @@ class AzureDataSourceToDataSinkTest {
                 .containerName(sinkContainerName)
                 .sharedKey(sinkSharedKey)
                 .requestId(requestId)
-                .blobAdapterFactory(fakeSinkFactory)
+                .blobStoreApi(fakeSinkFactory)
                 .executorService(executor)
                 .monitor(monitor)
                 .build();
@@ -106,7 +106,7 @@ class AzureDataSourceToDataSinkTest {
         var blobAdapter = mock(BlobAdapter.class);
         when(blobAdapter.getBlobName()).thenReturn(fakeSource.name);
         when(blobAdapter.openInputStream()).thenThrow(new RuntimeException(errorMessage));
-        var fakeSourceFactory = mock(BlobAdapterFactory.class);
+        var fakeSourceFactory = mock(BlobStoreApi.class);
         when(fakeSourceFactory.getBlobAdapter(
                 sourceAccountName,
                 sourceContainerName,
@@ -121,11 +121,11 @@ class AzureDataSourceToDataSinkTest {
                 .blobName(fakeSource.name)
                 .requestId(requestId)
                 .retryPolicy(new RetryPolicy<>())
-                .blobAdapterFactory(fakeSourceFactory)
+                .blobStoreApi(fakeSourceFactory)
                 .monitor(monitor)
                 .build();
 
-        var fakeSinkFactory = mock(BlobAdapterFactory.class);
+        var fakeSinkFactory = mock(BlobStoreApi.class);
         when(fakeSinkFactory.getBlobAdapter(
                 sinkAccountName,
                 sinkContainerName,
@@ -138,7 +138,7 @@ class AzureDataSourceToDataSinkTest {
                 .containerName(sinkContainerName)
                 .sharedKey(sinkSharedKey)
                 .requestId(requestId)
-                .blobAdapterFactory(fakeSinkFactory)
+                .blobStoreApi(fakeSinkFactory)
                 .executorService(executor)
                 .monitor(monitor)
                 .build();
@@ -155,7 +155,7 @@ class AzureDataSourceToDataSinkTest {
     void transfer_whenSinkFails_fails() throws Exception {
 
         // source completes normally
-        var fakeSourceFactory = mock(BlobAdapterFactory.class);
+        var fakeSourceFactory = mock(BlobStoreApi.class);
         when(fakeSourceFactory.getBlobAdapter(
                 sourceAccountName,
                 sourceContainerName,
@@ -170,14 +170,14 @@ class AzureDataSourceToDataSinkTest {
                 .blobName(fakeSource.name)
                 .requestId(requestId)
                 .retryPolicy(new RetryPolicy<>())
-                .blobAdapterFactory(fakeSourceFactory)
+                .blobStoreApi(fakeSourceFactory)
                 .monitor(monitor)
                 .build();
 
         // sink endpoint raises an exception
         var blobAdapter = mock(BlobAdapter.class);
         when(blobAdapter.getOutputStream()).thenThrow(new RuntimeException());
-        var fakeSinkFactory = mock(BlobAdapterFactory.class);
+        var fakeSinkFactory = mock(BlobStoreApi.class);
         when(fakeSinkFactory.getBlobAdapter(anyString(), anyString(), anyString(), anyString()))
                 .thenReturn(blobAdapter);
 
@@ -186,7 +186,7 @@ class AzureDataSourceToDataSinkTest {
                 .containerName(sinkContainerName)
                 .sharedKey(sinkSharedKey)
                 .requestId(requestId)
-                .blobAdapterFactory(fakeSinkFactory)
+                .blobStoreApi(fakeSinkFactory)
                 .executorService(executor)
                 .monitor(monitor)
                 .build();

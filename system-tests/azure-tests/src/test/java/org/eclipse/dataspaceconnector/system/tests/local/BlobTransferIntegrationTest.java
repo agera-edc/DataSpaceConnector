@@ -19,7 +19,7 @@ package org.eclipse.dataspaceconnector.system.tests.local;
 import com.azure.core.util.BinaryData;
 import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
-import org.eclipse.dataspaceconnector.azure.blob.AzureBlobStoreSchema;
+import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
 import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureStorageIntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
@@ -78,7 +78,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
             ":system-tests:runtimes:azure-storage-transfer-consumer",
             "consumer",
             Map.of(
-                    "edc.blobstore.endpoint", "http://127.0.0.1:10000/account2",
+                    "edc.blobstore.endpoint.template", "http://127.0.0.1:10000/%s",
                     "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
                     "web.http.path", CONSUMER_CONNECTOR_PATH,
                     "web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT),
