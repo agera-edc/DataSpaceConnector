@@ -17,6 +17,9 @@ package org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.ProvisionedResource;
+
+import java.util.List;
 
 @JsonDeserialize(builder = TransferProcessDto.Builder.class)
 public class TransferProcessDto {
@@ -25,6 +28,7 @@ public class TransferProcessDto {
     private String state;
     private String errorDetail;
     private DataRequestDto dataRequest;
+    private List<ProvisionedResource> provisionedResources = List.of();
 
     private TransferProcessDto() {
     }
@@ -47,6 +51,10 @@ public class TransferProcessDto {
 
     public DataRequestDto getDataRequest() {
         return dataRequest;
+    }
+
+    public List<ProvisionedResource> getProvisionedResources() {
+        return provisionedResources;
     }
 
     @JsonPOJOBuilder(withPrefix = "")
@@ -84,6 +92,11 @@ public class TransferProcessDto {
 
         public Builder dataRequest(DataRequestDto dataRequest) {
             transferProcessDto.dataRequest = dataRequest;
+            return this;
+        }
+
+        public Builder provisionedResources(List<ProvisionedResource> provisionedResources) {
+            transferProcessDto.provisionedResources = provisionedResources;
             return this;
         }
 

@@ -14,7 +14,8 @@
 
 package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline;
 
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
+import com.azure.core.credential.AzureSasCredential;
+import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.ParallelSink;
 import org.eclipse.dataspaceconnector.spi.response.StatusResult;
@@ -32,8 +33,8 @@ import static org.eclipse.dataspaceconnector.spi.response.ResponseStatus.ERROR_R
 public class AzureStorageDataSink extends ParallelSink {
     private String accountName;
     private String containerName;
-    private String sharedKey;
-    private BlobAdapterFactory blobAdapterFactory;
+    private String sharedAccessSignature;
+    private BlobStoreApi blobStoreApi;
 
     /**
      * Writes data into an Azure storage container.
@@ -42,7 +43,7 @@ public class AzureStorageDataSink extends ParallelSink {
         for (DataSource.Part part : parts) {
             String blobName = part.name();
             try (var input = part.openStream()) {
-                try (var output = blobAdapterFactory.getBlobAdapter(accountName, containerName, blobName, sharedKey)
+                try (var output = blobStoreApi.getBlobAdapter(accountName, containerName, blobName, new AzureSasCredential(sharedAccessSignature))
                         .getOutputStream()) {
                     try {
                         input.transferTo(output);
@@ -57,6 +58,17 @@ public class AzureStorageDataSink extends ParallelSink {
             }
         }
         return StatusResult.success();
+    }
+
+    @Override
+    protected StatusResult<Void> complete() {
+        try {
+            blobStoreApi.getBlobAdapter(accountName, containerName, "out.complete", new AzureSasCredential(sharedAccessSignature))
+                    .getOutputStream().close();
+        } catch (Exception e) {
+            return getTransferResult(e, "Error creating blob for %s on account %s", "out.complete", accountName);
+        }
+        return super.complete();
     }
 
     @NotNull
@@ -85,21 +97,21 @@ public class AzureStorageDataSink extends ParallelSink {
             return this;
         }
 
-        public Builder sharedKey(String sharedKey) {
-            sink.sharedKey = sharedKey;
+        public Builder sharedAccessSignature(String sharedAccessSignature) {
+            sink.sharedAccessSignature = sharedAccessSignature;
             return this;
         }
 
-        public Builder blobAdapterFactory(BlobAdapterFactory blobAdapterFactory) {
-            sink.blobAdapterFactory = blobAdapterFactory;
+        public Builder blobStoreApi(BlobStoreApi blobStoreApi) {
+            sink.blobStoreApi = blobStoreApi;
             return this;
         }
 
         protected void validate() {
             Objects.requireNonNull(sink.accountName, "accountName");
             Objects.requireNonNull(sink.containerName, "containerName");
-            Objects.requireNonNull(sink.sharedKey, "sharedKey");
-            Objects.requireNonNull(sink.blobAdapterFactory, "blobAdapterFactory");
+            Objects.requireNonNull(sink.sharedAccessSignature, "sharedAccessSignature");
+            Objects.requireNonNull(sink.blobStoreApi, "blobStoreApi");
         }
 
         private Builder() {

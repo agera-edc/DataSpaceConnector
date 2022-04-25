@@ -14,7 +14,9 @@
 
 package org.eclipse.dataspaceconnector.azure.blob.core.api;
 
+import com.azure.core.credential.AzureSasCredential;
 import com.azure.storage.blob.models.BlobItem;
+import org.eclipse.dataspaceconnector.azure.blob.core.adapter.BlobAdapter;
 import org.eclipse.dataspaceconnector.spi.system.Feature;
 
 import java.time.OffsetDateTime;
@@ -38,4 +40,8 @@ public interface BlobStoreApi {
     String createAccountSas(String accountName, String containerName, String racwxdl, OffsetDateTime expiry);
 
     byte[] getBlob(String account, String container, String blobName);
+
+    BlobAdapter getBlobAdapter(String accountName, String containerName, String blobName, String sharedKey);
+
+    BlobAdapter getBlobAdapter(String accountName, String containerName, String blobName, AzureSasCredential credential);
 }

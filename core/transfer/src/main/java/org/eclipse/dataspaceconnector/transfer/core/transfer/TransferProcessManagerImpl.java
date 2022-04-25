@@ -195,6 +195,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
         if (process.getState() == TransferProcessStates.UNSAVED.code()) {
             process.transitionInitial();
         }
+        monitor.debug("Process " + process.getId() + " initiated with type " + process.getType() + " in state " + TransferProcessStates.from(process.getState()));
         observable.invokeForEach(l -> l.preCreated(process));
         transferProcessStore.create(process);
         return StatusResult.success(process.getId());
@@ -350,9 +351,15 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
             } else {
                 // Process is not finished yet, so it stays in the IN_PROGRESS state
                 monitor.info(format("Transfer process %s not COMPLETED yet. The process will not advance to the COMPLETED state.", process.getId()));
+                breakLease(process);
                 return false;
             }
         }
+    }
+
+    private void breakLease(TransferProcess process) {
+        // Break lease
+        transferProcessStore.update(process);
     }
 
     /**
@@ -583,8 +590,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     private boolean processConsumerRequest(TransferProcess process, DataRequest dataRequest) {
 
         if (sendRetryManager.shouldDelay(process)) {
-            // Break lease
-            transferProcessStore.update(process);
+            breakLease(process);
             return false;
         }
 

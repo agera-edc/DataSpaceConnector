@@ -15,12 +15,9 @@
 package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage;
 
 import net.jodah.failsafe.RetryPolicy;
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.adapter.BlobAdapterFactory;
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSinkFactory;
-import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSourceFactory;
+import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataTransferExecutorServiceContainer;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
-import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -37,10 +34,10 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
     private PipelineService pipelineService;
 
     @Inject
-    private DataTransferExecutorServiceContainer executorContainer;
+    private BlobStoreApi blobStoreApi;
 
-    @EdcSetting
-    public static final String EDC_BLOBSTORE_ENDPOINT = "edc.blobstore.endpoint";
+    @Inject
+    private DataTransferExecutorServiceContainer executorContainer;
 
     @Override
     public String name() {

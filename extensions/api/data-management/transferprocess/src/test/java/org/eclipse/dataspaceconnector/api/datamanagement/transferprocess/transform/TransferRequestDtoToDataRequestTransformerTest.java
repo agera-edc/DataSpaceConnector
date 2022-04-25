@@ -76,6 +76,7 @@ class TransferRequestDtoToDataRequestTransformerTest {
     @NotNull
     private TransferRequestDto.Builder transferRequestDto() {
         return TransferRequestDto.Builder.newInstance()
+                .id(faker.lorem().word())
                 .connectorAddress(faker.internet().url())
                 .assetId(faker.lorem().word())
                 .contractId(faker.lorem().word())
