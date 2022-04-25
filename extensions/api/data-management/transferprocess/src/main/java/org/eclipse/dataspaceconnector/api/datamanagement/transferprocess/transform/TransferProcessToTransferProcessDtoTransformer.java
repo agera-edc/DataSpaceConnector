@@ -23,6 +23,8 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessS
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+
 public class TransferProcessToTransferProcessDtoTransformer implements DtoTransformer<TransferProcess, TransferProcessDto> {
 
     @Override
@@ -40,11 +42,16 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
         if (object == null) {
             return null;
         }
+        var dataRequest = object.getDataRequest();
+        var dataDestination = dataRequest != null && dataRequest.getDataDestination() != null ?
+                        dataRequest.getDataDestination().getProperties() :
+                        Map.<String, String>of();
         return TransferProcessDto.Builder.newInstance()
                 .id(object.getId())
                 .type(object.getType().name())
                 .state(getState(object.getState(), context))
                 .errorDetail(object.getErrorDetail())
+                .dataDestination(dataDestination)
                 .dataRequest(context.transform(object.getDataRequest(), DataRequestDto.class))
                 .build();
     }
