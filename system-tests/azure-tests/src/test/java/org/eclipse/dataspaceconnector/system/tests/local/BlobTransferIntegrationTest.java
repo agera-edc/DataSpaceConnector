@@ -21,8 +21,7 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.blob.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
-import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
-import org.eclipse.dataspaceconnector.common.annotations.PerformanceTest;
+import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureStorageIntegrationTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.junit.launcher.MockVault;
 import org.eclipse.dataspaceconnector.policy.model.Action;
@@ -65,8 +64,7 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
 
-@EndToEndTest
-@PerformanceTest
+@AzureStorageIntegrationTest
 public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     private static final Vault CONSUMER_VAULT = new MockVault();
     private static final Vault PROVIDER_VAULT = new MockVault();
