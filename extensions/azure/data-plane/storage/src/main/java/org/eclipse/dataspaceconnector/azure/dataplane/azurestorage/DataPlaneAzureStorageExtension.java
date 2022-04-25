@@ -20,7 +20,6 @@ import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.Azur
 import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSourceFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataTransferExecutorServiceContainer;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
-import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
@@ -43,9 +42,6 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
     @Inject
     private DataTransferExecutorServiceContainer executorContainer;
 
-    @EdcSetting
-    public static final String EDC_BLOBSTORE_ENDPOINT_TEMPLATE = "edc.blobstore.endpoint.template";
-
     @Override
     public String name() {
         return "Data Plane Azure Storage";
@@ -53,8 +49,6 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        var blobstoreEndpointTemplate = context.getSetting(EDC_BLOBSTORE_ENDPOINT_TEMPLATE, "https://%s.blob.core.windows.net");
-
         var monitor = context.getMonitor();
         Vault vault = context.getService(Vault.class);
 
