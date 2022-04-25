@@ -152,15 +152,15 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     }
 
     private String getProvisionedContainerName() {
-        JsonPath jsonPath = given()
+        return given()
                 .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
                 .log().all()
                 .when()
                 .get(TRANSFER_PROCESSES_PATH)
                 .then()
                 .statusCode(200)
-                .extract().body().jsonPath();
-        return jsonPath.getString("[0].provisionedResources[0].dataAddress.properties.container");
+                .extract().body()
+                .jsonPath().getString("[0].dataDestination.container");
     }
 
     private void createAsset() {
