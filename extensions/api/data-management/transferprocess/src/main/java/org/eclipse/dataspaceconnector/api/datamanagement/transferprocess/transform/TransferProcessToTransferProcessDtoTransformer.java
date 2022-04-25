@@ -42,16 +42,12 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
         if (object == null) {
             return null;
         }
-        var dataRequest = object.getDataRequest();
-        var dataDestination = dataRequest != null && dataRequest.getDataDestination() != null ?
-                        dataRequest.getDataDestination().getProperties() :
-                        Map.<String, String>of();
         return TransferProcessDto.Builder.newInstance()
                 .id(object.getId())
                 .type(object.getType().name())
                 .state(getState(object.getState(), context))
                 .errorDetail(object.getErrorDetail())
-                .dataDestination(dataDestination)
+                .dataDestination(object.getDataRequest().getDataDestination().getProperties())
                 .dataRequest(context.transform(object.getDataRequest(), DataRequestDto.class))
                 .build();
     }
