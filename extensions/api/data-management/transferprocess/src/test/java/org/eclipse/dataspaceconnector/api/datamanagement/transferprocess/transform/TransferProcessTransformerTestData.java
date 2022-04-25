@@ -40,9 +40,9 @@ public class TransferProcessTransformerTestData {
     TransferProcessStates state = faker.options().option(TransferProcessStates.class);
     String errorDetail = faker.lorem().word();
 
-    private Map<String, String> dataDestinationProperties = Map.of(faker.lorem().word(), faker.lorem().word());
-    private final String dataDestinationType = faker.lorem().word();
-    private final DataAddress.Builder dataDestination = DataAddress.Builder.newInstance().type(dataDestinationType).properties(dataDestinationProperties);
+    Map<String, String> dataDestinationProperties = Map.of(faker.lorem().word(), faker.lorem().word());
+    String dataDestinationType = faker.lorem().word();
+    DataAddress.Builder dataDestination = DataAddress.Builder.newInstance().type(dataDestinationType).properties(dataDestinationProperties);
     DataRequest dataRequest = DataRequest.Builder.newInstance()
             .dataDestination(dataDestination.build())
             .build();
