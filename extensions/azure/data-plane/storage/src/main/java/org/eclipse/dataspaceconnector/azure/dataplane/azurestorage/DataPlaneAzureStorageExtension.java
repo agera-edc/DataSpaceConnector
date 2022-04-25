@@ -49,16 +49,6 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        var blobstoreEndpoint = context.getSetting(EDC_BLOBSTORE_ENDPOINT, null);
-
-        var monitor = context.getMonitor();
-
-        var blobAdapterFactory = new BlobAdapterFactory(blobstoreEndpoint);
-
-        var sourceFactory = new AzureStorageDataSourceFactory(blobAdapterFactory, retryPolicy, monitor);
-        pipelineService.registerFactory(sourceFactory);
-
-        var sinkFactory = new AzureStorageDataSinkFactory(blobAdapterFactory, executorContainer.getExecutorService(), 5, monitor);
-        pipelineService.registerFactory(sinkFactory);
+        // TODO: temporarily disable extension until solution is found to prevent loading it before ADF extension
     }
 }
