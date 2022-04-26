@@ -22,6 +22,7 @@ plugins {
 dependencies {
     implementation(project(":extensions:azure:blobstorage:blob-core"))
     implementation(project(":common:util"))
+    implementation(project(":spi:core-spi"))
     implementation("com.azure:azure-identity:${azureIdentityVersion}")
     implementation("com.azure.resourcemanager:azure-resourcemanager:${azureResourceManagerVersion}")
     implementation("com.azure.resourcemanager:azure-resourcemanager-authorization:${azureResourceManagerVersion}")
