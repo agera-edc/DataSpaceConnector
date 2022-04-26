@@ -20,6 +20,10 @@ plugins {
 }
 
 val rsApi: String by project
+val azureIdentityVersion: String by project
+val azureResourceManagerDataFactory: String by project
+val azureResourceManagerVersion: String by project
+
 
 dependencies {
     api(project(":spi"))
@@ -32,6 +36,13 @@ dependencies {
     implementation(project(":extensions:data-plane-selector:selector-store"))
     implementation(project(":extensions:data-plane:data-plane-framework"))
     implementation(project(":extensions:azure:data-plane:data-factory"))
+//    implementation(project(":extensions:azure:resource-manager"))
+//    implementation("com.azure:azure-identity:${azureIdentityVersion}")
+//    implementation("com.azure.resourcemanager:azure-resourcemanager-datafactory:${azureResourceManagerDataFactory}")
+//    implementation("com.azure.resourcemanager:azure-resourcemanager-storage:${azureResourceManagerVersion}")
+//    implementation("com.azure.resourcemanager:azure-resourcemanager-keyvault:${azureResourceManagerVersion}")
+//    implementation("com.azure.resourcemanager:azure-resourcemanager:${azureResourceManagerVersion}")
+//    implementation("com.azure.resourcemanager:azure-resourcemanager-authorization:${azureResourceManagerVersion}")
 
     implementation(project(":extensions:data-plane:data-plane-spi"))
 
