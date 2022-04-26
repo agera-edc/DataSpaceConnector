@@ -20,6 +20,9 @@ plugins {
 val gatlingVersion: String by project
 val storageBlobVersion: String by project
 val restAssured: String by project
+val azureIdentityVersion: String by project
+val azureResourceManagerDataFactory: String by project
+val azureResourceManagerVersion: String by project
 
 dependencies {
     testImplementation("io.gatling.highcharts:gatling-charts-highcharts:${gatlingVersion}") {
@@ -39,8 +42,15 @@ dependencies {
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":system-tests:tests")))
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
+    testImplementation(project(":extensions:azure:resource-manager"))
     testImplementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
+    testImplementation("com.azure:azure-identity:${azureIdentityVersion}")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-datafactory:${azureResourceManagerDataFactory}")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-storage:${azureResourceManagerVersion}")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-keyvault:${azureResourceManagerVersion}")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager:${azureResourceManagerVersion}")
+    testImplementation("com.azure.resourcemanager:azure-resourcemanager-authorization:${azureResourceManagerVersion}")
 
     testRuntimeOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
     testRuntimeOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))
