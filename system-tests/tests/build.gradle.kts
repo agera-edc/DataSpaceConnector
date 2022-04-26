@@ -45,8 +45,8 @@ dependencies {
     testImplementation("org.awaitility:awaitility:${awaitility}")
     testImplementation("org.mock-server:mockserver-netty:${httpMockServer}:shaded")
 
-    testCompileOnly(project(":system-tests:runtimes:file-transfer-provider"))
-    testCompileOnly(project(":system-tests:runtimes:file-transfer-consumer"))
+    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-provider"))
+    testRuntimeOnly(project(":system-tests:runtimes:file-transfer-consumer"))
 }
 
 tasks.withType<Test> {
