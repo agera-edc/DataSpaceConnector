@@ -490,20 +490,14 @@ class TransferProcessManagerImplTest {
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
         process.getProvisionedResourceSet().addResource(provisionedDataDestinationResource());
 
-        var latch = new CountDownLatch(1);
+        var latch = countDownOnUpdateLatch();
 
-        when(transferProcessStore.nextForState(eq(IN_PROGRESS.code()), anyInt())).thenAnswer(i -> {
-            latch.countDown();
-            return List.of(process);
-        });
+        when(transferProcessStore.nextForState(eq(IN_PROGRESS.code()), anyInt())).thenReturn(List.of(process)).thenReturn(emptyList());
         when(statusCheckerRegistry.resolve(anyString())).thenReturn((tp, resources) -> false);
-        doThrow(new AssertionError("update() should not be called as process was not updated"))
-                .when(transferProcessStore).update(process);
 
         manager.start();
 
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS)).isTrue();
-        verify(transferProcessStore, atLeastOnce()).nextForState(anyInt(), anyInt());
         verify(transferProcessStore).update(argThat(p -> p.getState() == IN_PROGRESS.code()));
     }
 

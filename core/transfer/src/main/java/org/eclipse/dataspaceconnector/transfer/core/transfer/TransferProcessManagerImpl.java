@@ -357,11 +357,6 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
         }
     }
 
-    private void breakLease(TransferProcess process) {
-        // Break lease
-        transferProcessStore.update(process);
-    }
-
     /**
      * Process DEPROVISIONING transfer<br/>
      * Launch deprovision process. On completion, set to DEPROVISIONED if succeeded, ERROR otherwise
@@ -637,6 +632,11 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     private void updateTransferProcess(TransferProcess transferProcess, Consumer<TransferProcessListener> observe) {
         observable.invokeForEach(observe);
         transferProcessStore.update(transferProcess);
+    }
+
+    private void breakLease(TransferProcess process) {
+        // Break lease
+        transferProcessStore.update(process);
     }
 
     public static class Builder {

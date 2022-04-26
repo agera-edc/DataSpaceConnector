@@ -41,7 +41,8 @@ import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFix
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createBlobName;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createContainerName;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createRequest;
-import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createSharedKey;
+import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createSharedAccessSignature;
+import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.TestFunctions.sharedAccessSignatureMatcher;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -58,7 +59,8 @@ class AzureStorageDataSinkTest {
 
     String accountName = createAccountName();
     String containerName = createContainerName();
-    String sharedKey = createSharedKey();
+    String sharedAccessSignature = createSharedAccessSignature();
+
     String blobName = createBlobName();
     String content = faker.lorem().sentence();
 
@@ -67,7 +69,7 @@ class AzureStorageDataSinkTest {
     AzureStorageDataSink dataSink = AzureStorageDataSink.Builder.newInstance()
             .accountName(accountName)
             .containerName(containerName)
-            .sharedKey(sharedKey)
+            .sharedAccessSignature(sharedAccessSignature)
             .requestId(request.build().getId())
             .blobStoreApi(blobStoreApi)
             .executorService(executor)
@@ -83,18 +85,18 @@ class AzureStorageDataSinkTest {
     void setUp() {
         when(destination.getOutputStream()).thenReturn(output);
         when(blobStoreApi.getBlobAdapter(
-                accountName,
-                containerName,
-                blobName,
-                sharedKey))
+                eq(accountName),
+                eq(containerName),
+                eq(blobName),
+                sharedAccessSignatureMatcher(sharedAccessSignature)))
                 .thenReturn(destination);
 
         when(completionMarker.getOutputStream()).thenReturn(completionMarkerOutput);
-        when(blobAdapterFactory.getBlobAdapter(
+        when(blobStoreApi.getBlobAdapter(
                 eq(accountName),
                 eq(containerName),
                 argThat(s -> s.endsWith(".complete")),
-                eq(sharedKey)))
+                sharedAccessSignatureMatcher(sharedAccessSignature)))
                 .thenReturn(completionMarker);
     }
 
@@ -108,10 +110,10 @@ class AzureStorageDataSinkTest {
     @Test
     void transferParts_whenBlobClientCreationFails_fails() {
         when(blobStoreApi.getBlobAdapter(
-                accountName,
-                containerName,
-                blobName,
-                sharedKey))
+                eq(accountName),
+                eq(containerName),
+                eq(blobName),
+                sharedAccessSignatureMatcher(sharedAccessSignature)))
                 .thenThrow(exception);
         assertThatTransferPartsFails(part, "Error creating blob for %s on account %s", blobName, accountName);
     }
@@ -143,11 +145,11 @@ class AzureStorageDataSinkTest {
     @Test
     void complete() throws IOException {
         dataSink.complete();
-        verify(blobAdapterFactory).getBlobAdapter(
+        verify(blobStoreApi).getBlobAdapter(
                 eq(accountName),
                 eq(containerName),
                 argThat(s -> s.endsWith(".complete")),
-                eq(sharedKey));
+                sharedAccessSignatureMatcher(sharedAccessSignature));
         verify(completionMarkerOutput).close();
     }
 
@@ -158,4 +160,5 @@ class AzureStorageDataSinkTest {
         assertThat(result.getFailureMessages()).containsExactly(message);
         verify(monitor).severe(message, exception);
     }
+
 }
