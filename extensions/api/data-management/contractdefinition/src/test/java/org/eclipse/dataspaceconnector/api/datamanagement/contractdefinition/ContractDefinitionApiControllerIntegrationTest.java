@@ -19,7 +19,6 @@ import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.api.datamanagement.contractdefinition.model.ContractDefinitionDto;
 import org.eclipse.dataspaceconnector.dataloading.ContractDefinitionLoader;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcExtension;
-import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
 import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitionStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDefinition;
@@ -106,6 +105,23 @@ public class ContractDefinitionApiControllerIntegrationTest {
                 .then()
                 .statusCode(204);
         assertThat(store.findAll()).isNotEmpty();
+    }
+
+    @Test
+    void postContractDefinition_invalidBody(ContractDefinitionStore store) {
+        var dto = ContractDefinitionDto.Builder.newInstance()
+                .id("test-id")
+                .contractPolicyId(null)
+                .accessPolicyId(UUID.randomUUID().toString())
+                .build();
+
+        baseRequest()
+                .body(dto)
+                .contentType(JSON)
+                .post("/contractdefinitions")
+                .then()
+                .statusCode(400);
+        assertThat(store.findAll()).isEmpty();
     }
 
     @Test

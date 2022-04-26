@@ -64,7 +64,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -90,7 +89,7 @@ import static org.mockito.Mockito.mock;
 class IdsApiMultipartEndpointV1IntegrationTestServiceExtension implements ServiceExtension {
     private final List<Asset> assets;
 
-    public IdsApiMultipartEndpointV1IntegrationTestServiceExtension(List<Asset> assets) {
+    IdsApiMultipartEndpointV1IntegrationTestServiceExtension(List<Asset> assets) {
         this.assets = Objects.requireNonNull(assets);
     }
 
