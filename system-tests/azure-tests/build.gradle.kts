@@ -42,7 +42,7 @@ dependencies {
     testImplementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
 
-    testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
-    testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))
+    testRuntimeOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
+    testRuntimeOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))
 }
 
