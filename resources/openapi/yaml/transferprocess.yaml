@@ -148,6 +148,10 @@ components:
           type: string
         dataRequest:
           $ref: '#/components/schemas/DataRequestDto'
+        dataDestination:
+          type: object
+          additionalProperties:
+            type: string
     DataAddress:
       type: object
       properties:
@@ -159,6 +163,8 @@ components:
       type: object
       properties:
         connectorAddress:
+          type: string
+        id:
           type: string
         contractId:
           type: string
