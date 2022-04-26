@@ -30,8 +30,9 @@ after the client triggered the data deletion.
 9. The Provider DPF reads the data that needs to be transfered. The [AzureStorageDataSource](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSource.java) provides the source data stream.  
 10. The Provider DPF writes the data to the destination blob so that the consumer can access the data.
 The [AzureStorageDataSink](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSink.java) transfers the data to the blob destination.
-When the transfer is finished, the Provider DPF needs to write a blob called `.complete`.  
-11. In the meantime, the client polls the transfer status regularly on the consumer endpoint `/transferprocess/<PROCESS_ID>/state`. To determine if the transfer is completed, the consumer checks if a blob named `.complete` exists in the container.  
-12. When the transfer is finished, the client can read the blob.  
-13. Then, the client can call the Data Management API to destroy the data.  
-14. Consumer deletes the container containing the blob. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.
+11. When the transfer is finished, the Provider DPF writes a blob called `.complete`.
+12. In the meantime, the client polls the transfer status regularly on the consumer endpoint `/transferprocess/<PROCESS_ID>/state`.  
+13. To determine if the transfer is completed, the consumer checks if a blob named `.complete` exists in the container.  
+14. When the transfer is finished, the client can read the blob.  
+15. Then, the client can call the Data Management API to destroy the data.  
+16. Consumer deletes the container containing the blob. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.
