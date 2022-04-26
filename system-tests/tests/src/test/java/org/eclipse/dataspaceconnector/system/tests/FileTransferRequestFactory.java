@@ -22,7 +22,8 @@ import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils
 
 import java.util.Map;
 
-import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
+
 
 public class FileTransferRequestFactory implements TransferRequestFactory {
 
@@ -36,7 +37,7 @@ public class FileTransferRequestFactory implements TransferRequestFactory {
     public String apply(TransferSimulationUtils.TransferInitiationData transferInitiationData) {
         var request = Map.of(
                 "contractId", transferInitiationData.contractAgreementId,
-                "assetId", PROVIDER_ASSET_NAME,
+                "assetId", PROVIDER_ASSET_ID,
                 "connectorId", "consumer",
                 "connectorAddress", transferInitiationData.connectorAddress,
                 "protocol", "ids-multipart",
