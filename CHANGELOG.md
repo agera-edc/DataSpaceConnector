@@ -18,6 +18,7 @@ Bugfixing DataManagementApi
 #### Added
 
 * Add domain model documentation (#1158)
+* Add Blob transfer Architectural Decision Record (#?)
 
 #### Changed
 
