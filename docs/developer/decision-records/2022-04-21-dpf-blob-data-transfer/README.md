@@ -23,7 +23,7 @@ after the client triggered the data deletion.
    The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for provisioning the container and for generating a SAS token to access the container.
    It creates the container and the SAS token by using the [BlobStoreApi](../../../../extensions/azure/blobstorage/blob-core/src/main/java/org/eclipse/dataspaceconnector/azure/blob/core/api/BlobStoreApi.java). [BlobStoreApiImpl](../../../../extensions/azure/blobstorage/blob-core/src/main/java/org/eclipse/dataspaceconnector/azure/blob/core/api/BlobStoreApiImpl.java) retrieves the storage account access key in the consumer vault. Then it can create the container and generate the SAS token.  
 4. Consumer sends an IDS message to the Provider, containing the information needed to write data to the destination container. For example, the destination blob name and the SAS token needed to right blob to the container.  
-5. Provider store the SAS token in its Vault.  
+5. Provider stores the SAS token in its Vault.  
 6. Provider requests the blob transfer on the Provider DPF. The provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider requests the transfer via an HTTP request.  
 7. The Provider DPF gets the source storage account access key in the Provider Vault.  
 8. The Provider DPF gets the SAS token needed to write the blob to the consumer blob container.  
