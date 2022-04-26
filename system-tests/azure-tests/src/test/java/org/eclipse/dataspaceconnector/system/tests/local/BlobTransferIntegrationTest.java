@@ -17,7 +17,6 @@
 package org.eclipse.dataspaceconnector.system.tests.local;
 
 import com.azure.core.util.BinaryData;
-import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
@@ -61,7 +60,8 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
-import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_FILE;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
 
 @AzureStorageIntegrationTest
@@ -122,7 +122,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         var blobContent = "BlobTransferIntegrationTest-" + UUID.randomUUID();
         createContainer(blobServiceClient1, PROVIDER_CONTAINER_NAME);
         blobServiceClient1.getBlobContainerClient(PROVIDER_CONTAINER_NAME)
-                .getBlobClient(PROVIDER_ASSET_NAME)
+                .getBlobClient(PROVIDER_ASSET_FILE)
                 .upload(BinaryData.fromString(blobContent));
 
         // Seed data to provider
@@ -141,7 +141,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         // Assert
         var container = getProvisionedContainerName();
         var destinationBlob = blobServiceClient2.getBlobContainerClient(container)
-                .getBlobClient(PROVIDER_ASSET_NAME);
+                .getBlobClient(PROVIDER_ASSET_FILE);
         assertThat(destinationBlob.exists())
                 .withFailMessage("Destination blob %s not created", destinationBlob)
                 .isTrue();
