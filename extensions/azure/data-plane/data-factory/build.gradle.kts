@@ -35,7 +35,7 @@ dependencies {
     testImplementation(project(":extensions:data-plane:data-plane-framework"))
     testImplementation(project(":extensions:azure:resource-manager"))
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
-    testImplementation(testFixtures(project(":extensions:azure:data-plane:storage")))
+    testImplementation(testFixtures(project(":extensions:azure:blobstorage:blob-core")))
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation("org.awaitility:awaitility:${awaitility}")
