@@ -24,6 +24,9 @@ plugins {
 dependencies {
     implementation(project(":extensions:azure:data-plane:common"))
     implementation(project(":common:util"))
+    implementation(project(":spi:core-spi"))
+    implementation(project(":extensions:data-plane:data-plane-spi"))
+    implementation(project(":extensions:azure:blobstorage:blob-core"))
     implementation("com.azure:azure-identity:${azureIdentityVersion}")
     implementation("com.azure.resourcemanager:azure-resourcemanager-datafactory:${azureResourceManagerDataFactory}")
     implementation("com.azure.resourcemanager:azure-resourcemanager-storage:${azureResourceManagerVersion}")
