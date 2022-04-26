@@ -5,25 +5,24 @@ ADR describing the blob storage transfer end to end flow between 2 participants.
 ## Description
 
 The data-plane-azure-storage extension can be used on DPF to support blob transfers.
-A client can then trigger a blob transfer on the consumer side via the Data Management API.
-
-The consumer might need to create a container for the destination blob. If this is needed, the client needs to use the managedResources=true option.
+A client can trigger a blob transfer on the consumer side via the Data Management API.
+The consumer might need to create a container for the destination blob. If this is needed, the client needs to use the managedResources=true option in its HTTP request.
 Storage accounts access key should be stored in advanced in Keyvaults. The consumer can generate SAS token to give the provider the possibility to write data to its container.
 
 ## Sequence diagram
 
-The following sequence diagram describes flow to transfer a blob from a Provider storage account to a consumer storage account.
+The following sequence diagram describes the flow to transfer a blob from a Provider storage account to a consumer storage account.
 It starts from the client triggering the transfer on the consumer side and finishes when the consumer deletes the blob
 after the client triggered the data deletion.
 
 ![blob-transfer](../../../diagrams/blob-transfer.png)
 
 1. The client calls the data management API to trigger a transfer process. managedResources is set to true, which means that the consumer should provision the blob container.  
-2. Consumer gets the destination storage account access key (SHARED_KEY) in its Vault.  
+2. Consumer gets the destination storage account access key in its Vault.  
 3. Consumer creates a container where the Provider DPF may write blobs. The container is created only if the client specifies managedResources=true.
    The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for provisioning the container and for generating a SAS token to access the container.
    It creates the container and the SAS token by using the [BlobStoreApi](../../../../extensions/azure/blobstorage/blob-core/src/main/java/org/eclipse/dataspaceconnector/azure/blob/core/api/BlobStoreApi.java). [BlobStoreApiImpl](../../../../extensions/azure/blobstorage/blob-core/src/main/java/org/eclipse/dataspaceconnector/azure/blob/core/api/BlobStoreApiImpl.java) retrieves the storage account access key in the consumer vault. Then it can create the container and generate the SAS token.  
-4. Consumer sends an IDS message to the provider, to provide the information needed to write data to the destination container. For example, the destination blob name and the SAS token needed to right blob to the container.  
+4. Consumer sends an IDS message to the Provider, containing the information needed to write data to the destination container. For example, the destination blob name and the SAS token needed to right blob to the container.  
 5. Provider store the SAS token in its Vault.  
 6. Provider requests the blob transfer on the Provider DPF. The provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider requests the transfer via an HTTP request.  
 7. The Provider DPF gets the source storage account access key in the Provider Vault.  
