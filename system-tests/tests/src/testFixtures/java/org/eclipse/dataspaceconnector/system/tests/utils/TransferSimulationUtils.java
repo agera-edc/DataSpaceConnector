@@ -54,7 +54,8 @@ public abstract class TransferSimulationUtils {
 
     public static final String DESCRIPTION = "[Contract negotiation and file transfer]";
 
-    public static final String PROVIDER_ASSET_NAME = "test-document";
+    public static final String PROVIDER_ASSET_ID = "test-document";
+    public static final String PROVIDER_ASSET_FILE = "text-document.txt";
 
     public static final String TRANSFER_SUCCESSFUL = "Transfer successful";
 
@@ -252,7 +253,7 @@ public abstract class TransferSimulationUtils {
                 "protocol", "ids-multipart",
                 "offer", Map.of(
                         "offerId", "1:1",
-                        "assetId", PROVIDER_ASSET_NAME,
+                        "assetId", PROVIDER_ASSET_ID,
                         "policy", policy
                 )
         );

@@ -167,10 +167,10 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         var asset = Map.of(
                 "asset", Map.of(
                         "properties", Map.of(
-                                "asset:prop:name", PROVIDER_ASSET_NAME,
+                                "asset:prop:name", PROVIDER_ASSET_ID,
                                 "asset:prop:contenttype", "text/plain",
                                 "asset:prop:version", "1.0",
-                                "asset:prop:id", PROVIDER_ASSET_NAME,
+                                "asset:prop:id", PROVIDER_ASSET_ID,
                                 "type", "AzureStorage"
                         )
                 ),
@@ -179,7 +179,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                                 "type", AzureBlobStoreSchema.TYPE,
                                 AzureBlobStoreSchema.ACCOUNT_NAME, account1Name,
                                 AzureBlobStoreSchema.CONTAINER_NAME, PROVIDER_CONTAINER_NAME,
-                                AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_NAME,
+                                AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_FILE,
                                 "keyName", format("%s-key1", account1Name)
                         )
                 )
@@ -191,7 +191,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     private String createPolicy() {
         var policy = Policy.Builder.newInstance()
                 .permission(Permission.Builder.newInstance()
-                        .target(PROVIDER_ASSET_NAME)
+                        .target(PROVIDER_ASSET_ID)
                         .action(Action.Builder.newInstance().type("USE").build())
                         .build())
                 .type(PolicyType.SET)
@@ -207,7 +207,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         var criteria = AssetSelectorExpression.Builder.newInstance()
                 .constraint("asset:prop:id",
                         "=",
-                        PROVIDER_ASSET_NAME)
+                        PROVIDER_ASSET_ID)
                 .build();
 
         var contractDefinition = Map.of(
