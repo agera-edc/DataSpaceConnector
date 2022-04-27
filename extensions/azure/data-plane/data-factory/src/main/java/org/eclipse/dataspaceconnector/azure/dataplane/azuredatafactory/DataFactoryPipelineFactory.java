@@ -130,8 +130,7 @@ class DataFactoryPipelineFactory {
                                                 .withSecretName(vaultSecretName)
                                                 .withStore(new LinkedServiceReference()
                                                         .withReferenceName(keyVaultLinkedService)
-                                                ))
-                )
+                                                )))
                 .create();
     }
 }
