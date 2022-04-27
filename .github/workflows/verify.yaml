@@ -91,7 +91,6 @@ jobs:
           rm log.txt
           killall java
 
-
       - name: Check Sample 01
         run: |
           ./gradlew :samples:01-basic-connector:shadowJar
@@ -101,7 +100,6 @@ jobs:
           grep "INFO.*edc-.*ready" log.txt
           rm log.txt
           killall java
-
 
       - name: Check Sample 02
         run: |
