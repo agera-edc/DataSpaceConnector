@@ -25,8 +25,12 @@ public class AzureStorageTestFixtures {
     public static DataFlowRequest.Builder createRequest(String type) {
         return DataFlowRequest.Builder.newInstance()
                 .id("1").processId("1")
-                .sourceDataAddress(DataAddress.Builder.newInstance().type(type).build())
-                .destinationDataAddress(DataAddress.Builder.newInstance().type(type).build());
+                .sourceDataAddress(createDataAddress(type).build())
+                .destinationDataAddress(createDataAddress(type).build());
+    }
+
+    public static DataAddress.Builder createDataAddress(String type) {
+        return DataAddress.Builder.newInstance().type(type);
     }
 
     public static String createAccountName() {

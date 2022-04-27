@@ -33,6 +33,7 @@ import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -40,7 +41,7 @@ import java.util.concurrent.Executors;
 /**
  * Provides core services for the Data Plane Framework.
  */
-@Provides({DataPlaneManager.class, PipelineService.class, DataTransferExecutorServiceContainer.class})
+@Provides({DataPlaneManager.class, PipelineService.class, DataTransferExecutorServiceContainer.class, TransferServiceRegistry.class})
 public class DataPlaneFrameworkExtension implements ServiceExtension {
     private static final int IN_MEMORY_STORE_CAPACITY = 1000;
 
@@ -67,6 +68,9 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
 
     @Inject(required = false)
     private TransferServiceSelectionStrategy transferServiceSelectionStrategy;
+
+    @Inject(required = false)
+    private DataPlaneStore store;
 
     @Inject
     private ExecutorInstrumentation executorInstrumentation;
@@ -95,7 +99,7 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
                 executorInstrumentation.instrument(executorService, "Data plane transfers"));
         context.registerService(DataTransferExecutorServiceContainer.class, executorContainer);
 
-        monitor = context.getMonitor();
+        Monitor monitor = context.getMonitor();
         var telemetry = context.getTelemetry();
 
         var queueCapacity = context.getSetting(QUEUE_CAPACITY, DEFAULT_QUEUE_CAPACITY);
@@ -109,7 +113,7 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
                 .waitTimeout(waitTimeout)
                 .pipelineService(pipelineService)
                 .transferServiceRegistry(transferServiceRegistry)
-                .store(new InMemoryDataPlaneStore(IN_MEMORY_STORE_CAPACITY))
+                .store(registerStore(context))
                 .monitor(monitor)
                 .telemetry(telemetry)
                 .build();
@@ -117,12 +121,18 @@ public class DataPlaneFrameworkExtension implements ServiceExtension {
         context.registerService(DataPlaneManager.class, dataPlaneManager);
     }
 
+    @NotNull
+    private DataPlaneStore registerStore(ServiceExtensionContext context) {
+        if (store != null) {
+            return store;
+        }
+        var inMemoryStore = new InMemoryDataPlaneStore(IN_MEMORY_STORE_CAPACITY);
+        context.registerService(DataPlaneStore.class, inMemoryStore);
+        return inMemoryStore;
+    }
+
     @Override
     public void start() {
-        if (!context.hasService(DataPlaneStore.class)) {
-            monitor.info("Registering in-memory Data Plane store.");
-            context.registerService(DataPlaneStore.class, new InMemoryDataPlaneStore(IN_MEMORY_STORE_CAPACITY));
-        }
         dataPlaneManager.start();
     }
 
