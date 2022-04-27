@@ -14,12 +14,12 @@
 
 @startuml
 autonumber "<b>(0)"
-Client -> Consumer: Call DM API: POST /transferprocess \n - managedResources=true\n - Storage account name \n - Blob name
+Client -> Consumer: Call DM API: POST /transferprocess \n - managedResources=true\n - Storage account name
 Consumer -> "Consumer Vault": Get dest Storage Account key
 Consumer -> "Consumer Storage Account": Create container
-Consumer -> Provider: IDS message providing: \n - Account name \n - Container name \n - Blob name \n - Write-only dest SAS token
+Consumer -> Provider: IDS message providing: \n - Account name \n - Container name \n - Write-only dest SAS token
 Provider -> "Provider Vault": Store SAS token
-Provider -> "Provider DPF": DPF call: \n - Account name \n - Container name \n - Blob name
+Provider -> "Provider DPF": DPF call: \n - Account name \n - Container name
 "Provider DPF" -> "Provider Vault": Get source Storage Account Key
 "Provider DPF" -> "Provider Vault": Get dest SAS token
 "Provider DPF" -> "Provider Storage Account": Read
