@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.azure.dataplane.azuredatafactory;
 
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.github.javafaker.Faker;
+import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.Test;
 
@@ -40,7 +41,9 @@ class DataFactoryPipelineFactoryTest {
     DataFlowRequest request = AzureDataFactoryTransferRequestValidatorTest.requestWithProperties;
 
     String keyVaultLinkedService = FAKER.lorem().word();
-    DataFactoryPipelineFactory factory = new DataFactoryPipelineFactory(keyVaultLinkedService, keyVaultClient, client);
+
+    TypeManager typeManager = new TypeManager();
+    DataFactoryPipelineFactory factory = new DataFactoryPipelineFactory(keyVaultLinkedService, keyVaultClient, client, typeManager);
 
     @Test
     void createPipeline() {
