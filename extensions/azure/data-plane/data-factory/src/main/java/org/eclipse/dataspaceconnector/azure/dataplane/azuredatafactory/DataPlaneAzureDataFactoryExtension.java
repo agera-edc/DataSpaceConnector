@@ -90,7 +90,8 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
         var pipelineFactory = new DataFactoryPipelineFactory(
                 keyVaultLinkedService,
                 keyVaultClient,
-                dataFactoryClient);
+                dataFactoryClient,
+                context.getTypeManager());
         var pollDelay = Duration.ofMillis(context.getSetting(DATA_FACTORY_POLL_DELAY, 5000L));
         var transferManager = new AzureDataFactoryTransferManager(
                 monitor,
