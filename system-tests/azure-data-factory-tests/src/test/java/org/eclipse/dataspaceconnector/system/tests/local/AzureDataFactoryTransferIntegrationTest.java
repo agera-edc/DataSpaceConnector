@@ -166,7 +166,7 @@ public class AzureDataFactoryTransferIntegrationTest {
         createContractDefinition(policyId);
 
         // Act
-        System.setProperty(ACCOUNT_NAME_PROPERTY, CONSUMER_STORAGE_ACCOUNT_NAME);
+        System.setProperty(BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY, CONSUMER_STORAGE_ACCOUNT_NAME);
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
 
         // Assert
