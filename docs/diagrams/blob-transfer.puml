@@ -25,8 +25,10 @@ Provider -> "Provider DPF": DPF call: \n - Account name \n - Container name
 "Provider DPF" -> "Provider Storage Account": Read
 "Provider DPF" -> "Consumer Storage Account": Write
 "Provider DPF" -> "Consumer Storage Account": Write .complete blob
-Client -> Consumer: Poll for completion
-Consumer -> "Consumer Storage Account": Look for .complete blob
+loop  Till transfer completion
+    Client -> Consumer: Poll for completion
+    Consumer -> "Consumer Storage Account": Look for .complete blob
+end
 Client -> "Consumer Storage Account": Read result
 Client -> "Consumer": Call DM API: POST /deprovision \n - Account name \n - Blob name
 Consumer -> "Consumer Storage Account": Delete container
