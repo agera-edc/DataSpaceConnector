@@ -63,7 +63,7 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
-import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
 
 @AzureDataFactoryIntegrationTest
@@ -152,7 +152,7 @@ public class AzureDataFactoryTransferIntegrationTest {
 
         var providerBlobServiceClientBlobContainer = providerBlobServiceClient.createBlobContainer(PROVIDER_CONTAINER_NAME);
         providerBlobServiceClientBlobContainer
-                .getBlobClient(PROVIDER_ASSET_NAME)
+                .getBlobClient(PROVIDER_ASSET_ID)
                 .upload(BinaryData.fromString(blobContent), true);
 
         // Updating secrets in key vault
@@ -172,7 +172,7 @@ public class AzureDataFactoryTransferIntegrationTest {
         // Assert
         var container = getProvisionedContainerName();
         var destinationBlob = consumerBlobServiceClient.getBlobContainerClient(container)
-                .getBlobClient(PROVIDER_ASSET_NAME);
+                .getBlobClient(PROVIDER_ASSET_ID);
         assertThat(destinationBlob.exists())
                 .withFailMessage("Destination blob %s not created", destinationBlob)
                 .isTrue();
@@ -218,10 +218,10 @@ public class AzureDataFactoryTransferIntegrationTest {
         var asset = Map.of(
                 "asset", Map.of(
                         "properties", Map.of(
-                                "asset:prop:name", PROVIDER_ASSET_NAME,
+                                "asset:prop:name", PROVIDER_ASSET_ID,
                                 "asset:prop:contenttype", "text/plain",
                                 "asset:prop:version", "1.0",
-                                "asset:prop:id", PROVIDER_ASSET_NAME,
+                                "asset:prop:id", PROVIDER_ASSET_ID,
                                 "type", "AzureStorage"
                         )
                 ),
@@ -230,7 +230,7 @@ public class AzureDataFactoryTransferIntegrationTest {
                                 "type", AzureBlobStoreSchema.TYPE,
                                 AzureBlobStoreSchema.ACCOUNT_NAME, PROVIDER_STORAGE_ACCOUNT_NAME,
                                 AzureBlobStoreSchema.CONTAINER_NAME, PROVIDER_CONTAINER_NAME,
-                                AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_NAME,
+                                AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_ID,
                                 "keyName", format("%s-key1", PROVIDER_STORAGE_ACCOUNT_NAME)
                         )
                 )
@@ -242,7 +242,7 @@ public class AzureDataFactoryTransferIntegrationTest {
     private String createPolicy() {
         var policy = Policy.Builder.newInstance()
                 .permission(Permission.Builder.newInstance()
-                        .target(PROVIDER_ASSET_NAME)
+                        .target(PROVIDER_ASSET_ID)
                         .action(Action.Builder.newInstance().type("USE").build())
                         .build())
                 .type(PolicyType.SET)
@@ -258,7 +258,7 @@ public class AzureDataFactoryTransferIntegrationTest {
         var criteria = AssetSelectorExpression.Builder.newInstance()
                 .constraint("asset:prop:id",
                         "=",
-                        PROVIDER_ASSET_NAME)
+                        PROVIDER_ASSET_ID)
                 .build();
 
         var contractDefinition = Map.of(
