@@ -22,7 +22,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":extensions:azure:data-plane:common"))
     implementation(project(":common:util"))
     implementation(project(":spi:core-spi"))
     implementation(project(":extensions:data-plane:data-plane-spi"))

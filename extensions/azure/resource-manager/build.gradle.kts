@@ -20,7 +20,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":extensions:azure:data-plane:common"))
     implementation(project(":common:util"))
     implementation(project(":spi:core-spi"))
     implementation("com.azure:azure-identity:${azureIdentityVersion}")
