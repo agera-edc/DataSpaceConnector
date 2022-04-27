@@ -72,9 +72,9 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String ASSETS_PATH = "/assets";
     private static final String POLICIES_PATH = "/policies";
     private static final String EDC_FS_CONFIG = "edc.fs.config";
+    private static final String EDC_VAULT_NAME = "edc.vault.name";
     private static final String EDC_VAULT_CLIENT_ID = "edc.vault.clientid";
     private static final String EDC_VAULT_TENANT_ID = "edc.vault.tenantid";
-    private static final String EDC_VAULT_NAME = "edc.vault.name";
     private static final String EDC_VAULT_CLIENT_SECRET = "edc.vault.clientsecret";
     private static final String CONTRACT_DEFINITIONS_PATH = "/contractdefinitions";
     private static final String PROVIDER_CONTAINER_NAME = UUID.randomUUID().toString();
@@ -83,6 +83,9 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String RUNTIME_SETTINGS_ABSOLUTE_PATH = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH).getAbsolutePath();
 
     private static final String KEY_VAULT_NAME = getenv("KEY_VAULT_NAME");
+    private static final String TENANT_ID = getenv("TENANT_ID");
+    private static final String SP_CLIENT_ID = getenv("SP_CLIENT_ID");
+    private static final String SP_CLIENT_SECRET = getenv("SP_CLIENT_SECRET");
     private static final String PROVIDER_STORAGE_ACCOUNT_NAME = getenv("PROVIDER_STORAGE_ACCOUNT_NAME");
     private static final String PROVIDER_STORAGE_ACCOUNT_KEY = getenv("PROVIDER_STORAGE_ACCOUNT_KEY");
     private static final String PROVIDER_STORAGE_ACCOUNT_CONN_STRING = getenv("PROVIDER_STORAGE_ACCOUNT_CONN_STRING");
@@ -105,9 +108,9 @@ public class AzureDataFactoryTransferIntegrationTest {
                     Map.entry("web.http.ids.path", "/api/v1/ids"),
                     Map.entry("ids.webhook.address", CONSUMER_IDS_API),
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
-                    Map.entry(EDC_VAULT_CLIENT_ID, ""),
-                    Map.entry(EDC_VAULT_TENANT_ID, ""),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, "")
+                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
+                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
             )
     );
 
@@ -126,9 +129,9 @@ public class AzureDataFactoryTransferIntegrationTest {
                     Map.entry("ids.webhook.address", PROVIDER_IDS_API),
                     Map.entry(EDC_FS_CONFIG, RUNTIME_SETTINGS_ABSOLUTE_PATH),
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
-                    Map.entry(EDC_VAULT_CLIENT_ID, ""),
-                    Map.entry(EDC_VAULT_TENANT_ID, ""),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, "")
+                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
+                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
             )
     );
 
