@@ -96,20 +96,42 @@ class DataFactoryPipelineFactory {
 
     private LinkedServiceResource createLinkedService(String name, DataAddress dataAddress) {
         var accountName = dataAddress.getProperty(AzureBlobStoreSchema.ACCOUNT_NAME);
-        var accountKey = dataAddress.getProperty(AzureBlobStoreSchema.SHARED_KEY);
+        //var accountKey = dataAddress.getProperty(AzureBlobStoreSchema.SHARED_KEY);
 
-        var secret = keyVaultClient.setSecret(name, accountKey);
+        //var secret = keyVaultClient.setSecret(name, accountKey);
 
+        return name.endsWith("-src") ?
+                sourceLinkedServiceResource(name, accountName, dataAddress.getProperty("keyName")) :
+                destinationLinkedServiceResource(name, accountName, dataAddress.getProperty("keyName"));
+
+    }
+
+    private LinkedServiceResource sourceLinkedServiceResource(String name, String accountName, String vaultSecretName) {
         return client.defineLinkedService(name)
                 .withProperties(
                         new AzureStorageLinkedService()
                                 .withConnectionString(String.format("DefaultEndpointsProtocol=https;AccountName=%s;", accountName))
                                 .withAccountKey(
                                         new AzureKeyVaultSecretReference()
-                                                .withSecretName(secret.getName())
+                                                .withSecretName(vaultSecretName)
                                                 .withStore(new LinkedServiceReference()
                                                         .withReferenceName(keyVaultLinkedService)
                                                 )))
+                .create();
+    }
+
+    private LinkedServiceResource destinationLinkedServiceResource(String name, String accountName, String vaultSecretName) {
+        return client.defineLinkedService(name)
+                .withProperties(
+                        new AzureStorageLinkedService()
+                                .withConnectionString(String.format("DefaultEndpointsProtocol=https;AccountName=%s;", accountName))
+                                .withSasToken(
+                                        new AzureKeyVaultSecretReference()
+                                                .withSecretName(vaultSecretName)
+                                                .withStore(new LinkedServiceReference()
+                                                        .withReferenceName(keyVaultLinkedService)
+                                                ))
+                )
                 .create();
     }
 }

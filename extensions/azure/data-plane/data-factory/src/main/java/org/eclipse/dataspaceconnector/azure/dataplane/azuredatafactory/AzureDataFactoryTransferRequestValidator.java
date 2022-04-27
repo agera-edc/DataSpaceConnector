@@ -68,7 +68,7 @@ class AzureDataFactoryTransferRequestValidator {
     private void validateProperties(HashMap<String, String> properties) {
         validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
         validateContainerName(properties.remove(AzureBlobStoreSchema.CONTAINER_NAME));
-        validateSharedKey(properties.remove(AzureBlobStoreSchema.SHARED_KEY));
+        properties.remove("keyName");
         properties.keySet().stream().filter(k -> !DataAddress.TYPE.equals(k)).findFirst().ifPresent(k -> {
             throw new IllegalArgumentException(format("Unexpected property %s", k));
         });
