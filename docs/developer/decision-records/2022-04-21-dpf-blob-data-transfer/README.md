@@ -6,7 +6,7 @@ ADR describing the blob storage transfer end to end flow between 2 participants.
 
 The data-plane-azure-storage extension can be used on DPF to support blob transfers.
 A client can trigger a blob transfer on the consumer side via the Data Management API.
-The consumer might need to create a container for the destination blob. If this is needed, the client needs to use the managedResources=true option in its HTTP request.
+The client needs to use the managedResources=true option in its HTTP request, otherwise the transfer will not work. Client would not be aware that an error occurred, it would just never see the transferProcess with completed state when polling for the result.   
 Storage accounts access key should be stored in advanced in Keyvaults. The consumer can generate SAS token to give the provider the possibility to write data to its container.
 
 ## Sequence diagram
@@ -17,7 +17,7 @@ after the client triggered the data deletion.
 
 ![blob-transfer](../../../diagrams/blob-transfer.png)
 
-1. The client calls the data management API to trigger a transfer process. managedResources is set to true, which means that the consumer should provision the blob container.  
+1. The client calls the data management API to trigger a transfer process. managedResources needs to be set to true, to make sure that the consumer provisions the blob container. If it is not set to true, the transfer will not work. Then, the transfer would never be completed. 
 2. Consumer gets the destination storage account access key in its Vault.  
 3. Consumer creates a container where the Provider DPF may write blobs. The container is created only if the client specifies managedResources=true.
    The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for provisioning the container and for generating a SAS token to access the container.
