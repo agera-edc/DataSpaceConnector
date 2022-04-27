@@ -17,5 +17,5 @@ runs:
       with:
         name: Test Results ${{ github.job }}
         path: |
-          "**/test-results/**/*.xml"
-          "**/build/reports/jacoco/test/jacocoTestReport.xml"
+          **/test-results/**/*.xml
+          **/build/reports/jacoco/test/jacocoTestReport.xml
