@@ -42,7 +42,7 @@ import static java.lang.String.format;
  */
 class DataFactoryPipelineFactory {
     private static final String ADF_RESOURCE_NAME_PREFIX = "EDC-DPF-";
-    private static final String BLOB_STORE_CONTAINER_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net/";
+    private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net/";
 
     private final String keyVaultLinkedService;
     private final KeyVaultClient keyVaultClient;
@@ -79,7 +79,7 @@ class DataFactoryPipelineFactory {
                         .withOutputs(List.of(new DatasetReference().withReferenceName(destinationDataset.name())))
                         .withSource(new BlobSource())
                         .withSink(new BlobSink())
-                        .withValidateDataConsistency(true)))
+                        .withValidateDataConsistency(false)))
                 .create();
     }
 
@@ -103,14 +103,10 @@ class DataFactoryPipelineFactory {
 
     private LinkedServiceResource createLinkedService(String name, DataAddress dataAddress) {
         var accountName = dataAddress.getProperty(AzureBlobStoreSchema.ACCOUNT_NAME);
-        var containerName = dataAddress.getProperty(AzureBlobStoreSchema.CONTAINER_NAME);
-        //var accountKey = dataAddress.getProperty(AzureBlobStoreSchema.SHARED_KEY);
-
-        //var secret = keyVaultClient.setSecret(name, accountKey);
 
         return name.endsWith("-src") ?
                 sourceLinkedServiceResource(name, accountName, dataAddress.getProperty("keyName")) :
-                destinationLinkedServiceResource(name, accountName, containerName, dataAddress.getProperty("keyName"));
+                destinationLinkedServiceResource(name, accountName, dataAddress.getProperty("keyName"));
 
     }
 
@@ -128,18 +124,15 @@ class DataFactoryPipelineFactory {
                 .create();
     }
 
-    private LinkedServiceResource destinationLinkedServiceResource(String name, String accountName, String containerName, String vaultSecretName) {
+    private LinkedServiceResource destinationLinkedServiceResource(String name, String accountName, String vaultSecretName) {
         var secret = keyVaultClient.getSecret(vaultSecretName);
         var token = typeManager.readValue(secret.getValue(), AzureSasToken.class);
-        var sasTokenSecret = keyVaultClient.setSecret(
-                name,
-                format(BLOB_STORE_CONTAINER_ENDPOINT_TEMPLATE, accountName) + token.getSas()
-        );
+        var sasTokenSecret = keyVaultClient.setSecret(name, token.getSas());
 
         return client.defineLinkedService(name)
                 .withProperties(
                         new AzureStorageLinkedService()
-                                .withConnectionString(String.format("DefaultEndpointsProtocol=https;AccountName=%s;", accountName))
+                                .withSasUri(format(BLOB_STORE_ENDPOINT_TEMPLATE, accountName))
                                 .withSasToken(
                                         new AzureKeyVaultSecretReference()
                                                 .withSecretName(sasTokenSecret.getName())
