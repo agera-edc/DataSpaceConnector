@@ -63,6 +63,8 @@ dependencies {
     implementation(project(":extensions:filesystem:configuration-fs"))
     implementation(project(":extensions:iam:iam-mock"))
     implementation(project(":extensions:api:data-management"))
+    implementation(project(":extensions:azure:blobstorage"))
+    implementation(project(":extensions:azure:vault"))
 
     implementation(project(":data-protocols:ids"))
 }

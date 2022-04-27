@@ -72,6 +72,10 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String ASSETS_PATH = "/assets";
     private static final String POLICIES_PATH = "/policies";
     private static final String EDC_FS_CONFIG = "edc.fs.config";
+    private static final String EDC_VAULT_CLIENT_ID = "edc.vault.clientid";
+    private static final String EDC_VAULT_TENANT_ID = "edc.vault.tenantid";
+    private static final String EDC_VAULT_NAME = "edc.vault.name";
+    private static final String EDC_VAULT_CLIENT_SECRET = "edc.vault.clientsecret";
     private static final String CONTRACT_DEFINITIONS_PATH = "/contractdefinitions";
     private static final String PROVIDER_CONTAINER_NAME = UUID.randomUUID().toString();
     private static final String RUNTIME_SETTINGS_PATH = "resources/azure/testing/runtime_settings.properties";
@@ -92,31 +96,41 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":system-tests:runtimes:azure-storage-transfer-consumer",
             "consumer",
-            Map.of(
-                    "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
-                    "web.http.path", CONSUMER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT),
-                    "web.http.data.path", CONSUMER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
-                    "ids.webhook.address", CONSUMER_IDS_API
-            ));
+            Map.ofEntries(
+                    Map.entry("web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT)),
+                    Map.entry("web.http.path", CONSUMER_CONNECTOR_PATH),
+                    Map.entry("web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT)),
+                    Map.entry("web.http.data.path", CONSUMER_MANAGEMENT_PATH),
+                    Map.entry("web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT)),
+                    Map.entry("web.http.ids.path", "/api/v1/ids"),
+                    Map.entry("ids.webhook.address", CONSUMER_IDS_API),
+                    Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
+                    Map.entry(EDC_VAULT_CLIENT_ID, ""),
+                    Map.entry(EDC_VAULT_TENANT_ID, ""),
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, "")
+            )
+    );
 
     @RegisterExtension
     private static EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":system-tests:runtimes:azure-data-factory-transfer-provider",
             "provider",
-            Map.of(
-                    "edc.test.asset.container.name", PROVIDER_CONTAINER_NAME,
-                    "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
-                    "web.http.path", PROVIDER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT),
-                    "web.http.data.path", PROVIDER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
-                    "ids.webhook.address", PROVIDER_IDS_API,
-                    EDC_FS_CONFIG, RUNTIME_SETTINGS_ABSOLUTE_PATH
-            ));
+            Map.ofEntries(
+                    Map.entry("edc.test.asset.container.name", PROVIDER_CONTAINER_NAME),
+                    Map.entry("web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT)),
+                    Map.entry("web.http.path", PROVIDER_CONNECTOR_PATH),
+                    Map.entry("web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT)),
+                    Map.entry("web.http.data.path", PROVIDER_MANAGEMENT_PATH),
+                    Map.entry("web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT)),
+                    Map.entry("web.http.ids.path", "/api/v1/ids"),
+                    Map.entry("ids.webhook.address", PROVIDER_IDS_API),
+                    Map.entry(EDC_FS_CONFIG, RUNTIME_SETTINGS_ABSOLUTE_PATH),
+                    Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
+                    Map.entry(EDC_VAULT_CLIENT_ID, ""),
+                    Map.entry(EDC_VAULT_TENANT_ID, ""),
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, "")
+            )
+    );
 
     @AfterEach
     public void cleanUp() {
@@ -139,7 +153,6 @@ public class AzureDataFactoryTransferIntegrationTest {
                 .upload(BinaryData.fromString(blobContent), true);
 
         // Updating secrets in key vault
-        //TODO: secret name should have suffix -key1.
         var vaultClient = vaultClient();
         vaultClient.setSecret(new KeyVaultSecret(PROVIDER_STORAGE_ACCOUNT_NAME + "-key1", PROVIDER_STORAGE_ACCOUNT_KEY));
         vaultClient.setSecret(new KeyVaultSecret(CONSUMER_STORAGE_ACCOUNT_NAME + "-key1", CONSUMER_STORAGE_ACCOUNT_KEY));
