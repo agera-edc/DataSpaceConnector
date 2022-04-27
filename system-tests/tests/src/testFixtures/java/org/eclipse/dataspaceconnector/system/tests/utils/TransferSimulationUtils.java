@@ -22,10 +22,8 @@ import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.PolicyType;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
-import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiationStates;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessStates;
-import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
@@ -54,7 +52,8 @@ public abstract class TransferSimulationUtils {
 
     public static final String DESCRIPTION = "[Contract negotiation and file transfer]";
 
-    public static final String PROVIDER_ASSET_NAME = "test-document";
+    public static final String PROVIDER_ASSET_ID = "test-document";
+    public static final String PROVIDER_ASSET_FILE = "text-document.txt";
 
     public static final String TRANSFER_SUCCESSFUL = "Transfer successful";
 
@@ -66,8 +65,8 @@ public abstract class TransferSimulationUtils {
     /**
      * Gatling chain for performing contract negotiation and file transfer.
      *
-     * @param providerUrl     URL for the Provider API, as accessed from the Consumer runtime.
-     * @param destinationPath File copy destination path. If it includes the character sequence {@code %s}, that sequence is replaced with a random string in each iteration.
+     * @param providerUrl    URL for the Provider API, as accessed from the Consumer runtime.
+     * @param requestFactory Factory for creating transfer request payloads.
      */
     public static ChainBuilder contractNegotiationAndTransfer(String providerUrl, TransferRequestFactory requestFactory) {
         return startContractAgreement(providerUrl)
@@ -145,8 +144,8 @@ public abstract class TransferSimulationUtils {
      * <p>
      * Saves the Transfer Process ID into the {@see TRANSFER_PROCESS_ID} session key.
      *
-     * @param providerUrl     URL for the Provider API, as accessed from the Consumer runtime.
-     * @param destinationPath File copy destination path.
+     * @param providerUrl    URL for the Provider API, as accessed from the Consumer runtime.
+     * @param requestFactory Factory for creating transfer request payloads.
      */
     private static ChainBuilder startTransfer(String providerUrl, TransferRequestFactory requestFactory) {
         String connectorAddress = format("%s/api/v1/ids/data", providerUrl);
@@ -174,29 +173,6 @@ public abstract class TransferSimulationUtils {
                 .check(bodyString()
                         .notNull()
                         .saveAs(TRANSFER_PROCESS_ID));
-    }
-
-    private static String transferRequest(String contractAgreementId, String destinationPath, String connectorAddress) {
-        var request = Map.of(
-                "contractId", contractAgreementId,
-                "assetId", PROVIDER_ASSET_NAME,
-                "connectorId", "consumer",
-                "connectorAddress", connectorAddress,
-                "protocol", "ids-multipart",
-                "dataDestination", DataAddress.Builder.newInstance()
-                        .keyName("keyName")
-                        .type("File")
-                        .property("path", destinationPath)
-                        .build(),
-                "managedResources", false,
-                "transferType", TransferType.Builder.transferType()
-                        .contentType("application/octet-stream")
-                        .isFinite(true)
-                        .build()
-        );
-
-        return new TypeManager().writeValueAsString(request);
-
     }
 
     /**
@@ -252,7 +228,7 @@ public abstract class TransferSimulationUtils {
                 "protocol", "ids-multipart",
                 "offer", Map.of(
                         "offerId", "1:1",
-                        "assetId", PROVIDER_ASSET_NAME,
+                        "assetId", PROVIDER_ASSET_ID,
                         "policy", policy
                 )
         );

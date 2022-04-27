@@ -639,6 +639,11 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
         transferProcessStore.update(transferProcess);
     }
 
+    private void breakLease(TransferProcess process) {
+        // Break lease
+        transferProcessStore.update(process);
+    }
+
     public static class Builder {
         private final TransferProcessManagerImpl manager;
 

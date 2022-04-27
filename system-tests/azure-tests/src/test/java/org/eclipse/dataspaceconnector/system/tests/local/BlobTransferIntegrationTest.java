@@ -17,7 +17,6 @@
 package org.eclipse.dataspaceconnector.system.tests.local;
 
 import com.azure.core.util.BinaryData;
-import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.testfixtures.AbstractAzureBlobTest;
@@ -61,7 +60,8 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
-import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_NAME;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_FILE;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
 
 @AzureStorageIntegrationTest
@@ -122,7 +122,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         var blobContent = "BlobTransferIntegrationTest-" + UUID.randomUUID();
         createContainer(blobServiceClient1, PROVIDER_CONTAINER_NAME);
         blobServiceClient1.getBlobContainerClient(PROVIDER_CONTAINER_NAME)
-                .getBlobClient(PROVIDER_ASSET_NAME)
+                .getBlobClient(PROVIDER_ASSET_FILE)
                 .upload(BinaryData.fromString(blobContent));
 
         // Seed data to provider
@@ -141,7 +141,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         // Assert
         var container = getProvisionedContainerName();
         var destinationBlob = blobServiceClient2.getBlobContainerClient(container)
-                .getBlobClient(PROVIDER_ASSET_NAME);
+                .getBlobClient(PROVIDER_ASSET_FILE);
         assertThat(destinationBlob.exists())
                 .withFailMessage("Destination blob %s not created", destinationBlob)
                 .isTrue();
@@ -152,25 +152,25 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     }
 
     private String getProvisionedContainerName() {
-        JsonPath jsonPath = given()
+        return given()
                 .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
                 .log().all()
                 .when()
                 .get(TRANSFER_PROCESSES_PATH)
                 .then()
                 .statusCode(200)
-                .extract().body().jsonPath();
-        return jsonPath.getString("[0].provisionedResources[0].dataAddress.properties.container");
+                .extract().body()
+                .jsonPath().getString("[0].dataDestination.container");
     }
 
     private void createAsset() {
         var asset = Map.of(
                 "asset", Map.of(
                         "properties", Map.of(
-                                "asset:prop:name", PROVIDER_ASSET_NAME,
+                                "asset:prop:name", PROVIDER_ASSET_ID,
                                 "asset:prop:contenttype", "text/plain",
                                 "asset:prop:version", "1.0",
-                                "asset:prop:id", PROVIDER_ASSET_NAME,
+                                "asset:prop:id", PROVIDER_ASSET_ID,
                                 "type", "AzureStorage"
                         )
                 ),
@@ -179,7 +179,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                                 "type", AzureBlobStoreSchema.TYPE,
                                 AzureBlobStoreSchema.ACCOUNT_NAME, account1Name,
                                 AzureBlobStoreSchema.CONTAINER_NAME, PROVIDER_CONTAINER_NAME,
-                                AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_NAME,
+                                AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_FILE,
                                 "keyName", format("%s-key1", account1Name)
                         )
                 )
@@ -191,7 +191,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     private String createPolicy() {
         var policy = Policy.Builder.newInstance()
                 .permission(Permission.Builder.newInstance()
-                        .target(PROVIDER_ASSET_NAME)
+                        .target(PROVIDER_ASSET_ID)
                         .action(Action.Builder.newInstance().type("USE").build())
                         .build())
                 .type(PolicyType.SET)
@@ -207,7 +207,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         var criteria = AssetSelectorExpression.Builder.newInstance()
                 .constraint("asset:prop:id",
                         "=",
-                        PROVIDER_ASSET_NAME)
+                        PROVIDER_ASSET_ID)
                 .build();
 
         var contractDefinition = Map.of(

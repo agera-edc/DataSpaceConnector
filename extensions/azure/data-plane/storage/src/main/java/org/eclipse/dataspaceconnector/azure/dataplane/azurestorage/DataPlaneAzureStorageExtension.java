@@ -16,8 +16,11 @@ package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage;
 
 import net.jodah.failsafe.RetryPolicy;
 import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
+import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSinkFactory;
+import org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.AzureStorageDataSourceFactory;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataTransferExecutorServiceContainer;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.PipelineService;
+import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -46,6 +49,13 @@ public class DataPlaneAzureStorageExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        // TODO: temporarily disable extension until solution is found to prevent loading it before ADF extension
+        var monitor = context.getMonitor();
+        Vault vault = context.getService(Vault.class);
+
+        var sourceFactory = new AzureStorageDataSourceFactory(blobStoreApi, retryPolicy, monitor, vault);
+        pipelineService.registerFactory(sourceFactory);
+
+        var sinkFactory = new AzureStorageDataSinkFactory(blobStoreApi, executorContainer.getExecutorService(), 5, monitor, vault, context.getTypeManager());
+        pipelineService.registerFactory(sinkFactory);
     }
 }

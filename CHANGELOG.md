@@ -21,6 +21,7 @@ in the detailed section referring to by linking pull requests or issues.
 * Add gradle test summary (#1148)
 * Check to avoid duplicated module names (#1190)
 * Implement Catalog service for Data Management API (#1195)
+* Add strict body validation for REST endpoints (#1128)
 
 #### Changed
 
@@ -39,6 +40,7 @@ in the detailed section referring to by linking pull requests or issues.
 * Fix problem with interpreting contractId/negotiationId (#1140)
 * Fixed DMgmtApi content types (#1126)
 * Fix HTTPS termination in Jetty (#1133)
+* Break lease after TransferProcessManager status check (#1214)
 
 ## [milestone-3] - 2022-04-08
 
@@ -99,6 +101,7 @@ in the detailed section referring to by linking pull requests or issues.
 * Http Deprovisioner Webhook endpoint (#1039)
 * Add performance test example and scheduled workflow (#1029)
 * Add basic authentication mechanism for DataManagement API (#981)
+* Trace context propagation in DPF (#1162)
 
 #### Changed
 

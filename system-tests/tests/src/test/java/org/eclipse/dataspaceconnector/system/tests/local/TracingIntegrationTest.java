@@ -18,12 +18,10 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.trace.v1.Span;
 import org.eclipse.dataspaceconnector.common.annotations.OpenTelemetryIntegrationTest;
-import org.eclipse.dataspaceconnector.junit.launcher.OpenTelemetryExtension;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 
@@ -55,7 +53,6 @@ import static org.mockserver.stop.Stop.stopQuietly;
  * otel.exporter.otlp.protocol jvm argument.
  */
 @OpenTelemetryIntegrationTest
-@ExtendWith(OpenTelemetryExtension.class)
 public class TracingIntegrationTest extends FileTransferEdcRuntime {
 
     // Port of endpoint to export the traces. 4318 is the default port when protocol is http/protobuf.
@@ -66,15 +63,20 @@ public class TracingIntegrationTest extends FileTransferEdcRuntime {
     static ClientAndServer traceCollectorServer;
 
     List<String> contractNegotiationSpanNames = List.of(
-            "ConsumerContractNegotiationManagerImpl.initiate",
-            "ProviderContractNegotiationManagerImpl.requested",
-            "ConsumerContractNegotiationManagerImpl.confirmed");
+            "ConsumerContractNegotiationManagerImpl.initiate", // initial API request
+            "ProviderContractNegotiationManagerImpl.requested", // verify context propagation in ProviderContractNegotiationManagerImpl
+            "ConsumerContractNegotiationManagerImpl.confirmed" // verify context propagation in ConsumerContractNegotiationManagerImpl
+    );
 
     List<String> transferProcessSpanNames = List.of(
-            "TransferProcessManagerImpl.initiateConsumerRequest",
-            "TransferProcessManagerImpl.processInitial",
-            "TransferProcessManagerImpl.processProvisioned",
-            "TransferProcessManagerImpl.initiateProviderRequest");
+            "TransferProcessManagerImpl.initiateConsumerRequest", // initial API request
+            "TransferProcessManagerImpl.processInitial", // verify context propagation in TransferProcessManagerImpl
+            "TransferProcessManagerImpl.initiateProviderRequest", // verify context propagation in TransferProcessManagerImpl
+            "TransferProcessManagerImpl.processProvisioned", // verify context propagation in TransferProcessManagerImpl
+            "EmbeddedDataPlaneTransferClient.transfer", // DPF call
+            "PipelineServiceImpl.transfer", // verify context propagation in DataPlaneManagerImpl
+            "FileTransferDataSink.transferParts" // verify context propagation in ParallelSink
+    );
 
     @BeforeAll
     public static void setUp() {
