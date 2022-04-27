@@ -31,7 +31,7 @@ import java.util.Collection;
 
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-@Path("/federated-catalog")
+@Path("/")
 public class CatalogController {
 
     private final Monitor monitor;
