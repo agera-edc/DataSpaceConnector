@@ -29,10 +29,9 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.contractNegotiationAndTransfer;
 
 /**
- * Runs a single iteration of contract negotiation and file transfer, getting settings from
- * {@see FileTransferIntegrationTest}.
+ * Runs a single iteration of contract negotiation and file transfer.
  */
-public class TransferLocalSimulation extends Simulation {
+public abstract class TransferLocalSimulation extends Simulation {
     public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
     public static final int CONSUMER_MANAGEMENT_PORT = getFreePort();
     public static final String CONSUMER_CONNECTOR_PATH = "/api";
@@ -61,7 +60,7 @@ public class TransferLocalSimulation extends Simulation {
                 .injectOpen(atOnceUsers(AT_ONCE_USERS)))
                 .protocols(http.baseUrl(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH))
                 .assertions(
-                        details(TRANSFER_SUCCESSFUL).successfulRequests().count().is((long) (AT_ONCE_USERS * REPEAT)),
+                        details(TRANSFER_SUCCESSFUL).successfulRequests().count().is((long) AT_ONCE_USERS * REPEAT),
                         global().responseTime().max().lt(MAX_RESPONSE_TIME),
                         global().successfulRequests().percent().is(SUCCESS_PERCENTAGE)
                 );
