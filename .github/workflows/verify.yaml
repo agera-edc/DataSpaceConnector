@@ -390,7 +390,7 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
-      # Sources are needed for Codecov report.
+      # Sources are needed for Codecov report
       - uses: actions/checkout@v2
       - name: Download Artifacts
         uses: actions/download-artifact@v2
