@@ -24,7 +24,10 @@ import java.util.Map;
 
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
 
-
+/**
+ * Factory used to configure a File transfer in
+ * {@link org.eclipse.dataspaceconnector.system.tests.local.FileTransferLocalSimulation}.
+ */
 public class FileTransferRequestFactory implements TransferRequestFactory {
 
     private final String destinationPath;
