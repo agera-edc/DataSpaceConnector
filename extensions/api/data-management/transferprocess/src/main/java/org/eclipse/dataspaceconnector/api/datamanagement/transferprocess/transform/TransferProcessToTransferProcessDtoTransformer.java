@@ -24,8 +24,6 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcessS
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
-
 public class TransferProcessToTransferProcessDtoTransformer implements DtoTransformer<TransferProcess, TransferProcessDto> {
 
     @Override
@@ -48,7 +46,6 @@ public class TransferProcessToTransferProcessDtoTransformer implements DtoTransf
                 .type(object.getType().name())
                 .state(getState(object.getState(), context))
                 .errorDetail(object.getErrorDetail())
-                .dataDestination(object.getDataRequest().getDataDestination().getProperties())
                 .dataRequest(context.transform(object.getDataRequest(), DataRequestDto.class))
                 .dataDestination(
                         DataAddressInformationDto.Builder.newInstance()
