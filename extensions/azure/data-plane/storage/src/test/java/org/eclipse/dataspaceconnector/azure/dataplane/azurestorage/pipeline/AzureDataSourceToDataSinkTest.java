@@ -22,12 +22,17 @@ import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline.TestFunctions.sharedAccessSignatureMatcher;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -87,7 +92,7 @@ class AzureDataSourceToDataSinkTest {
                 eq(sinkAccountName),
                 eq(sinkContainerName),
                 argThat(name -> name.endsWith(".complete")),
-                sharedAccessSignatureMatcher(sinkSharedAccessSignature)
+                eq(sinkSharedKey)
         )).thenReturn(fakeCompletionMarker);
 
         var dataSink = AzureStorageDataSink.Builder.newInstance()
@@ -204,4 +209,30 @@ class AzureDataSourceToDataSinkTest {
         assertThat(dataSink.transfer(dataSource).get().failed()).isTrue();
     }
 
+    static class FakeBlobAdapter implements BlobAdapter {
+        final String name = faker.lorem().characters();
+        final String content = faker.lorem().sentence();
+        final long length = faker.random().nextLong(1_000_000_000_000_000L);
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        @Override
+        public OutputStream getOutputStream() {
+            return out;
+        }
+
+        @Override
+        public InputStream openInputStream() {
+            return new ByteArrayInputStream(content.getBytes(UTF_8));
+        }
+
+        @Override
+        public String getBlobName() {
+            return name;
+        }
+
+        @Override
+        public long getBlobSize() {
+            return length;
+        }
+    }
 }

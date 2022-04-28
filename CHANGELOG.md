@@ -12,6 +12,7 @@ in the detailed section referring to by linking pull requests or issues.
 ### Overview
 * Bugfixing DataManagementApi
 * Build improvements
+* Improvements to Dependency Resolution
 
 ### Detailed Changes
 
@@ -22,12 +23,15 @@ in the detailed section referring to by linking pull requests or issues.
 * Check to avoid duplicated module names (#1190)
 * Implement Catalog service for Data Management API (#1195)
 * Add strict body validation for REST endpoints (#1128)
+* Dependency injection using factory/provider methods (#1056)
+* Provisioned resource information in Data Management API (#1221)
 
 #### Changed
 
 * Restructure sql extension folder tree (#1154)
 * Extract single `PolicyArchive` implementation (#1158)
 * Replace `accessPolicy` and `contractPolicy` with `accessPolicyId` and `contractPolicyId` on `ContractDefinition` (#1144)
+* All DMgmt Api methods now produce and consume `APPLICATION_JSON` (#1175)
 
 #### Removed
 
