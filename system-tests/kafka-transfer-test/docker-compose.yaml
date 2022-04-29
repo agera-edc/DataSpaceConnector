@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+
+  zookeeper:
+    image: ${IMAGE_PREFIX}confluentinc/cp-zookeeper:6.2.4
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: ${IMAGE_PREFIX}confluentinc/cp-kafka:7.1.1
+    depends_on:
+      - zookeeper
+    container_name: kafka
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+    environment:
+      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  kcat:
+    image: edenhill/kcat:1.7.1
+    depends_on:
+      - kafka
+    container_name: kcat
+    entrypoint:
+      - sh
+      - -c
+      - |
+        while true
+        do
+            # Automatically retry, as kcat will initially fail until (1) kafka has started up (2) the topic has been created
+            echo start
+            kcat -u -b kafka -t test_events -C -f '\nKey (%K bytes): %k\t\nValue (%S bytes): %s\nTimestamp: %T\tPartition: %p\tOffset: %o\n--\n'
+            sleep 1
+        done
+
