@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.test.e2e;
 
+import org.eclipse.dataspaceconnector.client.ApiException;
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -90,7 +91,7 @@ class EndToEndTransferTest {
     );
 
     @Test
-    void httpPullDataTransfer() {
+    void httpPullDataTransfer() throws ApiException {
         createAssetAndContractDefinitionOnProvider();
 
         var catalog = CONSUMER.getCatalog(PROVIDER.idsEndpoint());
@@ -121,7 +122,7 @@ class EndToEndTransferTest {
     }
 
     @Test
-    void httpPushDataTransfer() {
+    void httpPushDataTransfer() throws ApiException {
         PROVIDER.registerDataPlane();
         createAssetAndContractDefinitionOnProvider();
 
@@ -157,7 +158,7 @@ class EndToEndTransferTest {
         });
     }
 
-    private void createAssetAndContractDefinitionOnProvider() {
+    private void createAssetAndContractDefinitionOnProvider() throws ApiException {
         var assetId = "asset-id";
         PROVIDER.createAsset(assetId);
         var policyId = PROVIDER.createPolicy(assetId);

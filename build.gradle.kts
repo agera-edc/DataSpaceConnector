@@ -69,18 +69,20 @@ buildscript {
 
 allprojects {
     apply(plugin = "maven-publish")
-    apply(plugin = "checkstyle")
+    if (!project.name.endsWith("rest-client")) {
+        apply(plugin = "checkstyle")
+        checkstyle {
+            toolVersion = "9.0"
+            configFile = rootProject.file("resources/edc-checkstyle-config.xml")
+            maxErrors = 0 // does not tolerate errors
+        }
+
+    }
     apply(plugin = "java")
     apply(plugin = "org.eclipse.dataspaceconnector.test-summary")
 
     if (System.getenv("JACOCO") == "true") {
         apply(plugin = "jacoco")
-    }
-
-    checkstyle {
-        toolVersion = "9.0"
-        configFile = rootProject.file("resources/edc-checkstyle-config.xml")
-        maxErrors = 0 // does not tolerate errors
     }
 
     java {

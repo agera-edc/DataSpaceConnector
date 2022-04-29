@@ -14,6 +14,12 @@
 
 package org.eclipse.dataspaceconnector.test.e2e;
 
+import org.eclipse.dataspaceconnector.client.ApiClient;
+import org.eclipse.dataspaceconnector.client.ApiException;
+import org.eclipse.dataspaceconnector.client.api.AssetApi;
+import org.eclipse.dataspaceconnector.client.models.AssetDto;
+import org.eclipse.dataspaceconnector.client.models.AssetEntryDto;
+import org.eclipse.dataspaceconnector.client.models.DataAddressDto;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
@@ -53,33 +59,22 @@ public class Participant {
     private final URI backendService = URI.create("http://localhost:" + getFreePort());
     private final URI idsEndpoint = URI.create("http://localhost:" + getFreePort());
 
-    public void createAsset(String assetId) {
-        var asset = Map.of(
-                "asset", Map.of(
-                        "properties", Map.of(
-                                "asset:prop:id", assetId,
-                                "asset:prop:name", "asset name",
-                                "asset:prop:contenttype", "text/plain",
-                                "asset:prop:policy-id", "use-eu"
-                        )
-                ),
-                "dataAddress", Map.of(
-                        "properties", Map.of(
+    public void createAsset(String assetId) throws ApiException {
+        var apiClient = new ApiClient().setBasePath(controlPlane.toString() + "/api");
+        AssetEntryDto dto = new AssetEntryDto()
+                .asset(new AssetDto().properties(Map.of(
+                        "asset:prop:id", assetId,
+                        "asset:prop:name", "asset name",
+                        "asset:prop:contenttype", "text/plain",
+                        "asset:prop:policy-id", "use-eu"
+                )))
+                .dataAddress(new DataAddressDto()
+                        .properties(Map.of(
                                 "name", "data",
                                 "endpoint", backendService + "/api/service",
                                 "type", "HttpData"
-                        )
-                )
-        );
-
-        given()
-                .baseUri(controlPlane.toString())
-                .contentType(JSON)
-                .body(asset)
-                .when()
-                .post("/api/assets")
-                .then()
-                .statusCode(204);
+                        )));
+        new AssetApi(apiClient).createAsset(dto);
     }
 
     public String createPolicy(String assetId) {

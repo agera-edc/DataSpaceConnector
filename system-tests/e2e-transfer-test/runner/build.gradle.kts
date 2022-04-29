@@ -23,6 +23,7 @@ val awaitility: String by project
 val assertj: String by project
 
 dependencies {
+    testImplementation(project(":common:rest-client"))
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
