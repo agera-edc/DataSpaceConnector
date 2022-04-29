@@ -339,7 +339,7 @@ jobs:
       - name: Component Tests
         uses: ./.github/actions/run-tests
         with:
-          command: ./gradlew test -DincludeTags="ComponentTest" jacocoTestReport
+          command: ./gradlew test jacocoTestReport -DincludeTags="ComponentTest"
 
   OpenTelemetry-Integration-Tests:
     runs-on: ubuntu-latest
