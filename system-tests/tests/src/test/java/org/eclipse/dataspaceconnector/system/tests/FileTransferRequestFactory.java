@@ -45,7 +45,6 @@ public class FileTransferRequestFactory implements TransferRequestFactory {
                 "connectorAddress", transferInitiationData.connectorAddress,
                 "protocol", "ids-multipart",
                 "dataDestination", DataAddress.Builder.newInstance()
-                        .keyName("keyName")
                         .type("File")
                         .property("path", destinationPath)
                         .build(),
