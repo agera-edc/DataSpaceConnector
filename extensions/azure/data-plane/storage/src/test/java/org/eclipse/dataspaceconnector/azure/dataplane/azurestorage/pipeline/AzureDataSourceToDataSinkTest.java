@@ -92,7 +92,7 @@ class AzureDataSourceToDataSinkTest {
                 eq(sinkAccountName),
                 eq(sinkContainerName),
                 argThat(name -> name.endsWith(".complete")),
-                eq(sinkSharedKey)
+                sharedAccessSignatureMatcher(sinkSharedAccessSignature)
         )).thenReturn(fakeCompletionMarker);
 
         var dataSink = AzureStorageDataSink.Builder.newInstance()
