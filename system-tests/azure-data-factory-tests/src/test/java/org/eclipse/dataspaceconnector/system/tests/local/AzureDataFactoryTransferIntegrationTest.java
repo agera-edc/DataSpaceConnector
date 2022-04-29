@@ -95,45 +95,45 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net";
     private static final String KEY_VAULT_ENDPOINT_TEMPLATE = "https://%s.vault.azure.net";
 
-    @RegisterExtension
-    private static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
-            ":system-tests:runtimes:azure-storage-transfer-consumer",
-            "consumer",
-            Map.ofEntries(
-                    Map.entry("web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT)),
-                    Map.entry("web.http.path", CONSUMER_CONNECTOR_PATH),
-                    Map.entry("web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT)),
-                    Map.entry("web.http.data.path", CONSUMER_MANAGEMENT_PATH),
-                    Map.entry("web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT)),
-                    Map.entry("web.http.ids.path", "/api/v1/ids"),
-                    Map.entry("ids.webhook.address", CONSUMER_IDS_API),
-                    Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
-                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
-                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
-            )
-    );
-
-    @RegisterExtension
-    private static EdcRuntimeExtension provider = new EdcRuntimeExtension(
-            ":system-tests:runtimes:azure-data-factory-transfer-provider",
-            "provider",
-            Map.ofEntries(
-                    Map.entry("edc.test.asset.container.name", PROVIDER_CONTAINER_NAME),
-                    Map.entry("web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT)),
-                    Map.entry("web.http.path", PROVIDER_CONNECTOR_PATH),
-                    Map.entry("web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT)),
-                    Map.entry("web.http.data.path", PROVIDER_MANAGEMENT_PATH),
-                    Map.entry("web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT)),
-                    Map.entry("web.http.ids.path", "/api/v1/ids"),
-                    Map.entry("ids.webhook.address", PROVIDER_IDS_API),
-                    Map.entry(EDC_FS_CONFIG, RUNTIME_SETTINGS_ABSOLUTE_PATH),
-                    Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
-                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
-                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
-            )
-    );
+//    @RegisterExtension
+//    private static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
+//            ":system-tests:runtimes:azure-storage-transfer-consumer",
+//            "consumer",
+//            Map.ofEntries(
+//                    Map.entry("web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT)),
+//                    Map.entry("web.http.path", CONSUMER_CONNECTOR_PATH),
+//                    Map.entry("web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT)),
+//                    Map.entry("web.http.data.path", CONSUMER_MANAGEMENT_PATH),
+//                    Map.entry("web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT)),
+//                    Map.entry("web.http.ids.path", "/api/v1/ids"),
+//                    Map.entry("ids.webhook.address", CONSUMER_IDS_API),
+//                    Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
+//                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
+//                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
+//                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
+//            )
+//    );
+//
+//    @RegisterExtension
+//    private static EdcRuntimeExtension provider = new EdcRuntimeExtension(
+//            ":system-tests:runtimes:azure-data-factory-transfer-provider",
+//            "provider",
+//            Map.ofEntries(
+//                    //Map.entry("edc.test.asset.container.name", PROVIDER_CONTAINER_NAME),
+//                    Map.entry("web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT)),
+//                    Map.entry("web.http.path", PROVIDER_CONNECTOR_PATH),
+//                    Map.entry("web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT)),
+//                    Map.entry("web.http.data.path", PROVIDER_MANAGEMENT_PATH),
+//                    Map.entry("web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT)),
+//                    Map.entry("web.http.ids.path", "/api/v1/ids"),
+//                    Map.entry("ids.webhook.address", PROVIDER_IDS_API),
+//                    Map.entry(EDC_FS_CONFIG, RUNTIME_SETTINGS_ABSOLUTE_PATH),
+//                    Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
+//                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
+//                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
+//                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
+//            )
+//    );
 
     @AfterEach
     public void cleanUp() {

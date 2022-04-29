@@ -33,20 +33,20 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
  * {@see FileTransferIntegrationTest}.
  */
 public class TransferLocalSimulation extends Simulation {
-    public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
-    public static final int CONSUMER_MANAGEMENT_PORT = getFreePort();
+    public static final int CONSUMER_CONNECTOR_PORT = 9191;
+    public static final int CONSUMER_MANAGEMENT_PORT = 9192;
     public static final String CONSUMER_CONNECTOR_PATH = "/api";
     public static final String CONSUMER_MANAGEMENT_PATH = "/api/v1/data";
     public static final String CONSUMER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + CONSUMER_MANAGEMENT_PORT;
-    public static final int CONSUMER_IDS_API_PORT = getFreePort();
+    public static final int CONSUMER_IDS_API_PORT = 9292;
     public static final String CONSUMER_IDS_API = "http://localhost:" + CONSUMER_IDS_API_PORT;
 
-    public static final int PROVIDER_CONNECTOR_PORT = getFreePort();
-    public static final int PROVIDER_MANAGEMENT_PORT = getFreePort();
+    public static final int PROVIDER_CONNECTOR_PORT = 8181;
+    public static final int PROVIDER_MANAGEMENT_PORT = 8182;
     public static final String PROVIDER_CONNECTOR_PATH = "/api";
     public static final String PROVIDER_MANAGEMENT_PATH = "/api/v1/data";
     public static final String PROVIDER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + PROVIDER_MANAGEMENT_PORT;
-    public static final int PROVIDER_IDS_API_PORT = getFreePort();
+    public static final int PROVIDER_IDS_API_PORT = 8282;
     public static final String PROVIDER_IDS_API = "http://localhost:" + PROVIDER_IDS_API_PORT;
 
     private static final int REPEAT = Integer.parseInt(propOrEnv("repeat", "1"));
