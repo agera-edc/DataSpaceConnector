@@ -32,6 +32,7 @@ import org.eclipse.dataspaceconnector.spi.security.CertificateResolver;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.system.NullVaultExtension;
+import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -180,7 +181,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                                 AzureBlobStoreSchema.ACCOUNT_NAME, account1Name,
                                 AzureBlobStoreSchema.CONTAINER_NAME, PROVIDER_CONTAINER_NAME,
                                 AzureBlobStoreSchema.BLOB_NAME, PROVIDER_ASSET_FILE,
-                                "keyName", format("%s-key1", account1Name)
+                                DataAddress.KEY_NAME, format("%s-key1", account1Name)
                         )
                 )
         );

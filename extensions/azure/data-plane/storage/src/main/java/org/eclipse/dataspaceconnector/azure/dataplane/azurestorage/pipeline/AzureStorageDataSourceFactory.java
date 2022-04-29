@@ -63,7 +63,7 @@ public class AzureStorageDataSourceFactory implements DataSourceFactory {
             validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
             validateContainerName(properties.remove(AzureBlobStoreSchema.CONTAINER_NAME));
             validateBlobName(properties.remove(AzureBlobStoreSchema.BLOB_NAME));
-            properties.remove("keyName");
+            properties.remove(DataAddress.KEY_NAME);
             properties.keySet().stream().filter(k -> !DataAddress.TYPE.equals(k)).findFirst().ifPresent(k -> {
                 throw new IllegalArgumentException(format("Unexpected property %s", k));
             });

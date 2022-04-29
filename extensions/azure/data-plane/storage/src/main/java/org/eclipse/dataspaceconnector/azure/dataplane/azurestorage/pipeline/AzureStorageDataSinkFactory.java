@@ -17,8 +17,6 @@ package org.eclipse.dataspaceconnector.azure.dataplane.azurestorage.pipeline;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureSasToken;
 import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
-import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
-import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSink;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSinkFactory;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -34,9 +32,6 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 
 import static java.lang.String.format;
-import static org.eclipse.dataspaceconnector.azure.blob.core.validator.AzureStorageValidator.validateAccountName;
-import static org.eclipse.dataspaceconnector.azure.blob.core.validator.AzureStorageValidator.validateContainerName;
-import static org.eclipse.dataspaceconnector.azure.blob.core.validator.AzureStorageValidator.validateSharedKey;
 import static org.eclipse.dataspaceconnector.azure.blob.core.validator.AzureStorageValidator.validateAccountName;
 import static org.eclipse.dataspaceconnector.azure.blob.core.validator.AzureStorageValidator.validateContainerName;
 
@@ -72,7 +67,7 @@ public class AzureStorageDataSinkFactory implements DataSinkFactory {
         try {
             validateAccountName(properties.remove(AzureBlobStoreSchema.ACCOUNT_NAME));
             validateContainerName(properties.remove(AzureBlobStoreSchema.CONTAINER_NAME));
-            properties.remove("keyName");
+            properties.remove(DataAddress.KEY_NAME);
             properties.keySet().stream().filter(k -> !DataAddress.TYPE.equals(k)).findFirst().ifPresent(k -> {
                 throw new IllegalArgumentException(format("Unexpected property %s", k));
             });
