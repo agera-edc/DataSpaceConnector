@@ -42,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.ACCOUNT_NAME;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.BLOB_NAME;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.CONTAINER_NAME;
-import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.SHARED_KEY;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.TYPE;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createBlobName;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createContainerName;
