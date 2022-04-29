@@ -143,7 +143,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         var destinationBlob = blobServiceClient2.getBlobContainerClient(container)
                 .getBlobClient(PROVIDER_ASSET_FILE);
         assertThat(destinationBlob.exists())
-                .withFailMessage("Destination blob %s not created", destinationBlob)
+                .withFailMessage("Destination blob %s not created", destinationBlob.getBlobUrl())
                 .isTrue();
         var actualBlobContent = destinationBlob.downloadContent().toString();
         assertThat(actualBlobContent)
