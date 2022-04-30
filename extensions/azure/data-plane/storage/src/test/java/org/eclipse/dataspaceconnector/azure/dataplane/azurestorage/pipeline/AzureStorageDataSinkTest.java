@@ -160,5 +160,4 @@ class AzureStorageDataSinkTest {
         assertThat(result.getFailureMessages()).containsExactly(message);
         verify(monitor).severe(message, exception);
     }
-
 }
