@@ -155,7 +155,6 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
     private String getProvisionedContainerName() {
         return given()
                 .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
-                .log().all()
                 .when()
                 .get(TRANSFER_PROCESSES_PATH)
                 .then()
@@ -223,7 +222,6 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
 
     private void seedProviderData(String path, Object requestBody) {
         givenProviderBaseRequest()
-                .log().all()
                 .contentType(JSON)
                 .body(requestBody)
                 .when()
