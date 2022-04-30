@@ -61,6 +61,7 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
+import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.IDS_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_FILE;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
@@ -85,7 +86,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                     "web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT),
                     "web.http.data.path", CONSUMER_MANAGEMENT_PATH,
                     "web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
+                    "web.http.ids.path", IDS_PATH,
                     "ids.webhook.address", CONSUMER_IDS_API));
 
     @RegisterExtension
@@ -100,7 +101,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                     "web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT),
                     "web.http.data.path", PROVIDER_MANAGEMENT_PATH,
                     "web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT),
-                    "web.http.ids.path", "/api/v1/ids",
+                    "web.http.ids.path", IDS_PATH,
                     "ids.webhook.address", PROVIDER_IDS_API));
 
 
