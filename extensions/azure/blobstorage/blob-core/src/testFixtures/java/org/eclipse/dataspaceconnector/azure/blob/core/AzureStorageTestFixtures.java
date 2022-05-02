@@ -54,6 +54,10 @@ public class AzureStorageTestFixtures {
         return faker.lorem().characters();
     }
 
+    public static String createSharedAccessSignature() {
+        return faker.lorem().characters();
+    }
+
     private AzureStorageTestFixtures() {
     }
 
