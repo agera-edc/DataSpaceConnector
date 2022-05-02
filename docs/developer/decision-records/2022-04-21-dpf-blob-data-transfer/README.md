@@ -24,7 +24,7 @@ after the client triggered the data deletion.
    It creates the container and the SAS token by using the [BlobStoreApi](../../../../extensions/azure/blobstorage/blob-core/src/main/java/org/eclipse/dataspaceconnector/azure/blob/core/api/BlobStoreApi.java). [BlobStoreApiImpl](../../../../extensions/azure/blobstorage/blob-core/src/main/java/org/eclipse/dataspaceconnector/azure/blob/core/api/BlobStoreApiImpl.java) retrieves the storage account access key in the consumer vault. Then it can create the container and generate the SAS token.  
 4. Consumer sends an IDS message to the Provider, containing the information needed to write data to the destination container. For example, the destination blob container name and the SAS token needed to write a blob to the container.  
 5. Provider stores the SAS token in its Vault.  
-6. Provider requests the blob transfer on the Provider DPF. The provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider requests the transfer via an HTTP request.  
+6. Provider initiates the blob transfer on the Provider DPF. The provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider initiates the transfer via an HTTP request.  
 7. The Provider DPF gets the source storage account access key in the Provider Vault.  
 8. The Provider DPF gets the SAS token needed to write the blob to the consumer blob container.  
 9. The Provider DPF reads the data that needs to be transfered. The [AzureStorageDataSource](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSource.java) provides the source data stream.  
