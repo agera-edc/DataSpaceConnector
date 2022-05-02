@@ -7,7 +7,7 @@ ADR describing the blob storage transfer end to end flow between 2 participants.
 The data-plane-azure-storage extension can be used on DPF to support blob transfers.
 A client can trigger a blob transfer on the consumer side via the Data Management API.
 The client needs to use the managedResources=true option in its HTTP request, otherwise the transfer will not work. Client would not be aware that an error occurred, it would just never see the transferProcess with completed state when polling for the result.   
-Storage accounts access key should be stored in advanced in Keyvaults. The consumer can generate SAS token to give the provider the possibility to write data to its container.
+Storage accounts access key should be stored in respective Keyvaults before initiating transfers. The consumer will provision a new storage container and generate a write only SAS token to give the provider the possibility to write data to its container.
 
 ## Sequence diagram
 
