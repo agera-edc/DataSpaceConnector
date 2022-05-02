@@ -161,7 +161,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
                 .then()
                 .statusCode(200)
                 .extract().body()
-                .jsonPath().getString("[0].dataDestination.container");
+                .jsonPath().getString("[0].dataDestination.properties.container");
     }
 
     private void createAsset() {
