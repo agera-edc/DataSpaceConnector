@@ -35,4 +35,4 @@ The [AzureStorageDataSink](../../../../extensions/azure/data-plane/storage/src/m
 13. To determine if the transfer is completed, the consumer checks if a blob named `.complete` exists in the container.  
 14. When the transfer is finished, the client can read the blob.  
 15. Then, the client can call the Data Management API to destroy the data.  
-16. Consumer deletes the container containing the blob. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.
+16. Consumer deletes the container containing the blob and the SAS token. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.
