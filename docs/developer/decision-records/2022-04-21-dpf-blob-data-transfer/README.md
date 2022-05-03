@@ -22,7 +22,7 @@ It starts from the client triggering the transfer on the consumer side and finis
 3. Consumer creates a container where the Provider DPF may write blobs. The container is created only if the client specifies managedResources=true.
    The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for provisioning the container and for generating a SAS token to access the container. 
 To generate a [SAS token](https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview), a storage account key is needed. This storage account key should be stored and retrieved in the Consumer Keyvault.  
-4. Consumer sends an IDS message to the Provider, containing the information needed to write data to the destination container. For example, the destination blob container name and the SAS token needed to write a blob to the container.  
+4. Consumer sends an IDS message to the Provider, containing the information needed transfer data to the destination container. For example, the asset id, the destination blob container name and the SAS token needed to write a blob to the container.  
 5. Provider stores the SAS token in its Vault.  
 6. Provider initiates the blob transfer on the Provider DPF. The provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider initiates the transfer via an HTTPS request.  
 7. The Provider DPF gets the source storage account access key in the Provider Vault.  
