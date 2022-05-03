@@ -20,6 +20,7 @@ import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.datafactory.DataFactoryManager;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
+import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.TransferService;
 import org.eclipse.dataspaceconnector.dataplane.spi.registry.TransferServiceRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
@@ -57,6 +58,8 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
 
     @Inject
     private TokenCredential credential;
+    @Inject
+    private BlobStoreApi blobStoreApi;
 
     @Inject(required = false)
     private final Clock clock = Clock.systemUTC();
@@ -99,6 +102,9 @@ public class DataPlaneAzureDataFactoryExtension implements ServiceExtension {
                 pipelineFactory,
                 maxDuration,
                 clock,
+                blobStoreApi,
+                context.getTypeManager(),
+                keyVaultClient,
                 pollDelay);
         var transferService = new AzureDataFactoryTransferService(
                 validator,

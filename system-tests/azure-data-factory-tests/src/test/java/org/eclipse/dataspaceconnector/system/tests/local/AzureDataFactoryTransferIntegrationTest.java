@@ -20,7 +20,6 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.common.StorageSharedKeyCredential;
-import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
 import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureDataFactoryIntegrationTest;
@@ -197,15 +196,14 @@ public class AzureDataFactoryTransferIntegrationTest {
     }
 
     private String getProvisionedContainerName() {
-        JsonPath jsonPath = given()
+        return given()
                 .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
-                .log().all()
                 .when()
                 .get(TRANSFER_PROCESSES_PATH)
                 .then()
                 .statusCode(200)
-                .extract().body().jsonPath();
-        return jsonPath.getString("[0].provisionedResources[0].dataAddress.properties.container");
+                .extract().body()
+                .jsonPath().getString("[0].dataDestination.properties.container");
     }
 
     private void createAsset() {

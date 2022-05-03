@@ -19,8 +19,10 @@ import com.azure.resourcemanager.datafactory.models.PipelineResource;
 import com.azure.resourcemanager.datafactory.models.PipelineRun;
 import com.github.javafaker.Faker;
 import org.assertj.core.api.ObjectAssert;
+import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.response.StatusResult;
+import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +50,9 @@ class AzureDataFactoryTransferManagerTest {
     Instant fixedInstant = Instant.EPOCH;
     DataFactoryClient client = mock(DataFactoryClient.class);
     DataFactoryPipelineFactory pipelineFactory = mock(DataFactoryPipelineFactory.class);
+    BlobStoreApi blobStoreApi = mock(BlobStoreApi.class);
+    TypeManager typeManager = new TypeManager();
+    KeyVaultClient keyVaultClient = mock(KeyVaultClient.class);
     Duration maxDuration = Duration.ofMillis(FAKER.number().numberBetween(1, 10));
     AzureDataFactoryTransferManager transferManager = new AzureDataFactoryTransferManager(
             monitor,
@@ -55,6 +60,9 @@ class AzureDataFactoryTransferManagerTest {
             pipelineFactory,
             maxDuration,
             clock,
+            blobStoreApi,
+            typeManager,
+            keyVaultClient,
             Duration.ofMillis(0));
 
     DataFlowRequest request = AzureDataFactoryTransferRequestValidatorTest.requestWithProperties;
