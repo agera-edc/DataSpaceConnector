@@ -81,9 +81,9 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String PROVIDER_CONTAINER_NAME = UUID.randomUUID().toString();
     private static final String RUNTIME_SETTINGS_PATH = "resources/azure/testing/runtime_settings.properties";
     private static final String KEY_VAULT_NAME = getenv("KEY_VAULT_NAME");
-    private static final String TENANT_ID = getenv("TENANT_ID");
-    private static final String SP_CLIENT_ID = getenv("SP_CLIENT_ID");
-    private static final String SP_CLIENT_SECRET = getenv("SP_CLIENT_SECRET");
+    private static final String AZURE_TENANT_ID = getenv("AZURE_TENANT_ID");
+    private static final String AZURE_CLIENT_ID = getenv("AZURE_CLIENT_ID");
+    private static final String AZURE_CLIENT_SP_SECRET = getenv("AZURE_CLIENT_SP_SECRET");
     private static final String PROVIDER_STORAGE_ACCOUNT_NAME = getenv("PROVIDER_STORAGE_ACCOUNT_NAME");
     private static final String CONSUMER_STORAGE_ACCOUNT_NAME = getenv("CONSUMER_STORAGE_ACCOUNT_NAME");
     private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net";
@@ -102,9 +102,9 @@ public class AzureDataFactoryTransferIntegrationTest {
                     Map.entry("web.http.ids.path", IDS_PATH),
                     Map.entry("ids.webhook.address", CONSUMER_IDS_API),
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
-                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
-                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
+                    Map.entry(EDC_VAULT_CLIENT_ID, AZURE_CLIENT_ID),
+                    Map.entry(EDC_VAULT_TENANT_ID, AZURE_TENANT_ID),
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, AZURE_CLIENT_SP_SECRET)
             )
     );
 
@@ -123,9 +123,9 @@ public class AzureDataFactoryTransferIntegrationTest {
                     Map.entry("ids.webhook.address", PROVIDER_IDS_API),
                     Map.entry(EDC_FS_CONFIG, new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH).getAbsolutePath()),
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
-                    Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
-                    Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, SP_CLIENT_SECRET)
+                    Map.entry(EDC_VAULT_CLIENT_ID, AZURE_CLIENT_ID),
+                    Map.entry(EDC_VAULT_TENANT_ID, AZURE_TENANT_ID),
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, AZURE_CLIENT_SP_SECRET)
             )
     );
 
