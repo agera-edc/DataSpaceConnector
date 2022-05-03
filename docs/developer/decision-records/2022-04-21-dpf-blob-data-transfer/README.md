@@ -17,7 +17,7 @@ after the client triggered the data deletion.
 
 ![blob-transfer](../../../diagrams/blob-transfer.png)
 
-1. The client calls the data management API to trigger a transfer process. managedResources needs to be set to true, to make sure that the consumer provisions the blob container. If it is not set to true, the transfer will not work. Then, the transfer would never be completed. 
+1. The client calls the data management API to trigger a transfer process and get the corresponding PROCESS_ID. This PROCESS_ID will be used to get the transfer status. managedResources needs to be set to true, to make sure that the consumer provisions the blob container. If it is not set to true, the transfer will not work. Then, the transfer would never be completed. 
 2. Consumer gets the destination storage account access key in its Vault.  
 3. Consumer creates a container where the Provider DPF may write blobs. The container is created only if the client specifies managedResources=true.
    The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for provisioning the container and for generating a SAS token to access the container.
