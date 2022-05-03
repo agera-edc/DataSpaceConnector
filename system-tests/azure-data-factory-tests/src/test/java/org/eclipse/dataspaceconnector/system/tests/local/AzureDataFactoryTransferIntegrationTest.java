@@ -203,7 +203,7 @@ public class AzureDataFactoryTransferIntegrationTest {
                 .then()
                 .statusCode(200)
                 .extract().body()
-                .jsonPath().getString("[0].dataDestination.properties.container");
+                .jsonPath().getString("[0].dataDestination.container");
     }
 
     private void createAsset() {
