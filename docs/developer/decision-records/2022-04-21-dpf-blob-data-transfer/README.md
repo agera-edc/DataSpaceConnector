@@ -13,7 +13,6 @@ Storage accounts access key should be stored in respective Keyvaults before init
 
 The following sequence diagram describes the flow to transfer a blob from a Provider storage account to a consumer storage account.
 It starts from the client triggering the transfer on the consumer side and finishes when the consumer triggers deprovision request for temporarily provisioned storage container.
-after the client triggered the data deletion.
 
 ![blob-transfer](../../../diagrams/blob-transfer.png)
 
