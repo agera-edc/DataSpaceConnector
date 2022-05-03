@@ -14,14 +14,12 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-import com.azure.core.credential.TokenCredential;
 import com.azure.core.util.BinaryData;
 import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.common.StorageSharedKeyCredential;
 import io.restassured.path.json.JsonPath;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
@@ -34,20 +32,23 @@ import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.PolicyType;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
-import org.junit.jupiter.api.AfterEach;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Map;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 import static java.lang.System.getenv;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_MANAGEMENT_URL;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PORT;
@@ -55,6 +56,7 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_IDS_API_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_MANAGEMENT_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_MANAGEMENT_PORT;
+import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.IDS_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_MANAGEMENT_URL;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_CONNECTOR_PORT;
@@ -79,33 +81,26 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String CONTRACT_DEFINITIONS_PATH = "/contractdefinitions";
     private static final String PROVIDER_CONTAINER_NAME = UUID.randomUUID().toString();
     private static final String RUNTIME_SETTINGS_PATH = "resources/azure/testing/runtime_settings.properties";
-
-    private static final String RUNTIME_SETTINGS_ABSOLUTE_PATH = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH).getAbsolutePath();
-
     private static final String KEY_VAULT_NAME = getenv("KEY_VAULT_NAME");
     private static final String TENANT_ID = getenv("TENANT_ID");
     private static final String SP_CLIENT_ID = getenv("SP_CLIENT_ID");
     private static final String SP_CLIENT_SECRET = getenv("SP_CLIENT_SECRET");
     private static final String PROVIDER_STORAGE_ACCOUNT_NAME = getenv("PROVIDER_STORAGE_ACCOUNT_NAME");
-    private static final String PROVIDER_STORAGE_ACCOUNT_KEY = getenv("PROVIDER_STORAGE_ACCOUNT_KEY");
-    private static final String PROVIDER_STORAGE_ACCOUNT_CONN_STRING = getenv("PROVIDER_STORAGE_ACCOUNT_CONN_STRING");
     private static final String CONSUMER_STORAGE_ACCOUNT_NAME = getenv("CONSUMER_STORAGE_ACCOUNT_NAME");
-    private static final String CONSUMER_STORAGE_ACCOUNT_KEY = getenv("CONSUMER_STORAGE_ACCOUNT_KEY");
-    private static final String CONSUMER_STORAGE_ACCOUNT_CONN_STRING = getenv("CONSUMER_STORAGE_ACCOUNT_CONN_STRING");
     private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net";
     private static final String KEY_VAULT_ENDPOINT_TEMPLATE = "https://%s.vault.azure.net";
 
     @RegisterExtension
-    private static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
+    private static final EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":system-tests:runtimes:azure-storage-transfer-consumer",
             "consumer",
             Map.ofEntries(
-                    Map.entry("web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT)),
+                    Map.entry("web.http.port", valueOf(CONSUMER_CONNECTOR_PORT)),
                     Map.entry("web.http.path", CONSUMER_CONNECTOR_PATH),
-                    Map.entry("web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT)),
+                    Map.entry("web.http.data.port", valueOf(CONSUMER_MANAGEMENT_PORT)),
                     Map.entry("web.http.data.path", CONSUMER_MANAGEMENT_PATH),
-                    Map.entry("web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT)),
-                    Map.entry("web.http.ids.path", "/api/v1/ids"),
+                    Map.entry("web.http.ids.port", valueOf(CONSUMER_IDS_API_PORT)),
+                    Map.entry("web.http.ids.path", IDS_PATH),
                     Map.entry("ids.webhook.address", CONSUMER_IDS_API),
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
                     Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
@@ -115,19 +110,19 @@ public class AzureDataFactoryTransferIntegrationTest {
     );
 
     @RegisterExtension
-    private static EdcRuntimeExtension provider = new EdcRuntimeExtension(
+    private static final EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":system-tests:runtimes:azure-data-factory-transfer-provider",
             "provider",
             Map.ofEntries(
                     Map.entry("edc.test.asset.container.name", PROVIDER_CONTAINER_NAME),
-                    Map.entry("web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT)),
+                    Map.entry("web.http.port", valueOf(PROVIDER_CONNECTOR_PORT)),
                     Map.entry("web.http.path", PROVIDER_CONNECTOR_PATH),
-                    Map.entry("web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT)),
+                    Map.entry("web.http.data.port", valueOf(PROVIDER_MANAGEMENT_PORT)),
                     Map.entry("web.http.data.path", PROVIDER_MANAGEMENT_PATH),
-                    Map.entry("web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT)),
-                    Map.entry("web.http.ids.path", "/api/v1/ids"),
+                    Map.entry("web.http.ids.port", valueOf(PROVIDER_IDS_API_PORT)),
+                    Map.entry("web.http.ids.path", IDS_PATH),
                     Map.entry("ids.webhook.address", PROVIDER_IDS_API),
-                    Map.entry(EDC_FS_CONFIG, RUNTIME_SETTINGS_ABSOLUTE_PATH),
+                    Map.entry(EDC_FS_CONFIG, new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH).getAbsolutePath()),
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
                     Map.entry(EDC_VAULT_CLIENT_ID, SP_CLIENT_ID),
                     Map.entry(EDC_VAULT_TENANT_ID, TENANT_ID),
@@ -135,9 +130,17 @@ public class AzureDataFactoryTransferIntegrationTest {
             )
     );
 
-    @AfterEach
-    public void cleanUp() {
-        var providerBlobServiceClient = blobServiceClient(PROVIDER_STORAGE_ACCOUNT_CONN_STRING);
+    @BeforeAll
+    static void beforeAll() throws FileNotFoundException {
+        var file = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH);
+        if (!file.exists()) {
+            throw new FileNotFoundException("Runtime settings file not found");
+        }
+    }
+
+    @AfterAll
+    static void cleanUp() {
+        var providerBlobServiceClient = getBlobServiceClient(KEY_VAULT_NAME, PROVIDER_STORAGE_ACCOUNT_NAME);
         providerBlobServiceClient.deleteBlobContainer(PROVIDER_CONTAINER_NAME);
     }
 
@@ -146,19 +149,14 @@ public class AzureDataFactoryTransferIntegrationTest {
         // Arrange
 
         // Upload a blob with test data on provider blob container
-        var providerBlobServiceClient = blobServiceClient(PROVIDER_STORAGE_ACCOUNT_CONN_STRING);
-        var consumerBlobServiceClient = blobServiceClient(CONSUMER_STORAGE_ACCOUNT_CONN_STRING);
+        var providerBlobServiceClient = getBlobServiceClient(KEY_VAULT_NAME, PROVIDER_STORAGE_ACCOUNT_NAME);
+        var consumerBlobServiceClient = getBlobServiceClient(KEY_VAULT_NAME, CONSUMER_STORAGE_ACCOUNT_NAME);
         var blobContent = "AzureDataFactoryTransferIntegrationTest-" + UUID.randomUUID();
 
-        var providerBlobServiceClientBlobContainer = providerBlobServiceClient.createBlobContainer(PROVIDER_CONTAINER_NAME);
-        providerBlobServiceClientBlobContainer
+        providerBlobServiceClient
+                .createBlobContainer(PROVIDER_CONTAINER_NAME)
                 .getBlobClient(PROVIDER_ASSET_ID)
                 .upload(BinaryData.fromString(blobContent), true);
-
-        // Updating secrets in key vault
-        var vaultClient = vaultClient();
-        vaultClient.setSecret(new KeyVaultSecret(PROVIDER_STORAGE_ACCOUNT_NAME + "-key1", PROVIDER_STORAGE_ACCOUNT_KEY));
-        vaultClient.setSecret(new KeyVaultSecret(CONSUMER_STORAGE_ACCOUNT_NAME + "-key1", CONSUMER_STORAGE_ACCOUNT_KEY));
 
         // Seed data to provider
         createAsset();
@@ -183,23 +181,19 @@ public class AzureDataFactoryTransferIntegrationTest {
 
     }
 
-    private SecretClient vaultClient() {
-
-        return new SecretClientBuilder()
-                .vaultUrl(format(KEY_VAULT_ENDPOINT_TEMPLATE, KEY_VAULT_NAME))
-                .credential(credential())
+    @NotNull
+    private static BlobServiceClient getBlobServiceClient(String keyVaultName, String accountName) {
+        var credential = new DefaultAzureCredentialBuilder().build();
+        var vault = new SecretClientBuilder()
+                .vaultUrl(format(KEY_VAULT_ENDPOINT_TEMPLATE, keyVaultName))
+                .credential(credential)
                 .buildClient();
-    }
-
-    private BlobServiceClient blobServiceClient(String connectionString) {
-
-        return new BlobServiceClientBuilder()
-                .connectionString(connectionString)
+        var accountKey = vault.getSecret(accountName + "-key1");
+        var blobServiceClient = new BlobServiceClientBuilder()
+                .endpoint(format(BLOB_STORE_ENDPOINT_TEMPLATE, accountName))
+                .credential(new StorageSharedKeyCredential(accountName, accountKey.getValue()))
                 .buildClient();
-    }
-
-    private TokenCredential credential() {
-        return new DefaultAzureCredentialBuilder().build();
+        return blobServiceClient;
     }
 
     private String getProvisionedContainerName() {

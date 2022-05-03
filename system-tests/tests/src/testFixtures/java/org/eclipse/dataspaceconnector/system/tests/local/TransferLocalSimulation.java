@@ -48,6 +48,7 @@ public abstract class TransferLocalSimulation extends Simulation {
     public static final int PROVIDER_IDS_API_PORT = getFreePort();
     public static final String PROVIDER_IDS_API = "http://localhost:" + PROVIDER_IDS_API_PORT;
 
+    public static final String IDS_PATH = "/api/v1/ids";
     private static final int REPEAT = Integer.parseInt(propOrEnv("repeat", "1"));
     private static final int AT_ONCE_USERS = Integer.parseInt(propOrEnv("at.once.users", "1"));
     private static final int MAX_RESPONSE_TIME = Integer.parseInt(propOrEnv("max.response.time", "5000"));
