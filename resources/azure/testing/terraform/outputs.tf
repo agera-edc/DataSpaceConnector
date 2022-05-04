@@ -39,7 +39,17 @@ output "test_provider_storage_resourceid" {
   description = "Resource ID of the Azure Storage account deployed for holding provider data in tests."
 }
 
+output "test_provider_storage_name" {
+  value       = azurerm_storage_account.provider.name
+  description = "Name of the Azure Storage account deployed for holding provider data in tests."
+}
+
 output "test_consumer_storage_resourceid" {
   value       = azurerm_storage_account.consumer.id
   description = "Resource ID of the Azure Storage account deployed for holding consumer data in tests."
+}
+
+output "test_consumer_storage_name" {
+  value       = azurerm_storage_account.consumer.name
+  description = "Name of the Azure Storage account deployed for holding consumer data in tests."
 }
