@@ -38,8 +38,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
@@ -79,15 +83,15 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String EDC_VAULT_CLIENT_SECRET = "edc.vault.clientsecret";
     private static final String CONTRACT_DEFINITIONS_PATH = "/contractdefinitions";
     private static final String PROVIDER_CONTAINER_NAME = UUID.randomUUID().toString();
-    private static final String RUNTIME_SETTINGS_PATH = "resources/azure/testing/runtime_settings.properties";
-    private static final String KEY_VAULT_NAME = getenv("KEY_VAULT_NAME");
+    private static final String KEY_VAULT_NAME =  runtimeSettingsProperties().getProperty("test.key.vault.name");
     private static final String AZURE_TENANT_ID = getenv("AZURE_TENANT_ID");
     private static final String AZURE_CLIENT_ID = getenv("AZURE_CLIENT_ID");
     private static final String AZURE_CLIENT_SP_SECRET = getenv("AZURE_CLIENT_SP_SECRET");
-    private static final String PROVIDER_STORAGE_ACCOUNT_NAME = getenv("PROVIDER_STORAGE_ACCOUNT_NAME");
-    private static final String CONSUMER_STORAGE_ACCOUNT_NAME = getenv("CONSUMER_STORAGE_ACCOUNT_NAME");
+    private static final String PROVIDER_STORAGE_ACCOUNT_NAME = runtimeSettingsProperties().getProperty("test.provider.storage.name");
+    private static final String CONSUMER_STORAGE_ACCOUNT_NAME = runtimeSettingsProperties().getProperty("test.consumer.storage.name");
     private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net";
     private static final String KEY_VAULT_ENDPOINT_TEMPLATE = "https://%s.vault.azure.net";
+
 
     @RegisterExtension
     private static final EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -113,7 +117,6 @@ public class AzureDataFactoryTransferIntegrationTest {
             ":system-tests:runtimes:azure-data-factory-transfer-provider",
             "provider",
             Map.ofEntries(
-                    Map.entry("edc.test.asset.container.name", PROVIDER_CONTAINER_NAME),
                     Map.entry("web.http.port", valueOf(PROVIDER_CONNECTOR_PORT)),
                     Map.entry("web.http.path", PROVIDER_CONNECTOR_PATH),
                     Map.entry("web.http.data.port", valueOf(PROVIDER_MANAGEMENT_PORT)),
@@ -121,7 +124,7 @@ public class AzureDataFactoryTransferIntegrationTest {
                     Map.entry("web.http.ids.port", valueOf(PROVIDER_IDS_API_PORT)),
                     Map.entry("web.http.ids.path", IDS_PATH),
                     Map.entry("ids.webhook.address", PROVIDER_IDS_API),
-                    Map.entry(EDC_FS_CONFIG, new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH).getAbsolutePath()),
+                    Map.entry(EDC_FS_CONFIG, runtimeSettingsPath()),
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
                     Map.entry(EDC_VAULT_CLIENT_ID, AZURE_CLIENT_ID),
                     Map.entry(EDC_VAULT_TENANT_ID, AZURE_TENANT_ID),
@@ -131,7 +134,7 @@ public class AzureDataFactoryTransferIntegrationTest {
 
     @BeforeAll
     static void beforeAll() throws FileNotFoundException {
-        var file = new File(TestUtils.findBuildRoot(), RUNTIME_SETTINGS_PATH);
+        var file = new File(runtimeSettingsPath());
         if (!file.exists()) {
             throw new FileNotFoundException("Runtime settings file not found");
         }
@@ -139,7 +142,7 @@ public class AzureDataFactoryTransferIntegrationTest {
 
     @AfterAll
     static void cleanUp() {
-        var providerBlobServiceClient = getBlobServiceClient(KEY_VAULT_NAME, PROVIDER_STORAGE_ACCOUNT_NAME);
+        var providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
         providerBlobServiceClient.deleteBlobContainer(PROVIDER_CONTAINER_NAME);
     }
 
@@ -148,8 +151,8 @@ public class AzureDataFactoryTransferIntegrationTest {
         // Arrange
 
         // Upload a blob with test data on provider blob container
-        var providerBlobServiceClient = getBlobServiceClient(KEY_VAULT_NAME, PROVIDER_STORAGE_ACCOUNT_NAME);
-        var consumerBlobServiceClient = getBlobServiceClient(KEY_VAULT_NAME, CONSUMER_STORAGE_ACCOUNT_NAME);
+        var providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
+        var consumerBlobServiceClient = getBlobServiceClient(CONSUMER_STORAGE_ACCOUNT_NAME);
         var blobContent = "AzureDataFactoryTransferIntegrationTest-" + UUID.randomUUID();
 
         providerBlobServiceClient
@@ -181,10 +184,10 @@ public class AzureDataFactoryTransferIntegrationTest {
     }
 
     @NotNull
-    private static BlobServiceClient getBlobServiceClient(String keyVaultName, String accountName) {
+    private static BlobServiceClient getBlobServiceClient(String accountName) {
         var credential = new DefaultAzureCredentialBuilder().build();
         var vault = new SecretClientBuilder()
-                .vaultUrl(format(KEY_VAULT_ENDPOINT_TEMPLATE, keyVaultName))
+                .vaultUrl(format(KEY_VAULT_ENDPOINT_TEMPLATE, KEY_VAULT_NAME))
                 .credential(credential)
                 .buildClient();
         var accountKey = vault.getSecret(accountName + "-key1");
@@ -195,6 +198,7 @@ public class AzureDataFactoryTransferIntegrationTest {
         return blobServiceClient;
     }
 
+    @NotNull
     private String getProvisionedContainerName() {
         return given()
                 .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
@@ -204,6 +208,23 @@ public class AzureDataFactoryTransferIntegrationTest {
                 .statusCode(200)
                 .extract().body()
                 .jsonPath().getString("[0].dataDestination.container");
+    }
+
+    @NotNull
+    private static String runtimeSettingsPath() {
+        return new File(TestUtils.findBuildRoot(), "resources/azure/testing/runtime_settings.properties").getAbsolutePath();
+    }
+
+    @NotNull
+    private static Properties runtimeSettingsProperties() {
+        try (InputStream input = new FileInputStream(runtimeSettingsPath())) {
+            Properties prop = new Properties();
+            prop.load(input);
+
+            return prop;
+        } catch (IOException e) {
+            throw new RuntimeException("Error in loading runtime settings properties", e);
+        }
     }
 
     private void createAsset() {
