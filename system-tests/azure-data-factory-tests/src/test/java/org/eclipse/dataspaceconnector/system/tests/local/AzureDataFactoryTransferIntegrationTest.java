@@ -86,7 +86,7 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String KEY_VAULT_NAME =  runtimeSettingsProperties().getProperty("test.key.vault.name");
     private static final String AZURE_TENANT_ID = getenv("AZURE_TENANT_ID");
     private static final String AZURE_CLIENT_ID = getenv("AZURE_CLIENT_ID");
-    private static final String AZURE_CLIENT_SP_SECRET = getenv("AZURE_CLIENT_SP_SECRET");
+    private static final String AZURE_CLIENT_SECRET = getenv("AZURE_CLIENT_SECRET");
     private static final String PROVIDER_STORAGE_ACCOUNT_NAME = runtimeSettingsProperties().getProperty("test.provider.storage.name");
     private static final String CONSUMER_STORAGE_ACCOUNT_NAME = runtimeSettingsProperties().getProperty("test.consumer.storage.name");
     private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net";
@@ -108,7 +108,7 @@ public class AzureDataFactoryTransferIntegrationTest {
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
                     Map.entry(EDC_VAULT_CLIENT_ID, AZURE_CLIENT_ID),
                     Map.entry(EDC_VAULT_TENANT_ID, AZURE_TENANT_ID),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, AZURE_CLIENT_SP_SECRET)
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, AZURE_CLIENT_SECRET)
             )
     );
 
@@ -128,7 +128,7 @@ public class AzureDataFactoryTransferIntegrationTest {
                     Map.entry(EDC_VAULT_NAME, KEY_VAULT_NAME),
                     Map.entry(EDC_VAULT_CLIENT_ID, AZURE_CLIENT_ID),
                     Map.entry(EDC_VAULT_TENANT_ID, AZURE_TENANT_ID),
-                    Map.entry(EDC_VAULT_CLIENT_SECRET, AZURE_CLIENT_SP_SECRET)
+                    Map.entry(EDC_VAULT_CLIENT_SECRET, AZURE_CLIENT_SECRET)
             )
     );
 
