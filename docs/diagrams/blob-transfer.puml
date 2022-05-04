@@ -17,6 +17,7 @@ autonumber "<b>(0)"
 Client -> Consumer: Call DM API: POST /transferprocess \n - managedResources=true\n - Storage account name \n - AssetId and ContractId
 Consumer -> "Consumer Vault": Get dest Storage Account key
 Consumer -> "Consumer Storage Account": Create container
+Consumer -> "Consumer Vault": Store SAS token
 Consumer -> Provider: IDS message providing: \n - Account name \n - Container name \n - Write-only dest SAS token \n - AssetId
 Provider -> "Provider Vault": Store SAS token
 Provider -> "Provider DPF": DPF call: \n - Account name \n - Container name
@@ -32,4 +33,5 @@ end
 Client -> "Consumer Storage Account": Read result
 Client -> "Consumer": Call DM API: POST /transferprocess/<PROCESS_ID>/deprovision
 Consumer -> "Consumer Storage Account": Delete container
+Consumer -> "Consumer Vault": Delete SAS token
 @enduml

@@ -29,18 +29,20 @@ The sequence starts from the client triggering the transfer on the consumer side
 2. Consumer gets the destination storage account access key in its Vault.  
 3. Consumer creates a container where the Provider DPF may write blobs. The container is created only if the client specifies `managedResources=true`.
    The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for provisioning the container and for generating a SAS token to access the container. 
-   To generate a [SAS token](https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview), a storage account key is needed. This storage account key should be stored and retrieved in the Consumer Vault.  
-4. Consumer sends an IDS message to the Provider, containing the information needed to transfer data to the destination container, including the asset id, the destination blob account and container name and the SAS token needed to write a blob to the container.  
-5. Provider stores the SAS token in its Vault (rather than in the request to DPF, so that the latter may be persisted in a future implementation without containing secrets).
-6. Provider initiates the blob transfer on the Provider DPF. The Provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider initiates the transfer via an HTTP request.  
-7. The Provider DPF gets the source storage account access key in the Provider Vault.  
-8. The Provider DPF gets the SAS token needed to write the blob to the consumer blob container.  
-9. The Provider DPF reads the data that needs to be transfered. The [AzureStorageDataSource](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSource.java) provides the source data stream.  
-10. The Provider DPF writes the data to the destination blob so that the consumer can access the data.
+   To generate a [SAS token](https://docs.microsoft.com/en-us/azure/storage/common/storage-sas-overview), a storage account key is needed. This storage account key should be stored and retrieved in the Consumer Vault.
+4. Consumer stores the SAS token in its Vault.
+5. Consumer sends an IDS message to the Provider, containing the information needed to transfer data to the destination container, including the asset id, the destination blob account and container name and the SAS token needed to write a blob to the container.  
+6. Provider stores the SAS token in its Vault (rather than in the request to DPF, so that the latter may be persisted in a future implementation without containing secrets).
+7. Provider initiates the blob transfer on the Provider DPF. The Provider DPF can be embedded or run in a separated runtime. If it runs on a separated runtime, the Provider initiates the transfer via an HTTP request.  
+8. The Provider DPF gets the source storage account access key in the Provider Vault.  
+9. The Provider DPF gets the SAS token needed to write the blob to the consumer blob container.  
+10. The Provider DPF reads the data that needs to be transfered. The [AzureStorageDataSource](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSource.java) provides the source data stream.  
+11. The Provider DPF writes the data to the destination blob so that the consumer can access the data.
 The [AzureStorageDataSink](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSink.java) transfers the data to the blob destination.
-11. When the transfer is finished, the Provider DPF writes a blob called `.complete`.
-12. In the meantime, the client polls the transfer status regularly on the consumer endpoint `/transferprocess/<PROCESS_ID>/state`.  
-13. To determine if the transfer is completed, the consumer regularly checks if a blob named `.complete` exists in the container.  
-14. When the transfer is finished, the client can read the blob.  
-15. Then, the client can call the Data Management API to destroy the data.  
-16. Consumer deletes the container containing the blob and the SAS token. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.
+12. When the transfer is finished, the Provider DPF writes a blob called `.complete`.
+13. In the meantime, the client polls the transfer status regularly on the consumer endpoint `/transferprocess/<PROCESS_ID>/state`.  
+14. To determine if the transfer is completed, the consumer regularly checks if a blob named `.complete` exists in the container.  
+15. When the transfer is finished, the client can read the blob.  
+16. Then, the client can call the Data Management API to destroy the data.  
+17. Consumer deletes the container containing the blob. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.
+18. Consumer deletes the SAS token in the Vault. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the SAS token.
