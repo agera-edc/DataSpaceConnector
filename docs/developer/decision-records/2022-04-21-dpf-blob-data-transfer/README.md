@@ -45,4 +45,4 @@ The [AzureStorageDataSink](../../../../extensions/azure/data-plane/storage/src/m
 15. When the transfer is finished, the client can read the blob.  
 16. Then, the client can call the Data Management API to destroy the data.  
 17. Consumer deletes the container containing the blob. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.
-18. Consumer deletes the SAS token in the Vault. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the SAS token.
+18. Consumer deletes the SAS token in the Vault. The [TransferProcessManagerImpl](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/transfer/core/transfer/TransferProcessManagerImpl.java) is responsible for deprovisioning the SAS token.
