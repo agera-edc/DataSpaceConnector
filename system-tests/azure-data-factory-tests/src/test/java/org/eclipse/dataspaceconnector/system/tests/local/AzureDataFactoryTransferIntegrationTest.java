@@ -83,7 +83,7 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String EDC_VAULT_CLIENT_SECRET = "edc.vault.clientsecret";
     private static final String CONTRACT_DEFINITIONS_PATH = "/contractdefinitions";
     private static final String PROVIDER_CONTAINER_NAME = UUID.randomUUID().toString();
-    private static final String KEY_VAULT_NAME =  runtimeSettingsProperties().getProperty("test.key.vault.name");
+    private static final String KEY_VAULT_NAME = runtimeSettingsProperties().getProperty("test.key.vault.name");
     private static final String AZURE_TENANT_ID = getenv("AZURE_TENANT_ID");
     private static final String AZURE_CLIENT_ID = getenv("AZURE_CLIENT_ID");
     private static final String AZURE_CLIENT_SECRET = getenv("AZURE_CLIENT_SECRET");
@@ -91,6 +91,9 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String CONSUMER_STORAGE_ACCOUNT_NAME = runtimeSettingsProperties().getProperty("test.consumer.storage.name");
     private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net";
     private static final String KEY_VAULT_ENDPOINT_TEMPLATE = "https://%s.vault.azure.net";
+    private static String provisionedContainerName;
+    private static BlobServiceClient providerBlobServiceClient;
+    private static BlobServiceClient consumerBlobServiceClient;
 
 
     @RegisterExtension
@@ -142,8 +145,10 @@ public class AzureDataFactoryTransferIntegrationTest {
 
     @AfterAll
     static void cleanUp() {
-        var providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
+        // Remove provider test data container
         providerBlobServiceClient.deleteBlobContainer(PROVIDER_CONTAINER_NAME);
+        // Remove consumer provisioned test data container
+        consumerBlobServiceClient.deleteBlobContainer(provisionedContainerName);
     }
 
     @Test
@@ -151,8 +156,8 @@ public class AzureDataFactoryTransferIntegrationTest {
         // Arrange
 
         // Upload a blob with test data on provider blob container
-        var providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
-        var consumerBlobServiceClient = getBlobServiceClient(CONSUMER_STORAGE_ACCOUNT_NAME);
+        providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
+        consumerBlobServiceClient = getBlobServiceClient(CONSUMER_STORAGE_ACCOUNT_NAME);
         var blobContent = "AzureDataFactoryTransferIntegrationTest-" + UUID.randomUUID();
 
         providerBlobServiceClient
@@ -170,8 +175,8 @@ public class AzureDataFactoryTransferIntegrationTest {
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
 
         // Assert
-        var container = getProvisionedContainerName();
-        var destinationBlob = consumerBlobServiceClient.getBlobContainerClient(container)
+        provisionedContainerName = getProvisionedContainerName();
+        var destinationBlob = consumerBlobServiceClient.getBlobContainerClient(provisionedContainerName)
                 .getBlobClient(PROVIDER_ASSET_ID);
         assertThat(destinationBlob.exists())
                 .withFailMessage("Destination blob %s not created", destinationBlob)
