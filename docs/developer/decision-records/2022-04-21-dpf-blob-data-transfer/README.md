@@ -1,6 +1,8 @@
 # Blob storage transfer
 
-Decision record describing the Azure blob storage transfer end-to-end flow between two participants.
+Decision record describing the Azure blob storage transfer end-to-end flow between two participants.  
+
+This document describes the flow if the 2 participants are using Azure blob storage.
 
 - A Provider connector that makes an asset available, and executes data transfer through its DPF service.
 - A Consumer connector that requests the asset, and provides a destination Azure storage container.
@@ -20,6 +22,8 @@ Storage accounts access key should be stored in respective Vaults (e.g. Azure Ke
 ## Sequence diagram
 
 The following sequence diagram describes the flow to transfer a blob from a provider storage account to a consumer storage account. As a prerequisite, contract negotiation must have been performed.
+
+This sequence diagram describes the flow if the 2 participants are using Azure blob storage. If one of the 2 participant is using another type of storage, only half of the sequence diagram would reflect the reality.
 
 The sequence starts from the client triggering the transfer on the consumer side and finishes when the consumer deprovisions its resources.
 
