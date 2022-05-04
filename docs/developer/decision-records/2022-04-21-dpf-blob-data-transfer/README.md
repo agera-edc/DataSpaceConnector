@@ -41,7 +41,8 @@ The sequence starts from the client triggering the transfer on the consumer side
 The [AzureStorageDataSink](../../../../extensions/azure/data-plane/storage/src/main/java/org/eclipse/dataspaceconnector/azure/dataplane/azurestorage/pipeline/AzureStorageDataSink.java) transfers the data to the blob destination.
 12. When the transfer is finished, the Provider DPF writes a blob called `.complete`.
 13. In the meantime, the client polls the transfer status regularly on the consumer endpoint `/transferprocess/<PROCESS_ID>/state`.  
-14. To determine if the transfer is completed, the consumer regularly checks if a blob named `.complete` exists in the container.  
+14. In the meantime, the consumer regularly checks if a blob named `.complete` exists in the container.
+When the `.complete` is found, the consumer persists the new transferProcess state.  
 15. When the transfer is finished, the client can read the blob.  
 16. Then, the client can call the Data Management API to destroy the data.  
 17. Consumer deletes the container containing the blob. The [ObjectStorageProvisioner](../../../../extensions/azure/blobstorage/blob-provision/src/main/java/org/eclipse/dataspaceconnector/provision/azure/blob/ObjectStorageProvisioner.java) is responsible for deprovisioning the container.

@@ -35,6 +35,8 @@ activate "Provider DPF"
 deactivate "Provider DPF"
 loop  Poll for completion
     Client -> Consumer: GET /transferprocess/<PROCESS_ID>/state
+end
+loop
     Consumer -> "Consumer Storage Account": Look for .complete blob
 end
 activate Client
