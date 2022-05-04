@@ -53,3 +53,8 @@ output "test_consumer_storage_name" {
   value       = azurerm_storage_account.consumer.name
   description = "Name of the Azure Storage account deployed for holding consumer data in tests."
 }
+
+output "test_key_vault_name" {
+  value       = azurerm_key_vault.main.name
+  description = "Name of the Azure Key Vault connected to the Data Factory."
+}
