@@ -404,7 +404,9 @@ jobs:
       - name: Data Plane Azure Data Factory Test
         uses: ./.github/actions/run-tests
         with:
-          command: ./gradlew -p extensions/azure/data-plane/data-factory test -DincludeTags="AzureDataFactoryIntegrationTest"
+          command: |
+            ./gradlew -p extensions/azure/data-plane/data-factory test -DincludeTags="AzureDataFactoryIntegrationTest"
+            ./gradlew -p system-tests/azure-data-factory-tests test -DincludeTags="AzureDataFactoryIntegrationTest"
 
   Upload-Test-Report:
     needs:
