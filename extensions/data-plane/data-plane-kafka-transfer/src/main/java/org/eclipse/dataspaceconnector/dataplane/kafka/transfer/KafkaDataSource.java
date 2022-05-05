@@ -48,11 +48,11 @@ class KafkaDataSource implements DataSource {
     private Map<String, String> consumerProperties = Map.of();
 
     @NotNull
-    private Consumer<String, String> createKafkaConsumer() {
+    private Consumer<?, ?> createKafkaConsumer() {
         var props = new Properties();
         props.putAll(consumerProperties);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        var consumer = new KafkaConsumer<String, String>(props);
+        var consumer = new KafkaConsumer<>(props);
         consumer.subscribe(List.of(topic));
         return consumer;
     }
@@ -63,7 +63,7 @@ class KafkaDataSource implements DataSource {
     }
 
     @NotNull
-    private Stream<ConsumerRecords<String, String>> openRecordsStream() {
+    private Stream<ConsumerRecords<?, ?>> openRecordsStream() {
         var consumer = createKafkaConsumer();
 
         return StreamSupport.stream(
@@ -71,7 +71,7 @@ class KafkaDataSource implements DataSource {
                 /* not parallel */ false);
     }
 
-    private Part toPart(ConsumerRecords<String, String> consumerRecords) {
+    private Part toPart(ConsumerRecords<?, ?> consumerRecords) {
         return new Part() {
             @Override
             public String name() {
@@ -93,7 +93,7 @@ class KafkaDataSource implements DataSource {
         };
     }
 
-    private static KafkaRecordDto mapConsumerRecordToDto(ConsumerRecord<String, String> record) {
+    private static KafkaRecordDto mapConsumerRecordToDto(ConsumerRecord<?, ?> record) {
         return KafkaRecordDto.Builder.newInstance()
                 .key(record.key())
                 .value(record.value())
@@ -150,10 +150,10 @@ class KafkaDataSource implements DataSource {
         }
     }
 
-    private static class ConsumerRecordsIterator implements Iterator<ConsumerRecords<String, String>> {
-        private final Consumer<String, String> consumer;
+    private static class ConsumerRecordsIterator implements Iterator<ConsumerRecords<?, ?>> {
+        private final Consumer<?, ?> consumer;
 
-        ConsumerRecordsIterator(Consumer<String, String> consumer) {
+        ConsumerRecordsIterator(Consumer<?, ?> consumer) {
             this.consumer = consumer;
         }
 
@@ -163,7 +163,7 @@ class KafkaDataSource implements DataSource {
         }
 
         @Override
-        public ConsumerRecords<String, String> next() {
+        public ConsumerRecords<?, ?> next() {
             var records = consumer.poll(Duration.ZERO);
             while (records.isEmpty()) {
                 records = consumer.poll(Duration.ofMillis(1000));

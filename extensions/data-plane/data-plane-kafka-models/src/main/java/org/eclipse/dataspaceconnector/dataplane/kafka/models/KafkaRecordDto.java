@@ -20,18 +20,18 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
 @JsonDeserialize(builder = KafkaRecordDto.Builder.class)
 public class KafkaRecordDto {
-    private String key;
-    private String value;
+    private Object key;
+    private Object value;
     private long timestamp;
 
     private KafkaRecordDto() {
     }
 
-    public String getKey() {
+    public Object getKey() {
         return key;
     }
 
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
@@ -52,12 +52,12 @@ public class KafkaRecordDto {
             return new Builder();
         }
 
-        public Builder key(String key) {
+        public Builder key(Object key) {
             kafkaDto.key = key;
             return this;
         }
 
-        public Builder value(String value) {
+        public Builder value(Object value) {
             kafkaDto.value = value;
             return this;
         }
