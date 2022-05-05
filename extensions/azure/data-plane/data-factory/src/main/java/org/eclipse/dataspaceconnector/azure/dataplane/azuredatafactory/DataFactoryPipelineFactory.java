@@ -23,7 +23,6 @@ import com.azure.resourcemanager.datafactory.models.BlobSource;
 import com.azure.resourcemanager.datafactory.models.CopyActivity;
 import com.azure.resourcemanager.datafactory.models.DatasetReference;
 import com.azure.resourcemanager.datafactory.models.DatasetResource;
-import com.azure.resourcemanager.datafactory.models.LinkedService;
 import com.azure.resourcemanager.datafactory.models.LinkedServiceReference;
 import com.azure.resourcemanager.datafactory.models.LinkedServiceResource;
 import com.azure.resourcemanager.datafactory.models.PipelineResource;
@@ -66,8 +65,8 @@ class DataFactoryPipelineFactory {
     PipelineResource createPipeline(DataFlowRequest request) {
         var baseName = ADF_RESOURCE_NAME_PREFIX + UUID.randomUUID();
 
-        var sourceDataset = createDataset(baseName + "-src", request.getSourceDataAddress());
-        var destinationDataset = createDataset(baseName + "-dst", request.getDestinationDataAddress());
+        var sourceDataset = createSourceDataset(baseName + "-src", request.getSourceDataAddress());
+        var destinationDataset = createDestinationDataset(baseName + "-dst", request.getDestinationDataAddress());
 
         return createCopyPipeline(baseName, sourceDataset, destinationDataset);
     }
@@ -84,9 +83,50 @@ class DataFactoryPipelineFactory {
                 .create();
     }
 
-    private DatasetResource createDataset(String name, DataAddress sourceDataAddress) {
-        var linkedService = createLinkedService(name, sourceDataAddress);
+    private DatasetResource createSourceDataset(String name, DataAddress sourceDataAddress) {
+        var linkedService = createSourceLinkedService(name, sourceDataAddress);
         return createDatasetResource(name, linkedService, sourceDataAddress);
+    }
+
+    private DatasetResource createDestinationDataset(String name, DataAddress sourceDataAddress) {
+        var linkedService = createDestinationLinkedService(name, sourceDataAddress);
+        return createDatasetResource(name, linkedService, sourceDataAddress);
+    }
+
+    private LinkedServiceResource createSourceLinkedService(String name, DataAddress dataAddress) {
+        var accountName = dataAddress.getProperty(AzureBlobStoreSchema.ACCOUNT_NAME);
+
+        return client.defineLinkedService(name)
+                .withProperties(new AzureStorageLinkedService()
+                        .withConnectionString(String.format("DefaultEndpointsProtocol=https;AccountName=%s;", accountName))
+                        .withAccountKey(
+                                new AzureKeyVaultSecretReference()
+                                        .withSecretName(dataAddress.getProperty("keyName"))
+                                        .withStore(new LinkedServiceReference()
+                                                .withReferenceName(keyVaultLinkedService)
+                                        ))
+                )
+                .create();
+    }
+
+    private LinkedServiceResource createDestinationLinkedService(String name, DataAddress dataAddress) {
+        var accountName = dataAddress.getProperty(AzureBlobStoreSchema.ACCOUNT_NAME);
+        var secret = keyVaultClient.getSecret(dataAddress.getProperty("keyName"));
+        var token = typeManager.readValue(secret.getValue(), AzureSasToken.class);
+        var sasTokenSecret = keyVaultClient.setSecret(name, token.getSas());
+
+        return client.defineLinkedService(name)
+                .withProperties(
+                        new AzureStorageLinkedService()
+                                .withSasUri(format(BLOB_STORE_ENDPOINT_TEMPLATE, accountName))
+                                .withSasToken(
+                                        new AzureKeyVaultSecretReference()
+                                                .withSecretName(sasTokenSecret.getName())
+                                                .withStore(new LinkedServiceReference()
+                                                        .withReferenceName(keyVaultLinkedService)
+                                                ))
+                )
+                .create();
     }
 
     private DatasetResource createDatasetResource(String name, LinkedServiceResource linkedService, DataAddress dataAddress) {
@@ -100,43 +140,5 @@ class DataFactoryPipelineFactory {
                                 )
                 )
                 .create();
-    }
-
-    private LinkedServiceResource createLinkedService(String name, DataAddress dataAddress) {
-        var accountName = dataAddress.getProperty(AzureBlobStoreSchema.ACCOUNT_NAME);
-
-        return client.defineLinkedService(name)
-                .withProperties(
-                        name.endsWith("-src") ?
-                                srcLinkedService(accountName, dataAddress.getProperty("keyName")) :
-                                destLinkedService(name, accountName, dataAddress.getProperty("keyName"))
-                )
-                .create();
-    }
-
-    private LinkedService srcLinkedService(String accountName, String secretName) {
-        return new AzureStorageLinkedService()
-                .withConnectionString(String.format("DefaultEndpointsProtocol=https;AccountName=%s;", accountName))
-                .withAccountKey(
-                        new AzureKeyVaultSecretReference()
-                                .withSecretName(secretName)
-                                .withStore(new LinkedServiceReference()
-                                        .withReferenceName(keyVaultLinkedService)
-                                ));
-    }
-
-    private LinkedService destLinkedService(String name, String accountName, String secretName) {
-        var secret = keyVaultClient.getSecret(secretName);
-        var token = typeManager.readValue(secret.getValue(), AzureSasToken.class);
-        var sasTokenSecret = keyVaultClient.setSecret(name, token.getSas());
-
-        return new AzureStorageLinkedService()
-                .withSasUri(format(BLOB_STORE_ENDPOINT_TEMPLATE, accountName))
-                .withSasToken(
-                        new AzureKeyVaultSecretReference()
-                                .withSecretName(sasTokenSecret.getName())
-                                .withStore(new LinkedServiceReference()
-                                        .withReferenceName(keyVaultLinkedService)
-                                ));
     }
 }
