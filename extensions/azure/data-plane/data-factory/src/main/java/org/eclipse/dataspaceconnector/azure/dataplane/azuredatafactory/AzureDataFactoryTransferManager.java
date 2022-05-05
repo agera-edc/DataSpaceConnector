@@ -50,7 +50,17 @@ public class AzureDataFactoryTransferManager {
     private final KeyVaultClient keyVaultClient;
     private final Duration pollDelay;
 
-    public AzureDataFactoryTransferManager(Monitor monitor, DataFactoryClient client, DataFactoryPipelineFactory pipelineFactory, Duration maxDuration, Clock clock, BlobStoreApi blobStoreApi, TypeManager typeManager, KeyVaultClient keyVaultClient, Duration pollDelay) {
+    public AzureDataFactoryTransferManager(
+            Monitor monitor,
+            DataFactoryClient client,
+            DataFactoryPipelineFactory pipelineFactory,
+            Duration maxDuration,
+            Clock clock,
+            BlobStoreApi blobStoreApi,
+            TypeManager typeManager,
+            KeyVaultClient keyVaultClient,
+            Duration pollDelay
+    ) {
         this.monitor = monitor;
         this.client = client;
         this.pipelineFactory = pipelineFactory;

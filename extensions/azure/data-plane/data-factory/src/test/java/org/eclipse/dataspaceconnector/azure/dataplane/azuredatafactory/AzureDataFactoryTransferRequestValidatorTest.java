@@ -34,7 +34,6 @@ import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFix
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createContainerName;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createDataAddress;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createRequest;
-import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createSharedKey;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 class AzureDataFactoryTransferRequestValidatorTest {
@@ -43,8 +42,8 @@ class AzureDataFactoryTransferRequestValidatorTest {
     DataAddress.Builder source = createDataAddress(AzureBlobStoreSchema.TYPE);
     DataAddress.Builder destination = createDataAddress(AzureBlobStoreSchema.TYPE);
 
-    static final String srcStorageAccount = createAccountName();
-    static final String destStorageAccount = createAccountName();
+    static String srcStorageAccount = createAccountName();
+    static String destStorageAccount = createAccountName();
     static Map<String, String> sourceProperties = Map.of(
             AzureBlobStoreSchema.ACCOUNT_NAME, srcStorageAccount,
             AzureBlobStoreSchema.CONTAINER_NAME, createContainerName(),
