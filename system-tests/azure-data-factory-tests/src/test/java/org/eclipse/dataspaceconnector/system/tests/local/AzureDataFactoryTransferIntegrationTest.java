@@ -291,7 +291,6 @@ public class AzureDataFactoryTransferIntegrationTest {
 
     private void seedProviderData(String path, Object requestBody) {
         givenProviderBaseRequest()
-                .log().all()
                 .contentType(JSON)
                 .body(requestBody)
                 .when()

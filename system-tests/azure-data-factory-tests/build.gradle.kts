@@ -42,6 +42,7 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":system-tests:tests")))
+    testImplementation(testFixtures(project(":system-tests:azure-tests")))
     testImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testImplementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
