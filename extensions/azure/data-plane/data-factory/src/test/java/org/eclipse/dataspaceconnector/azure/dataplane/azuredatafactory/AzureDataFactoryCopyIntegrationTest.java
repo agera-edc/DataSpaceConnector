@@ -48,7 +48,6 @@ import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.ACCOUNT_NAME;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.BLOB_NAME;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.CONTAINER_NAME;
-import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.SHARED_KEY;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema.TYPE;
 import static org.eclipse.dataspaceconnector.azure.blob.core.AzureStorageTestFixtures.createBlobName;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -111,13 +110,13 @@ class AzureDataFactoryCopyIntegrationTest {
                 .property(ACCOUNT_NAME, providerStorage.name)
                 .property(CONTAINER_NAME, providerStorage.containerName)
                 .property(BLOB_NAME, blobName)
-                .property(SHARED_KEY, providerStorage.key)
+                .keyName(providerStorage.name + "-key1")
                 .build();
         var destination = DataAddress.Builder.newInstance()
                 .type(TYPE)
                 .property(ACCOUNT_NAME, consumerStorage.name)
                 .property(CONTAINER_NAME, consumerStorage.containerName)
-                .property(SHARED_KEY, consumerStorage.key)
+                .keyName(consumerStorage.name + "-key1")
                 .build();
         var request = DataFlowRequest.Builder.newInstance()
                 .sourceDataAddress(source)

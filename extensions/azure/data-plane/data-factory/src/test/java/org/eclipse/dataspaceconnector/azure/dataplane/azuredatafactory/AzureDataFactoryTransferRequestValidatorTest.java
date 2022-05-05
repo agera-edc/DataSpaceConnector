@@ -43,16 +43,18 @@ class AzureDataFactoryTransferRequestValidatorTest {
     DataAddress.Builder source = createDataAddress(AzureBlobStoreSchema.TYPE);
     DataAddress.Builder destination = createDataAddress(AzureBlobStoreSchema.TYPE);
 
+    static final String srcStorageAccount = createAccountName();
+    static final String destStorageAccount = createAccountName();
     static Map<String, String> sourceProperties = Map.of(
-            AzureBlobStoreSchema.ACCOUNT_NAME, createAccountName(),
+            AzureBlobStoreSchema.ACCOUNT_NAME, srcStorageAccount,
             AzureBlobStoreSchema.CONTAINER_NAME, createContainerName(),
             AzureBlobStoreSchema.BLOB_NAME, createBlobName(),
-            AzureBlobStoreSchema.SHARED_KEY, createSharedKey());
+            DataAddress.KEY_NAME, srcStorageAccount + "-key1");
 
     static Map<String, String> destinationProperties = Map.of(
-            AzureBlobStoreSchema.ACCOUNT_NAME, createAccountName(),
+            AzureBlobStoreSchema.ACCOUNT_NAME, destStorageAccount,
             AzureBlobStoreSchema.CONTAINER_NAME, createContainerName(),
-            AzureBlobStoreSchema.SHARED_KEY, createSharedKey());
+            DataAddress.KEY_NAME, destStorageAccount + "-key1");
 
     static DataFlowRequest.Builder request = createRequest(AzureBlobStoreSchema.TYPE);
 
