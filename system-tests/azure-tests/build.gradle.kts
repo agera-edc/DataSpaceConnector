@@ -52,8 +52,8 @@ dependencies {
     testImplementation("com.azure:azure-identity:${azureIdentityVersion}")
     testImplementation("com.azure:azure-security-keyvault-secrets:${azureKeyVaultVersion}")
 
-    testRuntimeOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
-    testRuntimeOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))
+    testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
+    testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))
 }
 
 publishing {

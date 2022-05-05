@@ -24,7 +24,6 @@ dependencies {
     api(project(":extensions:data-plane:data-plane-spi"))
     api(project(":extensions:azure:blobstorage:blob-core"))
     implementation(project(":common:util"))
-    implementation(project(":extensions:azure:blobstorage:blob-common"))
     implementation("com.azure:azure-storage-blob:${storageBlobVersion}")
     implementation("net.jodah:failsafe:${jodahFailsafeVersion}")
 

@@ -12,11 +12,7 @@
  *
  */
 
-<<<<<<<< HEAD:extensions/azure/blobstorage/blob-core/src/test/java/org/eclipse/dataspaceconnector/azure/blob/core/validator/AzureStorageValidatorTest.java
 package org.eclipse.dataspaceconnector.azure.blob.core.validator;
-========
-package org.eclipse.dataspaceconnector.azure.blob.validator;
->>>>>>>> 5908caab1 (blob-common):extensions/azure/blobstorage/blob-common/src/test/java/org/eclipse/dataspaceconnector/azure/blob/validator/AzureStorageValidatorTest.java
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -60,6 +56,13 @@ class AzureStorageValidatorTest {
     void validateContainerName_fail(String input) {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> AzureStorageValidator.validateContainerName(input));
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void validateKeyName_fail(String input) {
+        assertThatExceptionOfType(IllegalArgumentException.class)
+                .isThrownBy(() -> AzureStorageValidator.validateKeyName(input));
     }
 
     @ParameterizedTest
