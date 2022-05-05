@@ -42,6 +42,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -74,6 +76,7 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
 @AzureDataFactoryIntegrationTest
 public class AzureDataFactoryTransferIntegrationTest {
 
+    private static final List<Runnable> containerCleanup = new ArrayList<>();
     private static final String ASSETS_PATH = "/assets";
     private static final String POLICIES_PATH = "/policies";
     private static final String EDC_FS_CONFIG = "edc.fs.config";
@@ -91,10 +94,6 @@ public class AzureDataFactoryTransferIntegrationTest {
     private static final String CONSUMER_STORAGE_ACCOUNT_NAME = runtimeSettingsProperties().getProperty("test.consumer.storage.name");
     private static final String BLOB_STORE_ENDPOINT_TEMPLATE = "https://%s.blob.core.windows.net";
     private static final String KEY_VAULT_ENDPOINT_TEMPLATE = "https://%s.vault.azure.net";
-    private static String provisionedContainerName;
-    private static BlobServiceClient providerBlobServiceClient;
-    private static BlobServiceClient consumerBlobServiceClient;
-
 
     @RegisterExtension
     private static final EdcRuntimeExtension consumer = new EdcRuntimeExtension(
@@ -145,10 +144,7 @@ public class AzureDataFactoryTransferIntegrationTest {
 
     @AfterAll
     static void cleanUp() {
-        // Remove provider test data container
-        providerBlobServiceClient.deleteBlobContainer(PROVIDER_CONTAINER_NAME);
-        // Remove consumer provisioned test data container
-        consumerBlobServiceClient.deleteBlobContainer(provisionedContainerName);
+        containerCleanup.parallelStream().forEach(Runnable::run);
     }
 
     @Test
@@ -156,14 +152,16 @@ public class AzureDataFactoryTransferIntegrationTest {
         // Arrange
 
         // Upload a blob with test data on provider blob container
-        providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
-        consumerBlobServiceClient = getBlobServiceClient(CONSUMER_STORAGE_ACCOUNT_NAME);
+        var providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
+        var consumerBlobServiceClient = getBlobServiceClient(CONSUMER_STORAGE_ACCOUNT_NAME);
         var blobContent = "AzureDataFactoryTransferIntegrationTest-" + UUID.randomUUID();
 
         providerBlobServiceClient
                 .createBlobContainer(PROVIDER_CONTAINER_NAME)
                 .getBlobClient(PROVIDER_ASSET_ID)
                 .upload(BinaryData.fromString(blobContent), true);
+        // Add for cleanup
+        containerCleanup.add(() -> providerBlobServiceClient.deleteBlobContainer(PROVIDER_CONTAINER_NAME));
 
         // Seed data to provider
         createAsset();
@@ -175,7 +173,10 @@ public class AzureDataFactoryTransferIntegrationTest {
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
 
         // Assert
-        provisionedContainerName = getProvisionedContainerName();
+        var provisionedContainerName = getProvisionedContainerName();
+        // Add for cleanup
+        containerCleanup.add(() -> consumerBlobServiceClient.deleteBlobContainer(provisionedContainerName));
+
         var destinationBlob = consumerBlobServiceClient.getBlobContainerClient(provisionedContainerName)
                 .getBlobClient(PROVIDER_ASSET_ID);
         assertThat(destinationBlob.exists())
@@ -196,11 +197,10 @@ public class AzureDataFactoryTransferIntegrationTest {
                 .credential(credential)
                 .buildClient();
         var accountKey = vault.getSecret(accountName + "-key1");
-        var blobServiceClient = new BlobServiceClientBuilder()
+        return new BlobServiceClientBuilder()
                 .endpoint(format(BLOB_STORE_ENDPOINT_TEMPLATE, accountName))
                 .credential(new StorageSharedKeyCredential(accountName, accountKey.getValue()))
                 .buildClient();
-        return blobServiceClient;
     }
 
     @NotNull
