@@ -46,17 +46,9 @@ dependencies {
 
     implementation(project(":extensions:data-plane:data-plane-spi"))
 
-    implementation(project(":extensions:in-memory:assetindex-memory"))
-
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
 
     implementation(project(":core"))
-
-    implementation(project(":extensions:in-memory:assetindex-memory"))
-    implementation(project(":extensions:in-memory:transfer-store-memory"))
-    implementation(project(":extensions:in-memory:negotiation-store-memory"))
-    implementation(project(":extensions:in-memory:contractdefinition-store-memory"))
-    implementation(project(":extensions:in-memory:policy-store-memory"))
 
     implementation(project(":extensions:api:observability"))
 
@@ -74,7 +66,6 @@ application {
 }
 
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
-    exclude("**/pom.properties", "**/pom.xm")
     mergeServiceFiles()
     archiveFileName.set("provider.jar")
 }

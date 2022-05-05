@@ -59,10 +59,6 @@ public abstract class TransferSimulationUtils {
     public static final String TRANSFER_PROCESSES_PATH = "/transferprocess";
     public static final String IDS_PATH = "/api/v1/ids";
 
-    public static final String TRANSFER_SUCCESSFUL = "Transfer successful";
-
-    public static final String TRANSFER_PROCESSES_PATH = "/transferprocess";
-
     private TransferSimulationUtils() {
     }
 
@@ -189,7 +185,7 @@ public abstract class TransferSimulationUtils {
         return group("Wait for transfer")
                 .on(exec(session -> session.set("status", "INITIAL"))
                         .doWhileDuring(session -> transferNotCompleted(session),
-                                Duration.ofSeconds(60))
+                                Duration.ofSeconds(30))
                         .on(exec(getTransferStatus()).pace(Duration.ofSeconds(1))))
 
                 .exitHereIf(session -> transferNotCompleted(session))

@@ -12,9 +12,10 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.system.tests.local;
+plugins {
+    `java-library`
+}
 
-<<<<<<<< HEAD:extensions/data-plane-transfer/build.gradle.kts
 
 dependencies {
     api(project(":extensions:data-plane-transfer:data-plane-transfer-sync"))
@@ -27,13 +28,5 @@ publishing {
             artifactId = "data-plane-transfer"
             from(components["java"])
         }
-========
-
-public class BlobTransferLocalSimulation extends TransferLocalSimulation {
-    static final String ACCOUNT_NAME_PROPERTY = "BlobTransferLocalSimulation-account-name";
-
-    public BlobTransferLocalSimulation() {
-        super(new BlobTransferRequestFactory(System.getProperty(ACCOUNT_NAME_PROPERTY)));
->>>>>>>> ee1826861 (merging changes from feature/1183/231-azure-e2e-test):system-tests/azure-tests/src/test/java/org/eclipse/dataspaceconnector/system/tests/local/BlobTransferLocalSimulation.java
     }
 }
