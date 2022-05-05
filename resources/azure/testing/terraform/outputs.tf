@@ -28,7 +28,7 @@ output "EDC_DATA_FACTORY_KEY_VAULT_LINKEDSERVICENAME" {
 ### Values for CI scripts ###
 
 output "ci_client_id" {
-  value        = var.ci_client_id
+  value       = var.ci_client_id
   description = "Application ID (Client ID) of the GitHub workflow that runs the CI job and needs access to cloud resources."
 }
 
