@@ -22,6 +22,7 @@ services:
       -Djava.util.logging.config.file=/samples/04.3-open-telemetry/logging.properties
       -jar /samples/04.3-open-telemetry/consumer/build/libs/consumer.jar
 
+
   provider:
     image: openjdk:17-jdk-slim-buster
     environment:
