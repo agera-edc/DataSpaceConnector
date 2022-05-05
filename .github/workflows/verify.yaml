@@ -408,6 +408,10 @@ jobs:
 
       - name: Data Plane Azure Data Factory Test
         uses: ./.github/actions/run-tests
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         with:
           command: |
             ./gradlew -p extensions/azure/data-plane/data-factory test -DincludeTags="AzureDataFactoryIntegrationTest"
