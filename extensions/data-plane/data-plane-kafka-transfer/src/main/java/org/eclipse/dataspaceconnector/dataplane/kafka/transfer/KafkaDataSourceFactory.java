@@ -24,6 +24,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 class KafkaDataSourceFactory implements DataSourceFactory {
     private final TypeManager typeManager;
@@ -44,7 +45,7 @@ class KafkaDataSourceFactory implements DataSourceFactory {
         Map<String, String> properties = request.getSourceDataAddress().getProperties();
         try {
             checkPropertySet(properties, "topic");
-            checkPropertySet(properties, "bootstrapServers");
+            checkPropertySet(properties, "kafka.bootstrap.servers");
         } catch (IllegalArgumentException e) {
             return Result.failure(e.getMessage());
         }
@@ -54,12 +55,18 @@ class KafkaDataSourceFactory implements DataSourceFactory {
     @Override
     public DataSource createSource(DataFlowRequest request) {
         var properties = request.getSourceDataAddress().getProperties();
+        var consumerProperties = properties.entrySet().stream()
+                .filter(e -> e.getKey().startsWith("kafka."))
+                .collect(Collectors.toMap(
+                        e -> e.getKey().replaceFirst("kafka\\.", ""),
+                        e -> e.getValue()
+                ));
         return KafkaDataSource.Builder.newInstance()
                 .typeManager(typeManager)
                 .monitor(monitor)
                 .topic(properties.get("topic"))
                 .groupId(request.getProcessId() + ":" + request.getId())
-                .bootstrapServers(properties.get("bootstrapServers"))
+                .consumerProperties(consumerProperties)
                 .build();
     }
 

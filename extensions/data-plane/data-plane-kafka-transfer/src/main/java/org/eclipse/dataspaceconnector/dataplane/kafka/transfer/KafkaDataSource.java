@@ -19,7 +19,6 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaRecordDto;
 import org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaRecordsDto;
 import org.eclipse.dataspaceconnector.dataplane.spi.pipeline.DataSource;
@@ -32,6 +31,7 @@ import java.io.InputStream;
 import java.time.Duration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Spliterators;
@@ -45,17 +45,13 @@ class KafkaDataSource implements DataSource {
     private Monitor monitor;
     private String topic;
     private String groupId;
-    private String bootstrapServers;
+    private Map<String, String> consumerProperties = Map.of();
 
     @NotNull
     private Consumer<String, String> createKafkaConsumer() {
         var props = new Properties();
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        props.putAll(consumerProperties);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 100);
-
         var consumer = new KafkaConsumer<String, String>(props);
         consumer.subscribe(List.of(topic));
         return consumer;
@@ -136,8 +132,8 @@ class KafkaDataSource implements DataSource {
             return this;
         }
 
-        public Builder bootstrapServers(String bootstrapServers) {
-            dataSource.bootstrapServers = bootstrapServers;
+        public Builder consumerProperties(Map<String, String> consumerProperties) {
+            dataSource.consumerProperties = Map.copyOf(consumerProperties);
             return this;
         }
 
@@ -146,7 +142,6 @@ class KafkaDataSource implements DataSource {
             Objects.requireNonNull(dataSource.monitor, "monitor");
             Objects.requireNonNull(dataSource.topic, "topic");
             Objects.requireNonNull(dataSource.groupId, "groupId");
-            Objects.requireNonNull(dataSource.bootstrapServers, "bootstrapServers");
             return dataSource;
         }
 

@@ -41,7 +41,7 @@ services:
         do
             # Automatically retry, as kcat will initially fail until (1) kafka has started up (2) the topic has been created
             echo start
-            kcat -u -b kafka -t test_events -C -f '\nKey (%K bytes): %k\t\nValue (%S bytes): %s\nTimestamp: %T\tPartition: %p\tOffset: %o\n--\n'
+            kcat -u -b kafka -t test_events -C -o end -f '\nKey (%K bytes): %k\t\nValue (%S bytes): %s\nTimestamp: %T\tPartition: %p\tOffset: %o\n--\n'
             sleep 1
         done
 
