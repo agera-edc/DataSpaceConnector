@@ -100,9 +100,11 @@ public class AzureDataFactoryTransferManager {
                     }
                     return result;
                 })
-                .exceptionally(throwable ->
-                        StatusResult.failure(ERROR_RETRY, "Unhandled exception raised when transferring data: " + throwable.getMessage())
-                );
+                .exceptionally(throwable -> {
+                    var error = "Unhandled exception raised when transferring data";
+                    monitor.severe(error, throwable);
+                    return StatusResult.failure(ERROR_RETRY, error + ":" + throwable.getMessage());
+                });
     }
 
     @NotNull
