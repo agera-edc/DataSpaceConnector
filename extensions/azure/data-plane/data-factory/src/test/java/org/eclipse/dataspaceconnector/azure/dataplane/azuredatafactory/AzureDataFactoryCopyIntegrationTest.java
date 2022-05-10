@@ -163,7 +163,8 @@ class AzureDataFactoryCopyIntegrationTest {
     }
 
     private void setSecret(Account consumerStorage, Vault vault, String secretName) {
-        var expiryTime = OffsetDateTime.now().plusMinutes(5);
+        // ADF SLA to start an activity is 4 minutes.
+        var expiryTime = OffsetDateTime.now().plusMinutes(8);
         var permission = new BlobContainerSasPermission().setWritePermission(true);
         var sasSignatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
                 .setStartTime(OffsetDateTime.now());
