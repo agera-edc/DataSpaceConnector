@@ -14,22 +14,19 @@
 
 package org.eclipse.dataspaceconnector.system.tests.local;
 
-import com.azure.core.util.BinaryData;
-import com.azure.identity.DefaultAzureCredentialBuilder;
-import com.azure.security.keyvault.secrets.SecretClientBuilder;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.common.StorageSharedKeyCredential;
 import io.restassured.specification.RequestSpecification;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureBlobStoreSchema;
+import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApiImpl;
 import org.eclipse.dataspaceconnector.azure.testfixtures.annotations.AzureDataFactoryIntegrationTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
+import org.eclipse.dataspaceconnector.core.security.azure.AzureVault;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.PolicyType;
 import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
+import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterAll;
@@ -53,6 +50,7 @@ import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.lang.System.getenv;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_MANAGEMENT_URL;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
@@ -150,18 +148,16 @@ public class AzureDataFactoryTransferIntegrationTest {
     @Test
     public void transferBlob_success() {
         // Arrange
+        var vault = AzureVault.authenticateWithSecret(new ConsoleMonitor(), AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET, KEY_VAULT_NAME);
+        var blobStoreApi = new BlobStoreApiImpl(vault, BLOB_STORE_ENDPOINT_TEMPLATE);
 
         // Upload a blob with test data on provider blob container
-        var providerBlobServiceClient = getBlobServiceClient(PROVIDER_STORAGE_ACCOUNT_NAME);
-        var consumerBlobServiceClient = getBlobServiceClient(CONSUMER_STORAGE_ACCOUNT_NAME);
         var blobContent = "AzureDataFactoryTransferIntegrationTest-" + UUID.randomUUID();
 
-        providerBlobServiceClient
-                .createBlobContainer(PROVIDER_CONTAINER_NAME)
-                .getBlobClient(PROVIDER_ASSET_ID)
-                .upload(BinaryData.fromString(blobContent), true);
+        blobStoreApi.createContainer(PROVIDER_STORAGE_ACCOUNT_NAME, PROVIDER_CONTAINER_NAME);
+        blobStoreApi.putBlob(PROVIDER_STORAGE_ACCOUNT_NAME, PROVIDER_CONTAINER_NAME, PROVIDER_ASSET_ID, blobContent.getBytes(UTF_8));
         // Add for cleanup
-        containerCleanup.add(() -> providerBlobServiceClient.deleteBlobContainer(PROVIDER_CONTAINER_NAME));
+        containerCleanup.add(() -> blobStoreApi.deleteContainer(PROVIDER_STORAGE_ACCOUNT_NAME, PROVIDER_CONTAINER_NAME));
 
         // Seed data to provider
         createAsset();
@@ -175,32 +171,16 @@ public class AzureDataFactoryTransferIntegrationTest {
         // Assert
         var provisionedContainerName = getProvisionedContainerName();
         // Add for cleanup
-        containerCleanup.add(() -> consumerBlobServiceClient.deleteBlobContainer(provisionedContainerName));
+        containerCleanup.add(() -> blobStoreApi.deleteContainer(CONSUMER_STORAGE_ACCOUNT_NAME, provisionedContainerName));
 
-        var destinationBlob = consumerBlobServiceClient.getBlobContainerClient(provisionedContainerName)
-                .getBlobClient(PROVIDER_ASSET_ID);
-        assertThat(destinationBlob.exists())
-                .withFailMessage("Destination blob %s not created", destinationBlob)
-                .isTrue();
-        var actualBlobContent = destinationBlob.downloadContent().toString();
-        assertThat(actualBlobContent)
+        var actualBlobContent = blobStoreApi.getBlob(CONSUMER_STORAGE_ACCOUNT_NAME, provisionedContainerName, PROVIDER_ASSET_ID);
+        assertThat(actualBlobContent.length)
+                .withFailMessage("Destination blob %s not created", PROVIDER_ASSET_ID)
+                .isGreaterThan(0);
+        assertThat(new String(actualBlobContent))
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(blobContent);
 
-    }
-
-    @NotNull
-    private static BlobServiceClient getBlobServiceClient(String accountName) {
-        var credential = new DefaultAzureCredentialBuilder().build();
-        var vault = new SecretClientBuilder()
-                .vaultUrl(format(KEY_VAULT_ENDPOINT_TEMPLATE, KEY_VAULT_NAME))
-                .credential(credential)
-                .buildClient();
-        var accountKey = vault.getSecret(accountName + "-key1");
-        return new BlobServiceClientBuilder()
-                .endpoint(format(BLOB_STORE_ENDPOINT_TEMPLATE, accountName))
-                .credential(new StorageSharedKeyCredential(accountName, accountKey.getValue()))
-                .buildClient();
     }
 
     @NotNull

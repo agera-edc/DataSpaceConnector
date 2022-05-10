@@ -39,6 +39,7 @@ dependencies {
     }
 
     testImplementation(project(":extensions:azure:blobstorage:blob-core"))
+    testImplementation(project(":extensions:azure:vault"))
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":system-tests:tests")))
