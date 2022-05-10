@@ -21,10 +21,12 @@ import com.azure.resourcemanager.datafactory.models.PipelineRun;
 import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.github.javafaker.Faker;
 import org.assertj.core.api.ObjectAssert;
+import org.bouncycastle.util.test.UncloseableOutputStream;
 import org.eclipse.dataspaceconnector.azure.blob.core.AzureSasToken;
 import org.eclipse.dataspaceconnector.azure.blob.core.adapter.BlobAdapter;
 import org.eclipse.dataspaceconnector.azure.blob.core.api.BlobStoreApi;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.response.ResponseStatus;
 import org.eclipse.dataspaceconnector.spi.response.StatusResult;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
@@ -130,6 +132,20 @@ class AzureDataFactoryTransferManagerTest {
         assertThatTransferResult()
                 .matches(StatusResult::failed);
     }
+
+    @Test
+    void transfer_failed_to_write_complete_blob_failure() {
+        // Arrange
+        when(run.status()).thenReturn("Succeeded");
+        when(blobAdapter.getOutputStream()).thenReturn(new UncloseableOutputStream(new ByteArrayOutputStream()));
+
+        // Act & Assert
+        assertThatTransferResult()
+                .matches(StatusResult::failed);
+        assertThatTransferResult()
+                .satisfies(r -> assertThat(r.getFailure().status()).isEqualTo(ResponseStatus.ERROR_RETRY));
+    }
+
 
     static Stream<Arguments> failureStates() {
         return Stream.of(

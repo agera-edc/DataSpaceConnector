@@ -25,6 +25,7 @@ import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
@@ -150,7 +151,7 @@ public class AzureDataFactoryTransferManager {
             blobStoreApi.getBlobAdapter(accountName, containerName, COMPLETE_BLOB_NAME, new AzureSasCredential(sharedAccessSignature))
                     .getOutputStream().close();
             return StatusResult.success();
-        } catch (Exception e) {
+        } catch (IOException e) {
             return StatusResult.failure(ERROR_RETRY, format("Error creating blob %s on account %s", COMPLETE_BLOB_NAME, accountName));
         }
     }
