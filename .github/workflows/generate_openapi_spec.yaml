@@ -16,6 +16,7 @@ jobs:
   GenerateOAS:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-build
 
       - name: Generate YAML spec

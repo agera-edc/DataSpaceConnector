@@ -21,6 +21,7 @@ jobs:
       packages: write
 
     steps:
+      - uses: actions/checkout@v2
       - uses: ./.github/actions/setup-build
 
       - run: ./gradlew clean -x test publish
