@@ -40,6 +40,7 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,6 +114,7 @@ class KafkaTransferTest {
 
     static final KafkaParticipant CONSUMER = new KafkaParticipant(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH, CONSUMER_IDS_API);
     static final KafkaParticipant PROVIDER = new KafkaParticipant(PROVIDER_CONNECTOR_MANAGEMENT_URL + PROVIDER_MANAGEMENT_PATH, PROVIDER_IDS_API);
+    static final AtomicInteger MESSAGE_COUNTER = new AtomicInteger();
 
     @BeforeAll
     public static void setUp() {
@@ -124,7 +126,7 @@ class KafkaTransferTest {
         var producer = createKafkaProducer();
         executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(
-                () -> producer.send(new ProducerRecord<>(KAFKA_TOPIC, null, "some message")),
+                () -> producer.send(new ProducerRecord<>(KAFKA_TOPIC, null, format("{\"id\":%d,\"name\":\"joe\"}", MESSAGE_COUNTER.incrementAndGet()))),
                 0, 100, TimeUnit.MILLISECONDS);
     }
 
@@ -183,7 +185,10 @@ class KafkaTransferTest {
         var dto = new TypeManager().readValue(decoded, KafkaRecordsDto.class);
         assertThat(dto.getTopic()).isEqualTo(KAFKA_TOPIC);
         assertThat(dto.getRecords()).isNotEmpty();
-        assertThat(dto.getRecords().get(0).getValue()).isEqualTo("some message");
+        Object value = dto.getRecords().get(0).getValue();
+        assertThat(value)
+                .isInstanceOfSatisfying(Map.class,
+                        m -> assertThat(m).containsEntry("name", "joe"));
     }
 
     private void createAssetAndContractDefinitionOnProvider() {

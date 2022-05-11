@@ -68,7 +68,7 @@ class KafkaParticipant {
                                 "topic", KAFKA_TOPIC,
                                 "kafka.bootstrap.servers", KAFKA_SERVER,
                                 "kafka.key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer",
-                                "kafka.value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer",
+                                "kafka.value.deserializer", "org.eclipse.dataspaceconnector.dataplane.kafka.serializers.JacksonDeserializer",
                                 "kafka.max.poll.records", "100"
                         )
                 )
