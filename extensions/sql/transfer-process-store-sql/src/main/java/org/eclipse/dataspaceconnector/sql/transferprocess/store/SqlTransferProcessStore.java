@@ -36,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,7 @@ public class SqlTransferProcessStore implements TransferProcessStore {
     private final TransferProcessStoreStatements statements;
     private final String leaseHolderName;
     private final SqlLeaseContextBuilder leaseContext;
+    protected Clock clock = Clock.systemUTC();
 
     public SqlTransferProcessStore(DataSourceRegistry dataSourceRegistry, String datasourceName, TransactionContext transactionContext, ObjectMapper objectMapper, TransferProcessStoreStatements statements, String leaseHolderName) {
 
@@ -217,6 +219,7 @@ public class SqlTransferProcessStore implements TransferProcessStore {
                         process.getState(),
                         process.getStateCount(),
                         process.getStateTimestamp(),
+                        process.getCreatedTimestamp(),
                         toJson(process.getTraceContext()),
                         process.getErrorDetail(),
                         toJson(process.getResourceManifest()),
@@ -250,6 +253,7 @@ public class SqlTransferProcessStore implements TransferProcessStore {
         return TransferProcess.Builder.newInstance()
                 .id(resultSet.getString(statements.getIdColumn()))
                 .type(TransferProcess.Type.valueOf(resultSet.getString(statements.getTypeColumn())))
+                .createdTimestamp(resultSet.getLong(statements.getCreatedTimestampColumn()))
                 .state(resultSet.getInt(statements.getStateColumn()))
                 .stateTimestamp(resultSet.getLong(statements.getStateTimestampColumn()))
                 .stateCount(resultSet.getInt(statements.getStateCountColumn()))
