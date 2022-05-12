@@ -1,6 +1,7 @@
 package org.eclipse.dataspaceconnector.extension.sample.test;
 
 import org.assertj.core.api.Assertions;
+import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.File;
 import java.util.*;
 
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
@@ -61,7 +63,7 @@ public class FileTransferSampleTest {
 
     @Test
     void testSample() {
-        assertThat(1+2).isEqualTo(3);
+        assertThat(1 + 2).isEqualTo(3);
     }
 
 
@@ -73,8 +75,11 @@ public class FileTransferSampleTest {
         // samples/04.0-file-transfer/provider/config.properties
         // ensure each port is defined only once
 
-        Properties consumerProperties = readPropertiesFile("C:\\Users\\pkirch\\src\\agera\\DataSpaceConnector\\samples\\04.0-file-transfer\\consumer\\config.properties");
-        Properties providerProperties = readPropertiesFile("C:\\Users\\pkirch\\src\\agera\\DataSpaceConnector\\samples\\04.0-file-transfer\\provider\\config.properties");
+        String pathConsumerConfigProperties = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/consumer/config.properties").getAbsolutePath();
+        String pathProviderConfigProperties = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/provider/config.properties").getAbsolutePath();
+
+        Properties consumerProperties = readPropertiesFile(pathConsumerConfigProperties);
+        Properties providerProperties = readPropertiesFile(pathProviderConfigProperties);
 
         List<String> portPropertyNames = List.of(
                 "web.http.port",
@@ -82,9 +87,9 @@ public class FileTransferSampleTest {
                 "web.http.ids.port"
         );
 
-        HashMap<Integer, String> configuredPorts = new HashMap<Integer, String>();
+        HashMap<Integer, String> configuredPorts = new HashMap<>();
 
-        for (var portPropertyName : portPropertyNames ) {
+        for (var portPropertyName : portPropertyNames) {
             assertPortDefinedOnce(consumerProperties, portPropertyName, configuredPorts, "consumer");
 
             assertPortDefinedOnce(providerProperties, portPropertyName, configuredPorts, "provider");
@@ -115,12 +120,10 @@ public class FileTransferSampleTest {
             prop = new Properties();
             prop.load(fis);
 
-        } catch(FileNotFoundException fnfe) {
+        } catch (IOException fnfe) {
             fnfe.printStackTrace();
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
         } finally {
-            fis.close();
+            if (fis != null) fis.close();
         }
 
         return prop;
