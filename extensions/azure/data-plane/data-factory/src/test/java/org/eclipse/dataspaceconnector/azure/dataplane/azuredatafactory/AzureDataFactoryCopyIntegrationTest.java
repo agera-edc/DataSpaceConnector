@@ -162,14 +162,14 @@ class AzureDataFactoryCopyIntegrationTest {
                 .isEqualTo(randomBytes.length);
     }
 
-    private void setSecret(Account consumerStorage, Vault vault, String secretName) {
+    private void setSecret(Account account, Vault vault, String secretName) {
         // ADF SLA to start an activity is 4 minutes.
         var expiryTime = OffsetDateTime.now().plusMinutes(8);
         var permission = new BlobContainerSasPermission().setWritePermission(true);
         var sasSignatureValues = new BlobServiceSasSignatureValues(expiryTime, permission)
                 .setStartTime(OffsetDateTime.now());
-        var sasToken = consumerStorage.client
-                .getBlobContainerClient(consumerStorage.containerName)
+        var sasToken = account.client
+                .getBlobContainerClient(account.containerName)
                 .generateSas(sasSignatureValues);
         var edcAzureSas = new AzureSasToken(sasToken, expiryTime.toEpochSecond());
         // Set Secret
