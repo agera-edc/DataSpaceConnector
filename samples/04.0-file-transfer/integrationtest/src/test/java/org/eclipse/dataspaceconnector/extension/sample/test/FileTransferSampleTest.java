@@ -1,15 +1,19 @@
 package org.eclipse.dataspaceconnector.extension.sample.test;
 
+import org.assertj.core.api.Assertions;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.util.Map;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
 
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SampleFileTransferTest {
+public class FileTransferSampleTest {
 
     public static final int CONSUMER_CONNECTOR_PORT = getFreePort();
     public static final int CONSUMER_MANAGEMENT_PORT = getFreePort();
@@ -60,4 +64,65 @@ public class SampleFileTransferTest {
         assertThat(1+2).isEqualTo(3);
     }
 
+
+    @Test
+    void prerequisiteConfigPropertiesFile() throws IOException {
+        // test sample guidance: Create the connectors / Consumer connector
+        // read both config files
+        // samples/04.0-file-transfer/consumer/config.properties
+        // samples/04.0-file-transfer/provider/config.properties
+        // ensure each port is defined only once
+
+        Properties consumerProperties = readPropertiesFile("C:\\Users\\pkirch\\src\\agera\\DataSpaceConnector\\samples\\04.0-file-transfer\\consumer\\config.properties");
+        Properties providerProperties = readPropertiesFile("C:\\Users\\pkirch\\src\\agera\\DataSpaceConnector\\samples\\04.0-file-transfer\\provider\\config.properties");
+
+        List<String> portPropertyNames = List.of(
+                "web.http.port",
+                "web.http.data.port",
+                "web.http.ids.port"
+        );
+
+        HashMap<Integer, String> configuredPorts = new HashMap<Integer, String>();
+
+        for (var portPropertyName : portPropertyNames ) {
+            assertPortDefinedOnce(consumerProperties, portPropertyName, configuredPorts, "consumer");
+
+            assertPortDefinedOnce(providerProperties, portPropertyName, configuredPorts, "provider");
+        }
+    }
+
+    private void assertPortDefinedOnce(Properties properties, String portPropertyName, HashMap<Integer, String> configuredPorts, String participantName) {
+
+        String propertyValue = properties.getProperty(portPropertyName);
+
+        if (propertyValue == null) return;
+
+        int portNumber = Integer.parseInt(propertyValue);
+
+        if (configuredPorts.containsKey(portNumber)) {
+            Assertions.fail(String.format("Port number '%d' defined multiple times.", portNumber));
+        }
+
+        configuredPorts.put(portNumber, String.format("%s/%s", participantName, portPropertyName));
+    }
+
+    private static Properties readPropertiesFile(String fileName) throws IOException {
+        FileInputStream fis = null;
+        Properties prop = null;
+
+        try {
+            fis = new FileInputStream(fileName);
+            prop = new Properties();
+            prop.load(fis);
+
+        } catch(FileNotFoundException fnfe) {
+            fnfe.printStackTrace();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        } finally {
+            fis.close();
+        }
+
+        return prop;
+    }
 }
