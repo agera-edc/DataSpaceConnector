@@ -21,8 +21,6 @@ val gatlingVersion: String by project
 val storageBlobVersion: String by project
 val restAssured: String by project
 val azureIdentityVersion: String by project
-val azureResourceManagerDataFactory: String by project
-val azureResourceManagerVersion: String by project
 val azureKeyVaultVersion: String by project
 
 dependencies {
