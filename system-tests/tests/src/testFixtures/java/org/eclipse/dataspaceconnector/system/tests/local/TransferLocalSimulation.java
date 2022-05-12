@@ -15,7 +15,7 @@
 package org.eclipse.dataspaceconnector.system.tests.local;
 
 import io.gatling.javaapi.core.Simulation;
-import org.eclipse.dataspaceconnector.system.tests.utils.TransferRequestFactory;
+import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationConfiguration;
 
 import static io.gatling.javaapi.core.CoreDsl.atOnceUsers;
 import static io.gatling.javaapi.core.CoreDsl.details;
@@ -54,10 +54,10 @@ public abstract class TransferLocalSimulation extends Simulation {
     private static final int MAX_RESPONSE_TIME = Integer.parseInt(propOrEnv("max.response.time", "5000"));
     private static final double SUCCESS_PERCENTAGE = Double.parseDouble(propOrEnv("success.percentage", "100.0"));
 
-    public TransferLocalSimulation(TransferRequestFactory requestFactory) {
+    public TransferLocalSimulation(TransferSimulationConfiguration simulationConfiguration) {
         setUp(scenario(DESCRIPTION)
                 .repeat(REPEAT)
-                .on(contractNegotiationAndTransfer(PROVIDER_IDS_API, requestFactory))
+                .on(contractNegotiationAndTransfer(PROVIDER_IDS_API, simulationConfiguration))
                 .injectOpen(atOnceUsers(AT_ONCE_USERS)))
                 .protocols(http.baseUrl(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH))
                 .assertions(
