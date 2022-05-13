@@ -6,7 +6,9 @@ import io.restassured.path.json.JsonPath;
 import org.assertj.core.api.Assertions;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.FileInputStream;
@@ -21,6 +23,7 @@ import io.restassured.RestAssured.*;
 import io.restassured.matcher.RestAssuredMatchers.*;
 import org.hamcrest.Matchers.*;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Integration test uses Lifecycle.PER_CLASS.
 public class FileTransferSampleTest {
 
     public static final int CONSUMER_CONNECTOR_PORT = 9191;
@@ -85,6 +88,7 @@ public class FileTransferSampleTest {
     }
 
     @Test
+    @Order(2)
     void initiateContractNegotiation() {
         // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"
 
@@ -105,6 +109,7 @@ public class FileTransferSampleTest {
     }
 
     @Test
+    @Order(1)
     void configPropertiesUniquePorts() throws IOException {
         // test sample guidance: Create the connectors / Consumer connector
         // read both config files
