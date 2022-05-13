@@ -54,12 +54,3 @@ dependencies {
     testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-provider"))
     testCompileOnly(project(":system-tests:runtimes:azure-storage-transfer-consumer"))
 }
-
-publishing {
-    publications {
-        create<MavenPublication>("azure-test") {
-            artifactId = "azure-test"
-            from(components["java"])
-        }
-    }
-}
