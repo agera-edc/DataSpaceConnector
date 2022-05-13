@@ -173,7 +173,6 @@ class TransferProcessManagerImplTest {
         manager.stop();
 
         verify(transferProcessStore, times(1)).create(argThat(p -> p.getCreatedTimestamp() == currentTime));
-        verify(transferProcessStore, times(2)).processIdForTransferId(anyString());
     }
 
     @Test
