@@ -52,7 +52,6 @@ import static java.lang.String.valueOf;
 import static java.lang.System.getenv;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_MANAGEMENT_URL;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_IDS_API;
@@ -69,7 +68,6 @@ import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSim
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.PROVIDER_MANAGEMENT_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.runGatling;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
-import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
 
 @AzureDataFactoryIntegrationTest
 public class AzureDataFactoryTransferIntegrationTest {
@@ -170,7 +168,7 @@ public class AzureDataFactoryTransferIntegrationTest {
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
 
         // Assert
-        var provisionedContainerName = getProvisionedContainerName();
+        var provisionedContainerName = BlobTransferUtils.getProvisionedContainerName();
         // Add for cleanup
         containerCleanup.add(() -> blobStoreApi.deleteContainer(CONSUMER_STORAGE_ACCOUNT_NAME, provisionedContainerName));
 
@@ -182,18 +180,6 @@ public class AzureDataFactoryTransferIntegrationTest {
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(blobContent);
 
-    }
-
-    @NotNull
-    private String getProvisionedContainerName() {
-        return given()
-                .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
-                .when()
-                .get(TRANSFER_PROCESSES_PATH)
-                .then()
-                .statusCode(200)
-                .extract().body()
-                .jsonPath().getString("[0].dataDestination.properties.container");
     }
 
     @NotNull

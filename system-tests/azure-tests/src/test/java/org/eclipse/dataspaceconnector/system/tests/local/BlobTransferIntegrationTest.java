@@ -46,7 +46,7 @@ import static io.restassured.http.ContentType.JSON;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY;
-import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_MANAGEMENT_URL;
+import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.getProvisionedContainerName;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_CONNECTOR_PORT;
 import static org.eclipse.dataspaceconnector.system.tests.local.TransferLocalSimulation.CONSUMER_IDS_API;
@@ -64,7 +64,6 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.GatlingUtils.run
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.IDS_PATH;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_FILE;
 import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.PROVIDER_ASSET_ID;
-import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils.TRANSFER_PROCESSES_PATH;
 
 @AzureStorageIntegrationTest
 public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
@@ -151,17 +150,6 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         assertThat(actualBlobContent)
                 .withFailMessage("Transferred file contents are not same as the source file")
                 .isEqualTo(blobContent);
-    }
-
-    private String getProvisionedContainerName() {
-        return given()
-                .baseUri(CONSUMER_CONNECTOR_MANAGEMENT_URL + CONSUMER_MANAGEMENT_PATH)
-                .when()
-                .get(TRANSFER_PROCESSES_PATH)
-                .then()
-                .statusCode(200)
-                .extract().body()
-                .jsonPath().getString("[0].dataDestination.properties.container");
     }
 
     private void createAsset() {
