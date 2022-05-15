@@ -57,21 +57,20 @@ sourceSets {
 }
 
 // Add dependencies copied from build/generate-resources/main/build.gradle
-var swagger_annotations_version = "1.5.22"
-var jackson_version = "2.10.4"
-var jakarta_annotation_version = "1.3.5"
-var junit_version = "4.13.1"
-var threetenbp_version = "2.9.10"
+val swagger_annotations_version = "1.5.22"
+val jacksonVersion: String by project
+val jakarta_annotation_version = "1.3.5"
+val threetenbp_version = "2.9.10"
 dependencies {
     implementation("io.swagger:swagger-annotations:$swagger_annotations_version")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("com.fasterxml.jackson.core:jackson-core:$jackson_version")
-    implementation("com.fasterxml.jackson.core:jackson-annotations:$jackson_version")
-    implementation("com.fasterxml.jackson.core:jackson-databind:$jackson_version")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
+    implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
+    implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
+    implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("org.openapitools:jackson-databind-nullable:0.2.1")
     implementation("jakarta.annotation:jakarta.annotation-api:$jakarta_annotation_version")
-    implementation("com.github.joschi.jackson:jackson-datatype-threetenbp:$threetenbp_version")
+    // implementation("com.github.joschi.jackson:jackson-datatype-threetenbp:$threetenbp_version")
 
 }
 
