@@ -57,13 +57,24 @@ jobs:
         with:
           java-version: '17'
 
+      - name: Convert to JSON
+        run: |
+          yq -o=json resources/openapi/openapi.yaml > openapi-git.tmp
+          jq -S . openapi-git.tmp > openapi-git.json
+
       - name: Generate OpenAPI definitions from code
         run: |
           ./gradlew resolve
           ./gradlew mergeOpenApiFiles
 
+      #- name: Check OpenAPI definitions match code
+      #  run: git diff --exit-code
+
       - name: Check OpenAPI definitions match code
-        run: git diff --exit-code
+        run: |
+          yq -o=json resources/openapi/openapi.yaml > openapi.tmp
+          jq -S . openapi.tmp > openapi.json
+          diff openapi-git.json openapi.json
 
   Unit-Tests:
     runs-on: ubuntu-latest
