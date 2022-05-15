@@ -38,8 +38,10 @@ import java.util.UUID;
  * "allowed" types for each.
  */
 @JsonDeserialize(builder = DataPlaneInstanceImpl.Builder.class)
-@JsonTypeName("dataspaceconnector:dataplaneinstance")
+@JsonTypeName(DataPlaneInstanceImpl.DATAPLANEINSTANCE)
 public class DataPlaneInstanceImpl implements DataPlaneInstance {
+
+    public static final String DATAPLANEINSTANCE = "dataspaceconnector:dataplaneinstance";
 
     private Map<String, Object> properties;
     @JsonProperty("allowedSourceTypes")

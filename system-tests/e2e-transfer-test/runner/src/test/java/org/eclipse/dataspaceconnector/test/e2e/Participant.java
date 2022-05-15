@@ -20,6 +20,7 @@ import org.eclipse.dataspaceconnector.client.api.AssetApi;
 import org.eclipse.dataspaceconnector.client.api.CatalogApi;
 import org.eclipse.dataspaceconnector.client.api.ContractDefinitionApi;
 import org.eclipse.dataspaceconnector.client.api.ContractNegotiationApi;
+import org.eclipse.dataspaceconnector.client.api.DataplaneSelectorApi;
 import org.eclipse.dataspaceconnector.client.api.PolicyApi;
 import org.eclipse.dataspaceconnector.client.api.TransferProcessApi;
 import org.eclipse.dataspaceconnector.client.models.Action;
@@ -32,6 +33,7 @@ import org.eclipse.dataspaceconnector.client.models.ContractOfferDescription;
 import org.eclipse.dataspaceconnector.client.models.Criterion;
 import org.eclipse.dataspaceconnector.client.models.DataAddress;
 import org.eclipse.dataspaceconnector.client.models.DataAddressDto;
+import org.eclipse.dataspaceconnector.client.models.DataPlaneInstanceImpl;
 import org.eclipse.dataspaceconnector.client.models.NegotiationInitiateRequestDto;
 import org.eclipse.dataspaceconnector.client.models.Permission;
 import org.eclipse.dataspaceconnector.client.models.Policy;
@@ -44,7 +46,6 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URI;
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -82,6 +83,7 @@ public class Participant {
     private final ContractDefinitionApi contractDefinitionApi = new ContractDefinitionApi(apiClient);
     private final ContractNegotiationApi contractNegotiationApi = new ContractNegotiationApi(apiClient);
     private final TransferProcessApi transferProcessApi = new TransferProcessApi(apiClient);
+    private final DataplaneSelectorApi dataplaneSelectorApi = new DataplaneSelectorApi(apiClient);
 
     public void createAsset(String assetId) {
         AssetEntryDto dto = new AssetEntryDto()
@@ -187,22 +189,14 @@ public class Participant {
     }
 
     public void registerDataPlane() {
-        var body = Map.of(
-                "edctype", "dataspaceconnector:dataplaneinstance",
-                "id", UUID.randomUUID().toString(),
-                "url", dataPlaneControl + "/transfer",
-                "allowedSourceTypes", List.of("HttpData"),
-                "allowedDestTypes", List.of("HttpData")
-        );
+        var body = new DataPlaneInstanceImpl()
+                .addAllowedSourceTypesItem("HttpData")
+                .addAllowedDestTypesItem("HttpData")
+                .edctype("dataspaceconnector:dataplaneinstance")
+                .id(UUID.randomUUID().toString())
+                .url(dataPlaneControl + "/transfer");
 
-        given()
-                .baseUri(controlPlaneDataplane.toString())
-                .contentType(JSON)
-                .body(body)
-                .when()
-                .post("/instances")
-                .then()
-                .statusCode(204);
+        dataplaneSelectorApi.addEntry(body);
     }
 
     public Catalog getCatalog(URI provider) {

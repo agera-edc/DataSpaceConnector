@@ -14,8 +14,9 @@
 
 package org.eclipse.dataspaceconnector.dataplane.selector.instance;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
-import org.eclipse.dataspaceconnector.spi.types.domain.Polymorphic;
 
 import java.net.URL;
 import java.util.Map;
@@ -24,8 +25,11 @@ import java.util.Map;
  * Representations of a data plane instance. Every DPF has an ID and a URL as well as a number, how often it was selected,
  * and a timestamp of its last selection time. In addition, there are extensible properties to hold specific properties.
  */
-public interface DataPlaneInstance extends Polymorphic {
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "edctype")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = DataPlaneInstanceImpl.class, name = DataPlaneInstanceImpl.DATAPLANEINSTANCE),
+})
+public interface DataPlaneInstance {
     /**
      * Gets the unique identifier for this instance
      */
