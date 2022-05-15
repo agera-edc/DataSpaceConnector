@@ -16,7 +16,6 @@
 package org.eclipse.dataspaceconnector.policy.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.jetbrains.annotations.Nullable;
@@ -28,7 +27,6 @@ import static java.util.stream.Collectors.joining;
  * TODO: Do we need to support deserializing the parent permission setting?
  */
 @JsonDeserialize(builder = Duty.Builder.class)
-@JsonTypeName("dataspaceconnector:duty")
 public class Duty extends Rule {
 
     private Permission parentPermission;
@@ -61,7 +59,7 @@ public class Duty extends Rule {
     public String toString() {
         return "Duty constraint: [" + getConstraints().stream().map(Object::toString).collect(joining(",")) + "]";
     }
-    
+
     /**
      * Returns a copy of this duty with the specified target.
      *

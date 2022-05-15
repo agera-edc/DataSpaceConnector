@@ -30,7 +30,6 @@ import static java.util.stream.Collectors.joining;
  * Allows an action if its constraints are satisfied.
  */
 @JsonDeserialize(builder = Permission.Builder.class)
-@JsonTypeName("dataspaceconnector:permission")
 public class Permission extends Rule {
     private final List<Duty> duties = new ArrayList<>();
 
