@@ -22,6 +22,7 @@ include(":common:util")
 include(":common:state-machine-lib")
 include(":common:token-generation-lib")
 include(":common:token-validation-lib")
+include(":common:rest-client")
 
 
 // EDC core modules
