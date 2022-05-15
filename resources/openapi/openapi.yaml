@@ -6,8 +6,6 @@ components:
           $ref: '#/components/schemas/Constraint'
         includedIn:
           type: string
-        type:
-          type: string
       type: object
     Asset:
       properties:
