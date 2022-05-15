@@ -17,19 +17,24 @@ package org.eclipse.dataspaceconnector.test.e2e;
 import org.eclipse.dataspaceconnector.client.ApiClient;
 import org.eclipse.dataspaceconnector.client.ApiClientFactory;
 import org.eclipse.dataspaceconnector.client.api.AssetApi;
+import org.eclipse.dataspaceconnector.client.api.CatalogApi;
 import org.eclipse.dataspaceconnector.client.api.ContractDefinitionApi;
+import org.eclipse.dataspaceconnector.client.api.ContractNegotiationApi;
 import org.eclipse.dataspaceconnector.client.api.PolicyApi;
 import org.eclipse.dataspaceconnector.client.models.Action;
 import org.eclipse.dataspaceconnector.client.models.AssetDto;
 import org.eclipse.dataspaceconnector.client.models.AssetEntryDto;
+import org.eclipse.dataspaceconnector.client.models.Catalog;
 import org.eclipse.dataspaceconnector.client.models.ContractDefinitionDto;
+import org.eclipse.dataspaceconnector.client.models.ContractOffer;
+import org.eclipse.dataspaceconnector.client.models.ContractOfferDescription;
 import org.eclipse.dataspaceconnector.client.models.Criterion;
 import org.eclipse.dataspaceconnector.client.models.DataAddressDto;
+import org.eclipse.dataspaceconnector.client.models.NegotiationInitiateRequestDto;
 import org.eclipse.dataspaceconnector.client.models.Permission;
 import org.eclipse.dataspaceconnector.client.models.Policy;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
-import org.eclipse.dataspaceconnector.spi.types.domain.catalog.Catalog;
-import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
+import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
 import org.eclipse.dataspaceconnector.test.e2e.postgresql.PostgresqlLocalInstance;
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +76,9 @@ public class Participant {
     private final ApiClient apiClient = ApiClientFactory.createApiClient(controlPlane + "/api");
     private final AssetApi assetApi = new AssetApi(apiClient);
     private final PolicyApi policyApi = new PolicyApi(apiClient);
+    private final CatalogApi catalogApi = new CatalogApi(apiClient);
     private final ContractDefinitionApi contractDefinitionApi = new ContractDefinitionApi(apiClient);
+    private final ContractNegotiationApi contractNegotiationApi = new ContractNegotiationApi(apiClient);
 
     public void createAsset(String assetId) {
         AssetEntryDto dto = new AssetEntryDto()
@@ -116,26 +123,20 @@ public class Participant {
     }
 
     public String negotiateContract(Participant provider, ContractOffer contractOffer) {
-        var request = Map.of(
-                "connectorId", "provider",
-                "connectorAddress", provider.idsEndpoint() + "/api/v1/ids/data",
-                "protocol", "ids-multipart",
-                "offer", Map.of(
-                        "offerId", contractOffer.getId(),
-                        "assetId", contractOffer.getAsset().getId(),
-                        "policy", contractOffer.getPolicy()
-                )
-        );
+        var request = new NegotiationInitiateRequestDto()
+                .connectorId("provider")
+                .connectorAddress(provider.idsEndpoint() + "/api/v1/ids/data")
+                .protocol("ids-multipart")
+                .offer(new ContractOfferDescription()
+                        .offerId(contractOffer.getId())
+                        .assetId(getAssetId(contractOffer))
+                        .policy(contractOffer.getPolicy())
+                );
+        return contractNegotiationApi.initiateContractNegotiation(request).getId();
+    }
 
-        return given()
-                .baseUri(controlPlane.toString())
-                .contentType(JSON)
-                .body(request)
-                .when()
-                .post("/api/contractnegotiations")
-                .then()
-                .statusCode(200)
-                .extract().body().jsonPath().getString("id");
+    public String getAssetId(ContractOffer contractOffer) {
+        return (String) contractOffer.getAsset().getProperties().get(Asset.PROPERTY_ID);
     }
 
     public String getContractAgreementId(String negotiationId) {
@@ -219,15 +220,7 @@ public class Participant {
     }
 
     public Catalog getCatalog(URI provider) {
-        return given()
-                .baseUri(controlPlane.toString())
-                .contentType(JSON)
-                .when()
-                .queryParam("providerUrl", provider + IDS_PATH + "/data")
-                .get("/api/catalog")
-                .then()
-                .statusCode(200)
-                .extract().body().as(Catalog.class);
+        return catalogApi.getCatalog(provider + IDS_PATH + "/data");
     }
 
     public URI idsEndpoint() {
