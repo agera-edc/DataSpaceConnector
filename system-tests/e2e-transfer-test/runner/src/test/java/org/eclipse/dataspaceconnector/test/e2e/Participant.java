@@ -17,14 +17,16 @@ package org.eclipse.dataspaceconnector.test.e2e;
 import org.eclipse.dataspaceconnector.client.ApiClient;
 import org.eclipse.dataspaceconnector.client.ApiClientFactory;
 import org.eclipse.dataspaceconnector.client.api.AssetApi;
+import org.eclipse.dataspaceconnector.client.api.ContractDefinitionApi;
+import org.eclipse.dataspaceconnector.client.api.PolicyApi;
+import org.eclipse.dataspaceconnector.client.models.Action;
 import org.eclipse.dataspaceconnector.client.models.AssetDto;
 import org.eclipse.dataspaceconnector.client.models.AssetEntryDto;
+import org.eclipse.dataspaceconnector.client.models.ContractDefinitionDto;
+import org.eclipse.dataspaceconnector.client.models.Criterion;
 import org.eclipse.dataspaceconnector.client.models.DataAddressDto;
-import org.eclipse.dataspaceconnector.policy.model.Action;
-import org.eclipse.dataspaceconnector.policy.model.Permission;
-import org.eclipse.dataspaceconnector.policy.model.Policy;
-import org.eclipse.dataspaceconnector.policy.model.PolicyType;
-import org.eclipse.dataspaceconnector.spi.asset.AssetSelectorExpression;
+import org.eclipse.dataspaceconnector.client.models.Permission;
+import org.eclipse.dataspaceconnector.client.models.Policy;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.catalog.Catalog;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
@@ -68,6 +70,8 @@ public class Participant {
 
     private final ApiClient apiClient = ApiClientFactory.createApiClient(controlPlane + "/api");
     private final AssetApi assetApi = new AssetApi(apiClient);
+    private final PolicyApi policyApi = new PolicyApi(apiClient);
+    private final ContractDefinitionApi contractDefinitionApi = new ContractDefinitionApi(apiClient);
 
     public void createAsset(String assetId) {
         AssetEntryDto dto = new AssetEntryDto()
@@ -85,40 +89,30 @@ public class Participant {
     }
 
     public String createPolicy(String assetId) {
-        var policy = Policy.Builder.newInstance()
-                .permission(Permission.Builder.newInstance()
+        var policy = new Policy()
+                .uid(UUID.randomUUID().toString())
+                .addPermissionsItem(new Permission()
                         .target(assetId)
-                        .action(Action.Builder.newInstance().type("USE").build())
-                        .build())
-                .type(PolicyType.SET)
-                .build();
+                        .action(new Action().type("USE")))
+                .atType(Policy.AtTypeEnum.SET);
 
-        given()
-                .baseUri(controlPlane.toString())
-                .contentType(JSON)
-                .body(policy)
-                .when()
-                .post("/api/policies")
-                .then();
+        policyApi.createPolicy(policy);
 
         return policy.getUid();
     }
 
     public void createContractDefinition(String policyId, String assetId, String definitionId) {
-        var contractDefinition = Map.of(
-                "id", definitionId,
-                "accessPolicyId", policyId,
-                "contractPolicyId", policyId,
-                "criteria", AssetSelectorExpression.Builder.newInstance().constraint("asset:prop:id", "=", assetId).build().getCriteria()
-        );
+        var contractDefinition = new ContractDefinitionDto()
+                .id(definitionId)
+                .accessPolicyId(policyId)
+                .contractPolicyId(policyId)
+                .addCriteriaItem(
+                        new Criterion()
+                                .left("asset:prop:id")
+                                .op("=")
+                                .right(assetId));
 
-        given()
-                .baseUri(controlPlane.toString())
-                .contentType(JSON)
-                .body(contractDefinition)
-                .when()
-                .post("/api/contractdefinitions")
-                .then();
+        contractDefinitionApi.createContractDefinition(contractDefinition);
     }
 
     public String negotiateContract(Participant provider, ContractOffer contractOffer) {
