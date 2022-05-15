@@ -58,7 +58,7 @@ jobs:
           java-version: '17'
 
       - name: Save previous OpenAPI definition
-        run: yq -P 'sort_keys(..)' resources/openapi/openapi.yaml > openapi-git.yaml
+        run: yq -P 'sort_keys(..)' resources/openapi/openapi.yaml > $RUNNER_TEMP/openapi-git-sorted.yaml
 
       - name: Generate OpenAPI definitions from code
         run: |
@@ -71,8 +71,8 @@ jobs:
 
       - name: Check OpenAPI definitions match code
         run: |
-          yq -i -P 'sort_keys(..)' resources/openapi/openapi.yaml
-          diff openapi-git.yaml openapi.yaml
+          yq -P 'sort_keys(..)' resources/openapi/openapi.yaml > openapi-sorted.yaml
+          diff openapi-git-sorted.yaml openapi-sorted.yaml
 
   Unit-Tests:
     runs-on: ubuntu-latest
