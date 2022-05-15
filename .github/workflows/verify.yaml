@@ -57,24 +57,22 @@ jobs:
         with:
           java-version: '17'
 
-      - name: Convert to JSON
-        run: |
-          yq -o=json resources/openapi/openapi.yaml > openapi-git.tmp
-          jq -S . openapi-git.tmp > openapi-git.json
+      - name: Save previous OpenAPI definition
+        run: yq -P 'sort_keys(..)' resources/openapi/openapi.yaml > openapi-git.yaml
 
       - name: Generate OpenAPI definitions from code
         run: |
           ./gradlew resolve
           ./gradlew mergeOpenApiFiles
 
+      # Can be used (and yq tasks removed) when https://github.com/kpramesh2212/openapi-merger-plugin/pull/11/files is merged
       #- name: Check OpenAPI definitions match code
       #  run: git diff --exit-code
 
       - name: Check OpenAPI definitions match code
         run: |
-          yq -o=json resources/openapi/openapi.yaml > openapi.tmp
-          jq -S . openapi.tmp > openapi.json
-          diff openapi-git.json openapi.json
+          yq -i -P 'sort_keys(..)' resources/openapi/openapi.yaml
+          diff openapi-git.yaml openapi.yaml
 
   Unit-Tests:
     runs-on: ubuntu-latest
