@@ -56,22 +56,18 @@ sourceSets {
     }
 }
 
-// Add dependencies copied from build/generate-resources/main/build.gradle
-val swagger_annotations_version = "1.5.22"
 val jacksonVersion: String by project
-val jakarta_annotation_version = "1.3.5"
-val threetenbp_version = "2.9.10"
+
+// Dependencies copied from build/generate-resources/main/build.gradle
 dependencies {
-    implementation("io.swagger:swagger-annotations:$swagger_annotations_version")
+    implementation("io.swagger:swagger-annotations:1.5.22")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     implementation("com.fasterxml.jackson.core:jackson-core:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     implementation("org.openapitools:jackson-databind-nullable:0.2.1")
-    implementation("jakarta.annotation:jakarta.annotation-api:$jakarta_annotation_version")
-    // implementation("com.github.joschi.jackson:jackson-datatype-threetenbp:$threetenbp_version")
-
+    implementation("jakarta.annotation:jakarta.annotation-api:1.3.5")
 }
 
 // Generated Maven package
