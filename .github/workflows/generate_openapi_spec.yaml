@@ -22,8 +22,9 @@ jobs:
           java-version: '17'
 
       - name: Generate YAML spec
-        env:
-          INTEGRATION_TEST: false
         run: |
-          ./gradlew clean resolve
+          ./gradlew resolve
           ./gradlew mergeOpenApiFiles
+
+      - name: Check OpenAPI files match code
+        run: git diff --exit-code
