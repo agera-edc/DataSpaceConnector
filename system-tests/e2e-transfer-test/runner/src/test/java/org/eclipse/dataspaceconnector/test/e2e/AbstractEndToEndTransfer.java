@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.test.e2e;
 
-import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
+import org.eclipse.dataspaceconnector.client.models.DataAddress;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -83,11 +83,10 @@ public abstract class AbstractEndToEndTransfer {
 
         assertThat(contractAgreementId).isNotEmpty();
 
-        var destination = DataAddress.Builder.newInstance()
-                .type("HttpData")
-                .property(NAME, "data")
-                .property(ENDPOINT, CONSUMER.backendService() + "/api/service")
-                .build();
+        var destination = new DataAddress()
+                .putPropertiesItem(org.eclipse.dataspaceconnector.spi.types.domain.DataAddress.TYPE, "HttpData")
+                .putPropertiesItem(NAME, "data")
+                .putPropertiesItem(ENDPOINT, CONSUMER.backendService() + "/api/service");
         var transferProcessId = CONSUMER.dataRequest(contractAgreementId, assetId, PROVIDER, destination);
 
         await().atMost(timeout).untilAsserted(() -> {
@@ -113,7 +112,7 @@ public abstract class AbstractEndToEndTransfer {
     }
 
     private DataAddress sync() {
-        return DataAddress.Builder.newInstance().type("HttpProxy").build();
+        return new DataAddress().putPropertiesItem(org.eclipse.dataspaceconnector.spi.types.domain.DataAddress.TYPE, "HttpProxy");
     }
 
 }

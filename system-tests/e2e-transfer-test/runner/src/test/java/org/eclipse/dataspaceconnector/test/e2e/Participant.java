@@ -21,6 +21,7 @@ import org.eclipse.dataspaceconnector.client.api.CatalogApi;
 import org.eclipse.dataspaceconnector.client.api.ContractDefinitionApi;
 import org.eclipse.dataspaceconnector.client.api.ContractNegotiationApi;
 import org.eclipse.dataspaceconnector.client.api.PolicyApi;
+import org.eclipse.dataspaceconnector.client.api.TransferProcessApi;
 import org.eclipse.dataspaceconnector.client.models.Action;
 import org.eclipse.dataspaceconnector.client.models.AssetDto;
 import org.eclipse.dataspaceconnector.client.models.AssetEntryDto;
@@ -29,13 +30,14 @@ import org.eclipse.dataspaceconnector.client.models.ContractDefinitionDto;
 import org.eclipse.dataspaceconnector.client.models.ContractOffer;
 import org.eclipse.dataspaceconnector.client.models.ContractOfferDescription;
 import org.eclipse.dataspaceconnector.client.models.Criterion;
+import org.eclipse.dataspaceconnector.client.models.DataAddress;
 import org.eclipse.dataspaceconnector.client.models.DataAddressDto;
 import org.eclipse.dataspaceconnector.client.models.NegotiationInitiateRequestDto;
 import org.eclipse.dataspaceconnector.client.models.Permission;
 import org.eclipse.dataspaceconnector.client.models.Policy;
-import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
+import org.eclipse.dataspaceconnector.client.models.TransferRequestDto;
+import org.eclipse.dataspaceconnector.client.models.TransferType;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
-import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
 import org.eclipse.dataspaceconnector.test.e2e.postgresql.PostgresqlLocalInstance;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,9 +52,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static java.io.File.separator;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
-import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class Participant {
 
@@ -79,6 +81,7 @@ public class Participant {
     private final CatalogApi catalogApi = new CatalogApi(apiClient);
     private final ContractDefinitionApi contractDefinitionApi = new ContractDefinitionApi(apiClient);
     private final ContractNegotiationApi contractNegotiationApi = new ContractNegotiationApi(apiClient);
+    private final TransferProcessApi transferProcessApi = new TransferProcessApi(apiClient);
 
     public void createAsset(String assetId) {
         AssetEntryDto dto = new AssetEntryDto()
@@ -143,16 +146,8 @@ public class Participant {
         var contractAgreementId = new AtomicReference<String>();
 
         await().atMost(timeout).untilAsserted(() -> {
-            var result = given()
-                    .baseUri(controlPlane.toString())
-                    .contentType(JSON)
-                    .when()
-                    .get("/api/contractnegotiations/{id}", negotiationId)
-                    .then()
-                    .statusCode(200)
-                    .body("contractAgreementId", notNullValue())
-                    .extract().body().jsonPath().getString("contractAgreementId");
-
+            var result = contractNegotiationApi.getNegotiation(negotiationId).getContractAgreementId();
+            assertThat(result).isNotNull();
             contractAgreementId.set(result);
         });
 
@@ -160,29 +155,20 @@ public class Participant {
     }
 
     public String dataRequest(String contractAgreementId, String assetId, Participant provider, DataAddress dataAddress) {
-        var request = Map.of(
-                "contractId", contractAgreementId,
-                "assetId", assetId,
-                "connectorId", "provider",
-                "connectorAddress", provider.idsEndpoint() + "/api/v1/ids/data",
-                "protocol", "ids-multipart",
-                "dataDestination", dataAddress,
-                "managedResources", false,
-                "transferType", TransferType.Builder.transferType()
+        var request = new TransferRequestDto()
+                .contractId(contractAgreementId)
+                .assetId(assetId)
+                .connectorId("provider")
+                .connectorAddress(provider.idsEndpoint() + "/api/v1/ids/data")
+                .protocol("ids-multipart")
+                .dataDestination(dataAddress)
+                .managedResources(false)
+                .transferType(new TransferType()
                         .contentType("application/octet-stream")
                         .isFinite(true)
-                        .build()
-        );
+                );
 
-        return given()
-                .baseUri(controlPlane.toString())
-                .contentType(JSON)
-                .body(request)
-                .when()
-                .post("/api/transferprocess")
-                .then()
-                .statusCode(200)
-                .extract().body().jsonPath().getString("id");
+        return transferProcessApi.initiateTransfer(request).getId();
     }
 
     public String getTransferProcessState(String transferProcessId) {
