@@ -76,14 +76,15 @@ public class Participant {
         this.name = name;
     }
 
-    private final ApiClient apiClient = ApiClientFactory.createApiClient(controlPlane + "/api");
-    private final AssetApi assetApi = new AssetApi(apiClient);
-    private final PolicyApi policyApi = new PolicyApi(apiClient);
-    private final CatalogApi catalogApi = new CatalogApi(apiClient);
-    private final ContractDefinitionApi contractDefinitionApi = new ContractDefinitionApi(apiClient);
-    private final ContractNegotiationApi contractNegotiationApi = new ContractNegotiationApi(apiClient);
-    private final TransferProcessApi transferProcessApi = new TransferProcessApi(apiClient);
-    private final DataplaneSelectorApi dataplaneSelectorApi = new DataplaneSelectorApi(apiClient);
+    private final ApiClient controlPlaneDataplaneClient = ApiClientFactory.createApiClient(controlPlaneDataplane.toString());
+    private final ApiClient dataManagementClient = ApiClientFactory.createApiClient(controlPlane + "/api");
+    private final DataplaneSelectorApi dataplaneSelectorApi = new DataplaneSelectorApi(controlPlaneDataplaneClient);
+    private final AssetApi assetApi = new AssetApi(dataManagementClient);
+    private final PolicyApi policyApi = new PolicyApi(dataManagementClient);
+    private final CatalogApi catalogApi = new CatalogApi(dataManagementClient);
+    private final ContractDefinitionApi contractDefinitionApi = new ContractDefinitionApi(dataManagementClient);
+    private final ContractNegotiationApi contractNegotiationApi = new ContractNegotiationApi(dataManagementClient);
+    private final TransferProcessApi transferProcessApi = new TransferProcessApi(dataManagementClient);
 
     public void createAsset(String assetId) {
         AssetEntryDto dto = new AssetEntryDto()
