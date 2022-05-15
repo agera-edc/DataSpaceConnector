@@ -14,6 +14,12 @@
 
 package org.eclipse.dataspaceconnector.test.e2e;
 
+import org.eclipse.dataspaceconnector.client.ApiClient;
+import org.eclipse.dataspaceconnector.client.ApiClientFactory;
+import org.eclipse.dataspaceconnector.client.api.AssetApi;
+import org.eclipse.dataspaceconnector.client.models.AssetDto;
+import org.eclipse.dataspaceconnector.client.models.AssetEntryDto;
+import org.eclipse.dataspaceconnector.client.models.DataAddressDto;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
@@ -60,30 +66,22 @@ public class Participant {
         this.name = name;
     }
 
+    private final ApiClient apiClient = ApiClientFactory.createApiClient(controlPlane + "/api");
+    private final AssetApi assetApi = new AssetApi(apiClient);
+
     public void createAsset(String assetId) {
-        var asset = Map.of(
-                "asset", Map.of(
-                        "properties", Map.of(
-                                "asset:prop:id", assetId,
-                                "asset:prop:description", "description"
-                        )
-                ),
-                "dataAddress", Map.of(
-                        "properties", Map.of(
+        AssetEntryDto dto = new AssetEntryDto()
+                .asset(new AssetDto().properties(Map.of(
+                        "asset:prop:id", assetId,
+                        "asset:prop:description", "description"
+                )))
+                .dataAddress(new DataAddressDto()
+                        .properties(Map.of(
                                 "name", "data",
                                 "endpoint", backendService + "/api/service",
                                 "type", "HttpData"
-                        )
-                )
-        );
-
-        given()
-                .baseUri(controlPlane.toString())
-                .contentType(JSON)
-                .body(asset)
-                .when()
-                .post("/api/assets")
-                .then();
+                        )));
+        assetApi.createAsset(dto);
     }
 
     public String createPolicy(String assetId) {
