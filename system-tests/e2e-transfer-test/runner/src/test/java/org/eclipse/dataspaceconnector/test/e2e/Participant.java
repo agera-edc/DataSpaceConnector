@@ -40,6 +40,7 @@ import org.eclipse.dataspaceconnector.client.models.Policy;
 import org.eclipse.dataspaceconnector.client.models.TransferRequestDto;
 import org.eclipse.dataspaceconnector.client.models.TransferType;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
+import org.eclipse.dataspaceconnector.spi.types.domain.http.HttpDataAddressSchema;
 import org.eclipse.dataspaceconnector.test.e2e.postgresql.PostgresqlLocalInstance;
 import org.jetbrains.annotations.NotNull;
 
@@ -88,16 +89,15 @@ public class Participant {
 
     public void createAsset(String assetId) {
         AssetEntryDto dto = new AssetEntryDto()
-                .asset(new AssetDto().properties(Map.of(
-                        "asset:prop:id", assetId,
-                        "asset:prop:description", "description"
-                )))
+                .asset(new AssetDto()
+                        .putPropertiesItem(Asset.PROPERTY_ID, assetId)
+                        .putPropertiesItem(Asset.PROPERTY_DESCRIPTION, "description")
+                )
                 .dataAddress(new DataAddressDto()
-                        .properties(Map.of(
-                                "name", "data",
-                                "endpoint", backendService + "/api/service",
-                                "type", "HttpData"
-                        )));
+                        .putPropertiesItem(org.eclipse.dataspaceconnector.spi.types.domain.DataAddress.TYPE, HttpDataAddressSchema.TYPE)
+                        .putPropertiesItem(HttpDataAddressSchema.NAME, "data")
+                        .putPropertiesItem(HttpDataAddressSchema.ENDPOINT, backendService + "/api/service")
+                );
         assetApi.createAsset(dto);
     }
 
@@ -119,11 +119,7 @@ public class Participant {
                 .id(definitionId)
                 .accessPolicyId(policyId)
                 .contractPolicyId(policyId)
-                .addCriteriaItem(
-                        new Criterion()
-                                .left("asset:prop:id")
-                                .op("=")
-                                .right(assetId));
+                .addCriteriaItem(new Criterion().left(Asset.PROPERTY_ID).op("=").right(assetId));
 
         contractDefinitionApi.createContractDefinition(contractDefinition);
     }
@@ -141,7 +137,9 @@ public class Participant {
         return contractNegotiationApi.initiateContractNegotiation(request).getId();
     }
 
-    public String getAssetId(ContractOffer contractOffer) {
+    public static String getAssetId(ContractOffer contractOffer) {
+        assertThat(contractOffer.getAsset()).isNotNull();
+        assertThat(contractOffer.getAsset().getProperties()).isNotNull();
         return (String) contractOffer.getAsset().getProperties().get(Asset.PROPERTY_ID);
     }
 
@@ -191,8 +189,8 @@ public class Participant {
 
     public void registerDataPlane() {
         var body = new DataPlaneInstanceImpl()
-                .addAllowedSourceTypesItem("HttpData")
-                .addAllowedDestTypesItem("HttpData")
+                .addAllowedSourceTypesItem(HttpDataAddressSchema.TYPE)
+                .addAllowedDestTypesItem(HttpDataAddressSchema.TYPE)
                 .edctype("dataspaceconnector:dataplaneinstance")
                 .id(UUID.randomUUID().toString())
                 .url(dataPlaneControl + "/transfer");

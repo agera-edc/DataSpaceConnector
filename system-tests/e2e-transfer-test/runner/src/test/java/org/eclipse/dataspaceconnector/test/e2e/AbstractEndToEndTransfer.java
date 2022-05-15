@@ -43,7 +43,7 @@ public abstract class AbstractEndToEndTransfer {
         assertThat(catalog.getContractOffers()).hasSize(1);
 
         var contractOffer = catalog.getContractOffers().get(0);
-        var assetId = CONSUMER.getAssetId(contractOffer);
+        var assetId = Participant.getAssetId(contractOffer);
         var negotiationId = CONSUMER.negotiateContract(PROVIDER, contractOffer);
         var contractAgreementId = CONSUMER.getContractAgreementId(negotiationId);
 
@@ -77,7 +77,7 @@ public abstract class AbstractEndToEndTransfer {
         assertThat(catalog.getContractOffers()).hasSize(1);
 
         var contractOffer = catalog.getContractOffers().get(0);
-        var assetId = CONSUMER.getAssetId(contractOffer);
+        var assetId = Participant.getAssetId(contractOffer);
         var negotiationId = CONSUMER.negotiateContract(PROVIDER, contractOffer);
         var contractAgreementId = CONSUMER.getContractAgreementId(negotiationId);
 
