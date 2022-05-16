@@ -5,7 +5,6 @@
       "uid": "AP_0",
       "permissions": [
         {
-          "edctype": "dataspaceconnector:permission",
           "uid": null,
           "target": "text-document",
           "action": {
@@ -26,15 +25,12 @@
       "assigner": null,
       "assignee": null,
       "target": null,
-      "@type": {
-        "@policytype": "set"
-      }
+      "@type": "SET"
     },
     "contractPolicy": {
       "uid": "CP_0",
       "permissions": [
         {
-          "edctype": "dataspaceconnector:permission",
           "uid": null,
           "target": "text-document",
           "action": {
@@ -55,9 +51,7 @@
       "assigner": null,
       "assignee": null,
       "target": null,
-      "@type": {
-        "@policytype": "set"
-      }
+      "@type": "SET"
     },
     "selectorExpression": {
       "criteria": []
@@ -69,7 +63,6 @@
       "uid": "AP_1",
       "permissions": [
         {
-          "edctype": "dataspaceconnector:permission",
           "uid": null,
           "target": "schematic-drawing-az",
           "action": {
@@ -90,15 +83,12 @@
       "assigner": null,
       "assignee": null,
       "target": null,
-      "@type": {
-        "@policytype": "set"
-      }
+      "@type": "SET"
     },
     "contractPolicy": {
       "uid": "CP_1",
       "permissions": [
         {
-          "edctype": "dataspaceconnector:permission",
           "uid": null,
           "target": "schematic-drawing-az",
           "action": {
@@ -119,9 +109,7 @@
       "assigner": null,
       "assignee": null,
       "target": null,
-      "@type": {
-        "@policytype": "set"
-      }
+      "@type": "SET"
     },
     "selectorExpression": {
       "criteria": []
