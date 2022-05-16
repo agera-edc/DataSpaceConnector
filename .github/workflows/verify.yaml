@@ -72,7 +72,7 @@ jobs:
       - name: Check OpenAPI definitions match code
         run: |
           yq -P 'sort_keys(..)' resources/openapi/openapi.yaml > openapi-ci-sorted.yaml
-          diff openapi-git-sorted.yaml openapi-sorted.yaml
+          diff openapi-git-sorted.yaml openapi-ci-sorted.yaml
 
   Unit-Tests:
     runs-on: ubuntu-latest
