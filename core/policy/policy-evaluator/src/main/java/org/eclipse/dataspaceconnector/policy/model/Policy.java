@@ -115,7 +115,7 @@ public class Policy extends Identifiable {
     public interface Visitor<R> {
         R visitPolicy(Policy policy);
     }
-    
+
     /**
      * Returns a copy of this policy with the specified target.
      *

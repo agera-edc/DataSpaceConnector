@@ -16,7 +16,6 @@
 package org.eclipse.dataspaceconnector.policy.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
@@ -46,7 +45,7 @@ public class Permission extends Rule {
     public String toString() {
         return "Permission constraints: [" + getConstraints().stream().map(Object::toString).collect(joining(",")) + "]";
     }
-    
+
     /**
      * Returns a copy of this permission with the specified target.
      *

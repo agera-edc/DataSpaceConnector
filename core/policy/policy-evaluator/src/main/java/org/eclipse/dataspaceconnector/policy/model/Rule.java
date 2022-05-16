@@ -14,8 +14,6 @@
 
 package org.eclipse.dataspaceconnector.policy.model;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 

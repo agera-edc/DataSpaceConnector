@@ -18,5 +18,5 @@ package org.eclipse.dataspaceconnector.policy.model;
  * The types of {@link Policy}.
  */
 public enum PolicyType {
-    SET, OFFER, CONTRACT;
+    SET, OFFER, CONTRACT
 }
