@@ -15,14 +15,11 @@
 
 package org.eclipse.dataspaceconnector.policy.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import static java.util.stream.Collectors.joining;
 
 /**
  * Disallows an action if its constraints are satisfied.
  */
-@JsonDeserialize(builder = Prohibition.Builder.class)
 public class Prohibition extends Rule {
 
     @Override
@@ -34,7 +31,7 @@ public class Prohibition extends Rule {
     public String toString() {
         return "Prohibition constraints: [" + getConstraints().stream().map(Object::toString).collect(joining(",")) + "]";
     }
-
+    
     /**
      * Returns a copy of this prohibition with the specified target.
      *
