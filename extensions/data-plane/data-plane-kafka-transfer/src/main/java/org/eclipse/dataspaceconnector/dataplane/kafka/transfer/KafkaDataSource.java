@@ -28,7 +28,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +47,7 @@ class KafkaDataSource implements DataSource {
     private Monitor monitor;
     private String topic;
     private String groupId;
+    private Duration maxDuration;
     private Map<String, String> consumerProperties = Map.of();
 
     @NotNull
@@ -67,7 +70,7 @@ class KafkaDataSource implements DataSource {
         var consumer = createKafkaConsumer();
 
         return StreamSupport.stream(
-                Spliterators.spliteratorUnknownSize(new ConsumerRecordsIterator(consumer), 0),
+                Spliterators.spliteratorUnknownSize(new ConsumerRecordsIterator(consumer, maxDuration), 0),
                 /* not parallel */ false);
     }
 
@@ -132,6 +135,11 @@ class KafkaDataSource implements DataSource {
             return this;
         }
 
+        public Builder maxDuration(Duration maxDuration) {
+            dataSource.maxDuration = maxDuration;
+            return this;
+        }
+
         public Builder consumerProperties(Map<String, String> consumerProperties) {
             dataSource.consumerProperties = Map.copyOf(consumerProperties);
             return this;
@@ -150,25 +158,51 @@ class KafkaDataSource implements DataSource {
         }
     }
 
-    private static class ConsumerRecordsIterator implements Iterator<ConsumerRecords<?, ?>> {
+    private class ConsumerRecordsIterator implements Iterator<ConsumerRecords<?, ?>> {
         private final Consumer<?, ?> consumer;
+        private final Duration maxDuration;
+        private Instant consumeUntil;
+        private final Clock clock = Clock.systemUTC();
 
-        ConsumerRecordsIterator(Consumer<?, ?> consumer) {
+        ConsumerRecordsIterator(Consumer<?, ?> consumer, Duration maxDuration) {
             this.consumer = consumer;
+            this.maxDuration = maxDuration;
         }
 
         @Override
         public boolean hasNext() {
-            return true;
+            if (consumeUntil == null) {
+                return true;
+            }
+            boolean maxDurationReached = getTimeLeft().isNegative();
+            if (maxDurationReached) {
+                monitor.debug("Kafka consumer maximum duration reached");
+            }
+            return !maxDurationReached;
+        }
+
+        private Duration getTimeLeft() {
+            return Duration.between(clock.instant(), consumeUntil);
         }
 
         @Override
         public ConsumerRecords<?, ?> next() {
+            if (consumeUntil == null) {
+                consumeUntil = maxDuration == null ? Instant.MAX : clock.instant().plus(maxDuration);
+            }
             var records = consumer.poll(Duration.ZERO);
             while (records.isEmpty()) {
-                records = consumer.poll(Duration.ofMillis(1000));
+                var timeLeft = getTimeLeft();
+                if (timeLeft.isNegative()) {
+                    break;
+                }
+                records = consumer.poll(min(timeLeft, Duration.ofSeconds(1)));
             }
             return records;
         }
+    }
+
+    private static <T extends Comparable<T>> T min(T a, T b) {
+        return a.compareTo(b) < 0 ? a : b;
     }
 }

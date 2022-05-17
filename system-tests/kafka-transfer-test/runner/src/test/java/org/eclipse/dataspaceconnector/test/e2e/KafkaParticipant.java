@@ -32,6 +32,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.awaitility.Awaitility.await;
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.KAFKA_PROPERTIES_PREFIX;
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.KAFKA_TYPE;
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.MAX_DURATION;
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.TOPIC;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 class KafkaParticipant {
@@ -64,12 +68,13 @@ class KafkaParticipant {
                 "dataAddress", Map.of(
                         "properties", Map.of(
                                 "name", "data",
-                                "type", "Kafka",
-                                "topic", KAFKA_TOPIC,
-                                "kafka.bootstrap.servers", KAFKA_SERVER,
-                                "kafka.key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer",
-                                "kafka.value.deserializer", "org.eclipse.dataspaceconnector.dataplane.kafka.serializers.JacksonDeserializer",
-                                "kafka.max.poll.records", "100"
+                                "type", KAFKA_TYPE,
+                                TOPIC, KAFKA_TOPIC,
+                                KAFKA_PROPERTIES_PREFIX + "bootstrap.servers", KAFKA_SERVER,
+                                KAFKA_PROPERTIES_PREFIX + "key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer",
+                                KAFKA_PROPERTIES_PREFIX + "value.deserializer", "org.eclipse.dataspaceconnector.dataplane.kafka.serializers.JacksonDeserializer",
+                                KAFKA_PROPERTIES_PREFIX + "max.poll.records", "100",
+                                MAX_DURATION, Duration.ofSeconds(10).toString()
                         )
                 )
         );

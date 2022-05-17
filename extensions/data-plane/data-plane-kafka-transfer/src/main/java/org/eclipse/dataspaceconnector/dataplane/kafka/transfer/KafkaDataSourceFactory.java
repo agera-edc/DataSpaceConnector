@@ -23,8 +23,15 @@ import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataFlowRequest;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.Duration;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.KAFKA_PROPERTIES_PREFIX;
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.KAFKA_TYPE;
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.MAX_DURATION;
+import static org.eclipse.dataspaceconnector.dataplane.kafka.models.KafkaDataAddressSchema.TOPIC;
 
 class KafkaDataSourceFactory implements DataSourceFactory {
     private final TypeManager typeManager;
@@ -37,15 +44,15 @@ class KafkaDataSourceFactory implements DataSourceFactory {
 
     @Override
     public boolean canHandle(DataFlowRequest dataRequest) {
-        return "Kafka".equalsIgnoreCase(dataRequest.getSourceDataAddress().getType());
+        return KAFKA_TYPE.equalsIgnoreCase(dataRequest.getSourceDataAddress().getType());
     }
 
     @Override
     public @NotNull Result<Boolean> validate(DataFlowRequest request) {
         Map<String, String> properties = request.getSourceDataAddress().getProperties();
         try {
-            checkPropertySet(properties, "topic");
-            checkPropertySet(properties, "kafka.bootstrap.servers");
+            checkPropertySet(properties, TOPIC);
+            checkPropertySet(properties, KAFKA_PROPERTIES_PREFIX + "bootstrap.servers");
         } catch (IllegalArgumentException e) {
             return Result.failure(e.getMessage());
         }
@@ -56,18 +63,22 @@ class KafkaDataSourceFactory implements DataSourceFactory {
     public DataSource createSource(DataFlowRequest request) {
         var properties = request.getSourceDataAddress().getProperties();
         var consumerProperties = properties.entrySet().stream()
-                .filter(e -> e.getKey().startsWith("kafka."))
+                .filter(e -> e.getKey().startsWith(KAFKA_PROPERTIES_PREFIX))
                 .collect(Collectors.toMap(
-                        e -> e.getKey().replaceFirst("kafka\\.", ""),
+                        e -> e.getKey().replaceFirst(Pattern.quote(KAFKA_PROPERTIES_PREFIX), ""),
                         e -> e.getValue()
                 ));
-        return KafkaDataSource.Builder.newInstance()
+        var maxDuration = properties.get(MAX_DURATION);
+        KafkaDataSource.Builder builder = KafkaDataSource.Builder.newInstance()
                 .typeManager(typeManager)
                 .monitor(monitor)
-                .topic(properties.get("topic"))
+                .topic(properties.get(TOPIC))
                 .groupId(request.getProcessId() + ":" + request.getId())
-                .consumerProperties(consumerProperties)
-                .build();
+                .consumerProperties(consumerProperties);
+        if (maxDuration != null) {
+            builder.maxDuration(Duration.parse(maxDuration));
+        }
+        return builder.build();
     }
 
     private void checkPropertySet(Map<String, String> properties, String key) {

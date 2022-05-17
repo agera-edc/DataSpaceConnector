@@ -168,7 +168,7 @@ class KafkaTransferTest {
 
         var transferProcessId = CONSUMER.dataRequest(contractAgreementId, assetId, PROVIDER, server());
 
-        await().atMost(timeout).untilAsserted(() -> {
+        await().atMost(timeout).pollDelay(Duration.ofSeconds(1)).untilAsserted(() -> {
             var state = CONSUMER.getTransferProcessState(transferProcessId);
             assertThat(state).isEqualTo(COMPLETED.name());
         });
@@ -179,13 +179,14 @@ class KafkaTransferTest {
         await().atMost(timeout).untilAsserted(() -> eventDestination.verify(requestDefinition, atLeast(1)));
 
         var request = eventDestination.retrieveRecordedRequests(requestDefinition);
-        var payloadBase64 = Arrays.stream(request).findFirst().orElseThrow().getBodyAsJsonOrXmlString();
+        var httpRequest = Arrays.stream(request).findFirst().orElseThrow();
+        var payloadBase64 = httpRequest.getBodyAsJsonOrXmlString();
         var decoded = Base64.getDecoder().decode(payloadBase64);
         assertThat(decoded).isNotEmpty();
         var dto = new TypeManager().readValue(decoded, KafkaRecordsDto.class);
         assertThat(dto.getTopic()).isEqualTo(KAFKA_TOPIC);
         assertThat(dto.getRecords()).isNotEmpty();
-        Object value = dto.getRecords().get(0).getValue();
+        var value = dto.getRecords().get(0).getValue();
         assertThat(value)
                 .isInstanceOfSatisfying(Map.class,
                         m -> assertThat(m).containsEntry("name", "joe"));
