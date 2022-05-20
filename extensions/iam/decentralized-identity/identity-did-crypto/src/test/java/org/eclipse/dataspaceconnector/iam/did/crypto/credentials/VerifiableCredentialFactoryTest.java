@@ -42,7 +42,7 @@ class VerifiableCredentialFactoryTest {
 
     @Test
     void createVerifiableCredential() throws ParseException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector");
+        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", "audience");
 
         assertThat(vc).isNotNull();
         assertThat(vc.getJWTClaimsSet().getClaim("did-url")).isEqualTo("someUrl");
@@ -55,7 +55,7 @@ class VerifiableCredentialFactoryTest {
 
     @Test
     void ensureSerialization() throws ParseException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector");
+        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", "audience");
 
         assertThat(vc).isNotNull();
         String jwtString = vc.serialize();
@@ -70,14 +70,14 @@ class VerifiableCredentialFactoryTest {
 
     @Test
     void verifyJwt() throws JOSEException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector");
+        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", "audience");
         String jwtString = vc.serialize();
 
         //deserialize
         var jwt = VerifiableCredentialFactory.parse(jwtString);
         var pubKey = TestHelper.readFile("public_p256.pem");
 
-        assertThat(VerifiableCredentialFactory.verify(jwt, (ECKey) ECKey.parseFromPEMEncodedObjects(pubKey))).isTrue();
+        assertThat(VerifiableCredentialFactory.verify(jwt, (ECKey) ECKey.parseFromPEMEncodedObjects(pubKey), "audience")).isTrue();
 
     }
 }
