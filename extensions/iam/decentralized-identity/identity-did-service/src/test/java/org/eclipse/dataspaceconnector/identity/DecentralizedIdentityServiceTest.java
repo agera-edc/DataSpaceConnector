@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
@@ -42,11 +41,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 /**
  * Test the {@link DecentralizedIdentityService} with a key algorithm.
@@ -98,8 +95,8 @@ abstract class DecentralizedIdentityServiceTest {
         DidResolverRegistry didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
 
         CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
-        Supplier<SignedJWT> signedJwtSupplier = () -> VerifiableCredentialFactory.create(privateKey, Map.of("region", "us"), "test-issuer");
-        identityService = new DecentralizedIdentityService(signedJwtSupplier, didResolver, verifier, mock(Monitor.class), audience);
+        identityService = new DecentralizedIdentityService((audience) -> VerifiableCredentialFactory.create(privateKey, Map.of("region", "us"), "test-issuer", audience), didResolver, verifier, new Monitor() {
+        });
 
     }
 
