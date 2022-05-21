@@ -16,10 +16,11 @@ package org.eclipse.dataspaceconnector.identity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
+import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.JwtFactory;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
@@ -28,7 +29,7 @@ import org.eclipse.dataspaceconnector.iam.did.spi.document.VerificationMethod;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
-import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +48,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 
 abstract class DecentralizedIdentityServiceTest {
+    private static final Faker FAKER = new Faker();
+
+    String didUrl = FAKER.internet().url();
+    String connectorName = FAKER.lorem().word();
     private DecentralizedIdentityService identityService;
     private ECKey privateKey;
 
@@ -88,9 +93,8 @@ abstract class DecentralizedIdentityServiceTest {
         DidResolverRegistry didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
 
         CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
-        identityService = new DecentralizedIdentityService((audience) -> VerifiableCredentialFactory.create(privateKey, Map.of("region", "us"), "test-issuer", audience), didResolver, verifier, new Monitor() {
-        });
-
+        var jwtFactory = new JwtFactory(didUrl, connectorName, privateKey);
+        identityService = new DecentralizedIdentityService(jwtFactory, didResolver, verifier, new ConsoleMonitor());
     }
 
     @NotNull

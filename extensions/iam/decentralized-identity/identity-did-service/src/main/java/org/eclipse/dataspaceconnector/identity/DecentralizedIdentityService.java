@@ -16,7 +16,7 @@
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jwt.SignedJWT;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
+import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.JwtFactory;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyConverter;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidConstants;
@@ -53,7 +53,7 @@ public class DecentralizedIdentityService implements IdentityService {
 
     @Override
     public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
-        var jwt = jwtFactory.apply(audience);
+        var jwt = jwtFactory.create(audience);
         var token = jwt.serialize();
         var expiration = new Date().getTime() + TimeUnit.MINUTES.toMillis(10);
 
@@ -84,7 +84,7 @@ public class DecentralizedIdentityService implements IdentityService {
             PublicKeyWrapper publicKeyWrapper = KeyConverter.toPublicKeyWrapper(publicKeyJwk, publicKey.get().getId());
 
             monitor.debug("Verifying JWT with public key...");
-            if (!VerifiableCredentialFactory.verify(jwt, publicKeyWrapper, audience)) {
+            if (!jwtFactory.verify(jwt, publicKeyWrapper, audience)) {
                 return Result.failure("Token could not be verified!");
             }
             monitor.debug("verification successful! Fetching data from IdentityHub");

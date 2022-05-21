@@ -9,11 +9,13 @@
  *
  *  Contributors:
  *       Daimler TSS GmbH - Initial implementation
+ *       Microsoft Corporation - audience verification
  *
  */
 
 package org.eclipse.dataspaceconnector.iam.did.crypto.credentials;
 
+import com.github.javafaker.Faker;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jwt.SignedJWT;
@@ -25,28 +27,32 @@ import org.junit.jupiter.api.Test;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class VerifiableCredentialFactoryTest {
 
-    private ECKey privateKey;
+    private static final Faker FAKER = new Faker();
+
+    String didUrl = FAKER.internet().url();
+    String connectorName = FAKER.lorem().word();
+    String audience = FAKER.internet().url();
+    JwtFactory jwtFactory;
 
     @BeforeEach
     void setup() throws JOSEException {
-        String contents = TestHelper.readFile("private_p256.pem");
-
-        privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(contents);
+        String privateKeyPem = TestHelper.readFile("private_p256.pem");
+        var privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(privateKeyPem);
+        jwtFactory = new JwtFactory(didUrl, connectorName, privateKey);
     }
 
     @Test
     void createVerifiableCredential() throws ParseException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", "audience");
+        var vc = jwtFactory.create(audience);
 
         assertThat(vc).isNotNull();
-        assertThat(vc.getJWTClaimsSet().getClaim("did-url")).isEqualTo("someUrl");
-        assertThat(vc.getJWTClaimsSet().getClaim("iss")).isEqualTo("test-connector");
+        assertThat(vc.getJWTClaimsSet().getClaim("iss")).isEqualTo(didUrl);
+        assertThat(vc.getJWTClaimsSet().getClaim("owner")).isEqualTo(connectorName);
         assertThat(vc.getJWTClaimsSet().getClaim("sub")).isEqualTo("verifiable-credential");
         assertThat(vc.getJWTClaimsSet().getExpirationTime()).isNotNull()
                 .isAfter(Instant.now())
@@ -54,29 +60,14 @@ class VerifiableCredentialFactoryTest {
     }
 
     @Test
-    void ensureSerialization() throws ParseException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", "audience");
-
-        assertThat(vc).isNotNull();
-        String jwtString = vc.serialize();
-
-        //deserialize
-        var deserialized = SignedJWT.parse(jwtString);
-
-        assertThat(deserialized.getJWTClaimsSet()).isEqualTo(vc.getJWTClaimsSet());
-        assertThat(deserialized.getHeader().getAlgorithm()).isEqualTo(vc.getHeader().getAlgorithm());
-        assertThat(deserialized.getPayload().toString()).isEqualTo(vc.getPayload().toString());
-    }
-
-    @Test
     void verifyJwt() throws Exception {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", "audience");
+        var vc = jwtFactory.create(audience);
         String jwtString = vc.serialize();
 
         //deserialize
         var jwt = SignedJWT.parse(jwtString);
         var pubKey = TestHelper.readFile("public_p256.pem");
 
-        assertThat(VerifiableCredentialFactory.verify(jwt, new EcPublicKeyWrapper((ECKey) ECKey.parseFromPEMEncodedObjects(pubKey)), "audience")).isTrue();
+        assertThat(jwtFactory.verify(jwt, new EcPublicKeyWrapper((ECKey) ECKey.parseFromPEMEncodedObjects(pubKey)), audience)).isTrue();
     }
 }

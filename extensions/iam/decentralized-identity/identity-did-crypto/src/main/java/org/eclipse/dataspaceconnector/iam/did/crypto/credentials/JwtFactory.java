@@ -20,6 +20,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
@@ -42,25 +43,30 @@ import java.util.UUID;
 /**
  * Convenience/helper class to generate, verify and deserialize verifiable credentials, which are, in fact, Signed JSON Web Tokens (JWTs).
  */
-public class VerifiableCredentialFactory {
+public class JwtFactory {
 
     public static final String OWNER_CLAIM = "owner";
+    private final String didUrl;
+    private final String connectorName;
+    private final ECKey privateKey;
 
+    public JwtFactory(String didUrl, String connectorName, ECKey privateKey) {
+        this.didUrl = didUrl;
+        this.connectorName = connectorName;
+        this.privateKey = privateKey;
+    }
 
     /**
      * Creates a signed JWT {@link SignedJWT} that contains a set of claims and an issuer. Although all private key types are possible, in the context of Distributed Identity
      * and ION using an Elliptic Curve key ({@code P-256}) is advisable.
      *
-     * @param privateKey A Private Key represented as {@link ECKey}.
-     * @param claims     a list of key-value-pairs that contain claims
-     * @param issuer     the "owner" of the VC, in most cases this will be the DID ID. The VC will store this in the "iss" claim
      * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed
      */
-    public static SignedJWT create(ECKey privateKey, Map<String, String> claims, String issuer, String audience) {
-        var claimssetBuilder = new JWTClaimsSet.Builder();
+    public SignedJWT create(String audience) {
+        var claimsSetBuilder = new JWTClaimsSet.Builder();
 
-        claims.forEach(claimssetBuilder::claim);
-        var claimsSet = claimssetBuilder.issuer(issuer)
+        Map.of(OWNER_CLAIM, connectorName).forEach(claimsSetBuilder::claim);
+        var claimsSet = claimsSetBuilder.issuer(didUrl)
                 .subject("verifiable-credential")
                 .audience(audience)
                 .expirationTime(Date.from(Instant.now().plus(10, ChronoUnit.MINUTES)))
@@ -91,13 +97,13 @@ public class VerifiableCredentialFactory {
      * @param publicKey The claiming party's public key, passed as a {@link PublicKeyWrapper}
      * @return true if verified, false otherwise
      */
-    public static boolean verify(SignedJWT jwt, PublicKeyWrapper publicKey, String audience) {
+    public boolean verify(SignedJWT jwt, PublicKeyWrapper publicKey, String audience) {
         try {
             // verify JWT signature
             boolean verify = jwt.verify(publicKey.verifier());
 
             // verify claims
-            var claimsVerifier = new DefaultJWTClaimsVerifier(
+            DefaultJWTClaimsVerifier<SecurityContext> claimsVerifier = new DefaultJWTClaimsVerifier<>(
                     new JWTClaimsSet.Builder().audience(audience).build(),
                     new HashSet<>(Arrays.asList("sub", "aud", "exp")));
             try {

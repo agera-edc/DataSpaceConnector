@@ -15,7 +15,7 @@
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jose.jwk.ECKey;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
+import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.JwtFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -27,7 +27,6 @@ import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
-import java.util.Map;
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -65,16 +64,12 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
             throw new EdcException(format("The DID Url setting '(%s)' was null!", DID_URL_SETTING));
         }
 
-        return (audience) -> {
-            // we'll use the connector name to restore the Private Key
-            var connectorName = context.getConnectorId();
-            var privateKey = privateKeyResolver.resolvePrivateKey(connectorName, ECKey.class); //to get the private key
-            Objects.requireNonNull(privateKey, "Couldn't resolve private key for " + connectorName);
+        // we'll use the connector name to restore the Private Key
+        var connectorName = context.getConnectorId();
+        var privateKey = privateKeyResolver.resolvePrivateKey(connectorName, ECKey.class); //to get the private key
+        Objects.requireNonNull(privateKey, "Couldn't resolve private key for " + connectorName);
 
-            // we cannot store the VerifiableCredential in the Vault, because it has an expiry date
-            // the Issuer claim must contain the DID URL
-            return VerifiableCredentialFactory.create(privateKey, Map.of(VerifiableCredentialFactory.OWNER_CLAIM, connectorName), didUrl, audience);
-        };
+        return new JwtFactory(didUrl, connectorName, privateKey);
     }
 
 }
