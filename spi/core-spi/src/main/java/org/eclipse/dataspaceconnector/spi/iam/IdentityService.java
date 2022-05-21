@@ -32,6 +32,7 @@ public interface IdentityService {
      * Verifies a JWT bearer token.
      *
      * @param tokenRepresentation A token representation including the token to verify.
+     * @param audience Expected audience.
      * @return Result of the validation.
      */
     Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation, String audience);

@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.ids.api.configuration;
 
+import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.WebServer;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
@@ -27,7 +28,10 @@ import static java.lang.String.format;
  */
 @Provides(IdsApiConfiguration.class)
 public class IdsApiConfigurationExtension implements ServiceExtension {
-    
+    @EdcSetting
+    public static final String IDS_WEBHOOK_ADDRESS = "ids.webhook.address";
+    public static final String DEFAULT_IDS_WEBHOOK_ADDRESS = "http://localhost";
+
     public static final String IDS_API_CONFIG = "web.http.ids";
     public static final String IDS_API_CONTEXT_ALIAS = "ids";
     
@@ -61,8 +65,12 @@ public class IdsApiConfigurationExtension implements ServiceExtension {
         }
         
         monitor.info(format("IDS API will be available at [path=%s], [port=%s].", path, port));
-        
-        context.registerService(IdsApiConfiguration.class, new IdsApiConfiguration(contextAlias, path));
+
+        var idsWebhookAddress = context.getSetting(IDS_WEBHOOK_ADDRESS, DEFAULT_IDS_WEBHOOK_ADDRESS);
+        var webhookPath = path + (path.endsWith("/") ? "data" : "/data");
+        idsWebhookAddress = idsWebhookAddress + webhookPath;
+
+        context.registerService(IdsApiConfiguration.class, new IdsApiConfiguration(contextAlias, idsWebhookAddress));
     }
     
 }

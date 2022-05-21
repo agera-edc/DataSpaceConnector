@@ -170,7 +170,7 @@ public final class IdsMultipartApiServiceExtension implements ServiceExtension {
         handlers.add(new NotificationMessageHandler(connectorId, notificationHandlersRegistry));
 
         // create & register controller
-        var multipartController = new MultipartController(monitor, connectorId, objectMapper, identityService, handlers);
+        var multipartController = new MultipartController(monitor, connectorId, objectMapper, identityService, handlers, idsApiConfiguration.getIdsWebhookAddress());
         webService.registerResource(idsApiConfiguration.getContextAlias(), multipartController);
     }
 
