@@ -13,15 +13,15 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.iam.did.crypto.credentials;
+package org.eclipse.dataspaceconnector.identity;
 
 import com.github.javafaker.Faker;
 import com.nimbusds.jose.jwk.ECKey;
-import org.eclipse.dataspaceconnector.iam.did.crypto.helper.TestHelper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -38,7 +38,7 @@ class SignedJwtServiceTest {
 
     @BeforeEach
     void setup() throws Exception {
-        String privateKeyPem = TestHelper.readFile("private_p256.pem");
+        String privateKeyPem = readFile("private_p256.pem");
         var privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(privateKeyPem);
         signedJwtService = new SignedJwtService(didUrl, connectorName, privateKey);
     }
@@ -59,8 +59,12 @@ class SignedJwtServiceTest {
     @Test
     void verifyJwt() throws Exception {
         var jwt = signedJwtService.create(audience);
-        var pubKey = TestHelper.readFile("public_p256.pem");
+        var pubKey = readFile("public_p256.pem");
 
         assertThat(signedJwtService.verify(jwt, new EcPublicKeyWrapper((ECKey) ECKey.parseFromPEMEncodedObjects(pubKey)), audience)).isTrue();
+    }
+
+    public String readFile(String filename) throws IOException {
+        return new String(Thread.currentThread().getContextClassLoader().getResourceAsStream(filename).readAllBytes());
     }
 }

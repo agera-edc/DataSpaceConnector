@@ -20,7 +20,6 @@ import com.github.javafaker.Faker;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.SignedJwtService;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;

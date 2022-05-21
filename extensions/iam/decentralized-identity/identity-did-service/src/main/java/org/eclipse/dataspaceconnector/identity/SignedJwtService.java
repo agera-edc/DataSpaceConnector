@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.iam.did.crypto.credentials;
+package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
@@ -40,16 +40,16 @@ import java.util.HashSet;
 import java.util.UUID;
 
 /**
- * Convenience/helper class to generate, verify and deserialize verifiable credentials, which are, in fact, Signed JSON Web Tokens (JWTs).
+ * Service to generate, verify and deserialize verifiable credentials, which are, in fact, Signed JSON Web Tokens (JWTs).
  */
-public class SignedJwtService {
+class SignedJwtService {
 
     public static final String OWNER_CLAIM = "owner";
     private final String didUrl;
     private final String connectorName;
     private final ECKey privateKey;
 
-    public SignedJwtService(String didUrl, String connectorName, ECKey privateKey) {
+    SignedJwtService(String didUrl, String connectorName, ECKey privateKey) {
         this.didUrl = didUrl;
         this.connectorName = connectorName;
         this.privateKey = privateKey;
