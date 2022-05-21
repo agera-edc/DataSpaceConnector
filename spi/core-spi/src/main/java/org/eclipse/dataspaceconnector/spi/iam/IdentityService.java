@@ -36,18 +36,4 @@ public interface IdentityService {
      * @return Result of the validation.
      */
     Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation, String audience);
-
-    /**
-     * Verifies a JWT bearer token.
-     *
-     * @param token The token to verify.
-     * @return Result of the validation.
-     */
-    default Result<ClaimToken> verifyJwtToken(String token, String audience) {
-        var tokenRepresentation = TokenRepresentation.Builder.newInstance()
-                .token(token)
-                .build();
-
-        return verifyJwtToken(tokenRepresentation, audience);
-    }
 }
