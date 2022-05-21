@@ -17,6 +17,7 @@ package org.eclipse.dataspaceconnector.identity;
 
 import com.github.javafaker.Faker;
 import com.nimbusds.jose.jwk.ECKey;
+import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +41,7 @@ class SignedJwtServiceTest {
     void setup() throws Exception {
         String privateKeyPem = readFile("private_p256.pem");
         var privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(privateKeyPem);
-        signedJwtService = new SignedJwtService(didUrl, connectorName, privateKey);
+        signedJwtService = new SignedJwtService(didUrl, connectorName, new EcPrivateKeyWrapper(privateKey));
     }
 
     @Test

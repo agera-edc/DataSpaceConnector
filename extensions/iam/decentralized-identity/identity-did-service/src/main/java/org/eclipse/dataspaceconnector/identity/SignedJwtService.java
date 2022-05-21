@@ -18,25 +18,20 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
-import com.nimbusds.jose.JWSSigner;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.crypto.CryptoException;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -44,35 +39,55 @@ import java.util.UUID;
  */
 class SignedJwtService {
 
+    // RFC 7519 Registered (standard) claims
+    private static final String ISSUER_CLAIM = "iss";
+    private static final String SUBJECT_CLAIM = "sub";
+    private static final String AUDIENCE_CLAIM = "aud";
+    private static final String EXPIRATION_TIME_CLAIM = "exp";
+
+    // Custom claims
     public static final String OWNER_CLAIM = "owner";
+    public static final String VERIFIABLE_CREDENTIAL = "verifiable-credential";
+
     private final String didUrl;
     private final String connectorName;
-    private final ECKey privateKey;
+    private final PrivateKeyWrapper privateKey;
 
-    SignedJwtService(String didUrl, String connectorName, ECKey privateKey) {
+    /**
+     * Creates a new instance of {@link SignedJwtService}.
+     * <p>
+     * Although all private key types are possible, in the context of Distributed Identity
+     * using an Elliptic Curve key ({@code P-256}) is advisable.
+     *
+     * @param didUrl        the DID URL to be used as issuer claim.
+     * @param connectorName the connector name to be used as owner claim (custom claim).
+     * @param privateKey    crypto key used to sign JWTs.
+     */
+    SignedJwtService(String didUrl, String connectorName, PrivateKeyWrapper privateKey) {
         this.didUrl = didUrl;
         this.connectorName = connectorName;
         this.privateKey = privateKey;
     }
 
     /**
-     * Creates a signed JWT {@link SignedJWT} that contains a set of claims and an issuer. Although all private key types are possible, in the context of Distributed Identity
-     * using an Elliptic Curve key ({@code P-256}) is advisable.
+     * Creates a signed JWT {@link SignedJWT}.
      *
-     * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed
+     * @param audience audience claim value to use in JWT
+     * @return a {@code SignedJWT} that is signed with the private key
      */
     public SignedJWT create(String audience) {
         var claimsSet = new JWTClaimsSet.Builder()
-                .claim(OWNER_CLAIM, connectorName).issuer(didUrl)
-                .subject("verifiable-credential")
+                .claim(OWNER_CLAIM, connectorName)
+                .issuer(didUrl)
+                .subject(VERIFIABLE_CREDENTIAL)
                 .audience(audience)
                 .expirationTime(Date.from(Instant.now().plus(10, ChronoUnit.MINUTES)))
                 .jwtID(UUID.randomUUID().toString())
                 .build();
 
-        JWSSigner signer = ((PrivateKeyWrapper) new EcPrivateKeyWrapper(privateKey)).signer();
+        var signer = privateKey.signer();
         //prefer ES256 if available, otherwise use the "next best"
-        JWSAlgorithm algorithm = signer.supportedJWSAlgorithms().contains(JWSAlgorithm.ES256) ?
+        var algorithm = signer.supportedJWSAlgorithms().contains(JWSAlgorithm.ES256) ?
                 JWSAlgorithm.ES256 :
                 signer.supportedJWSAlgorithms().stream().min(Comparator.comparing(Algorithm::getRequirement))
                         .orElseThrow(() -> new CryptoException("No recommended JWS Algorithms for Private Key Signer " + signer.getClass()));
@@ -97,12 +112,19 @@ class SignedJwtService {
     public boolean verify(SignedJWT jwt, PublicKeyWrapper publicKey, String audience) {
         try {
             // verify JWT signature
-            boolean verify = jwt.verify(publicKey.verifier());
+            var verify = jwt.verify(publicKey.verifier());
 
             // verify claims
-            DefaultJWTClaimsVerifier<SecurityContext> claimsVerifier = new DefaultJWTClaimsVerifier<>(
-                    new JWTClaimsSet.Builder().audience(audience).build(),
-                    new HashSet<>(Arrays.asList("sub", "aud", "exp")));
+            var exactMatchClaims = new JWTClaimsSet.Builder()
+                    .audience(audience)
+                    .subject(VERIFIABLE_CREDENTIAL)
+                    .build();
+            var requiredClaims = Set.of(
+                    ISSUER_CLAIM,
+                    SUBJECT_CLAIM,
+                    AUDIENCE_CLAIM,
+                    EXPIRATION_TIME_CLAIM);
+            var claimsVerifier = new DefaultJWTClaimsVerifier<>(exactMatchClaims, requiredClaims);
             try {
                 claimsVerifier.verify(jwt.getJWTClaimsSet());
             } catch (BadJWTException e) {

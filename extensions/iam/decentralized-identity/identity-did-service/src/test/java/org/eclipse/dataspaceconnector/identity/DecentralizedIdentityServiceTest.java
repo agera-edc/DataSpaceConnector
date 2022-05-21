@@ -20,6 +20,7 @@ import com.github.javafaker.Faker;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
+import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
@@ -52,7 +53,6 @@ abstract class DecentralizedIdentityServiceTest {
     String didUrl = FAKER.internet().url();
     String connectorName = FAKER.lorem().word();
     private DecentralizedIdentityService identityService;
-    private ECKey privateKey;
 
     @Test
     void verifyResolveHubUrl() throws IOException {
@@ -84,7 +84,7 @@ abstract class DecentralizedIdentityServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         var keyPair = getKeyPair();
-        privateKey = keyPair.toECKey();
+        var privateKey = new EcPrivateKeyWrapper(keyPair.toECKey());
 
         var didJson = Thread.currentThread().getContextClassLoader().getResourceAsStream("dids.json");
         var hubUrlDid = new String(didJson.readAllBytes(), StandardCharsets.UTF_8);
