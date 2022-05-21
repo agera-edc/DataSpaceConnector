@@ -58,7 +58,7 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     }
 
     @Provider(isDefault = true)
-    SignedJwtService createSupplier(ServiceExtensionContext context) {
+    SignedJwtService signedJwtService(ServiceExtensionContext context) {
         var didUrl = context.getSetting(DID_URL_SETTING, null);
         if (didUrl == null) {
             throw new EdcException(format("The DID Url setting '(%s)' was null!", DID_URL_SETTING));
