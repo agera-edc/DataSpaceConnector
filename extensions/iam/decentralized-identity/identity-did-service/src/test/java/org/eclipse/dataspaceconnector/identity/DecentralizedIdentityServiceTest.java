@@ -20,7 +20,7 @@ import com.github.javafaker.Faker;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.JwtFactory;
+import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.SignedJwtService;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
@@ -89,12 +89,10 @@ abstract class DecentralizedIdentityServiceTest {
 
         var didJson = Thread.currentThread().getContextClassLoader().getResourceAsStream("dids.json");
         var hubUrlDid = new String(didJson.readAllBytes(), StandardCharsets.UTF_8);
-
-        DidResolverRegistry didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
-
+        var didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
         CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
-        var jwtFactory = new JwtFactory(didUrl, connectorName, privateKey);
-        identityService = new DecentralizedIdentityService(jwtFactory, didResolver, verifier, new ConsoleMonitor());
+        var signedJwtService = new SignedJwtService(didUrl, connectorName, privateKey);
+        identityService = new DecentralizedIdentityService(signedJwtService, didResolver, verifier, new ConsoleMonitor());
     }
 
     @NotNull

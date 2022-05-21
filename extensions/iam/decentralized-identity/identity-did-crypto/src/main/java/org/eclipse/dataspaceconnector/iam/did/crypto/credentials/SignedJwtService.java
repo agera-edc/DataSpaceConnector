@@ -37,20 +37,19 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.UUID;
 
 /**
  * Convenience/helper class to generate, verify and deserialize verifiable credentials, which are, in fact, Signed JSON Web Tokens (JWTs).
  */
-public class JwtFactory {
+public class SignedJwtService {
 
     public static final String OWNER_CLAIM = "owner";
     private final String didUrl;
     private final String connectorName;
     private final ECKey privateKey;
 
-    public JwtFactory(String didUrl, String connectorName, ECKey privateKey) {
+    public SignedJwtService(String didUrl, String connectorName, ECKey privateKey) {
         this.didUrl = didUrl;
         this.connectorName = connectorName;
         this.privateKey = privateKey;
@@ -58,15 +57,13 @@ public class JwtFactory {
 
     /**
      * Creates a signed JWT {@link SignedJWT} that contains a set of claims and an issuer. Although all private key types are possible, in the context of Distributed Identity
-     * and ION using an Elliptic Curve key ({@code P-256}) is advisable.
+     * using an Elliptic Curve key ({@code P-256}) is advisable.
      *
      * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed
      */
     public SignedJWT create(String audience) {
-        var claimsSetBuilder = new JWTClaimsSet.Builder();
-
-        Map.of(OWNER_CLAIM, connectorName).forEach(claimsSetBuilder::claim);
-        var claimsSet = claimsSetBuilder.issuer(didUrl)
+        var claimsSet = new JWTClaimsSet.Builder()
+                .claim(OWNER_CLAIM, connectorName).issuer(didUrl)
                 .subject("verifiable-credential")
                 .audience(audience)
                 .expirationTime(Date.from(Instant.now().plus(10, ChronoUnit.MINUTES)))

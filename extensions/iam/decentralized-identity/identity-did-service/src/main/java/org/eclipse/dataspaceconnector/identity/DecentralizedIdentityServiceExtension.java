@@ -15,7 +15,7 @@
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jose.jwk.ECKey;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.JwtFactory;
+import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.SignedJwtService;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -45,7 +45,7 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     private PrivateKeyResolver privateKeyResolver;
 
     @Inject
-    private JwtFactory jwtFactory;
+    private SignedJwtService signedJwtService;
 
     @Override
     public String name() {
@@ -54,11 +54,11 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
 
     @Provider
     public IdentityService identityService(ServiceExtensionContext context) {
-        return new DecentralizedIdentityService(jwtFactory, resolverRegistry, credentialsVerifier, context.getMonitor());
+        return new DecentralizedIdentityService(signedJwtService, resolverRegistry, credentialsVerifier, context.getMonitor());
     }
 
     @Provider(isDefault = true)
-    JwtFactory createSupplier(ServiceExtensionContext context) {
+    SignedJwtService createSupplier(ServiceExtensionContext context) {
         var didUrl = context.getSetting(DID_URL_SETTING, null);
         if (didUrl == null) {
             throw new EdcException(format("The DID Url setting '(%s)' was null!", DID_URL_SETTING));
@@ -69,7 +69,7 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
         var privateKey = privateKeyResolver.resolvePrivateKey(connectorName, ECKey.class); //to get the private key
         Objects.requireNonNull(privateKey, "Couldn't resolve private key for " + connectorName);
 
-        return new JwtFactory(didUrl, connectorName, privateKey);
+        return new SignedJwtService(didUrl, connectorName, privateKey);
     }
 
 }
