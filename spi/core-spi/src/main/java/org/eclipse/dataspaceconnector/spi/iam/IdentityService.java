@@ -28,7 +28,6 @@ public interface IdentityService {
      */
     Result<TokenRepresentation> obtainClientCredentials(String scope, String audience);
 
-
     /**
      * Verifies a JWT bearer token.
      *

@@ -136,12 +136,12 @@ class IdsApiMultipartEndpointV1IntegrationTestServiceExtension implements Servic
 
     private static class FakeIdentityService implements IdentityService {
         @Override
-        public Result<TokenRepresentation> obtainClientCredentials(String scope) {
+        public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
             return Result.success(TokenRepresentation.Builder.newInstance().build());
         }
 
         @Override
-        public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation) {
+        public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation, String audience) {
             return Result.success(ClaimToken.Builder.newInstance().build());
         }
     }
@@ -274,12 +274,12 @@ class IdsApiMultipartEndpointV1IntegrationTestServiceExtension implements Servic
         public @NotNull Stream<ContractDefinition> findAll(QuerySpec spec) {
             throw new UnsupportedOperationException();
         }
-    
+
         @Override
         public ContractDefinition findById(String definitionId) {
             throw new UnsupportedOperationException();
         }
-    
+
         @Override
         public void save(Collection<ContractDefinition> definitions) {
             contractDefinitions.addAll(definitions);

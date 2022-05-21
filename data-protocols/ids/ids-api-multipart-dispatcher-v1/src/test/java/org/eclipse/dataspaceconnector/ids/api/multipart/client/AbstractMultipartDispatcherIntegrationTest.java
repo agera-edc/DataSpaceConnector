@@ -77,8 +77,8 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
         var tokenResult = TokenRepresentation.Builder.newInstance().token("token").build();
         var claimToken = ClaimToken.Builder.newInstance().claim("key", "value").build();
         identityService = mock(IdentityService.class);
-        when(identityService.obtainClientCredentials(any())).thenReturn(Result.success(tokenResult));
-        when(identityService.verifyJwtToken(any(TokenRepresentation.class))).thenReturn(Result.success(claimToken));
+        when(identityService.obtainClientCredentials(any(), any())).thenReturn(Result.success(tokenResult));
+        when(identityService.verifyJwtToken(any(), any())).thenReturn(Result.success(claimToken));
 
         extension.registerSystemExtension(ServiceExtension.class,
                 new IdsApiMultipartDispatcherV1IntegrationTestServiceExtension(ASSETS, identityService));

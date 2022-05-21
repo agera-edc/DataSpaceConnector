@@ -30,7 +30,7 @@ public class MockIdentityService implements IdentityService {
     }
 
     @Override
-    public Result<TokenRepresentation> obtainClientCredentials(String scope) {
+    public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
         TokenRepresentation tokenRepresentation = TokenRepresentation.Builder.newInstance()
                 .token("mock-" + region)
                 .expiresIn(Instant.now().plusSeconds(10_0000).toEpochMilli())
@@ -39,7 +39,7 @@ public class MockIdentityService implements IdentityService {
     }
 
     @Override
-    public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation) {
+    public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation, String audience) {
         switch (tokenRepresentation.getToken()) {
             case "mock-eu":
                 return Result.success(ClaimToken.Builder.newInstance().claim("region", "eu").build());
