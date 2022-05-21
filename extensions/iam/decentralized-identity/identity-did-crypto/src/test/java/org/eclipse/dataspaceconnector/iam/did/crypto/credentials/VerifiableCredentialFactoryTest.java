@@ -16,7 +16,9 @@ package org.eclipse.dataspaceconnector.iam.did.crypto.credentials;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.ECKey;
+import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.iam.did.crypto.helper.TestHelper;
+import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class VerifiableCredentialFactoryTest {
 
-
     private ECKey privateKey;
 
     @BeforeEach
@@ -38,7 +39,6 @@ class VerifiableCredentialFactoryTest {
 
         privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(contents);
     }
-
 
     @Test
     void createVerifiableCredential() throws ParseException {
@@ -61,7 +61,7 @@ class VerifiableCredentialFactoryTest {
         String jwtString = vc.serialize();
 
         //deserialize
-        var deserialized = VerifiableCredentialFactory.parse(jwtString);
+        var deserialized = SignedJWT.parse(jwtString);
 
         assertThat(deserialized.getJWTClaimsSet()).isEqualTo(vc.getJWTClaimsSet());
         assertThat(deserialized.getHeader().getAlgorithm()).isEqualTo(vc.getHeader().getAlgorithm());
@@ -69,15 +69,14 @@ class VerifiableCredentialFactoryTest {
     }
 
     @Test
-    void verifyJwt() throws JOSEException {
+    void verifyJwt() throws Exception {
         var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", "audience");
         String jwtString = vc.serialize();
 
         //deserialize
-        var jwt = VerifiableCredentialFactory.parse(jwtString);
+        var jwt = SignedJWT.parse(jwtString);
         var pubKey = TestHelper.readFile("public_p256.pem");
 
-        assertThat(VerifiableCredentialFactory.verify(jwt, (ECKey) ECKey.parseFromPEMEncodedObjects(pubKey), "audience")).isTrue();
-
+        assertThat(VerifiableCredentialFactory.verify(jwt, new EcPublicKeyWrapper((ECKey) ECKey.parseFromPEMEncodedObjects(pubKey)), "audience")).isTrue();
     }
 }

@@ -15,7 +15,6 @@
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
@@ -23,13 +22,13 @@ import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
+import org.eclipse.dataspaceconnector.spi.system.Provider;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.iam.did.spi.document.DidConstants.DID_URL_SETTING;
@@ -46,24 +45,21 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     @Inject
     private PrivateKeyResolver privateKeyResolver;
 
+    @Inject
+    private JwtFactory jwtFactory;
+
     @Override
     public String name() {
         return "Distributed Identity Service";
     }
 
-    @Override
-    public void initialize(ServiceExtensionContext context) {
-        var vcProvider = createSupplier(context);
-        var identityService = new DecentralizedIdentityService(vcProvider, resolverRegistry, credentialsVerifier, context.getMonitor());
-        context.registerService(IdentityService.class, identityService);
+    @Provider
+    public IdentityService identityService(ServiceExtensionContext context) {
+        return new DecentralizedIdentityService(jwtFactory, resolverRegistry, credentialsVerifier, context.getMonitor());
     }
 
-    @Override
-    public void start() {
-        ServiceExtension.super.start();
-    }
-
-    Function<String, SignedJWT> createSupplier(ServiceExtensionContext context) {
+    @Provider(isDefault = true)
+    JwtFactory createSupplier(ServiceExtensionContext context) {
         var didUrl = context.getSetting(DID_URL_SETTING, null);
         if (didUrl == null) {
             throw new EdcException(format("The DID Url setting '(%s)' was null!", DID_URL_SETTING));
@@ -72,12 +68,13 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
         return (audience) -> {
             // we'll use the connector name to restore the Private Key
             var connectorName = context.getConnectorId();
-            var privateKeyString = privateKeyResolver.resolvePrivateKey(connectorName, ECKey.class); //to get the private key
-            Objects.requireNonNull(privateKeyString, "Couldn't resolve private key for " + connectorName);
+            var privateKey = privateKeyResolver.resolvePrivateKey(connectorName, ECKey.class); //to get the private key
+            Objects.requireNonNull(privateKey, "Couldn't resolve private key for " + connectorName);
 
             // we cannot store the VerifiableCredential in the Vault, because it has an expiry date
             // the Issuer claim must contain the DID URL
-            return VerifiableCredentialFactory.create(privateKeyString, Map.of(VerifiableCredentialFactory.OWNER_CLAIM, connectorName), didUrl, audience);
+            return VerifiableCredentialFactory.create(privateKey, Map.of(VerifiableCredentialFactory.OWNER_CLAIM, connectorName), didUrl, audience);
         };
     }
+
 }

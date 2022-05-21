@@ -37,16 +37,15 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public class DecentralizedIdentityService implements IdentityService {
-    private final Function<String, SignedJWT> verifiableCredentialProvider;
+    private final JwtFactory jwtFactory;
     private final DidResolverRegistry resolverRegistry;
     private final CredentialsVerifier credentialsVerifier;
     private final Monitor monitor;
 
-    public DecentralizedIdentityService(Function<String, SignedJWT> vcProvider, DidResolverRegistry resolverRegistry, CredentialsVerifier credentialsVerifier, Monitor monitor) {
-        verifiableCredentialProvider = vcProvider;
+    public DecentralizedIdentityService(JwtFactory jwtFactory, DidResolverRegistry resolverRegistry, CredentialsVerifier credentialsVerifier, Monitor monitor) {
+        this.jwtFactory = jwtFactory;
         this.resolverRegistry = resolverRegistry;
         this.credentialsVerifier = credentialsVerifier;
         this.monitor = monitor;
@@ -54,7 +53,7 @@ public class DecentralizedIdentityService implements IdentityService {
 
     @Override
     public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
-        var jwt = verifiableCredentialProvider.apply(audience);
+        var jwt = jwtFactory.apply(audience);
         var token = jwt.serialize();
         var expiration = new Date().getTime() + TimeUnit.MINUTES.toMillis(10);
 

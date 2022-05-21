@@ -20,15 +20,11 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.VerificationMethod;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
@@ -52,8 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 abstract class DecentralizedIdentityServiceTest {
     private DecentralizedIdentityService identityService;
-    private PrivateKeyWrapper privateKey;
-    private PublicKeyWrapper publicKey;
+    private ECKey privateKey;
 
     @Test
     void verifyResolveHubUrl() throws IOException {
@@ -78,7 +73,6 @@ abstract class DecentralizedIdentityServiceTest {
         var result = identityService.obtainClientCredentials("Foo", "Bar");
         assertTrue(result.succeeded());
 
-
         Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent(), "Bar2");
         assertTrue(verificationResult.failed());
     }
@@ -86,8 +80,7 @@ abstract class DecentralizedIdentityServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         var keyPair = getKeyPair();
-        privateKey = getPrivateKey(keyPair.toECKey());
-        publicKey = getPublicKey(keyPair.toPublicJWK().toECKey());
+        privateKey = keyPair.toECKey();
 
         var didJson = Thread.currentThread().getContextClassLoader().getResourceAsStream("dids.json");
         var hubUrlDid = new String(didJson.readAllBytes(), StandardCharsets.UTF_8);
@@ -105,15 +98,6 @@ abstract class DecentralizedIdentityServiceTest {
 
     @NotNull
     protected abstract JWSAlgorithm getHeaderAlgorithm();
-
-    private PublicKeyWrapper getPublicKey(JWK publicKey) {
-
-        return new EcPublicKeyWrapper((ECKey) publicKey);
-    }
-
-    private PrivateKeyWrapper getPrivateKey(JWK privateKey) {
-        return new EcPrivateKeyWrapper((ECKey) privateKey);
-    }
 
     public static class WithP256 extends DecentralizedIdentityServiceTest {
         @Override
