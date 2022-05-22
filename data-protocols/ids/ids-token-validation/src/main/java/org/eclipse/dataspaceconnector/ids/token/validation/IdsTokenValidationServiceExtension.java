@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.ids.token.validation;
 
 import org.eclipse.dataspaceconnector.iam.oauth2.spi.Oauth2ValidationRulesRegistry;
+import org.eclipse.dataspaceconnector.ids.api.configuration.IdsApiConfiguration;
 import org.eclipse.dataspaceconnector.ids.token.validation.rule.IdsValidationRule;
 import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
@@ -32,6 +33,9 @@ public final class IdsTokenValidationServiceExtension implements ServiceExtensio
     @Inject
     private Oauth2ValidationRulesRegistry oauth2ValidationRulesRegistry;
 
+    @Inject
+    private IdsApiConfiguration idsApiConfiguration;
+
     @Override
     public String name() {
         return "IDS Token Validation";
@@ -41,6 +45,6 @@ public final class IdsTokenValidationServiceExtension implements ServiceExtensio
     @Override
     public void initialize(ServiceExtensionContext serviceExtensionContext) {
         var validateReferring = serviceExtensionContext.getSetting(EDC_IDS_VALIDATION_REFERRINGCONNECTOR, false);
-        oauth2ValidationRulesRegistry.addRule(new IdsValidationRule(validateReferring));
+        oauth2ValidationRulesRegistry.addRule(new IdsValidationRule(validateReferring, idsApiConfiguration.getIdsWebhookAddress()));
     }
 }
