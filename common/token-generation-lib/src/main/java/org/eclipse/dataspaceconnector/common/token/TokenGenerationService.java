@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.common.token;
 
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
@@ -26,5 +27,5 @@ public interface TokenGenerationService {
     /**
      * Generate a signed token based on the request.
      */
-    Result<TokenRepresentation> generate(@NotNull JwtDecorator... decorators);
+    Result<TokenRepresentation> generate(TokenGenerationContext context, @NotNull JwtDecorator... decorators);
 }

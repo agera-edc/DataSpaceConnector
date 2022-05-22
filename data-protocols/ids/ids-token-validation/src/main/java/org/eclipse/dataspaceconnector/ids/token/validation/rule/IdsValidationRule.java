@@ -25,9 +25,11 @@ import java.util.Map;
 
 public class IdsValidationRule implements TokenValidationRule {
     private final boolean validateReferring;
+    private final String expectedAudience;
 
-    public IdsValidationRule(boolean validateReferring) {
+    public IdsValidationRule(boolean validateReferring, String expectedAudience) {
         this.validateReferring = validateReferring;
+        this.expectedAudience = expectedAudience;
     }
 
     /**
@@ -73,6 +75,10 @@ public class IdsValidationRule implements TokenValidationRule {
                 }
             } catch (Exception e) {
                 //Nothing to do, payload mostly no connector instance
+            }
+
+            if (!jwt.getJWTClaimsSet().getAudience().contains(expectedAudience)) {
+                return Result.failure("Mismatched audience");
             }
         } catch (ParseException e) {
             throw new EdcException("IdsValidationRule: unable to parse SignedJWT (" + e.getMessage() + ")");

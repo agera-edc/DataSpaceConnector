@@ -18,6 +18,7 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.eclipse.dataspaceconnector.common.token.JwtDecorator;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 
 import java.time.Instant;
 import java.util.Date;
@@ -40,7 +41,7 @@ public class DefaultJwtDecorator implements JwtDecorator {
     }
 
     @Override
-    public void decorate(JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet) {
+    public void decorate(TokenGenerationContext context, JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet) {
         header.x509CertThumbprint(new Base64URL(sha1Base64Fingerprint(encodedCertificate)));
         claimsSet.audience(audience)
                 .issuer(clientId)

@@ -35,6 +35,7 @@ import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitio
 import org.eclipse.dataspaceconnector.spi.contract.validation.ContractValidationService;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.message.MessageContext;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcher;
@@ -136,7 +137,7 @@ class IdsApiMultipartEndpointV1IntegrationTestServiceExtension implements Servic
 
     private static class FakeIdentityService implements IdentityService {
         @Override
-        public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
+        public Result<TokenRepresentation> obtainClientCredentials(TokenGenerationContext context) {
             return Result.success(TokenRepresentation.Builder.newInstance().build());
         }
 

@@ -17,6 +17,7 @@ package org.eclipse.dataspaceconnector.iam.mock;
 
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
@@ -36,9 +37,9 @@ public class MockIdentityService implements IdentityService {
     }
 
     @Override
-    public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
+    public Result<TokenRepresentation> obtainClientCredentials(TokenGenerationContext context) {
         var token = new MockToken();
-        token.setAudience(audience);
+        token.setAudience(context.getAudience());
         token.setRegion(region);
         TokenRepresentation tokenRepresentation = TokenRepresentation.Builder.newInstance()
                 .token(typeManager.writeValueAsString(token))

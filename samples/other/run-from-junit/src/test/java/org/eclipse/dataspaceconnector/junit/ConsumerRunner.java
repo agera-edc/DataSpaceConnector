@@ -226,7 +226,8 @@ public class ConsumerRunner {
     @BeforeEach
     void before(EdcExtension extension) {
         IdentityService identityService = mock(IdentityService.class);
-        when(identityService.obtainClientCredentials(any(), any())).thenReturn(Result.success(US_TOKEN));
+
+        when(identityService.obtainClientCredentials(any())).thenReturn(Result.success(US_TOKEN));
 
         latch = new CountDownLatch(1);
 

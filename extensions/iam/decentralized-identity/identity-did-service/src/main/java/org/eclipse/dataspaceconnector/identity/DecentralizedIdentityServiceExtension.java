@@ -15,6 +15,10 @@
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jose.jwk.ECKey;
+import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistry;
+import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistry;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationService;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
@@ -27,6 +31,7 @@ import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
+import java.time.Duration;
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -45,16 +50,42 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     private PrivateKeyResolver privateKeyResolver;
 
     @Inject
+    private TokenGenerationService tokenGenerationService;
+
+    @Inject
+    private TokenValidationService tokenValidationService;
+
+    @Inject
     private SignedJwtService signedJwtService;
+
+    @Inject
+    private JwtDecoratorRegistry decoratorRegistry;
+
+    @Inject
+    private TokenValidationRulesRegistry validationRulesRegistry;
 
     @Override
     public String name() {
         return "Distributed Identity Service";
     }
 
+    @Override
+    public void initialize(ServiceExtensionContext context) {
+        var didUrl = context.getSetting(DID_URL_SETTING, null);
+        if (didUrl == null) {
+            throw new EdcException(format("The DID Url setting '(%s)' was null!", DID_URL_SETTING));
+        }
+
+        // we'll use the connector name to restore the Private Key
+        var connectorName = context.getConnectorId();
+
+        decoratorRegistry.register(new DidJwtDecorator(didUrl, connectorName, Duration.ofMinutes(10)));
+        validationRulesRegistry.addRule(new DidJwtValidationRule());
+    }
+
     @Provider
     public IdentityService identityService(ServiceExtensionContext context) {
-        return new DecentralizedIdentityService(signedJwtService, resolverRegistry, credentialsVerifier, context.getMonitor());
+        return new DecentralizedIdentityService(tokenGenerationService, tokenValidationService, resolverRegistry, credentialsVerifier, context.getMonitor(), decoratorRegistry);
     }
 
     @Provider(isDefault = true)
