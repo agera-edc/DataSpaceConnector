@@ -69,7 +69,7 @@ public class IdsResponseMessageFactoryTest {
         Mockito.when(correlationMessage.getSenderAgent()).thenReturn(URI.create(CORRELATION_MESSAGE_SENDER));
         Mockito.when(correlationMessage.getIssuerConnector()).thenReturn(URI.create(CORRELATION_ISSUER_CONNECTOR));
 
-        Mockito.when(identityService.obtainClientCredentials(IdsClientCredentialsScope.ALL, "audience"))
+        Mockito.when(identityService.obtainClientCredentials(Mockito.argThat(c -> IdsClientCredentialsScope.ALL.equals(c.getScope()) && "audience".equals(c.getAudience()))))
                 .thenReturn(Result.success(TokenRepresentation.Builder.newInstance().token(TOKEN_VALUE).build()));
     }
 
@@ -234,7 +234,8 @@ public class IdsResponseMessageFactoryTest {
 
     @Test
     public void testClientCredentialsMissing() {
-        Mockito.when(identityService.obtainClientCredentials(IdsClientCredentialsScope.ALL, "audience")).thenReturn(Result.failure("foo"));
+        Mockito.when(identityService.obtainClientCredentials(Mockito.argThat(c -> IdsClientCredentialsScope.ALL.equals(c.getScope()) && "audience".equals(c.getAudience()))))
+                .thenReturn(Result.failure("foo"));
 
         Consumer<Provider<Message>> assertFunc = (provider) -> Assertions.assertThrows(MissingClientCredentialsException.class, provider::get);
 
