@@ -18,6 +18,7 @@ import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRule;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.result.Result;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
@@ -36,7 +37,7 @@ public class IdsValidationRule implements TokenValidationRule {
      * Validates the JWT by checking extended IDS rules.
      */
     @Override
-    public Result<SignedJWT> checkRule(SignedJWT jwt, @Nullable Map<String, Object> additional) {
+    public Result<SignedJWT> checkRule(@NotNull SignedJWT jwt, @Nullable Map<String, Object> additional) {
         if (additional != null) {
             var issuerConnector = additional.get("issuerConnector");
             if (issuerConnector == null) {
