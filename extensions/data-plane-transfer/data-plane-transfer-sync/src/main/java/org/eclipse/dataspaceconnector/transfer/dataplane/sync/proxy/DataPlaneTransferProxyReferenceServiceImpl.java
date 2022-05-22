@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.transfer.dataplane.sync.proxy;
 
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
 import org.eclipse.dataspaceconnector.dataplane.spi.DataPlaneConstants;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.edr.EndpointDataReference;
@@ -52,7 +53,7 @@ public class DataPlaneTransferProxyReferenceServiceImpl implements DataPlaneTran
     public Result<EndpointDataReference> createProxyReference(@NotNull DataPlaneTransferProxyCreationRequest request) {
         var encryptedDataAddress = dataEncrypter.encrypt(typeManager.writeValueAsString(request.getContentAddress()));
         var decorator = new DataPlaneProxyTokenDecorator(Date.from(Instant.now().plusSeconds(tokenValiditySeconds)), request.getContractId(), encryptedDataAddress);
-        var tokenGenerationResult = tokenGenerationService.generate(decorator);
+        var tokenGenerationResult = tokenGenerationService.generate(new TokenGenerationContext(null, null), decorator);
         if (tokenGenerationResult.failed()) {
             return Result.failure(tokenGenerationResult.getFailureMessages());
         }

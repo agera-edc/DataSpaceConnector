@@ -16,18 +16,21 @@ package org.eclipse.dataspaceconnector.identity;
 
 import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistry;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
+import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistry;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationService;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provider;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
+import java.security.PrivateKey;
 import java.time.Duration;
 
 import static java.lang.String.format;
@@ -54,6 +57,9 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     @Inject
     private TokenValidationRulesRegistry validationRulesRegistry;
 
+    @Inject
+    private PrivateKeyResolver privateKeyResolver;
+
     @Override
     public String name() {
         return "Distributed Identity Service";
@@ -76,5 +82,11 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     @Provider
     public IdentityService identityService(ServiceExtensionContext context) {
         return new DecentralizedIdentityService(tokenGenerationService, tokenValidationService, resolverRegistry, credentialsVerifier, context.getMonitor(), decoratorRegistry);
+    }
+
+    @Provider(isDefault = true)
+    public TokenGenerationService tokenGenerationService(ServiceExtensionContext context) {
+        var privateKey = privateKeyResolver.resolvePrivateKey(context.getConnectorId(), PrivateKey.class);
+        return new TokenGenerationServiceImpl(privateKey);
     }
 }
