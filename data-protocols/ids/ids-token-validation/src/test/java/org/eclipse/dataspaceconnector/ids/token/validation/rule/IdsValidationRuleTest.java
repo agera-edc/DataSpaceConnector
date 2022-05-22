@@ -33,7 +33,7 @@ class IdsValidationRuleTest {
 
     @BeforeEach
     public void setUp() {
-        rule = new IdsValidationRule(false);
+        rule = new IdsValidationRule(false, "expectedAudience");
         jwsHeader = new JWSHeader.Builder(JWSAlgorithm.RS256).build();
     }
 
