@@ -23,6 +23,7 @@ import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubClientImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.store.InMemoryIdentityHubStore;
 import org.eclipse.dataspaceconnector.iam.did.resolution.DidPublicKeyResolverImpl;
+import org.eclipse.dataspaceconnector.iam.did.resolution.DidPublicKeyResolverImpl2;
 import org.eclipse.dataspaceconnector.iam.did.resolution.DidResolverRegistryImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHub;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubClient;
@@ -34,6 +35,7 @@ import org.eclipse.dataspaceconnector.iam.did.spi.store.DidStore;
 import org.eclipse.dataspaceconnector.iam.did.store.InMemoryDidDocumentStore;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.WebService;
+import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provider;
@@ -57,6 +59,9 @@ public class IdentityDidCoreExtension implements ServiceExtension {
 
     @Inject
     private PrivateKeyResolver privateKeyResolver;
+
+    @Inject
+    private DidResolverRegistry didResolverRegistry;
 
     @Override
     public String name() {
@@ -104,6 +109,12 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     public DidStore defaultDidDocumentStore() {
         return new InMemoryDidDocumentStore();
     }
+
+    @Provider(isDefault = true)
+    public PublicKeyResolver publicKeyResolver() {
+        return new DidPublicKeyResolverImpl2(didResolverRegistry);
+    }
+
 
     private void registerParsers(PrivateKeyResolver resolver) {
 

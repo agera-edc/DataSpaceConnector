@@ -19,6 +19,8 @@ import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWEEncrypter;
 import com.nimbusds.jose.JWSVerifier;
 
+import java.security.PublicKey;
+
 /**
  * Abstraction for handling JWE operations on different public key types such as elliptic curve and RSA keys.
  */
@@ -47,4 +49,6 @@ public interface PublicKeyWrapper {
     default EncryptionMethod encryptionMethod() {
         return EncryptionMethod.A256GCM;
     }
+
+    PublicKey toPublicKey();
 }

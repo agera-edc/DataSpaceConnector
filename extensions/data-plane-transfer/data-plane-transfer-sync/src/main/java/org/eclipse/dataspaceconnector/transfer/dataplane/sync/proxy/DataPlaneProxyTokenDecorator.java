@@ -17,7 +17,7 @@ package org.eclipse.dataspaceconnector.transfer.dataplane.sync.proxy;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.eclipse.dataspaceconnector.common.token.JwtDecorator;
-import org.eclipse.dataspaceconnector.common.token.TokenGenerationContext;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 
 import java.util.Date;
 

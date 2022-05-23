@@ -23,11 +23,21 @@ import com.nimbusds.jose.jwk.ECKey;
 import org.eclipse.dataspaceconnector.iam.did.crypto.CryptoException;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 
+import java.security.PublicKey;
+
 public class EcPublicKeyWrapper implements PublicKeyWrapper {
     private final ECKey publicKey;
 
     public EcPublicKeyWrapper(ECKey publicKey) {
         this.publicKey = publicKey;
+    }
+
+    public PublicKey getPublicKey() {
+        try {
+            return publicKey.toPublicKey();
+        } catch (JOSEException e) {
+            throw new CryptoException(e);
+        }
     }
 
     @Override
@@ -43,6 +53,15 @@ public class EcPublicKeyWrapper implements PublicKeyWrapper {
     public JWSVerifier verifier() {
         try {
             return new ECDSAVerifier(publicKey);
+        } catch (JOSEException e) {
+            throw new CryptoException(e);
+        }
+    }
+
+    @Override
+    public PublicKey toPublicKey() {
+        try {
+            return publicKey.toPublicKey();
         } catch (JOSEException e) {
             throw new CryptoException(e);
         }

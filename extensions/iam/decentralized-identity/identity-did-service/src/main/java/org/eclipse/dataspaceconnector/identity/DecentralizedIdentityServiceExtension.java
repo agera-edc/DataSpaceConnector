@@ -19,10 +19,12 @@ import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistry;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationService;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provider;
@@ -60,6 +62,12 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     @Inject
     private PrivateKeyResolver privateKeyResolver;
 
+    @Inject
+    private PublicKeyResolver publicKeyResolver;
+
+    @Inject
+    private TokenValidationRulesRegistry tokenValidationRulesRegistry;
+
     @Override
     public String name() {
         return "Distributed Identity Service";
@@ -88,5 +96,10 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     public TokenGenerationService tokenGenerationService(ServiceExtensionContext context) {
         var privateKey = privateKeyResolver.resolvePrivateKey(context.getConnectorId(), PrivateKey.class);
         return new TokenGenerationServiceImpl(privateKey);
+    }
+
+    @Provider
+    public TokenValidationService tokenValidationService(ServiceExtensionContext context) {
+        return new TokenValidationServiceImpl(publicKeyResolver, tokenValidationRulesRegistry);
     }
 }

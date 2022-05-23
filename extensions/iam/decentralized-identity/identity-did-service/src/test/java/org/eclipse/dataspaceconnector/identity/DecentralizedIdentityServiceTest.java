@@ -17,9 +17,14 @@ package org.eclipse.dataspaceconnector.identity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
+import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistryImpl;
+import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistryImpl;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
@@ -28,16 +33,21 @@ import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKe
 import org.eclipse.dataspaceconnector.iam.did.spi.document.VerificationMethod;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
+import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
+import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.PublicKey;
+import java.time.Duration;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -93,8 +103,23 @@ abstract class DecentralizedIdentityServiceTest {
         var hubUrlDid = new String(didJson.readAllBytes(), StandardCharsets.UTF_8);
         var didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
         CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
-        var signedJwtService = new SignedJwtService(didUrl, connectorName, privateKey);
-        identityService = new DecentralizedIdentityService(signedJwtService, didResolver, verifier, new ConsoleMonitor());
+        // var signedJwtService = new SignedJwtService(didUrl, connectorName, privateKey);
+        var rulesRegistry = new TokenValidationRulesRegistryImpl();
+        rulesRegistry.addRule(new DidJwtValidationRule());
+        var tokenGenerationService = new TokenGenerationServiceImpl(keyPair.toECKey().toPrivateKey());
+        var tokenValidationService = new TokenValidationServiceImpl(new PublicKeyResolver() {
+            @Override
+            public @Nullable PublicKey resolveKey(String id) {
+                try {
+                    return keyPair.toECKey().toPublicKey();
+                } catch (JOSEException e) {
+                    throw new EdcException(e);
+                }
+            }
+        }, rulesRegistry);
+        var jwtDecoratorRegistry = new JwtDecoratorRegistryImpl();
+        jwtDecoratorRegistry.register(new DidJwtDecorator(didUrl, connectorName, Duration.ofMinutes(10)));
+        identityService = new DecentralizedIdentityService(tokenGenerationService, tokenValidationService, didResolver, verifier, new ConsoleMonitor(), jwtDecoratorRegistry);
     }
 
     @NotNull

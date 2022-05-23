@@ -21,6 +21,7 @@ import com.nimbusds.jose.crypto.RSAEncrypter;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 
 public class RsaPublicKeyWrapper implements PublicKeyWrapper {
@@ -43,5 +44,10 @@ public class RsaPublicKeyWrapper implements PublicKeyWrapper {
     @Override
     public JWEAlgorithm jweAlgorithm() {
         return JWEAlgorithm.RSA_OAEP_256;
+    }
+
+    @Override
+    public PublicKey toPublicKey() {
+        return publicKey;
     }
 }
