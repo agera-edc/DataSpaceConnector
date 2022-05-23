@@ -60,8 +60,7 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     @Inject
     private PrivateKeyResolver privateKeyResolver;
 
-    @Inject
-    private DidResolverRegistry didResolverRegistry;
+    private DidResolverRegistry resolverRegistry;
 
     @Override
     public String name() {
@@ -72,7 +71,7 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     public void initialize(ServiceExtensionContext context) {
         var objectMapper = context.getTypeManager().getMapper();
 
-        var resolverRegistry = new DidResolverRegistryImpl();
+        resolverRegistry = new DidResolverRegistryImpl();
         context.registerService(DidResolverRegistry.class, resolverRegistry);
 
         var publicKeyResolver = new DidPublicKeyResolverImpl(resolverRegistry);
@@ -112,7 +111,7 @@ public class IdentityDidCoreExtension implements ServiceExtension {
 
     @Provider(isDefault = true)
     public PublicKeyResolver publicKeyResolver() {
-        return new DidPublicKeyResolverImpl2(didResolverRegistry);
+        return new DidPublicKeyResolverImpl2(resolverRegistry);
     }
 
 
