@@ -98,7 +98,7 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
         return new TokenGenerationServiceImpl(privateKey);
     }
 
-    @Provider
+    @Provider(isDefault = true)
     public TokenValidationService tokenValidationService(ServiceExtensionContext context) {
         return new TokenValidationServiceImpl(publicKeyResolver, tokenValidationRulesRegistry);
     }
