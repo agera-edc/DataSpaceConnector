@@ -31,13 +31,7 @@ public class VaultPrivateKeyResolver implements PrivateKeyResolver {
     private final Vault vault;
     private final List<KeyParser<?>> parsers;
 
-    public VaultPrivateKeyResolver(Vault vault, KeyParser<?>... parsers) {
-        this.vault = vault;
-        this.parsers = Arrays.asList(parsers);
-    }
-
     public VaultPrivateKeyResolver(Vault vault) {
-        // can't use this(vault) here because properties are final
         this.vault = vault;
         parsers = new ArrayList<>();
     }

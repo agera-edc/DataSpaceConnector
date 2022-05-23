@@ -40,6 +40,8 @@ public class DidJwtDecorator implements JwtDecorator {
 
     @Override
     public void decorate(TokenGenerationContext context, JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet) {
+        header
+                .keyID(didUrl);
         claimsSet
                 .claim(OWNER_CLAIM, connectorName)
                 .issuer(didUrl)

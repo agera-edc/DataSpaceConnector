@@ -34,6 +34,7 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
 import java.security.PrivateKey;
 import java.time.Duration;
+import java.util.Objects;
 
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.iam.did.spi.document.DidConstants.DID_URL_SETTING;
@@ -46,12 +47,6 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
 
     @Inject
     private CredentialsVerifier credentialsVerifier;
-
-    @Inject
-    private TokenGenerationService tokenGenerationService;
-
-    @Inject
-    private TokenValidationService tokenValidationService;
 
     @Inject
     private JwtDecoratorRegistry decoratorRegistry;
@@ -89,17 +84,15 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
 
     @Provider
     public IdentityService identityService(ServiceExtensionContext context) {
+        var tokenGenerationService = createTokenGenerationService(context);
+        var tokenValidationService = (TokenValidationService) new TokenValidationServiceImpl(publicKeyResolver, tokenValidationRulesRegistry);
         return new DecentralizedIdentityService(tokenGenerationService, tokenValidationService, resolverRegistry, credentialsVerifier, context.getMonitor(), decoratorRegistry);
     }
 
-    @Provider(isDefault = true)
-    public TokenGenerationService tokenGenerationService(ServiceExtensionContext context) {
-        var privateKey = privateKeyResolver.resolvePrivateKey(context.getConnectorId(), PrivateKey.class);
+    public TokenGenerationService createTokenGenerationService(ServiceExtensionContext context) {
+        String connectorId = context.getConnectorId();
+        var privateKey = privateKeyResolver.resolvePrivateKey(connectorId, PrivateKey.class);
+        Objects.requireNonNull(privateKey, format("Private key for connectorId %s not found", connectorId));
         return new TokenGenerationServiceImpl(privateKey);
-    }
-
-    @Provider(isDefault = true)
-    public TokenValidationService tokenValidationService(ServiceExtensionContext context) {
-        return new TokenValidationServiceImpl(publicKeyResolver, tokenValidationRulesRegistry);
     }
 }
