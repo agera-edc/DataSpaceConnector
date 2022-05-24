@@ -7,6 +7,11 @@ on:
     paths-ignore:
       - '**.md'
       - 'docs/**'
+# Grant permissions to obtain federated identity credentials
+# see https://docs.github.com/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
+permissions:
+  id-token: write
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -422,13 +427,6 @@ jobs:
   Check-Cloud-Environments:
     environment: Azure-dev
     runs-on: ubuntu-latest
-
-    # Grant permissions to obtain federated identity credentials
-    # see https://docs.github.com/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-azure
-    permissions:
-      id-token: write
-      contents: read
-
     steps:
       - id: has-azure
         env:
@@ -443,10 +441,6 @@ jobs:
     if: needs.Check-Cloud-Environments.outputs.has-azure == 'true'
     environment: Azure-dev
     runs-on: ubuntu-latest
-
-    permissions:
-      id-token: write
-      contents: read
 
     steps:
       - uses: actions/checkout@v2
