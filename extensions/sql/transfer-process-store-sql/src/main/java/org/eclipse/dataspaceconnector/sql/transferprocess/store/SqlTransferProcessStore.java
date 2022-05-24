@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,7 +53,6 @@ public class SqlTransferProcessStore implements TransferProcessStore {
     private final TransferProcessStoreStatements statements;
     private final String leaseHolderName;
     private final SqlLeaseContextBuilder leaseContext;
-    protected Clock clock = Clock.systemUTC();
 
     public SqlTransferProcessStore(DataSourceRegistry dataSourceRegistry, String datasourceName, TransactionContext transactionContext, ObjectMapper objectMapper, TransferProcessStoreStatements statements, String leaseHolderName) {
 
