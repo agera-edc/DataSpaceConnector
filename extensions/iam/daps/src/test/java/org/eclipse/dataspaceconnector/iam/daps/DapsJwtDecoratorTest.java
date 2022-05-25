@@ -17,6 +17,7 @@ package org.eclipse.dataspaceconnector.iam.daps;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +37,7 @@ class DapsJwtDecoratorTest {
         JWSHeader.Builder headerBuilder = new JWSHeader.Builder(JWSAlgorithm.RS256);
         JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder();
 
-        decorator.decorate(headerBuilder, claimsBuilder);
+        decorator.decorate(TokenGenerationContext.Builder.newInstance().build(), headerBuilder, claimsBuilder);
 
         JWSHeader header = headerBuilder.build();
         JWTClaimsSet claims = claimsBuilder.build();
