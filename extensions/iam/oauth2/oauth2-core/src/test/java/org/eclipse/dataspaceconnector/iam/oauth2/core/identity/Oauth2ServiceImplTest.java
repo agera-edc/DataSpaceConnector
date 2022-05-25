@@ -27,9 +27,9 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
 import org.eclipse.dataspaceconnector.iam.oauth2.core.Oauth2Configuration;
-import org.eclipse.dataspaceconnector.iam.oauth2.core.rule.Oauth2ValidationRulesRegistryImpl;
 import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.security.CertificateResolver;
@@ -79,7 +79,7 @@ class Oauth2ServiceImplTest {
                 .identityProviderKeyResolver(publicKeyResolverMock)
                 .build();
 
-        var validationRulesRegistry = new Oauth2ValidationRulesRegistryImpl(configuration);
+        var validationRulesRegistry = new TokenValidationRulesRegistryImpl();
         var tokenValidationService = new TokenValidationServiceImpl(publicKeyResolverMock, validationRulesRegistry);
 
         authService = new Oauth2ServiceImpl(configuration, mock(TokenGenerationService.class), testOkHttpClient(), new JwtDecoratorRegistryImpl(), new TypeManager(), tokenValidationService);
