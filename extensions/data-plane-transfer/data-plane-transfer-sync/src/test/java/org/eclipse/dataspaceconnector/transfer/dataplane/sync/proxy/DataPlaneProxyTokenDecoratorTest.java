@@ -48,7 +48,7 @@ class DataPlaneProxyTokenDecoratorTest {
     void decorate() throws ParseException {
         var builder = new JWTClaimsSet.Builder();
 
-        decorator.decorate(null, builder);
+        decorator.decorate(null, null, builder);
 
         var claims = builder.build();
         assertThat(claims.getStringClaim(CONTRACT_ID)).isEqualTo(contractId);

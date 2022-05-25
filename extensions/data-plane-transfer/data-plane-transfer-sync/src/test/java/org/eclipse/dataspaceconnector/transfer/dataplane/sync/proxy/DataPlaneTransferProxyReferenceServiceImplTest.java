@@ -91,13 +91,13 @@ class DataPlaneTransferProxyReferenceServiceImplTest {
 
         var result = proxyManager.createProxyReference(proxyCreationRequest);
 
-        verify(tokenGeneratorMock).generate(decoratorCaptor.capture());
+        verify(tokenGeneratorMock).generate(any(), decoratorCaptor.capture());
 
         var decorator = decoratorCaptor.getValue();
 
         // test the decorator
         var builder = new JWTClaimsSet.Builder();
-        decorator.decorate(null, builder);
+        decorator.decorate(null, null, builder);
         var claims = builder.build();
         assertThat(claims.getStringClaim(CONTRACT_ID)).isEqualTo(contractId);
         assertThat(claims.getStringClaim(DATA_ADDRESS)).isEqualTo(encryptedDataAddress);
@@ -126,7 +126,7 @@ class DataPlaneTransferProxyReferenceServiceImplTest {
                 .proxyEndpoint(FAKER.internet().url())
                 .build();
 
-        when(tokenGeneratorMock.generate(any(DataPlaneProxyTokenDecorator.class))).thenReturn(Result.failure(errorMsg));
+        when(tokenGeneratorMock.generate(any(), any(DataPlaneProxyTokenDecorator.class))).thenReturn(Result.failure(errorMsg));
 
         var result = proxyManager.createProxyReference(request);
 
