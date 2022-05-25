@@ -15,11 +15,9 @@
 package org.eclipse.dataspaceconnector.iam.did.crypto.key;
 
 import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.crypto.ECDHEncrypter;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
+import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.KeyType;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,25 +57,23 @@ class KeyConverterTest {
     }
 
     @Test
-    void toPublicKeyWrapper() {
-        PublicKeyWrapper actual = KeyConverter.toPublicKeyWrapper(new EllipticCurvePublicKey("P-256", "ec", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id");
-        assertThat(actual).isNotNull().isInstanceOf(EcPublicKeyWrapper.class);
-        assertThat(actual.encrypter()).isInstanceOf(ECDHEncrypter.class);
-        assertThat(actual.verifier()).isInstanceOf(ECDSAVerifier.class);
-        assertThat(actual.jweAlgorithm()).isEqualTo(JWEAlgorithm.ECDH_ES_A256KW);
+    void toPublicKey() {
+        var actual = KeyConverter.toPublicKey(new EllipticCurvePublicKey("P-256", "ec", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id");
+        assertThat(actual).isNotNull().isInstanceOf(ECKey.class);
+        assertThat(actual.getAlgorithm()).isEqualTo(JWEAlgorithm.ECDH_ES_A256KW);
     }
 
     @Test
-    void toPublicKeyWrapper_illegalKeyType() {
-        assertThatThrownBy(() -> KeyConverter.toPublicKeyWrapper(new EllipticCurvePublicKey("P-256", "foobar", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id"))
+    void toPublicKey_illegalKeyType() {
+        assertThatThrownBy(() -> KeyConverter.toPublicKey(new EllipticCurvePublicKey("P-256", "foobar", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("of type 'EC' can be used at the moment, but 'foobar' was specified!");
 
     }
 
     @Test
-    void toPublicKeyWrapper_illegalJwkInstance() {
-        assertThatThrownBy(() -> KeyConverter.toPublicKeyWrapper(() -> "EC", "test-id"))
+    void toPublicKey_illegalJwkInstance() {
+        assertThatThrownBy(() -> KeyConverter.toPublicKey(() -> "EC", "test-id"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Public key has 'kty' = 'EC' but its Java type was");
     }

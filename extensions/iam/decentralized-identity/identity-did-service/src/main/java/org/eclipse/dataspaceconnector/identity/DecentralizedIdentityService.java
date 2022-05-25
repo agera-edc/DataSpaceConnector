@@ -101,13 +101,13 @@ public class DecentralizedIdentityService implements IdentityService {
         }
 
         //convert the POJO into a usable PK-wrapper:
-        JwkPublicKey publicKeyJwk = publicKey.get().getPublicKeyJwk();
-        PublicKeyWrapper publicKeyWrapper = KeyConverter.toPublicKeyWrapper(publicKeyJwk, publicKey.get().getId());
+        var publicKeyJwk = publicKey.get().getPublicKeyJwk();
+        var jwk  = KeyConverter.toPublicKey(publicKeyJwk, publicKey.get().getId());
 
         monitor.debug("Verifying JWT with public key...");
         monitor.debug("verification successful! Fetching data from IdentityHub");
         String hubUrl = getHubUrl(didResult.getContent());
-        var credentialsResult = credentialsVerifier.verifyCredentials(hubUrl, publicKeyWrapper);
+        var credentialsResult = credentialsVerifier.verifyCredentials(hubUrl, jwk);
 
         monitor.debug("Building ClaimToken");
         var tokenBuilder = ClaimToken.Builder.newInstance();

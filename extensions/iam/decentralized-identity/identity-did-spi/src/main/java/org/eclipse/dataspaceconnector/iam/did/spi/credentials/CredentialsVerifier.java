@@ -14,9 +14,9 @@
 
 package org.eclipse.dataspaceconnector.iam.did.spi.credentials;
 
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 
+import java.security.PublicKey;
 import java.util.Map;
 
 /**
@@ -28,10 +28,9 @@ public interface CredentialsVerifier {
 
     /**
      * Verifies credentials contained in the given hub.
-     *
-     * @param hubBaseUrl the hub base url
+     *  @param hubBaseUrl the hub base url
      * @param publicKey  the hub's public key to encrypt messages with
      */
-    Result<Map<String, String>> verifyCredentials(String hubBaseUrl, PublicKeyWrapper publicKey);
+    Result<Map<String, String>> verifyCredentials(String hubBaseUrl, PublicKey publicKey);
 
 }

@@ -21,7 +21,6 @@ import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistry;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationService;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
@@ -33,6 +32,7 @@ import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
+import java.security.PrivateKey;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -91,7 +91,7 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
 
     public TokenGenerationService createTokenGenerationService(ServiceExtensionContext context) {
         String connectorId = context.getConnectorId();
-        var privateKey = privateKeyResolver.resolvePrivateKey(connectorId, PrivateKeyWrapper.class);
+        var privateKey = privateKeyResolver.resolvePrivateKey(connectorId, PrivateKey.class);
         Objects.requireNonNull(privateKey, format("Private key for connectorId %s not found", connectorId));
         return new TokenGenerationServiceImpl(privateKey);
     }

@@ -20,7 +20,7 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 /**
  * Resolves a public key contained in a DID document associated with a DID.
  */
-public interface DidPublicKeyResolver {
+public interface LegacyDidPublicKeyResolver {
 
     /**
      * Resolves the public key.

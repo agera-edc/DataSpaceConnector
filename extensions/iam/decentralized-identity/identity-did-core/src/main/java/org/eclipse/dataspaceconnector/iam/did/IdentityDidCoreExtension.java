@@ -22,18 +22,20 @@ import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubApiController;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubClientImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.store.InMemoryIdentityHubStore;
-import org.eclipse.dataspaceconnector.iam.did.resolution.DidPublicKeyResolverImpl;
+import org.eclipse.dataspaceconnector.iam.did.resolution.LegacyDidPublicKeyResolverImpl;
+import org.eclipse.dataspaceconnector.iam.did.resolution.DidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.iam.did.resolution.DidResolverRegistryImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHub;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubClient;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubStore;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidPublicKeyResolver;
+import org.eclipse.dataspaceconnector.iam.did.spi.resolution.LegacyDidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.iam.did.spi.store.DidStore;
 import org.eclipse.dataspaceconnector.iam.did.store.InMemoryDidDocumentStore;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.WebService;
+import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provider;
@@ -46,7 +48,7 @@ import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckService;
 import java.util.function.Supplier;
 
 
-@Provides({ IdentityHub.class, IdentityHubClient.class, DidResolverRegistry.class, DidPublicKeyResolver.class })
+@Provides({ IdentityHub.class, IdentityHubClient.class, DidResolverRegistry.class, LegacyDidPublicKeyResolver.class })
 public class IdentityDidCoreExtension implements ServiceExtension {
 
     @Inject
@@ -58,6 +60,8 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     @Inject
     private PrivateKeyResolver privateKeyResolver;
 
+    private DidResolverRegistry resolverRegistry;
+
     @Override
     public String name() {
         return "Identity Did Core";
@@ -67,11 +71,11 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     public void initialize(ServiceExtensionContext context) {
         var objectMapper = context.getTypeManager().getMapper();
 
-        var resolverRegistry = new DidResolverRegistryImpl();
+        resolverRegistry = new DidResolverRegistryImpl();
         context.registerService(DidResolverRegistry.class, resolverRegistry);
 
-        var publicKeyResolver = new DidPublicKeyResolverImpl(resolverRegistry);
-        context.registerService(DidPublicKeyResolver.class, publicKeyResolver);
+        var publicKeyResolver = new LegacyDidPublicKeyResolverImpl(resolverRegistry);
+        context.registerService(LegacyDidPublicKeyResolver.class, publicKeyResolver);
 
         registerParsers(privateKeyResolver);
 
@@ -103,6 +107,11 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     @Provider(isDefault = true)
     public DidStore defaultDidDocumentStore() {
         return new InMemoryDidDocumentStore();
+    }
+
+    @Provider(isDefault = true)
+    public PublicKeyResolver publicKeyResolver() {
+        return new DidPublicKeyResolver(resolverRegistry);
     }
 
     private void registerParsers(PrivateKeyResolver resolver) {

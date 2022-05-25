@@ -18,11 +18,11 @@ import okhttp3.OkHttpClient;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubApiController;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubClientImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubImpl;
-import org.eclipse.dataspaceconnector.iam.did.resolution.DidPublicKeyResolverImpl;
+import org.eclipse.dataspaceconnector.iam.did.resolution.LegacyDidPublicKeyResolverImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHub;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubClient;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubStore;
-import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidPublicKeyResolver;
+import org.eclipse.dataspaceconnector.iam.did.spi.resolution.LegacyDidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.junit.launcher.DependencyInjectionExtension;
 import org.eclipse.dataspaceconnector.spi.WebService;
@@ -65,7 +65,7 @@ class IdentityDidCoreExtensionTest {
         extension.initialize(context);
 
         assertThat(context.getService(DidResolverRegistry.class)).isInstanceOf(DidResolverRegistry.class);
-        assertThat(context.getService(DidPublicKeyResolver.class)).isInstanceOf(DidPublicKeyResolverImpl.class);
+        assertThat(context.getService(LegacyDidPublicKeyResolver.class)).isInstanceOf(LegacyDidPublicKeyResolverImpl.class);
         assertThat(context.getService(IdentityHub.class)).isInstanceOf(IdentityHubImpl.class);
         assertThat(context.getService(IdentityHubClient.class)).isInstanceOf(IdentityHubClientImpl.class);
         verify(webserviceMock).registerResource(isA(IdentityHubApiController.class));

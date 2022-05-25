@@ -14,17 +14,20 @@
 
 package org.eclipse.dataspaceconnector.iam.did.crypto.key;
 
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.KeyOperation;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.util.Base64URL;
+import org.eclipse.dataspaceconnector.iam.did.crypto.CryptoException;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.JwkPublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.jetbrains.annotations.NotNull;
 
+import java.security.PublicKey;
 import java.util.Set;
 
 import static java.lang.String.format;
@@ -60,14 +63,18 @@ public class KeyConverter {
      * @return A {@link PublicKeyWrapper}
      * @throws IllegalArgumentException if an invalid public key (something other than "EC") is passed or if the runtime-type is not {@link EllipticCurvePublicKey}
      */
-    public static @NotNull PublicKeyWrapper toPublicKeyWrapper(JwkPublicKey publicKey, String id) {
+    public static @NotNull PublicKey toPublicKey(JwkPublicKey publicKey, String id) {
         switch (publicKey.getKty()) {
             case "EC":
             case "ec":
                 if (!(publicKey instanceof EllipticCurvePublicKey)) {
                     throw new IllegalArgumentException(format("Public key has 'kty' = '%s' but its Java type was %s!", publicKey.getKty(), publicKey.getClass()));
                 }
-                return new EcPublicKeyWrapper(toEcKey((EllipticCurvePublicKey) publicKey, id));
+                try {
+                    return toEcKey((EllipticCurvePublicKey) publicKey, id).toPublicKey();
+                } catch (JOSEException e) {
+                    throw new CryptoException(e);
+                }
             default:
                 throw new IllegalArgumentException(format("Only public-key-JWK of type 'EC' can be used at the moment, but '%s' was specified!", publicKey.getKty()));
         }

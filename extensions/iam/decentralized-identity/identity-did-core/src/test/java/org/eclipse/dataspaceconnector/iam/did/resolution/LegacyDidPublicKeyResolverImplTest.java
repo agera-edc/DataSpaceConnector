@@ -35,17 +35,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class DidPublicKeyResolverImplTest {
+class LegacyDidPublicKeyResolverImplTest {
 
     private static final String DID_URL = "did:ion:EiDfkaPHt8Yojnh15O7egrj5pA9tTefh_SYtbhF1-XyAeA";
     private DidDocument didDocument;
-    private DidPublicKeyResolverImpl resolver;
+    private LegacyDidPublicKeyResolverImpl resolver;
     private DidResolverRegistry resolverRegistry;
 
     @BeforeEach
     void setUp() throws JOSEException {
         resolverRegistry = mock(DidResolverRegistry.class);
-        resolver = new DidPublicKeyResolverImpl(resolverRegistry);
+        resolver = new LegacyDidPublicKeyResolverImpl(resolverRegistry);
         var eckey = (ECKey) ECKey.parseFromPEMEncodedObjects(readFile("public_secp256k1.pem"));
 
         var publicKey = new EllipticCurvePublicKey(eckey.getCurve().getName(), eckey.getKeyType().getValue(), eckey.getX().toString(), eckey.getY().toString());

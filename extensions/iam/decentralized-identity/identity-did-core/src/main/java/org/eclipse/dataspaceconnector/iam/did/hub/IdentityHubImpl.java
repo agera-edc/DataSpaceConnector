@@ -29,7 +29,7 @@ import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ObjectQueryRequest
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ObjectQueryResponse;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.WriteResponse;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidPublicKeyResolver;
+import org.eclipse.dataspaceconnector.iam.did.spi.resolution.LegacyDidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 
 import java.util.ArrayList;
@@ -41,10 +41,10 @@ import java.util.function.Supplier;
 public class IdentityHubImpl implements IdentityHub {
     private final IdentityHubStore store;
     private final Supplier<PrivateKeyWrapper> privateKey;
-    private final DidPublicKeyResolver publicKeyResolver;
+    private final LegacyDidPublicKeyResolver publicKeyResolver;
     private final ObjectMapper objectMapper;
 
-    public IdentityHubImpl(IdentityHubStore store, Supplier<PrivateKeyWrapper> privateKey, DidPublicKeyResolver resolver, ObjectMapper objectMapper) {
+    public IdentityHubImpl(IdentityHubStore store, Supplier<PrivateKeyWrapper> privateKey, LegacyDidPublicKeyResolver resolver, ObjectMapper objectMapper) {
         this.store = store;
         this.privateKey = privateKey;
         publicKeyResolver = resolver;
