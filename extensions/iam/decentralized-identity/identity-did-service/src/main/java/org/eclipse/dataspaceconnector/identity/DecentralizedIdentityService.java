@@ -23,10 +23,8 @@ import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyConverter;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidConstants;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
-import org.eclipse.dataspaceconnector.iam.did.spi.document.JwkPublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.Service;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.VerificationMethod;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
@@ -42,7 +40,6 @@ public class DecentralizedIdentityService implements IdentityService {
     // RFC 7519 Registered (standard) claims
     static final String ISSUER_CLAIM = "iss";
     static final String SUBJECT_CLAIM = "sub";
-    static final String AUDIENCE_CLAIM = "aud";
     static final String EXPIRATION_TIME_CLAIM = "exp";
 
     // Custom claims
@@ -102,7 +99,7 @@ public class DecentralizedIdentityService implements IdentityService {
 
         //convert the POJO into a usable PK-wrapper:
         var publicKeyJwk = publicKey.get().getPublicKeyJwk();
-        var jwk  = KeyConverter.toPublicKey(publicKeyJwk, publicKey.get().getId());
+        var jwk = KeyConverter.toPublicKey(publicKeyJwk, publicKey.get().getId());
 
         monitor.debug("Verifying JWT with public key...");
         monitor.debug("verification successful! Fetching data from IdentityHub");

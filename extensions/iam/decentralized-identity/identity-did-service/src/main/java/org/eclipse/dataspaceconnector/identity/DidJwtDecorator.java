@@ -46,7 +46,6 @@ public class DidJwtDecorator implements JwtDecorator {
                 .claim(OWNER_CLAIM, connectorName)
                 .issuer(didUrl)
                 .subject(VERIFIABLE_CREDENTIAL)
-                .audience(context.getAudience())
                 .jwtID(UUID.randomUUID().toString())
                 .expirationTime(Date.from(Instant.now().plus(expiration)));
     }

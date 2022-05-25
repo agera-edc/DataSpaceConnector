@@ -12,7 +12,6 @@
  *
  */
 
-
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -28,7 +27,6 @@ import java.text.ParseException;
 import java.util.Map;
 import java.util.Set;
 
-import static org.eclipse.dataspaceconnector.identity.DecentralizedIdentityService.AUDIENCE_CLAIM;
 import static org.eclipse.dataspaceconnector.identity.DecentralizedIdentityService.EXPIRATION_TIME_CLAIM;
 import static org.eclipse.dataspaceconnector.identity.DecentralizedIdentityService.ISSUER_CLAIM;
 import static org.eclipse.dataspaceconnector.identity.DecentralizedIdentityService.SUBJECT_CLAIM;
@@ -51,7 +49,6 @@ public class DidJwtValidationRule implements TokenValidationRule {
             var requiredClaims = Set.of(
                     ISSUER_CLAIM,
                     SUBJECT_CLAIM,
-                    AUDIENCE_CLAIM,
                     EXPIRATION_TIME_CLAIM);
             var claimsVerifier = new DefaultJWTClaimsVerifier<>(exactMatchClaims, requiredClaims);
             try {

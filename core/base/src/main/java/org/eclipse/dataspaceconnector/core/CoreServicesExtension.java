@@ -16,6 +16,7 @@ package org.eclipse.dataspaceconnector.core;
 
 import net.jodah.failsafe.RetryPolicy;
 import okhttp3.EventListener;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import org.eclipse.dataspaceconnector.core.base.CommandHandlerRegistryImpl;
 import org.eclipse.dataspaceconnector.core.base.RemoteMessageDispatcherRegistryImpl;
@@ -101,6 +102,9 @@ public class CoreServicesExtension implements ServiceExtension {
      */
     @Inject(required = false)
     private ExecutorInstrumentation executorInstrumentation;
+
+    @Inject(required = false)
+    private Interceptor interceptor;
 
     @Inject
     private PrivateKeyResolver privateKeyResolver;
@@ -200,6 +204,7 @@ public class CoreServicesExtension implements ServiceExtension {
                 .readTimeout(30, TimeUnit.SECONDS);
 
         ofNullable(okHttpEventListener).ifPresent(builder::eventListener);
+        ofNullable(interceptor).ifPresent(builder::addInterceptor);
 
         return builder.build();
     }
