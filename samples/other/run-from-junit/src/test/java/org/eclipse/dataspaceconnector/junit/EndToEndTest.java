@@ -22,6 +22,7 @@ import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.store.ContractNegotiationStore;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.message.MessageContext;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcher;
@@ -170,7 +171,7 @@ public class EndToEndTest {
         public void initialize(ServiceExtensionContext context) {
             context.registerService(IdentityService.class, new IdentityService() {
                 @Override
-                public Result<TokenRepresentation> obtainClientCredentials(String scope) {
+                public Result<TokenRepresentation> obtainClientCredentials(TokenGenerationContext context) {
                     return Result.success(TokenRepresentation.Builder.newInstance().token("test").build());
                 }
 

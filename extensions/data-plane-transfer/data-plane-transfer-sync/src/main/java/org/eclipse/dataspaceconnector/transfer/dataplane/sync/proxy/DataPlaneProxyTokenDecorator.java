@@ -17,6 +17,7 @@ package org.eclipse.dataspaceconnector.transfer.dataplane.sync.proxy;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.eclipse.dataspaceconnector.common.token.JwtDecorator;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 
 import java.util.Date;
 
@@ -41,7 +42,7 @@ public class DataPlaneProxyTokenDecorator implements JwtDecorator {
     }
 
     @Override
-    public void decorate(JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet) {
+    public void decorate(TokenGenerationContext context, JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet) {
         claimsSet.expirationTime(expirationDate)
                 .claim(CONTRACT_ID, contractId)
                 .claim(DATA_ADDRESS, encryptedDataAddress)

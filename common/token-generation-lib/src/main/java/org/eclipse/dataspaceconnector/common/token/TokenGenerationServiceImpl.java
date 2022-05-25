@@ -23,6 +23,7 @@ import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.spi.EdcException;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
@@ -51,10 +52,10 @@ public class TokenGenerationServiceImpl implements TokenGenerationService {
     }
 
     @Override
-    public Result<TokenRepresentation> generate(@NotNull JwtDecorator... decorators) {
+    public Result<TokenRepresentation> generate(TokenGenerationContext context, @NotNull JwtDecorator... decorators) {
         var headerBuilder = new JWSHeader.Builder(jwsAlgorithm);
         var claimsBuilder = new JWTClaimsSet.Builder();
-        Arrays.stream(decorators).forEach(decorator -> decorator.decorate(headerBuilder, claimsBuilder));
+        Arrays.stream(decorators).forEach(decorator -> decorator.decorate(context, headerBuilder, claimsBuilder));
         var claims = claimsBuilder.build();
 
         var token = new SignedJWT(headerBuilder.build(), claims);

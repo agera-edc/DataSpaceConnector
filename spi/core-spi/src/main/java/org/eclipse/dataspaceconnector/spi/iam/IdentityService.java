@@ -26,7 +26,7 @@ public interface IdentityService {
     /**
      * Obtains a client token encoded as a JWT.
      */
-    Result<TokenRepresentation> obtainClientCredentials(String scope);
+    Result<TokenRepresentation> obtainClientCredentials(TokenGenerationContext context);
 
     /**
      * Verifies a JWT bearer token.
@@ -35,18 +35,4 @@ public interface IdentityService {
      * @return Result of the validation.
      */
     Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation);
-
-    /**
-     * Verifies a JWT bearer token.
-     *
-     * @param token The token to verify.
-     * @return Result of the validation.
-     */
-    default Result<ClaimToken> verifyJwtToken(String token) {
-        var tokenRepresentation = TokenRepresentation.Builder.newInstance()
-                .token(token)
-                .build();
-
-        return verifyJwtToken(tokenRepresentation);
-    }
 }

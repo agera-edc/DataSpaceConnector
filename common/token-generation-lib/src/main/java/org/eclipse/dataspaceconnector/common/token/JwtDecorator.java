@@ -16,7 +16,8 @@ package org.eclipse.dataspaceconnector.common.token;
 
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 
 public interface JwtDecorator {
-    void decorate(JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet);
+    void decorate(TokenGenerationContext context, JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet);
 }

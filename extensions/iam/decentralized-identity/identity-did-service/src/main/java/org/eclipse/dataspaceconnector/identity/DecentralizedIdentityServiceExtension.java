@@ -14,22 +14,27 @@
 
 package org.eclipse.dataspaceconnector.identity;
 
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jwt.SignedJWT;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
+import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistry;
+import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
+import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistry;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationService;
+import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
+import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
+import org.eclipse.dataspaceconnector.spi.system.Provider;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
-import java.util.Map;
+import java.time.Duration;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import static java.lang.String.format;
 import static org.eclipse.dataspaceconnector.iam.did.spi.document.DidConstants.DID_URL_SETTING;
@@ -44,7 +49,19 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
     private CredentialsVerifier credentialsVerifier;
 
     @Inject
+    private JwtDecoratorRegistry decoratorRegistry;
+
+    @Inject
+    private TokenValidationRulesRegistry validationRulesRegistry;
+
+    @Inject
     private PrivateKeyResolver privateKeyResolver;
+
+    @Inject
+    private PublicKeyResolver publicKeyResolver;
+
+    @Inject
+    private TokenValidationRulesRegistry tokenValidationRulesRegistry;
 
     @Override
     public String name() {
@@ -53,31 +70,29 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        var vcProvider = createSupplier(context);
-        var identityService = new DecentralizedIdentityService(vcProvider, resolverRegistry, credentialsVerifier, context.getMonitor());
-        context.registerService(IdentityService.class, identityService);
-    }
-
-    @Override
-    public void start() {
-        ServiceExtension.super.start();
-    }
-
-    Supplier<SignedJWT> createSupplier(ServiceExtensionContext context) {
         var didUrl = context.getSetting(DID_URL_SETTING, null);
         if (didUrl == null) {
             throw new EdcException(format("The DID Url setting '(%s)' was null!", DID_URL_SETTING));
         }
 
-        return () -> {
-            // we'll use the connector name to restore the Private Key
-            var connectorName = context.getConnectorId();
-            var privateKeyString = privateKeyResolver.resolvePrivateKey(connectorName, ECKey.class); //to get the private key
-            Objects.requireNonNull(privateKeyString, "Couldn't resolve private key for " + connectorName);
+        // we'll use the connector name to restore the Private Key
+        var connectorName = context.getConnectorId();
 
-            // we cannot store the VerifiableCredential in the Vault, because it has an expiry date
-            // the Issuer claim must contain the DID URL
-            return VerifiableCredentialFactory.create(privateKeyString, Map.of(VerifiableCredentialFactory.OWNER_CLAIM, connectorName), didUrl);
-        };
+        decoratorRegistry.register(new DidJwtDecorator(didUrl, connectorName, Duration.ofMinutes(10)));
+        validationRulesRegistry.addRule(new DidJwtValidationRule());
+    }
+
+    @Provider
+    public IdentityService identityService(ServiceExtensionContext context) {
+        var tokenGenerationService = createTokenGenerationService(context);
+        var tokenValidationService = (TokenValidationService) new TokenValidationServiceImpl(publicKeyResolver, tokenValidationRulesRegistry);
+        return new DecentralizedIdentityService(tokenGenerationService, tokenValidationService, resolverRegistry, credentialsVerifier, context.getMonitor(), decoratorRegistry);
+    }
+
+    public TokenGenerationService createTokenGenerationService(ServiceExtensionContext context) {
+        String connectorId = context.getConnectorId();
+        var privateKey = privateKeyResolver.resolvePrivateKey(connectorId, PrivateKeyWrapper.class);
+        Objects.requireNonNull(privateKey, format("Private key for connectorId %s not found", connectorId));
+        return new TokenGenerationServiceImpl(privateKey);
     }
 }

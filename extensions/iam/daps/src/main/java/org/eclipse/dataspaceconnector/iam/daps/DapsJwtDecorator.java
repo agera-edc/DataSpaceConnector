@@ -17,10 +17,11 @@ package org.eclipse.dataspaceconnector.iam.daps;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jwt.JWTClaimsSet;
 import org.eclipse.dataspaceconnector.common.token.JwtDecorator;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 
 public class DapsJwtDecorator implements JwtDecorator {
     @Override
-    public void decorate(JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet) {
+    public void decorate(TokenGenerationContext context, JWSHeader.Builder header, JWTClaimsSet.Builder claimsSet) {
         claimsSet.claim("@context", "https://w3id.org/idsa/contexts/context.jsonld")
                 .claim("@type", "ids:DatRequestToken");
     }

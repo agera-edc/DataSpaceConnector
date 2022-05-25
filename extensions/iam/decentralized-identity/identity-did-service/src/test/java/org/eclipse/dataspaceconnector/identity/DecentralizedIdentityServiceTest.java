@@ -53,7 +53,7 @@ import static org.mockito.Mockito.mock;
 
 /**
  * Test the {@link DecentralizedIdentityService} with different key algorithms.
- * See {@link WithP256} and {@link WithSecp256k1} for concrete impls.
+ * See {@link WithP256} for concrete impl.
  */
 
 abstract class DecentralizedIdentityServiceTest {

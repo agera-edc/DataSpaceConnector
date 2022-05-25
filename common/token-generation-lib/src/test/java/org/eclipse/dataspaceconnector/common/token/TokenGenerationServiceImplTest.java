@@ -23,6 +23,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.SignedJWT;
 import org.assertj.core.api.Condition;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +50,7 @@ class TokenGenerationServiceImplTest {
     void verifyTokenGeneration() throws ParseException, JOSEException {
         var decorator = testDecorator();
 
-        var result = tokenGenerationService.generate(decorator);
+        var result = tokenGenerationService.generate(TokenGenerationContext.Builder.newInstance().build(), decorator);
 
         assertThat(result.succeeded()).isTrue();
         var token = result.getContent().getToken();
@@ -74,7 +75,7 @@ class TokenGenerationServiceImplTest {
     }
 
     private JwtDecorator testDecorator() {
-        return (header, claimsSet) -> {
+        return (context, header, claimsSet) -> {
             claimsSet.expirationTime(Date.from(Instant.now().plusSeconds(60)))
                     .claim("foo", "bar")
                     .build();

@@ -31,6 +31,7 @@ import org.eclipse.dataspaceconnector.ids.spi.IdsType;
 import org.eclipse.dataspaceconnector.ids.transform.IdsProtocol;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
@@ -151,7 +152,7 @@ public class IdsResponseMessageFactory {
         }
         builder._recipientConnector_(new ArrayList<>(Collections.singletonList(recipientConnector)));
 
-        Result<TokenRepresentation> tokenResult = identityService.obtainClientCredentials(IdsClientCredentialsScope.ALL);
+        Result<TokenRepresentation> tokenResult = identityService.obtainClientCredentials(TokenGenerationContext.Builder.newInstance().scope(IdsClientCredentialsScope.ALL).build());
         if (tokenResult.failed()) {
             tokenResult = Result.success(TokenRepresentation.Builder.newInstance().token(NULL_TOKEN).build());
         }
@@ -212,7 +213,7 @@ public class IdsResponseMessageFactory {
         }
         builder._recipientConnector_(new ArrayList<>(Collections.singletonList(recipientConnector)));
 
-        Result<TokenRepresentation> tokenResult = identityService.obtainClientCredentials(IdsClientCredentialsScope.ALL);
+        Result<TokenRepresentation> tokenResult = identityService.obtainClientCredentials(TokenGenerationContext.Builder.newInstance().scope(IdsClientCredentialsScope.ALL).build());
         if (tokenResult.failed()) {
             throw new MissingClientCredentialsException(tokenResult.getFailureMessages());
         }

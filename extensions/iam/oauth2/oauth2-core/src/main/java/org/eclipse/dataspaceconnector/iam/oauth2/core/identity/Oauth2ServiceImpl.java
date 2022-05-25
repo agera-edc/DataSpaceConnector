@@ -27,6 +27,7 @@ import org.eclipse.dataspaceconnector.iam.oauth2.core.Oauth2Configuration;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
@@ -71,8 +72,8 @@ public class Oauth2ServiceImpl implements IdentityService {
     }
 
     @Override
-    public Result<TokenRepresentation> obtainClientCredentials(String scope) {
-        var jwtCreationResult = tokenGenerationService.generate(jwtDecoratorRegistry.getAll().toArray(JwtDecorator[]::new));
+    public Result<TokenRepresentation> obtainClientCredentials(TokenGenerationContext context) {
+        var jwtCreationResult = tokenGenerationService.generate(context, jwtDecoratorRegistry.getAll().toArray(JwtDecorator[]::new));
         if (jwtCreationResult.failed()) {
             return jwtCreationResult;
         }
@@ -82,7 +83,7 @@ public class Oauth2ServiceImpl implements IdentityService {
                 .add("client_assertion_type", ASSERTION_TYPE)
                 .add("grant_type", GRANT_TYPE)
                 .add("client_assertion", assertion)
-                .add("scope", scope)
+                .add("scope", context.getScope())
                 .build();
 
         var request = new Request.Builder().url(configuration.getTokenUrl()).addHeader("Content-Type", CONTENT_TYPE).post(requestBody).build();

@@ -17,38 +17,48 @@ package org.eclipse.dataspaceconnector.iam.mock;
 
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
+import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 
 import java.time.Instant;
 
 public class MockIdentityService implements IdentityService {
     private final String region;
+    private final TypeManager typeManager;
 
-    public MockIdentityService(String region) {
+    public MockIdentityService(String region, TypeManager typeManager) {
         this.region = region;
+        this.typeManager = typeManager;
     }
 
     @Override
-    public Result<TokenRepresentation> obtainClientCredentials(String scope) {
+    public Result<TokenRepresentation> obtainClientCredentials(TokenGenerationContext context) {
+        var token = new MockToken();
+        token.setRegion(region);
         TokenRepresentation tokenRepresentation = TokenRepresentation.Builder.newInstance()
-                .token("mock-" + region)
-                .expiresIn(Instant.now().plusSeconds(10_0000).toEpochMilli())
+                .token(typeManager.writeValueAsString(token))
+                .expiresIn(Instant.now().plusSeconds(100_000).toEpochMilli())
                 .build();
         return Result.success(tokenRepresentation);
     }
 
     @Override
     public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation) {
-        switch (tokenRepresentation.getToken()) {
-            case "mock-eu":
-                return Result.success(ClaimToken.Builder.newInstance().claim("region", "eu").build());
-            case "mock-us":
-                return Result.success(ClaimToken.Builder.newInstance().claim("region", "us").build());
-            case "mock-an":
-                return Result.success(ClaimToken.Builder.newInstance().claim("region", "an").build());
-            default:
-                return Result.failure("Unknown test token format");
+        var token = typeManager.readValue(tokenRepresentation.getToken(), MockToken.class);
+        return Result.success(ClaimToken.Builder.newInstance().claim("region", token.region).build());
+    }
+
+    private static class MockToken {
+        private String region;
+
+        public String getRegion() {
+            return region;
+        }
+
+        public void setRegion(String region) {
+            this.region = region;
         }
     }
 }

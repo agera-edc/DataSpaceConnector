@@ -20,6 +20,7 @@ import de.fraunhofer.iais.eis.Message;
 import okhttp3.OkHttpClient;
 import org.eclipse.dataspaceconnector.ids.spi.transform.IdsTransformerRegistry;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
+import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.domain.message.RemoteMessage;
@@ -36,7 +37,7 @@ class IdsMultipartSenderTest {
 
     @Test
     void should_fail_if_token_retrieval_fails() {
-        when(identityService.obtainClientCredentials("idsc:IDS_CONNECTOR_ATTRIBUTES_ALL")).thenReturn(Result.failure("error"));
+        when(identityService.obtainClientCredentials(TokenGenerationContext.Builder.newInstance().scope("idsc:IDS_CONNECTOR_ATTRIBUTES_ALL").build())).thenReturn(Result.failure("error"));
         var sender = new TestIdsMultipartSender("any", mock(OkHttpClient.class), new ObjectMapper(), mock(Monitor.class), identityService, mock(IdsTransformerRegistry.class));
 
         var result = sender.send(new TestRemoteMessage(), () -> "any");

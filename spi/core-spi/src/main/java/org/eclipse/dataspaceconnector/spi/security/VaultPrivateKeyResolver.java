@@ -18,7 +18,6 @@ import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -31,13 +30,7 @@ public class VaultPrivateKeyResolver implements PrivateKeyResolver {
     private final Vault vault;
     private final List<KeyParser<?>> parsers;
 
-    public VaultPrivateKeyResolver(Vault vault, KeyParser<?>... parsers) {
-        this.vault = vault;
-        this.parsers = Arrays.asList(parsers);
-    }
-
     public VaultPrivateKeyResolver(Vault vault) {
-        // can't use this(vault) here because properties are final
         this.vault = vault;
         parsers = new ArrayList<>();
     }

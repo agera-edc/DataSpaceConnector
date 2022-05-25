@@ -24,7 +24,7 @@ dependencies {
     api(project(":core:base"))
     api(project(":common:util"))
     api(project(":data-protocols:ids:ids-spi"))
-    api(project(":extensions:iam:oauth2:oauth2-spi"))
+    implementation(project(":common:token-validation-lib"))
 
     api("de.fraunhofer.iais.eis.ids.infomodel:java:${infoModelVersion}")
 
