@@ -78,7 +78,7 @@ class DataPlaneTransferProxyReferenceServiceImplTest {
         var decoratorCaptor = ArgumentCaptor.forClass(DataPlaneProxyTokenDecorator.class);
 
         when(encrypterMock.encrypt(addressStr)).thenReturn(encryptedDataAddress);
-        when(tokenGeneratorMock.generate(any())).thenReturn(Result.success(generatedToken));
+        when(tokenGeneratorMock.generate(any(), any())).thenReturn(Result.success(generatedToken));
 
         var proxyCreationRequest = DataPlaneTransferProxyCreationRequest.Builder.newInstance()
                 .id(id)
