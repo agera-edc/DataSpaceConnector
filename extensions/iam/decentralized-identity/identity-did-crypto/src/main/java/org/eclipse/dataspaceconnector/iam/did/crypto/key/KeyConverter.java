@@ -20,11 +20,11 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.KeyOperation;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.util.Base64URL;
-import org.eclipse.dataspaceconnector.iam.did.crypto.CryptoException;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.JwkPublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
@@ -38,7 +38,7 @@ public class KeyConverter {
      * Converts an {@link EllipticCurvePublicKey} into an {@link ECKey} from the Nimbus library.
      *
      * @param jwk A (valid) elliptic curve public key
-     * @param id An arbitrary string that will serve as "kid" property of the key.
+     * @param id  An arbitrary string that will serve as "kid" property of the key.
      * @return an {@link ECKey}
      * @throws IllegalArgumentException if any of the public key's properties are not valid. Check {@link ECKey} for details.
      */
@@ -59,24 +59,24 @@ public class KeyConverter {
      * <em>Note that currently only Elliptic-Curve public Keys are supported! An exception will be thrown if {@link JwkPublicKey#getKty()} is anything other than "EC" or "ec"!</em>
      *
      * @param publicKey The instance of the {@code JwkPublicKey}
-     * @param id An arbitrary ID that serves as 'kid' property
-     * @return A {@link PublicKeyWrapper}
+     * @param id        An arbitrary ID that serves as 'kid' property
+     * @return A {@link Result} containing a {@link PublicKey} on success, or failure otherwise
      * @throws IllegalArgumentException if an invalid public key (something other than "EC") is passed or if the runtime-type is not {@link EllipticCurvePublicKey}
      */
-    public static @NotNull PublicKey toPublicKey(JwkPublicKey publicKey, String id) {
+    public static @NotNull Result<PublicKey> toPublicKey(JwkPublicKey publicKey, String id) {
         switch (publicKey.getKty()) {
             case "EC":
             case "ec":
                 if (!(publicKey instanceof EllipticCurvePublicKey)) {
-                    throw new IllegalArgumentException(format("Public key has 'kty' = '%s' but its Java type was %s!", publicKey.getKty(), publicKey.getClass()));
+                    return Result.failure(format("Public key has 'kty' = '%s' but its Java type was %s!", publicKey.getKty(), publicKey.getClass()));
                 }
                 try {
-                    return toEcKey((EllipticCurvePublicKey) publicKey, id).toPublicKey();
+                    return Result.success(toEcKey((EllipticCurvePublicKey) publicKey, id).toPublicKey());
                 } catch (JOSEException e) {
-                    throw new CryptoException(e);
+                    return Result.failure(e.getMessage());
                 }
             default:
-                throw new IllegalArgumentException(format("Only public-key-JWK of type 'EC' can be used at the moment, but '%s' was specified!", publicKey.getKty()));
+                return Result.failure(format("Only public-key-JWK of type 'EC' can be used at the moment, but '%s' was specified!", publicKey.getKty()));
         }
     }
 

@@ -14,11 +14,11 @@
 
 package org.eclipse.dataspaceconnector.iam.did.crypto.key;
 
-import com.nimbusds.jose.JWEAlgorithm;
-import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.KeyType;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.junit.jupiter.api.Test;
+
+import java.security.interfaces.ECPublicKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,9 +58,11 @@ class KeyConverterTest {
 
     @Test
     void toPublicKey() {
-        var actual = KeyConverter.toPublicKey(new EllipticCurvePublicKey("P-256", "ec", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id");
-        assertThat(actual).isNotNull().isInstanceOf(ECKey.class);
-        assertThat(actual.getAlgorithm()).isEqualTo(JWEAlgorithm.ECDH_ES_A256KW);
+        var result = KeyConverter.toPublicKey(new EllipticCurvePublicKey("P-256", "ec", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id");
+        assertThat(result.succeeded()).isTrue();
+        var actual = result.getContent();
+        assertThat(actual).isInstanceOf(ECPublicKey.class);
+        assertThat(actual.getAlgorithm()).isEqualTo("EC");
     }
 
     @Test

@@ -30,8 +30,10 @@ import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
 import org.eclipse.dataspaceconnector.iam.oauth2.core.Oauth2Configuration;
+import org.eclipse.dataspaceconnector.iam.oauth2.core.rule.Oauth2ValidationRule;
 import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.security.CertificateResolver;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
@@ -67,7 +69,8 @@ class Oauth2ServiceImplTest {
         var publicKeyResolverMock = mock(PublicKeyResolver.class);
         var privateKeyResolverMock = mock(PrivateKeyResolver.class);
         var certificateResolverMock = mock(CertificateResolver.class);
-        when(publicKeyResolverMock.resolveKey(anyString())).thenReturn(testKey.toPublicKey());
+        when(publicKeyResolverMock.resolveKey(anyString())).thenAnswer(
+                i -> Result.success(testKey.toPublicKey()));
         var configuration = Oauth2Configuration.Builder.newInstance()
                 .tokenUrl(TOKEN_URL)
                 .clientId(CLIENT_ID)
@@ -80,6 +83,8 @@ class Oauth2ServiceImplTest {
                 .build();
 
         var validationRulesRegistry = new TokenValidationRulesRegistryImpl();
+        validationRulesRegistry.addRule(new Oauth2ValidationRule(configuration));
+
         var tokenValidationService = new TokenValidationServiceImpl(publicKeyResolverMock, validationRulesRegistry);
 
         authService = new Oauth2ServiceImpl(configuration, mock(TokenGenerationService.class), testOkHttpClient(), new JwtDecoratorRegistryImpl(), new TypeManager(), tokenValidationService);

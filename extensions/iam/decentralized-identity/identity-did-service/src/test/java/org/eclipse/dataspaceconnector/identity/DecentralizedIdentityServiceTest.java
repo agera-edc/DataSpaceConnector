@@ -35,18 +35,15 @@ import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
-import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
 import java.time.Duration;
 import java.util.Map;
 
@@ -107,14 +104,11 @@ abstract class DecentralizedIdentityServiceTest {
         var rulesRegistry = new TokenValidationRulesRegistryImpl();
         rulesRegistry.addRule(new DidJwtValidationRule());
         var tokenGenerationService = new TokenGenerationServiceImpl(keyPair.toECKey().toPrivateKey());
-        var tokenValidationService = new TokenValidationServiceImpl(new PublicKeyResolver() {
-            @Override
-            public @Nullable PublicKey resolveKey(String id) {
-                try {
-                    return keyPair.toECKey().toPublicKey();
-                } catch (JOSEException e) {
-                    throw new EdcException(e);
-                }
+        var tokenValidationService = new TokenValidationServiceImpl(id -> {
+            try {
+                return Result.success(keyPair.toECKey().toPublicKey());
+            } catch (JOSEException e) {
+                throw new EdcException(e);
             }
         }, rulesRegistry);
         var jwtDecoratorRegistry = new JwtDecoratorRegistryImpl();

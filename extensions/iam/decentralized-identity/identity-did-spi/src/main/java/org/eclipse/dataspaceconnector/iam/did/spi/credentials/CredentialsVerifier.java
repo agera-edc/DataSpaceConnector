@@ -25,10 +25,10 @@ import java.util.Map;
 @FunctionalInterface
 public interface CredentialsVerifier {
 
-
     /**
      * Verifies credentials contained in the given hub.
-     *  @param hubBaseUrl the hub base url
+     *
+     * @param hubBaseUrl the hub base url
      * @param publicKey  the hub's public key to encrypt messages with
      */
     Result<Map<String, String>> verifyCredentials(String hubBaseUrl, PublicKey publicKey);

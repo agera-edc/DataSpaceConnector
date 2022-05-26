@@ -24,6 +24,7 @@ import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
@@ -68,14 +69,14 @@ public class IdentityProviderKeyResolver implements PublicKeyResolver {
     }
 
     @Override
-    public RSAPublicKey resolveKey(String id) {
-        return cache.get().get(id);
+    public @NotNull Result<RSAPublicKey> resolveKey(String id) {
+        RSAPublicKey rsaPublicKey = cache.get().get(id);
+        return rsaPublicKey != null ? Result.success(rsaPublicKey) : Result.failure("Key not found: " + id);
     }
 
     /**
      * Start the keys cache refreshing job.
      * Throws exception if it's not able to load the cache at startup.
-     *
      */
     public void start() {
         var result = refreshKeys();

@@ -14,7 +14,8 @@
 
 package org.eclipse.dataspaceconnector.spi.iam;
 
-import org.jetbrains.annotations.Nullable;
+import org.eclipse.dataspaceconnector.spi.result.Result;
+import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
 
@@ -25,8 +26,7 @@ import java.security.PublicKey;
 public interface PublicKeyResolver {
 
     /**
-     * Resolves the key or return null if not found.
+     * Resolves the key.
      */
-    @Nullable
-    PublicKey resolveKey(String id);
+    @NotNull Result<? extends PublicKey> resolveKey(String id);
 }

@@ -21,6 +21,7 @@ import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.store.ContractNegotiationStore;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
@@ -115,7 +116,7 @@ public class DataPlaneTransferSyncExtension implements ServiceExtension {
         var registry = new TokenValidationRulesRegistryImpl();
         registry.addRule(new ContractValidationRule(contractNegotiationStore));
         registry.addRule(new ExpirationDateValidationRule());
-        var tokenValidationService = new TokenValidationServiceImpl(id -> publicKey, registry);
+        var tokenValidationService = new TokenValidationServiceImpl(id -> Result.success(publicKey), registry);
         return new DataPlaneTransferTokenValidationApiController(monitor, tokenValidationService, encrypter);
     }
 
