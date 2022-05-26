@@ -72,7 +72,7 @@ public class IdsResponseMessageFactoryTest {
 
         clientCredentials = Result.success(TokenRepresentation.Builder.newInstance().token(TOKEN_VALUE).build());
         Mockito.when(identityService.obtainClientCredentials(Mockito.argThat(c -> IdsClientCredentialsScope.ALL.equals(c.getScope()))))
-                .thenReturn(clientCredentials);
+                .thenAnswer(invocation -> clientCredentials);
     }
 
     @Test
