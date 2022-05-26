@@ -56,6 +56,7 @@ public class IdsResponseMessageFactoryTest {
     private Message correlationMessage;
     private IdentityService identityService;
     private InvalidCorrelationMessageException exception;
+    private Result<TokenRepresentation> clientCredentials;
 
     @BeforeEach
     public void setup() {
@@ -69,8 +70,9 @@ public class IdsResponseMessageFactoryTest {
         Mockito.when(correlationMessage.getSenderAgent()).thenReturn(URI.create(CORRELATION_MESSAGE_SENDER));
         Mockito.when(correlationMessage.getIssuerConnector()).thenReturn(URI.create(CORRELATION_ISSUER_CONNECTOR));
 
+        clientCredentials = Result.success(TokenRepresentation.Builder.newInstance().token(TOKEN_VALUE).build());
         Mockito.when(identityService.obtainClientCredentials(Mockito.argThat(c -> IdsClientCredentialsScope.ALL.equals(c.getScope()))))
-                .thenReturn(Result.success(TokenRepresentation.Builder.newInstance().token(TOKEN_VALUE).build()));
+                .thenReturn(clientCredentials);
     }
 
     @Test
@@ -234,8 +236,7 @@ public class IdsResponseMessageFactoryTest {
 
     @Test
     public void testClientCredentialsMissing() {
-        Mockito.when(identityService.obtainClientCredentials(Mockito.argThat(c -> IdsClientCredentialsScope.ALL.equals(c.getScope()))))
-                .thenReturn(Result.failure("foo"));
+        clientCredentials = Result.failure("foo");
 
         Consumer<Provider<Message>> assertFunc = (provider) -> Assertions.assertThrows(MissingClientCredentialsException.class, provider::get);
 
