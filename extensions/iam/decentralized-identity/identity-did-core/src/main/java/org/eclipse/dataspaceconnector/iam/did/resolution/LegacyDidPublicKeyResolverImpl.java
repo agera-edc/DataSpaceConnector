@@ -14,13 +14,12 @@
 
 package org.eclipse.dataspaceconnector.iam.did.resolution;
 
-import com.nimbusds.jose.jwk.ECKey;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyConverter;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.resolution.LegacyDidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
+import org.eclipse.dataspaceconnector.iam.did.spi.resolution.LegacyDidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 
 import java.util.stream.Collectors;

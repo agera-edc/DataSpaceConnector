@@ -67,17 +67,15 @@ class KeyConverterTest {
 
     @Test
     void toPublicKey_illegalKeyType() {
-        assertThatThrownBy(() -> KeyConverter.toPublicKey(new EllipticCurvePublicKey("P-256", "foobar", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("of type 'EC' can be used at the moment, but 'foobar' was specified!");
-
+        var result =  KeyConverter.toPublicKey(new EllipticCurvePublicKey("P-256", "foobar", "4mi45pgE5iPdhluNpmtnAFztWi8vxMrDSoXqD5ah2Rk", "FdxTvkrkYtmxPgdmFpxRzZSVvcVUEksSzr1cH_kT58w"), "some-id");
+        assertThat(result.failed()).isTrue();
+        assertThat(result.getFailureMessages()).singleElement().asString().contains("of type 'EC' can be used at the moment, but 'foobar' was specified!");
     }
 
     @Test
     void toPublicKey_illegalJwkInstance() {
-        assertThatThrownBy(() -> KeyConverter.toPublicKey(() -> "EC", "test-id"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Public key has 'kty' = 'EC' but its Java type was");
+        var result = KeyConverter.toPublicKey(() -> "EC", "test-id");
+        assertThat(result.failed()).isTrue();
+        assertThat(result.getFailureMessages()).singleElement().asString().contains("Public key has 'kty' = 'EC' but its Java type was");
     }
-
 }

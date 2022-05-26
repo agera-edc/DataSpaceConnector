@@ -19,23 +19,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.VerificationMethod;
+import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
-import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
+import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
@@ -45,22 +51,27 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test the {@link DecentralizedIdentityService} with a key algorithm.
+ * Test the {@link DecentralizedIdentityService} with a key algorithm. Currently only one algorithm is implemented.
  * See {@link WithP256} for concrete impl.
  */
 
 abstract class DecentralizedIdentityServiceTest {
     private static final Faker FAKER = new Faker();
 
-    String didUrl = FAKER.internet().url();
-    String connectorName = FAKER.lorem().word();
+    private String didUrl = FAKER.internet().url();
+    private String connectorName = FAKER.lorem().word();
     private DecentralizedIdentityService identityService;
+    private PrivateKeyWrapper privateKey;
+    private PublicKeyWrapper publicKey;
+    private TokenGenerationContext context = TokenGenerationContext.Builder.newInstance().scope("Foo").build();
 
     @Test
     void verifyResolveHubUrl() throws IOException {
@@ -71,36 +82,50 @@ abstract class DecentralizedIdentityServiceTest {
     }
 
     @Test
-    void generateAndVerifyJwtToken_valid() {
+    void verifyObtainClientCredentials() throws Exception {
+        var result = identityService.obtainClientCredentials(context);
 
-        var result = identityService.obtainClientCredentials(TokenGenerationContext.Builder.newInstance().scope("Foo").build());
         assertTrue(result.succeeded());
 
-        Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent());
-        assertTrue(verificationResult.succeeded());
-        assertEquals("eu", verificationResult.getContent().getClaims().get("region"));
+        var jwt = SignedJWT.parse(result.getContent().getToken());
+        var verifier = publicKey.verifier();
+        assertTrue(jwt.verify(verifier));
     }
 
     @Test
-    void generateAndVerifyJwtToken_wrongAudience() {
+    void verifyJwtToken() throws Exception {
+        var signer = privateKey.signer();
 
-        var result = identityService.obtainClientCredentials(TokenGenerationContext.Builder.newInstance().scope("Foo").build());
+        var expiration = new Date().getTime() + TimeUnit.MINUTES.toMillis(10);
+        var claimsSet = new JWTClaimsSet.Builder()
+                .subject("verifiable-credential")
+                .issuer("did:ion:123abc")
+                .expirationTime(new Date(expiration))
+                .build();
+
+        var jwt = new SignedJWT(new JWSHeader.Builder(getHeaderAlgorithm()).keyID("primary").build(), claimsSet);
+        jwt.sign(signer);
+
+        var token = jwt.serialize();
+
+        var result = identityService.verifyJwtToken(TokenRepresentation.Builder.newInstance().token(token).build());
+
         assertTrue(result.succeeded());
-
-        Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent());
-        assertTrue(verificationResult.failed());
+        assertEquals("eu", result.getContent().getClaims().get("region"));
     }
 
     @BeforeEach
     void setUp() throws Exception {
         var keyPair = getKeyPair();
-        var privateKey = new EcPrivateKeyWrapper(keyPair.toECKey());
+        privateKey = getPrivateKey(keyPair.toECKey());
+        publicKey = getPublicKey(keyPair.toPublicJWK().toECKey());
 
         var didJson = Thread.currentThread().getContextClassLoader().getResourceAsStream("dids.json");
         var hubUrlDid = new String(didJson.readAllBytes(), StandardCharsets.UTF_8);
-        var didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
-        CredentialsVerifier verifier = (hubBaseUrl, publicKey) -> Result.success(Map.of("region", "eu"));
-        // var signedJwtService = new SignedJwtService(didUrl, connectorName, privateKey);
+
+        DidResolverRegistry didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
+
+        CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
         var rulesRegistry = new TokenValidationRulesRegistryImpl();
         rulesRegistry.addRule(new DidJwtValidationRule());
         var tokenGenerationService = new TokenGenerationServiceImpl(keyPair.toECKey().toPrivateKey());
@@ -121,6 +146,15 @@ abstract class DecentralizedIdentityServiceTest {
 
     @NotNull
     protected abstract JWSAlgorithm getHeaderAlgorithm();
+
+    private PublicKeyWrapper getPublicKey(JWK publicKey) {
+
+        return new EcPublicKeyWrapper((ECKey) publicKey);
+    }
+
+    private PrivateKeyWrapper getPrivateKey(JWK privateKey) {
+        return new EcPrivateKeyWrapper((ECKey) privateKey);
+    }
 
     public static class WithP256 extends DecentralizedIdentityServiceTest {
         @Override
