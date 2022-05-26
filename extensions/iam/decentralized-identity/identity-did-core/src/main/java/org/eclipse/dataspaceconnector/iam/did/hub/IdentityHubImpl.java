@@ -16,6 +16,8 @@ package org.eclipse.dataspaceconnector.iam.did.hub;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PublicKeyWrapperResolver;
 import org.eclipse.dataspaceconnector.iam.did.hub.jwe.GenericJweReader;
 import org.eclipse.dataspaceconnector.iam.did.hub.jwe.GenericJweWriter;
 import org.eclipse.dataspaceconnector.iam.did.hub.jwe.WriteRequestReader;
@@ -28,8 +30,6 @@ import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ErrorResponse;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ObjectQueryRequest;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ObjectQueryResponse;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.WriteResponse;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.resolution.LegacyDidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 
 import java.util.ArrayList;
@@ -41,10 +41,10 @@ import java.util.function.Supplier;
 public class IdentityHubImpl implements IdentityHub {
     private final IdentityHubStore store;
     private final Supplier<PrivateKeyWrapper> privateKey;
-    private final LegacyDidPublicKeyResolver publicKeyResolver;
+    private final PublicKeyWrapperResolver publicKeyResolver;
     private final ObjectMapper objectMapper;
 
-    public IdentityHubImpl(IdentityHubStore store, Supplier<PrivateKeyWrapper> privateKey, LegacyDidPublicKeyResolver resolver, ObjectMapper objectMapper) {
+    public IdentityHubImpl(IdentityHubStore store, Supplier<PrivateKeyWrapper> privateKey, PublicKeyWrapperResolver resolver, ObjectMapper objectMapper) {
         this.store = store;
         this.privateKey = privateKey;
         publicKeyResolver = resolver;

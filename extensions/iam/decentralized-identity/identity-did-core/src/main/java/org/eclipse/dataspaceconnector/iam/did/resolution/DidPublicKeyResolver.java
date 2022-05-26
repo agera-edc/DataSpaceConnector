@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.iam.did.resolution;
 
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyConverter;
+import org.eclipse.dataspaceconnector.iam.did.spi.credentials.KeyConverter;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.result.Result;
@@ -33,7 +33,7 @@ public class DidPublicKeyResolver implements PublicKeyResolver {
     }
 
     @Override
-    public @NotNull Result<? extends PublicKey> resolveKey(String didUrl) {
+    public @NotNull Result<? extends PublicKey> resolvePublicKey(String didUrl) {
         var didResult = resolverRegistry.resolve(didUrl);
         if (didResult.failed()) {
             return Result.failure("Invalid DID: " + String.join(", ", didResult.getFailureMessages()));

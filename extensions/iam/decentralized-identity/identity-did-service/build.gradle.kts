@@ -5,7 +5,6 @@ plugins {
 
 dependencies {
     api(project(":extensions:iam:decentralized-identity:identity-did-spi"))
-    implementation(project(":extensions:iam:decentralized-identity:identity-did-crypto"))
     implementation(project(":common:token-validation-lib"))
     implementation(project(":common:token-generation-lib"))
 

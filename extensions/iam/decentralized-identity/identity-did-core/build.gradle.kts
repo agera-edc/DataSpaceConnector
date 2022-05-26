@@ -8,7 +8,7 @@ val okHttpVersion: String by project
 
 dependencies {
     api(project(":extensions:iam:decentralized-identity:identity-did-spi"))
-    implementation(project(":extensions:iam:decentralized-identity:identity-did-crypto"))
+    implementation(project(":common:json-web-crypto-lib"))
 
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
     implementation("com.squareup.okhttp3:okhttp:${okHttpVersion}")

@@ -26,7 +26,6 @@ import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -57,7 +56,7 @@ class TokenValidationServiceImplTest {
         var resolver = new PublicKeyResolver() {
             @Override
             public @NotNull
-            Result<RSAPublicKey> resolveKey(String id) {
+            Result<RSAPublicKey> resolvePublicKey(String id) {
                 return id.equals(publicKeyId) ? Result.success(publicKey) : Result.failure("Unexpected id");
             }
         };

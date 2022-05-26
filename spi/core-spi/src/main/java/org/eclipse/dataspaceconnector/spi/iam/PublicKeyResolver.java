@@ -28,5 +28,5 @@ public interface PublicKeyResolver {
     /**
      * Resolves the key.
      */
-    @NotNull Result<? extends PublicKey> resolveKey(String id);
+    @NotNull Result<? extends PublicKey> resolvePublicKey(String id);
 }

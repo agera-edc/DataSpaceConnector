@@ -19,6 +19,8 @@ rootProject.name = "dataspaceconnector"
 // modules for common/util code
 
 include(":common:util")
+include(":common:json-web-crypto-spi")
+include(":common:json-web-crypto-lib")
 include(":common:state-machine-lib")
 include(":common:token-generation-lib")
 include(":common:token-validation-lib")
@@ -92,7 +94,6 @@ include(":extensions:iam:decentralized-identity:identity-did-spi")
 include(":extensions:iam:decentralized-identity:identity-did-core")
 include(":extensions:iam:decentralized-identity:identity-did-service")
 include(":extensions:iam:decentralized-identity:identity-did-web")
-include(":extensions:iam:decentralized-identity:identity-did-crypto")
 include(":extensions:iam:decentralized-identity:registration-service")
 include(":extensions:iam:decentralized-identity:registration-service-api")
 include(":extensions:iam:decentralized-identity:identity-common-test")

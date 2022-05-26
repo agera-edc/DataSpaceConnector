@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.transfer.dataplane.sync;
 
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
@@ -85,13 +86,22 @@ public class DataPlaneTransferSyncExtension implements ServiceExtension {
     public void initialize(ServiceExtensionContext context) {
         var proxyEndpoint = context.getConfig().getString(DATA_PROXY_ENDPOINT); // TODO: this should determined dynamically for every DataRequest through DataPlaneSelector
 
-        var keyPair = createKeyPair(context);
+        var config = context.getConfig();
+
+        var privateKeyAlias = config.getString(TOKEN_SIGNER_PRIVATE_KEY_ALIAS);
+        var privateKey = privateKeyResolver.resolvePrivateKey(privateKeyAlias, PrivateKeyWrapper.class);
+        Objects.requireNonNull(privateKey, "Failed to resolve private key with alias: " + privateKeyAlias);
+
+        var publicKeyAlias = config.getString(TOKEN_VERIFIER_PUBLIC_KEY_ALIAS, privateKeyAlias + "-pub");
+        var publicKeyPem = vault.resolveSecret(publicKeyAlias);
+        Objects.requireNonNull(publicKeyPem, "Failed to resolve public key secret with alias: " + publicKeyPem);
+        var publicKey = PublicKeyParser.from(publicKeyPem);
         var encrypter = new NoopDataEncrypter();
 
-        var controller = createTokenValidationApiController(context.getMonitor(), keyPair.getPublic(), encrypter);
+        var controller = createTokenValidationApiController(context.getMonitor(), publicKey, encrypter);
         webService.registerResource(API_CONTEXT_ALIAS, controller);
 
-        var proxyReferenceService = createProxyReferenceService(context, keyPair.getPrivate(), encrypter);
+        var proxyReferenceService = createProxyReferenceService(context, privateKey, encrypter);
         var flowController = new ProviderDataPlaneProxyDataFlowController(context.getConnectorId(), proxyEndpoint, dispatcherRegistry, proxyReferenceService);
         dataFlowManager.register(flowController);
 
@@ -103,7 +113,7 @@ public class DataPlaneTransferSyncExtension implements ServiceExtension {
      * Creates service generating {@link org.eclipse.dataspaceconnector.spi.types.domain.edr.EndpointDataReference} corresponding
      * to a http proxy.
      */
-    private DataPlaneTransferProxyReferenceService createProxyReferenceService(ServiceExtensionContext context, PrivateKey privateKey, DataEncrypter encrypter) {
+    private DataPlaneTransferProxyReferenceService createProxyReferenceService(ServiceExtensionContext context, PrivateKeyWrapper privateKey, DataEncrypter encrypter) {
         var tokenValiditySeconds = context.getSetting(DATA_PROXY_TOKEN_VALIDITY_SECONDS, DEFAULT_DATA_PROXY_TOKEN_VALIDITY_SECONDS);
         var tokenGenerationService = new TokenGenerationServiceImpl(privateKey);
         return new DataPlaneTransferProxyReferenceServiceImpl(tokenGenerationService, context.getTypeManager(), tokenValiditySeconds, encrypter);

@@ -23,6 +23,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.SignedJWT;
 import org.assertj.core.api.Condition;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.key.RsaPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ class TokenGenerationServiceImplTest {
     @BeforeEach
     void setUp() throws JOSEException {
         keys = testKey();
-        tokenGenerationService = new TokenGenerationServiceImpl(keys.toPrivateKey());
+        tokenGenerationService = new TokenGenerationServiceImpl(new RsaPrivateKeyWrapper(keys.toRSAPrivateKey()));
     }
 
     @Test

@@ -23,6 +23,8 @@ val nimbusVersion: String by project
 
 dependencies {
     api(project(":spi:core-spi"))
+    api(project(":common:json-web-crypto-spi"))
+    implementation(project(":common:json-web-crypto-lib"))
     api("com.nimbusds:nimbus-jose-jwt:${nimbusVersion}")
     testImplementation("org.mockito:mockito-core:${mockitoVersion}")
 }

@@ -24,19 +24,19 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.key.EcPrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.key.EcPublicKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.key.KeyPairFactory;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistryImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationServiceImpl;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.VerificationMethod;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.spi.EdcException;
@@ -128,7 +128,7 @@ abstract class DecentralizedIdentityServiceTest {
         CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
         var rulesRegistry = new TokenValidationRulesRegistryImpl();
         rulesRegistry.addRule(new DidJwtValidationRule());
-        var tokenGenerationService = new TokenGenerationServiceImpl(keyPair.toECKey().toPrivateKey());
+        var tokenGenerationService = new TokenGenerationServiceImpl(new EcPrivateKeyWrapper(keyPair.toECKey()));
         var tokenValidationService = new TokenValidationServiceImpl(id -> {
             try {
                 return Result.success(keyPair.toECKey().toPublicKey());
@@ -147,9 +147,8 @@ abstract class DecentralizedIdentityServiceTest {
     @NotNull
     protected abstract JWSAlgorithm getHeaderAlgorithm();
 
-    private PublicKeyWrapper getPublicKey(JWK publicKey) {
-
-        return new EcPublicKeyWrapper((ECKey) publicKey);
+    private PublicKeyWrapper getPublicKey(JWK publicKey) throws JOSEException {
+        return new EcPublicKeyWrapper(publicKey.toECKey().toECPublicKey());
     }
 
     private PrivateKeyWrapper getPrivateKey(JWK privateKey) {

@@ -19,31 +19,25 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.ECDSASigner;
-import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import org.eclipse.dataspaceconnector.spi.EdcException;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.spi.iam.TokenGenerationContext;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
 
-import java.security.PrivateKey;
-import java.security.interfaces.ECPrivateKey;
 import java.util.Arrays;
 import java.util.Objects;
 
 public class TokenGenerationServiceImpl implements TokenGenerationService {
 
-    private static final String KEY_ALGO_RSA = "RSA";
-    private static final String KEY_ALGO_EC = "EC";
-
     private final JWSSigner tokenSigner;
     private final JWSAlgorithm jwsAlgorithm;
 
-    public TokenGenerationServiceImpl(PrivateKey privateKey) {
+    public TokenGenerationServiceImpl(PrivateKeyWrapper privateKey) {
         Objects.requireNonNull(privateKey, "Private key must not be null");
-        this.tokenSigner = createSigner(privateKey);
+        this.tokenSigner = privateKey.signer();
         if (tokenSigner instanceof ECDSASigner) {
             jwsAlgorithm = JWSAlgorithm.ES256;
         } else {
@@ -73,23 +67,5 @@ public class TokenGenerationServiceImpl implements TokenGenerationService {
             builder.expiresIn(claimsSet.getExpirationTime().getTime());
         }
         return builder.build();
-    }
-
-    /**
-     * Generate a token signer based on a private key.
-     */
-    private static JWSSigner createSigner(PrivateKey privateKey) {
-        switch (privateKey.getAlgorithm()) {
-            case KEY_ALGO_EC:
-                try {
-                    return new ECDSASigner((ECPrivateKey) privateKey);
-                } catch (JOSEException e) {
-                    throw new EdcException("Failed to generate token signed for EC key: " + e.getMessage());
-                }
-            case KEY_ALGO_RSA:
-                return new RSASSASigner(privateKey);
-            default:
-                throw new EdcException("Key algorithm not handled: " + privateKey.getAlgorithm());
-        }
     }
 }

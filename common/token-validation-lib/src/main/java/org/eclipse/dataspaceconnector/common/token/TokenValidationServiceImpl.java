@@ -88,7 +88,7 @@ public class TokenValidationServiceImpl implements TokenValidationService {
     }
 
     private Result<JWSVerifier> createVerifier(JWSHeader header, String publicKeyId) {
-        var publicKey = publicKeyResolver.resolveKey(publicKeyId);
+        var publicKey = publicKeyResolver.resolvePublicKey(publicKeyId);
         if (publicKey.failed()) {
             return Result.failure("Failed to resolve public key with id: " + publicKeyId);
         }

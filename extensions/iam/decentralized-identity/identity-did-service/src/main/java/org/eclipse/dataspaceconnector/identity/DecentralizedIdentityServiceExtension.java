@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.identity;
 
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistry;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationService;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
@@ -32,7 +33,6 @@ import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
-import java.security.PrivateKey;
 import java.time.Duration;
 import java.util.Objects;
 
@@ -91,7 +91,7 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
 
     public TokenGenerationService createTokenGenerationService(ServiceExtensionContext context) {
         String connectorId = context.getConnectorId();
-        var privateKey = privateKeyResolver.resolvePrivateKey(connectorId, PrivateKey.class);
+        var privateKey = privateKeyResolver.resolvePrivateKey(connectorId, PrivateKeyWrapper.class);
         Objects.requireNonNull(privateKey, format("Private key for connectorId %s not found", connectorId));
         return new TokenGenerationServiceImpl(privateKey);
     }

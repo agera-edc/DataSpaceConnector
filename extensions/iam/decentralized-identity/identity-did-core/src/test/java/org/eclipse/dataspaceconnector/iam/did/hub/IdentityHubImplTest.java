@@ -15,8 +15,10 @@
 package org.eclipse.dataspaceconnector.iam.did.hub;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.RsaPrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.RsaPublicKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.key.RsaPrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.key.RsaPublicKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.hub.jwe.GenericJweReader;
 import org.eclipse.dataspaceconnector.iam.did.hub.jwe.GenericJweWriter;
 import org.eclipse.dataspaceconnector.iam.did.hub.jwe.WriteRequestWriter;
@@ -30,8 +32,6 @@ import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ObjectQuery;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ObjectQueryRequest;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.ObjectQueryResponse;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.message.WriteResponse;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.testfixtures.TemporaryKeyLoader;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.junit.jupiter.api.BeforeEach;

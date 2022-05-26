@@ -69,7 +69,7 @@ class Oauth2ServiceImplTest {
         var publicKeyResolverMock = mock(PublicKeyResolver.class);
         var privateKeyResolverMock = mock(PrivateKeyResolver.class);
         var certificateResolverMock = mock(CertificateResolver.class);
-        when(publicKeyResolverMock.resolveKey(anyString())).thenAnswer(
+        when(publicKeyResolverMock.resolvePublicKey(anyString())).thenAnswer(
                 i -> Result.success(testKey.toPublicKey()));
         var configuration = Oauth2Configuration.Builder.newInstance()
                 .tokenUrl(TOKEN_URL)

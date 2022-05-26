@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
+import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPublicKeySpec;
 import java.util.AbstractMap;
@@ -69,7 +70,7 @@ public class IdentityProviderKeyResolver implements PublicKeyResolver {
     }
 
     @Override
-    public @NotNull Result<RSAPublicKey> resolveKey(String id) {
+    public @NotNull Result<? extends PublicKey> resolvePublicKey(String id) {
         RSAPublicKey rsaPublicKey = cache.get().get(id);
         return rsaPublicKey != null ? Result.success(rsaPublicKey) : Result.failure("Key not found: " + id);
     }

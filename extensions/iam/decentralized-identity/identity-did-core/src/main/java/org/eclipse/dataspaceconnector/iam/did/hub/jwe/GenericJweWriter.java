@@ -21,7 +21,7 @@ import com.nimbusds.jose.JWEAlgorithm;
 import com.nimbusds.jose.JWEHeader;
 import com.nimbusds.jose.JWEObject;
 import com.nimbusds.jose.Payload;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 
 /**

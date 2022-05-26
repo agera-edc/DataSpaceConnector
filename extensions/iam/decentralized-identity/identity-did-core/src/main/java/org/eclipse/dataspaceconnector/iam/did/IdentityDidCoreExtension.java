@@ -17,19 +17,19 @@ package org.eclipse.dataspaceconnector.iam.did;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.ECKey;
 import okhttp3.OkHttpClient;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.key.EcPrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.resolver.PublicKeyWrapperResolverImpl;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PublicKeyWrapperResolver;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubApiController;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubClientImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.store.InMemoryIdentityHubStore;
-import org.eclipse.dataspaceconnector.iam.did.resolution.LegacyDidPublicKeyResolverImpl;
 import org.eclipse.dataspaceconnector.iam.did.resolution.DidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.iam.did.resolution.DidResolverRegistryImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHub;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubClient;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubStore;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.resolution.LegacyDidPublicKeyResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.iam.did.spi.store.DidStore;
 import org.eclipse.dataspaceconnector.iam.did.store.InMemoryDidDocumentStore;
@@ -48,7 +48,7 @@ import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckService;
 import java.util.function.Supplier;
 
 
-@Provides({ IdentityHub.class, IdentityHubClient.class, DidResolverRegistry.class, LegacyDidPublicKeyResolver.class })
+@Provides({IdentityHub.class, IdentityHubClient.class, DidResolverRegistry.class, PublicKeyResolver.class, PublicKeyWrapperResolver.class})
 public class IdentityDidCoreExtension implements ServiceExtension {
 
     @Inject
@@ -59,6 +59,9 @@ public class IdentityDidCoreExtension implements ServiceExtension {
 
     @Inject
     private PrivateKeyResolver privateKeyResolver;
+
+    @Inject
+    private PublicKeyResolver publicKeyResolver;
 
     private DidResolverRegistry resolverRegistry;
 
@@ -74,14 +77,17 @@ public class IdentityDidCoreExtension implements ServiceExtension {
         resolverRegistry = new DidResolverRegistryImpl();
         context.registerService(DidResolverRegistry.class, resolverRegistry);
 
-        var publicKeyResolver = new LegacyDidPublicKeyResolverImpl(resolverRegistry);
-        context.registerService(LegacyDidPublicKeyResolver.class, publicKeyResolver);
+        var publicKeyResolver = new DidPublicKeyResolver(resolverRegistry);
+        context.registerService(PublicKeyResolver.class, publicKeyResolver);
+
+        var didPublicKeyResolver = new PublicKeyWrapperResolverImpl(publicKeyResolver);
+        context.registerService(PublicKeyWrapperResolver.class, didPublicKeyResolver);
 
         registerParsers(privateKeyResolver);
 
         PrivateKeyWrapper privateKeyWrapper = privateKeyResolver.resolvePrivateKey(context.getConnectorId(), PrivateKeyWrapper.class);
         Supplier<PrivateKeyWrapper> supplier = () -> privateKeyWrapper;
-        var hub = new IdentityHubImpl(hubStore, supplier, publicKeyResolver, objectMapper);
+        var hub = new IdentityHubImpl(hubStore, supplier, didPublicKeyResolver, objectMapper);
         context.registerService(IdentityHub.class, hub);
 
         var controller = new IdentityHubApiController(hub);
@@ -107,11 +113,6 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     @Provider(isDefault = true)
     public DidStore defaultDidDocumentStore() {
         return new InMemoryDidDocumentStore();
-    }
-
-    @Provider(isDefault = true)
-    public PublicKeyResolver publicKeyResolver() {
-        return new DidPublicKeyResolver(resolverRegistry);
     }
 
     private void registerParsers(PrivateKeyResolver resolver) {

@@ -16,6 +16,7 @@
 package org.eclipse.dataspaceconnector.iam.oauth2.core;
 
 import okhttp3.OkHttpClient;
+import org.eclipse.dataspaceconnector.common.jsonweb.crypto.spi.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.common.token.JwtDecoratorRegistry;
 import org.eclipse.dataspaceconnector.common.token.TokenGenerationServiceImpl;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationRulesRegistry;
@@ -35,7 +36,6 @@ import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
-import java.security.PrivateKey;
 import java.security.cert.CertificateEncodingException;
 import java.util.concurrent.TimeUnit;
 
@@ -110,7 +110,7 @@ public class Oauth2Extension implements ServiceExtension {
         var tokenValidationService = new TokenValidationServiceImpl(configuration.getIdentityProviderKeyResolver(), tokenValidationRulesRegistry);
 
         var privateKeyAlias = configuration.getPrivateKeyAlias();
-        var privateKey = configuration.getPrivateKeyResolver().resolvePrivateKey(privateKeyAlias, PrivateKey.class);
+        var privateKey = configuration.getPrivateKeyResolver().resolvePrivateKey(privateKeyAlias, PrivateKeyWrapper.class);
         var tokenGenerationService = new TokenGenerationServiceImpl(privateKey);
 
         var oauth2Service = new Oauth2ServiceImpl(configuration, tokenGenerationService, okHttpClient, jwtDecoratorRegistry, context.getTypeManager(), tokenValidationService);
