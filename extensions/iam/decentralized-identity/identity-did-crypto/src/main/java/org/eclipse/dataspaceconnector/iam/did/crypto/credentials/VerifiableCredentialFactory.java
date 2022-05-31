@@ -46,10 +46,10 @@ public class VerifiableCredentialFactory {
 
     /**
      * Creates a signed JWT {@link SignedJWT} that contains a set of claims and an issuer.
-     * <p>
+     *
      * Although all private key types are possible, in the context of Distributed Identity and ION using an Elliptic Curve key ({@code prime256v1}) is advisable. This can be
      * achieved using OpenSSL CLI:
-     * <p>
+     *
      * {@code openssl ecparam -name prime256v1 -genkey -noout -out prime256v1-key.pem}
      *
      * @param privateKeyPemContent The contents of a private key stored in PEM format.
@@ -122,7 +122,7 @@ public class VerifiableCredentialFactory {
      * Verifies a VerifiableCredential using the issuer's public key
      *
      * @param verifiableCredential a {@link SignedJWT} that was sent by the claiming party.
-     * @param publicKey            The claiming party's public key
+     * @param publicKey The claiming party's public key
      * @return true if verified, false otherwise
      */
     public static boolean verify(SignedJWT verifiableCredential, ECKey publicKey) {
@@ -137,7 +137,7 @@ public class VerifiableCredentialFactory {
      * Verifies a VerifiableCredential using the issuer's public key
      *
      * @param verifiableCredential a {@link SignedJWT} that was sent by the claiming party.
-     * @param publicKey            The claiming party's public key, passed as a {@link PublicKeyWrapper}
+     * @param publicKey The claiming party's public key, passed as a {@link PublicKeyWrapper}
      * @return true if verified, false otherwise
      */
     public static boolean verify(SignedJWT verifiableCredential, PublicKeyWrapper publicKey) {
@@ -152,7 +152,7 @@ public class VerifiableCredentialFactory {
      * Verifies a VerifiableCredential using the issuer's public key
      *
      * @param verifiableCredential a {@link SignedJWT} that was sent by the claiming party.
-     * @param publicKeyPemContent  The claiming party's public key, i.e. the contents of the public key PEM file.
+     * @param publicKeyPemContent The claiming party's public key, i.e. the contents of the public key PEM file.
      * @return true if verified, false otherwise
      */
     public static boolean verify(SignedJWT verifiableCredential, String publicKeyPemContent) {
