@@ -54,7 +54,7 @@ public abstract class AbstractAzureBlobTest {
     }
 
     @NotNull
-    private BlobServiceClient getBlobServiceClient(String accountName, String key) {
+    public static BlobServiceClient getBlobServiceClient(String accountName, String key) {
         var client = new BlobServiceClientBuilder()
                 .credential(new StorageSharedKeyCredential(accountName, key))
                 .endpoint(getEndpoint(accountName))
@@ -65,7 +65,7 @@ public abstract class AbstractAzureBlobTest {
     }
 
     @NotNull
-    protected String getEndpoint(String accountName) {
+    protected static String getEndpoint(String accountName) {
         return "http://127.0.0.1:10000/" + accountName;
     }
 
