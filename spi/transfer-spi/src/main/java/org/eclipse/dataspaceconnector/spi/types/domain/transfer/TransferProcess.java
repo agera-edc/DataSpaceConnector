@@ -408,7 +408,7 @@ public class TransferProcess implements TraceCarrier {
         private final TransferProcess process;
 
         private Builder(TransferProcess process) {
-            this.process = process.copy();
+            this.process = process;
         }
 
         @JsonCreator
