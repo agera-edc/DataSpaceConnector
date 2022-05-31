@@ -55,6 +55,7 @@ public class VerifiableCredentialFactory {
      * @param privateKeyPemContent The contents of a private key stored in PEM format.
      * @param claims a list of key-value-pairs that contain claims
      * @param issuer the "owner" of the VC, in most cases this will be the connector ID. The VC will store this in the "iss" claim
+     * @param clock clock used to get current time
      * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed
      */
     public static SignedJWT create(String privateKeyPemContent, Map<String, String> claims, String issuer, Clock clock) {
@@ -73,6 +74,7 @@ public class VerifiableCredentialFactory {
      * @param privateKey A Private Key represented as {@link ECKey}.
      * @param claims a list of key-value-pairs that contain claims
      * @param issuer the "owner" of the VC, in most cases this will be the DID ID. The VC will store this in the "iss" claim
+     * @param clock clock used to get current time
      * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed
      */
     public static SignedJWT create(ECKey privateKey, Map<String, String> claims, String issuer, Clock clock) {
@@ -86,6 +88,7 @@ public class VerifiableCredentialFactory {
      * @param privateKey A Private Key represented as {@link PrivateKeyWrapper}.
      * @param claims a list of key-value-pairs that contain claims
      * @param issuer the "owner" of the VC, in most cases this will be the DID ID. The VC will store this in the "iss" claim
+     * @param clock clock used to get current time
      * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed
      */
     public static SignedJWT create(PrivateKeyWrapper privateKey, Map<String, String> claims, String issuer, Clock clock) {
