@@ -22,10 +22,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferInitiationData;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationConfiguration;
-import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationConfiguration;
-import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationUtils;
 
-import java.time.Duration;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +44,7 @@ public class BlobTransferSimulationConfiguration implements TransferSimulationCo
     }
 
     @Override
-    public String createTransferInitiationPayload(TransferSimulationUtils.TransferInitiationData transferInitiationData) {
+    public String createTransferRequest(TransferInitiationData transferInitiationData) {
         var request = Map.of(
                 "contractId", transferInitiationData.contractAgreementId,
                 "assetId", PROVIDER_ASSET_ID,
