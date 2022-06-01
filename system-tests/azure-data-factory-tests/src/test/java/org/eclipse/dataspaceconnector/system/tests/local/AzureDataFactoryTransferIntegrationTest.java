@@ -35,9 +35,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
+import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.lang.System.getenv;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -134,6 +136,7 @@ public class AzureDataFactoryTransferIntegrationTest {
     public void transferBlob_success() {
         // Arrange
         var vault = AzureVault.authenticateWithSecret(new ConsoleMonitor(), AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_CLIENT_SECRET, KEY_VAULT_NAME);
+        var account2Key = Objects.requireNonNull(vault.resolveSecret(format("%s-key1", CONSUMER_STORAGE_ACCOUNT_NAME)));
         var blobStoreApi = new BlobStoreApiImpl(vault, BLOB_STORE_ENDPOINT_TEMPLATE);
 
         // Upload a blob with test data on provider blob container
@@ -151,6 +154,7 @@ public class AzureDataFactoryTransferIntegrationTest {
 
         // Act
         System.setProperty(BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY, CONSUMER_STORAGE_ACCOUNT_NAME);
+        System.setProperty(BlobTransferLocalSimulation.ACCOUNT_KEY_PROPERTY, account2Key);
         System.setProperty(BlobTransferLocalSimulation.MAX_DURATION_SECONDS_PROPERTY, "360"); // ADF SLA is to initiate copy within 4 minutes
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
     }
