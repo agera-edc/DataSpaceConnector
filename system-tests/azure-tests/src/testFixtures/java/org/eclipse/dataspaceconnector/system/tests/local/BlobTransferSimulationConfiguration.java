@@ -41,8 +41,8 @@ public class BlobTransferSimulationConfiguration implements TransferSimulationCo
     private final int maxSeconds;
     static final String BLOB_CONTENT = Faker.instance().lorem().sentence();
 
-    public BlobTransferSimulationConfiguration(String accountName, String accountKey, int maxSeconds) {
-        this.blobServiceClient = getBlobServiceClient(accountName, accountKey);
+    public BlobTransferSimulationConfiguration(String accountName, String accountKey, String accountEndpoint, int maxSeconds) {
+        this.blobServiceClient = getBlobServiceClient(accountName, accountKey, accountEndpoint);
         this.maxSeconds = maxSeconds;
     }
 

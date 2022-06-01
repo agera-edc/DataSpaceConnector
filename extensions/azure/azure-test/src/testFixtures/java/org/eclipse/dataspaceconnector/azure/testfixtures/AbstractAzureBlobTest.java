@@ -55,9 +55,14 @@ public abstract class AbstractAzureBlobTest {
 
     @NotNull
     public static BlobServiceClient getBlobServiceClient(String accountName, String key) {
+        return getBlobServiceClient(accountName, key, getEndpoint(accountName));
+    }
+
+    @NotNull
+    public static BlobServiceClient getBlobServiceClient(String accountName, String key, String endpoint) {
         var client = new BlobServiceClientBuilder()
                 .credential(new StorageSharedKeyCredential(accountName, key))
-                .endpoint(getEndpoint(accountName))
+                .endpoint(endpoint)
                 .buildClient();
 
         client.getAccountInfo();

@@ -155,6 +155,7 @@ public class AzureDataFactoryTransferIntegrationTest {
         // Act
         System.setProperty(BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY, CONSUMER_STORAGE_ACCOUNT_NAME);
         System.setProperty(BlobTransferLocalSimulation.ACCOUNT_KEY_PROPERTY, account2Key);
+        System.setProperty(BlobTransferLocalSimulation.ACCOUNT_ENDPOINT_PROPERTY, format("https://%s.blob.core.windows.net", CONSUMER_STORAGE_ACCOUNT_NAME));
         System.setProperty(BlobTransferLocalSimulation.MAX_DURATION_SECONDS_PROPERTY, "360"); // ADF SLA is to initiate copy within 4 minutes
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
     }

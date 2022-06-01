@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static java.lang.String.format;
+import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.ACCOUNT_ENDPOINT_PROPERTY;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.ACCOUNT_KEY_PROPERTY;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.createAsset;
@@ -126,6 +127,7 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
         // Act
         System.setProperty(ACCOUNT_NAME_PROPERTY, account2Name);
         System.setProperty(ACCOUNT_KEY_PROPERTY, account2Key);
+        System.setProperty(ACCOUNT_ENDPOINT_PROPERTY, getEndpoint(account2Name));
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
     }
 
