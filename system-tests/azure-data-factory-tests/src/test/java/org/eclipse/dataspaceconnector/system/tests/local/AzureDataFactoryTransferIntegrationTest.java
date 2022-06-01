@@ -43,6 +43,7 @@ import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static java.lang.System.getenv;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferSimulationConfiguration.BLOB_CONTENT;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.createAsset;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.createContractDefinition;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.createPolicy;
@@ -140,10 +141,8 @@ public class AzureDataFactoryTransferIntegrationTest {
         var blobStoreApi = new BlobStoreApiImpl(vault, BLOB_STORE_ENDPOINT_TEMPLATE);
 
         // Upload a blob with test data on provider blob container
-        var blobContent = "AzureDataFactoryTransferIntegrationTest-" + UUID.randomUUID();
-
         blobStoreApi.createContainer(PROVIDER_STORAGE_ACCOUNT_NAME, PROVIDER_CONTAINER_NAME);
-        blobStoreApi.putBlob(PROVIDER_STORAGE_ACCOUNT_NAME, PROVIDER_CONTAINER_NAME, PROVIDER_ASSET_FILE, blobContent.getBytes(UTF_8));
+        blobStoreApi.putBlob(PROVIDER_STORAGE_ACCOUNT_NAME, PROVIDER_CONTAINER_NAME, PROVIDER_ASSET_FILE, BLOB_CONTENT.getBytes(UTF_8));
         // Add for cleanup
         CONTAINER_CLEANUP.add(() -> blobStoreApi.deleteContainer(PROVIDER_STORAGE_ACCOUNT_NAME, PROVIDER_CONTAINER_NAME));
 
