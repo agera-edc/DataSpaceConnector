@@ -41,7 +41,6 @@ import java.util.UUID;
 import static java.lang.String.valueOf;
 import static java.lang.System.getenv;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.createAsset;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.createContractDefinition;
 import static org.eclipse.dataspaceconnector.system.tests.local.BlobTransferUtils.createPolicy;
@@ -154,20 +153,6 @@ public class AzureDataFactoryTransferIntegrationTest {
         System.setProperty(BlobTransferLocalSimulation.ACCOUNT_NAME_PROPERTY, CONSUMER_STORAGE_ACCOUNT_NAME);
         System.setProperty(BlobTransferLocalSimulation.MAX_DURATION_SECONDS_PROPERTY, "360"); // ADF SLA is to initiate copy within 4 minutes
         runGatling(BlobTransferLocalSimulation.class, TransferSimulationUtils.DESCRIPTION);
-
-        // Assert
-        var provisionedContainerName = BlobTransferUtils.getProvisionedContainerName();
-        // Add for cleanup
-        CONTAINER_CLEANUP.add(() -> blobStoreApi.deleteContainer(CONSUMER_STORAGE_ACCOUNT_NAME, provisionedContainerName));
-
-        var actualBlobContent = blobStoreApi.getBlob(CONSUMER_STORAGE_ACCOUNT_NAME, provisionedContainerName, PROVIDER_ASSET_FILE);
-        assertThat(actualBlobContent.length)
-                .withFailMessage("Destination blob %s not created", PROVIDER_ASSET_FILE)
-                .isGreaterThan(0);
-        assertThat(new String(actualBlobContent))
-                .withFailMessage("Transferred file contents are not same as the source file")
-                .isEqualTo(blobContent);
-
     }
 
     @NotNull

@@ -43,6 +43,7 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":system-tests:tests")))
+    testImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testFixturesImplementation(testFixtures(project(":system-tests:tests")))
     testFixturesImplementation(testFixtures(project(":extensions:azure:azure-test")))
     testFixturesImplementation("org.assertj:assertj-core:${assertj}")

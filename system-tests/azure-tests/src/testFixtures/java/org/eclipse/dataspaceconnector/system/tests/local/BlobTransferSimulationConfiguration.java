@@ -23,6 +23,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferInitiationData;
 import org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulationConfiguration;
 
+import java.time.Duration;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,10 +38,12 @@ import static org.eclipse.dataspaceconnector.system.tests.utils.TransferSimulati
 public class BlobTransferSimulationConfiguration implements TransferSimulationConfiguration {
 
     private final BlobServiceClient blobServiceClient;
+    private final int maxSeconds;
     static final String BLOB_CONTENT = Faker.instance().lorem().sentence();
 
-    public BlobTransferSimulationConfiguration(String accountName, String accountKey) {
+    public BlobTransferSimulationConfiguration(String accountName, String accountKey, int maxSeconds) {
         this.blobServiceClient = getBlobServiceClient(accountName, accountKey);
+        this.maxSeconds = maxSeconds;
     }
 
     @Override
@@ -63,6 +66,10 @@ public class BlobTransferSimulationConfiguration implements TransferSimulationCo
         );
 
         return new TypeManager().writeValueAsString(request);
+    }
+
+    public Duration copyMaxDuration() {
+        return Duration.ofSeconds(maxSeconds);
     }
 
     @Override
