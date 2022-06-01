@@ -1,36 +1,40 @@
 package org.eclipse.dataspaceconnector.extension.sample.test;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.assertj.core.api.Assertions;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.awaitility.Awaitility.await;
+
 import java.io.File;
-import java.util.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.eclipse.dataspaceconnector.common.testfixtures.TestUtils.getFreePort;
-import static org.assertj.core.api.Assertions.assertThat;
-import io.restassured.RestAssured.*;
-import io.restassured.matcher.RestAssuredMatchers.*;
-import org.hamcrest.Matchers.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.hamcrest.Matchers.equalTo;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Integration test uses Lifecycle.PER_CLASS.
 public class FileTransferSampleTest {
+
+    private String contractNegotiationId;
+    private String contractAgreementId;
 
     public static final int CONSUMER_CONNECTOR_PORT = 9191;
     public static final int CONSUMER_MANAGEMENT_PORT = 9192;
     public static final String CONSUMER_CONNECTOR_PATH = "/api";
     public static final String CONSUMER_MANAGEMENT_PATH = "/api/v1/data";
-    public static final String CONSUMER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + CONSUMER_MANAGEMENT_PORT;
+    //public static final String CONSUMER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + CONSUMER_MANAGEMENT_PORT;
     public static final int CONSUMER_IDS_API_PORT = 9292;
     public static final String CONSUMER_IDS_API = "http://localhost:" + CONSUMER_IDS_API_PORT;
 
@@ -38,7 +42,7 @@ public class FileTransferSampleTest {
     public static final int PROVIDER_MANAGEMENT_PORT = 8182;
     public static final String PROVIDER_CONNECTOR_PATH = "/api";
     public static final String PROVIDER_MANAGEMENT_PATH = "/api/v1/data";
-    public static final String PROVIDER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + PROVIDER_MANAGEMENT_PORT;
+    //public static final String PROVIDER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + PROVIDER_MANAGEMENT_PORT;
     public static final int PROVIDER_IDS_API_PORT = 8282;
     public static final String PROVIDER_IDS_API = "http://localhost:" + PROVIDER_IDS_API_PORT;
     public static final String IDS_PATH = "/api/v1/ids";
@@ -82,13 +86,18 @@ public class FileTransferSampleTest {
             )
     );
 
+    /**
+     * Run all sample steps in one single test.
+     * Note: Sample steps cannot be separated into single tests because {@link EdcRuntimeExtension} runs before each single test.
+     * */
     @Test
-    void testSample() {
-        assertThat(1 + 2).isEqualTo(3);
+    void runSampleSteps() {
+        configPropertiesUniquePorts();
+        initiateContractNegotiation();
+        lookUpContractAgreementId();
+        requestFile();
     }
 
-    @Test
-    @Order(2)
     void initiateContractNegotiation() {
         // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"
 
@@ -105,12 +114,81 @@ public class FileTransferSampleTest {
                     .extract()
                     .jsonPath();
 
-
+        contractNegotiationId = jsonPath.get("id");
     }
 
-    @Test
-    @Order(1)
-    void configPropertiesUniquePorts() throws IOException {
+    void lookUpContractAgreementId() {
+        // curl -X GET -H 'X-Api-Key: password' "http://localhost:9192/api/v1/data/contractnegotiations/{UUID}"
+
+        var localContractAgreementId = new AtomicReference<String>();
+
+        // Wait for transfer to be completed.
+        await().atMost(10, SECONDS).pollDelay(500, MILLISECONDS).untilAsserted(() ->  {
+                var result = RestAssured
+                    .given()
+                        .headers(API_KEY_HEADER, API_KEY)
+                        .log().all()
+                    .when()
+                        .get("http://localhost:9192/api/v1/data/contractnegotiations/{id}", contractNegotiationId)
+                    .then()
+                        .statusCode(200)
+                        .body("state", equalTo("CONFIRMED"))
+                        .extract().body().jsonPath().getString("contractAgreementId");
+
+                localContractAgreementId.set(result);
+
+            }
+        );
+
+        contractAgreementId = localContractAgreementId.get();
+    }
+
+    void requestFile() {
+        // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"
+
+        File transferJsonFile = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/filetransfer.json");
+        String destinationPath = "samples/04.0-file-transfer/consumer/requested.test.txt";
+        updateTransferJsonFile(transferJsonFile, contractAgreementId, destinationPath);
+
+        /*
+        JsonPath jsonPath = RestAssured
+            .given()
+                .headers(API_KEY_HEADER, API_KEY)
+                .contentType(ContentType.JSON)
+                .body(new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/filetransfer.json"))
+                .log().all()
+            .when()
+                .get("http://localhost:9192/api/v1/data/transferprocess")
+            .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath();
+
+
+        contractAgreementId = "tbd";
+         */
+    }
+
+    void updateTransferJsonFile(File transferJsonFile, String contractAgreementId, String destinationPath) {
+        try {
+            // create object mapper instance
+            ObjectMapper mapper = new ObjectMapper();
+
+            // convert JSON file to map
+            Map<?, ?> map = mapper.readValue(transferJsonFile, Map.class);
+
+            // print map entries
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                System.out.println(entry.getKey() + "=" + entry.getValue());
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    void configPropertiesUniquePorts() {
         // test sample guidance: Create the connectors / Consumer connector
         // read both config files
         // samples/04.0-file-transfer/consumer/config.properties
@@ -120,8 +198,15 @@ public class FileTransferSampleTest {
         String pathConsumerConfigProperties = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/consumer/config.properties").getAbsolutePath();
         String pathProviderConfigProperties = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/provider/config.properties").getAbsolutePath();
 
-        Properties consumerProperties = readPropertiesFile(pathConsumerConfigProperties);
-        Properties providerProperties = readPropertiesFile(pathProviderConfigProperties);
+        Properties consumerProperties = null;
+        Properties providerProperties = null;
+
+        try {
+            consumerProperties = readPropertiesFile(pathConsumerConfigProperties);
+            providerProperties = readPropertiesFile(pathProviderConfigProperties);
+        } catch (IOException e) {
+            Assertions.fail("Could not read properties files.");
+        }
 
         List<String> portPropertyNames = List.of(
                 "web.http.port",

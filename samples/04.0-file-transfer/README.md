@@ -194,6 +194,12 @@ curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @sa
 
 In the response we'll get a UUID that we can use to get the contract agreement negotiated between provider and consumer.
 
+Sample output:
+
+```json
+{"id":"5a6b7e22-dc7d-4135-bc98-4cc5fd1dd1ed"}
+```
+
 ### 3. Look up the contract agreement ID
 
 After calling the endpoint for initiating a contract negotiation, we get a UUID as the response. This UUID is the ID of

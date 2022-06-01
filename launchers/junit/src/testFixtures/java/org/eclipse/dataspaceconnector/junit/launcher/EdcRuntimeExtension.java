@@ -43,7 +43,7 @@ import static org.eclipse.dataspaceconnector.boot.system.ExtensionLoader.loadMon
  * A custom gradle task printClasspath is used to determine the runtime classpath of the module to run.
  * The runtime obtains a classpath determined by the Gradle build.
  * <p>
- * This extension attaches a EDC runtime to the {@link BeforeTestExecutionCallback} and {@link AfterTestExecutionCallback} lifecycle hooks. Parameter injection of runtime services is supported.
+ * This extension attaches an EDC runtime to the {@link BeforeTestExecutionCallback} and {@link AfterTestExecutionCallback} lifecycle hooks. Parameter injection of runtime services is supported.
  */
 public class EdcRuntimeExtension extends EdcExtension {
     private static final String GRADLE_WRAPPER_UNIX = "gradlew";

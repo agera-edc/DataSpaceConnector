@@ -18,12 +18,15 @@ plugins {
 }
 
 val restAssured: String by project
+val awaitility: String by project
+
 
 dependencies {
     testImplementation(testFixtures(project(":launchers:junit")))
     testImplementation(testFixtures(project(":common:util")))
 
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
+    testImplementation("org.awaitility:awaitility:${awaitility}")
 
     //testCompileOnly(project(":samples:04.0-file-transfer:consumer"))
     //testCompileOnly(project(":samples:04.0-file-transfer:provider"))
