@@ -7,6 +7,8 @@ import io.restassured.path.json.JsonPath;
 import org.assertj.core.api.Assertions;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
+import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
+import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -91,7 +93,7 @@ public class FileTransferSampleTest {
      * Note: Sample steps cannot be separated into single tests because {@link EdcRuntimeExtension} runs before each single test.
      * */
     @Test
-    void runSampleSteps() {
+    void runSampleSteps() throws IOException {
         configPropertiesUniquePorts();
         initiateContractNegotiation();
         lookUpContractAgreementId();
@@ -143,48 +145,41 @@ public class FileTransferSampleTest {
         contractAgreementId = localContractAgreementId.get();
     }
 
-    void requestFile() {
+    void requestFile() throws IOException {
         // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"
 
         File transferJsonFile = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/filetransfer.json");
         String destinationPath = "samples/04.0-file-transfer/consumer/requested.test.txt";
-        updateTransferJsonFile(transferJsonFile, contractAgreementId, destinationPath);
+        DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId, destinationPath);
 
-        /*
-        JsonPath jsonPath = RestAssured
+        String transferProcessId = RestAssured
             .given()
                 .headers(API_KEY_HEADER, API_KEY)
                 .contentType(ContentType.JSON)
-                .body(new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/filetransfer.json"))
+                .body(sampleDataRequest)
                 .log().all()
             .when()
                 .get("http://localhost:9192/api/v1/data/transferprocess")
             .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath();
-
-
-        contractAgreementId = "tbd";
-         */
+                .jsonPath()
+                .getString("id");
     }
 
-    void updateTransferJsonFile(File transferJsonFile, String contractAgreementId, String destinationPath) {
-        try {
-            // create object mapper instance
-            ObjectMapper mapper = new ObjectMapper();
+    DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId, String destinationPath) throws IOException {
+        // create object mapper instance
+        // sample file is missing   "edctype": "dataspaceconnector:datarequest"
+        //ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        ObjectMapper mapper = new ObjectMapper();
 
-            // convert JSON file to map
-            Map<?, ?> map = mapper.readValue(transferJsonFile, Map.class);
+        // convert JSON file to map
+        DataRequest sampleDataRequest = mapper.readValue(transferJsonFile, DataRequest.class);
 
-            // print map entries
-            for (Map.Entry<?, ?> entry : map.entrySet()) {
-                System.out.println(entry.getKey() + "=" + entry.getValue());
-            }
+        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", destinationPath).build();
+        DataRequest newSampleDataRequest = sampleDataRequest.toBuilder().contractId(contractAgreementId).dataDestination(newDataDestination).build();
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        return newSampleDataRequest;
     }
 
 

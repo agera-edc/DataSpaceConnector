@@ -140,19 +140,7 @@ public class DataRequest implements RemoteMessage, Polymorphic {
     }
 
     public DataRequest copy(String newId) {
-        return Builder.newInstance()
-                .id(newId)
-                .processId(processId)
-                .connectorAddress(connectorAddress)
-                .protocol(protocol)
-                .connectorId(connectorId)
-                .assetId(assetId)
-                .contractId(contractId)
-                .dataAddress(dataDestination)
-                .transferType(transferType)
-                .managedResources(managedResources)
-                .properties(properties)
-                .build();
+        return toBuilder().id(newId).build();
     }
 
     public void updateDestination(DataAddress dataAddress) {
@@ -163,12 +151,20 @@ public class DataRequest implements RemoteMessage, Polymorphic {
         return transferType;
     }
 
+    public DataRequest.Builder toBuilder() {
+        return new DataRequest.Builder(this);
+    }
+
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private final DataRequest request;
 
         private Builder() {
-            request = new DataRequest();
+            this(new DataRequest());
+        }
+
+        private Builder(DataRequest dataRequest) {
+            request = dataRequest;
         }
 
         @JsonCreator

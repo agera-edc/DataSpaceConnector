@@ -255,6 +255,12 @@ curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @sa
 Again, we will get a UUID in the response. This time, this is the ID of the `TransferProcess` created on the consumer
 side, because like the contract negotiation, the data transfer is handled in a state machine and performed asynchronously.
 
+Sample output:
+
+```bash
+{"id":"deeed974-8a43-4fd5-93ad-e1b8c26bfa44"}
+```
+
 Since transferring a file does not require any resource provisioning on either side, the transfer will be very quick and
 most likely already done by the time you read the UUID.
 

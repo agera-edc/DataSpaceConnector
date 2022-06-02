@@ -70,12 +70,20 @@ public class DataAddress {
         properties.put(KEY_NAME, keyName);
     }
 
+    public DataAddress.Builder toBuilder() {
+        return new DataAddress.Builder(this);
+    }
+
     @JsonPOJOBuilder(withPrefix = "")
     public static class Builder {
         private final DataAddress address;
 
         private Builder() {
-            address = new DataAddress();
+            this(new DataAddress());
+        }
+
+        private Builder(DataAddress dataAddress) {
+            address = dataAddress;
         }
 
         @JsonCreator()
