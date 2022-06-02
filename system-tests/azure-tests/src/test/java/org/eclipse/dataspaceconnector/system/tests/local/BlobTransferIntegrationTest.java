@@ -223,7 +223,6 @@ public class BlobTransferIntegrationTest extends AbstractAzureBlobTest {
 
     private void seedProviderData(String path, Object requestBody) {
         givenProviderBaseRequest()
-                //.log().all() // this way to log output from rest assured with header and body
                 .contentType(JSON)
                 .body(requestBody)
                 .when()

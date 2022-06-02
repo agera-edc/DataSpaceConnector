@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.equalTo;
 
 public class FileTransferSampleTest {
@@ -44,7 +43,6 @@ public class FileTransferSampleTest {
     //public static final String CONSUMER_CONNECTOR_MANAGEMENT_URL = "http://localhost:" + CONSUMER_MANAGEMENT_PORT;
     public static final int CONSUMER_IDS_API_PORT = 9292;
     public static final String CONSUMER_IDS_API = "http://localhost:" + CONSUMER_IDS_API_PORT;
-
     public static final int PROVIDER_CONNECTOR_PORT = 8181;
     public static final int PROVIDER_MANAGEMENT_PORT = 8182;
     public static final String PROVIDER_CONNECTOR_PATH = "/api";
@@ -54,14 +52,15 @@ public class FileTransferSampleTest {
     public static final String PROVIDER_IDS_API = "http://localhost:" + PROVIDER_IDS_API_PORT;
     public static final String IDS_PATH = "/api/v1/ids";
 
+    private static final Duration TIMEOUT = Duration.ofSeconds(10);
     private static final String API_KEY_HEADER = "X-Api-Key";
     private static final String API_KEY = "password";
     private static final String DESTINATION_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
-    private static final Duration TIMEOUT = Duration.ofSeconds(10);
+    // Reuse an already existing file for the test. Could be set to any other existing file in the repository.
+    private static final String SAMPLE_ASSET_PATH = "samples/04.0-file-transfer/filetransfer.json";
 
 
     // Starting EDC runtimes implicitly aligns to Run the sample / 1. Build and start the connectors.
-    // TODO: Read properties from config.properties files for consumer and provider.
     @RegisterExtension
     protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":samples:04.0-file-transfer:consumer",
@@ -76,6 +75,10 @@ public class FileTransferSampleTest {
                     "ids.webhook.address", CONSUMER_IDS_API,
                     "edc.api.auth.key", API_KEY,
                     "edc.ids.id", "urn:connector:consumer"
+                    // Keep the following line commented out until both EdcRuntimeExtension can be used which is
+                    // currently not possible because CONFIG_LOCATION is static in
+                    // org/eclipse/dataspaceconnector/configuration/fs/FsConfigurationExtension.java
+//                    "edc.fs.config", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/consumer/config.properties").getAbsolutePath()
             )
     );
 
@@ -91,8 +94,14 @@ public class FileTransferSampleTest {
                     "web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT),
                     "web.http.ids.path", IDS_PATH,
                     "ids.webhook.address", PROVIDER_IDS_API,
-                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/provider/test.txt").getAbsolutePath(),
-                    "edc.ids.id", "urn:connector:provider"
+                    "edc.ids.id", "urn:connector:provider",
+                    // Even if property 'edc.fs.config' is used, keep the following line to override
+                    // 'edc.samples.04.asset.path' from 'samples/04.0-file-transfer/provider/config.properties'.
+                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(), SAMPLE_ASSET_PATH).getAbsolutePath()
+                    // Keep the following line commented out until both EdcRuntimeExtension can be used which is
+                    // currently not possible because CONFIG_LOCATION is static in
+                    // org/eclipse/dataspaceconnector/configuration/fs/FsConfigurationExtension.java
+//                    "edc.fs.config", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/provider/config.properties").getAbsolutePath()
             )
     );
 
@@ -102,34 +111,36 @@ public class FileTransferSampleTest {
      * */
     @Test
     void runSampleSteps() throws IOException {
-        assertCleanTest();
+        assertTestPrerequisites();
 
-        // assert samples/04.0-file-transfer/provider/config.properties
-        // edc.samples.04.asset.path=samples/04.0-file-transfer/provider/test.txt
         assertConfigPropertiesUniquePorts();
         assertInitiateContractNegotiation();
         assertLookUpContractAgreementId();
         assertRequestFile();
         assertWaitForDestinationFileExistence();
         
-        cleanUpArtifacts();
+        cleanTemporaryTestFiles();
     }
 
-    private void assertCleanTest() {
-        Path path = Paths.get(DESTINATION_PATH);
-        Assertions.assertThat(Files.exists(path)).isFalse();
+    private void assertTestPrerequisites() {
+        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_PATH);
+
+        Assertions.assertThat(transferredFile.exists()).isFalse();
     }
 
-    private void cleanUpArtifacts() {
+    private void cleanTemporaryTestFiles() {
+        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_PATH);
+
+        if (transferredFile.exists()) {
+            transferredFile.delete();
+        }
     }
 
     void assertWaitForDestinationFileExistence() {
-        String absolutePathDestination = new File(TestUtils.findBuildRoot(), DESTINATION_PATH).getAbsolutePath();
-
-        Path path = Paths.get(absolutePathDestination);
+        var expectedFile = new File(TestUtils.findBuildRoot(), DESTINATION_PATH);
 
         await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() ->
-            Assertions.assertThat(Files.exists(path)).isTrue()
+            Assertions.assertThat(expectedFile.exists()).isTrue()
         );
     }
 
