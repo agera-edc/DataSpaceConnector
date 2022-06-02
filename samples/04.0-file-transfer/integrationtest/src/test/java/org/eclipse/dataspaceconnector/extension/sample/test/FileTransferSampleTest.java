@@ -18,6 +18,10 @@ import static org.awaitility.Awaitility.await;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,7 @@ public class FileTransferSampleTest {
 
     private String contractNegotiationId;
     private String contractAgreementId;
+    private String transferProcessId;
 
     public static final int CONSUMER_CONNECTOR_PORT = 9191;
     public static final int CONSUMER_MANAGEMENT_PORT = 9192;
@@ -51,6 +56,9 @@ public class FileTransferSampleTest {
 
     private static final String API_KEY_HEADER = "X-Api-Key";
     private static final String API_KEY = "password";
+    private static final String DESTINATION_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
+    private static final Duration TIMEOUT = Duration.ofSeconds(10);
+
 
     // Starting EDC runtimes implicitly aligns to Run the sample / 1. Build and start the connectors.
     // TODO: Read properties from config.properties files for consumer and provider.
@@ -83,7 +91,7 @@ public class FileTransferSampleTest {
                     "web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT),
                     "web.http.ids.path", IDS_PATH,
                     "ids.webhook.address", PROVIDER_IDS_API,
-                    "edc.samples.04.asset.path", "samples/04.0-file-transfer/provider/test.txt",
+                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/provider/test.txt").getAbsolutePath(),
                     "edc.ids.id", "urn:connector:provider"
             )
     );
@@ -94,13 +102,38 @@ public class FileTransferSampleTest {
      * */
     @Test
     void runSampleSteps() throws IOException {
-        configPropertiesUniquePorts();
-        initiateContractNegotiation();
-        lookUpContractAgreementId();
-        requestFile();
+        assertCleanTest();
+
+        // assert samples/04.0-file-transfer/provider/config.properties
+        // edc.samples.04.asset.path=samples/04.0-file-transfer/provider/test.txt
+        assertConfigPropertiesUniquePorts();
+        assertInitiateContractNegotiation();
+        assertLookUpContractAgreementId();
+        assertRequestFile();
+        assertWaitForDestinationFileExistence();
+        
+        cleanUpArtifacts();
     }
 
-    void initiateContractNegotiation() {
+    private void assertCleanTest() {
+        Path path = Paths.get(DESTINATION_PATH);
+        Assertions.assertThat(Files.exists(path)).isFalse();
+    }
+
+    private void cleanUpArtifacts() {
+    }
+
+    void assertWaitForDestinationFileExistence() {
+        String absolutePathDestination = new File(TestUtils.findBuildRoot(), DESTINATION_PATH).getAbsolutePath();
+
+        Path path = Paths.get(absolutePathDestination);
+
+        await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() ->
+            Assertions.assertThat(Files.exists(path)).isTrue()
+        );
+    }
+
+    void assertInitiateContractNegotiation() {
         // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"
 
         JsonPath jsonPath = RestAssured
@@ -119,13 +152,13 @@ public class FileTransferSampleTest {
         contractNegotiationId = jsonPath.get("id");
     }
 
-    void lookUpContractAgreementId() {
+    void assertLookUpContractAgreementId() {
         // curl -X GET -H 'X-Api-Key: password' "http://localhost:9192/api/v1/data/contractnegotiations/{UUID}"
 
         var localContractAgreementId = new AtomicReference<String>();
 
         // Wait for transfer to be completed.
-        await().atMost(10, SECONDS).pollDelay(500, MILLISECONDS).untilAsserted(() ->  {
+        await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() ->  {
                 var result = RestAssured
                     .given()
                         .headers(API_KEY_HEADER, API_KEY)
@@ -145,45 +178,45 @@ public class FileTransferSampleTest {
         contractAgreementId = localContractAgreementId.get();
     }
 
-    void requestFile() throws IOException {
+    void assertRequestFile() throws IOException {
         // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"
 
         File transferJsonFile = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/filetransfer.json");
-        String destinationPath = "samples/04.0-file-transfer/consumer/requested.test.txt";
-        DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId, destinationPath);
+        DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId, DESTINATION_PATH);
 
-        String transferProcessId = RestAssured
+        JsonPath jsonPath = RestAssured
             .given()
                 .headers(API_KEY_HEADER, API_KEY)
                 .contentType(ContentType.JSON)
                 .body(sampleDataRequest)
                 .log().all()
             .when()
-                .get("http://localhost:9192/api/v1/data/transferprocess")
+                .post("http://localhost:9192/api/v1/data/transferprocess")
             .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath()
-                .getString("id");
+                .jsonPath();
+
+        transferProcessId = jsonPath.get("id");
     }
 
     DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId, String destinationPath) throws IOException {
         // create object mapper instance
-        // sample file is missing   "edctype": "dataspaceconnector:datarequest"
-        //ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         ObjectMapper mapper = new ObjectMapper();
 
         // convert JSON file to map
         DataRequest sampleDataRequest = mapper.readValue(transferJsonFile, DataRequest.class);
 
-        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", destinationPath).build();
+        String absolutePathDestination = new File(TestUtils.findBuildRoot(), destinationPath).getAbsolutePath();
+
+        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", absolutePathDestination).build();
         DataRequest newSampleDataRequest = sampleDataRequest.toBuilder().contractId(contractAgreementId).dataDestination(newDataDestination).build();
 
         return newSampleDataRequest;
     }
 
 
-    void configPropertiesUniquePorts() {
+    void assertConfigPropertiesUniquePorts() {
         // test sample guidance: Create the connectors / Consumer connector
         // read both config files
         // samples/04.0-file-transfer/consumer/config.properties
