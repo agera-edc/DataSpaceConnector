@@ -23,9 +23,14 @@ val awaitility: String by project
 val assertj: String by project
 
 dependencies {
+    testImplementation(project(":extensions:sql:common-sql"))
+
     testImplementation(testFixtures(project(":common:util")))
+    testImplementation(testFixtures(project(":extensions:azure:azure-test")))
+    testImplementation(testFixtures(project(":extensions:azure:cosmos:cosmos-common")))
     testImplementation(testFixtures(project(":launchers:junit")))
 
+    testImplementation("org.postgresql:postgresql:42.2.6")
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
     testImplementation("org.assertj:assertj-core:${assertj}")
     testImplementation("org.awaitility:awaitility:${awaitility}")

@@ -57,42 +57,42 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
 
 /**
  * Represents a data transfer process.
- * <br/>
+ * <p>
  * A data transfer process exists on both the consumer and provider connector; it is a representation of the data sharing transaction from the perspective of each endpoint. The data
  * transfer process is modeled as a "loosely" coordinated state machine on each connector. The state transitions are symmetric on the consumer and provider with the exception that
  * the consumer process has two additional states for request/request ack.
- * <br/>
+ * <p>
  * The consumer transitions are:
  *
  * <pre>
- * {@link TransferProcessStates#INITIAL} ->
- * {@link TransferProcessStates#PROVISIONING} ->
- * {@link TransferProcessStates#PROVISIONED} ->
- * {@link TransferProcessStates#REQUESTING} ->
- * {@link TransferProcessStates#REQUESTED} ->
- * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} ->
- * {@link TransferProcessStates#COMPLETED} ->
- * {@link TransferProcessStates#DEPROVISIONING} ->
- * {@link TransferProcessStates#DEPROVISIONED} ->
- * {@link TransferProcessStates#ENDED} ->
- * {@link TransferProcessStates#CANCELLED} -> optional, reachable from every state except ENDED, COMPLETED or ERROR
+ * {@link TransferProcessStates#INITIAL} -&gt;
+ * {@link TransferProcessStates#PROVISIONING} -&gt;
+ * {@link TransferProcessStates#PROVISIONED} -&gt;
+ * {@link TransferProcessStates#REQUESTING} -&gt;
+ * {@link TransferProcessStates#REQUESTED} -&gt;
+ * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} -&gt;
+ * {@link TransferProcessStates#COMPLETED} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONING} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONED} -&gt;
+ * {@link TransferProcessStates#ENDED} -&gt;
+ * {@link TransferProcessStates#CANCELLED} -&gt; optional, reachable from every state except ENDED, COMPLETED or ERROR
  * </pre>
- * <br/>
- * <br/>
+ * <p>
+ * <p>
  * The provider transitions are:
  *
  * <pre>
- * {@link TransferProcessStates#INITIAL} ->
- * {@link TransferProcessStates#PROVISIONING} ->
- * {@link TransferProcessStates#PROVISIONED} ->
- * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} ->
- * {@link TransferProcessStates#COMPLETED} ->
- * {@link TransferProcessStates#DEPROVISIONING} ->
- * {@link TransferProcessStates#DEPROVISIONED} ->
- * {@link TransferProcessStates#ENDED} ->
- * {@link TransferProcessStates#CANCELLED} -> optional, reachable from every state except ENDED, COMPLETED or ERROR
+ * {@link TransferProcessStates#INITIAL} -&gt;
+ * {@link TransferProcessStates#PROVISIONING} -&gt;
+ * {@link TransferProcessStates#PROVISIONED} -&gt;
+ * {@link TransferProcessStates#IN_PROGRESS} | {@link TransferProcessStates#STREAMING} -&gt;
+ * {@link TransferProcessStates#COMPLETED} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONING} -&gt;
+ * {@link TransferProcessStates#DEPROVISIONED} -&gt;
+ * {@link TransferProcessStates#ENDED} -&gt;
+ * {@link TransferProcessStates#CANCELLED} -&gt; optional, reachable from every state except ENDED, COMPLETED or ERROR
  * </pre>
- * <br/>
+ * <p>
  */
 @JsonTypeName("dataspaceconnector:transferprocess")
 @JsonDeserialize(builder = TransferProcess.Builder.class)
@@ -100,6 +100,7 @@ public class TransferProcess implements TraceCarrier {
 
     private String id;
     private Type type = Type.CONSUMER;
+    private long createdTimestamp;
     private int state;
     private int stateCount = UNSAVED.code();
     private long stateTimestamp;
@@ -118,6 +119,10 @@ public class TransferProcess implements TraceCarrier {
         return id;
     }
 
+    public long getCreatedTimestamp() {
+        return createdTimestamp;
+    }
+
     public Type getType() {
         return type;
     }
@@ -134,6 +139,7 @@ public class TransferProcess implements TraceCarrier {
         return stateTimestamp;
     }
 
+    @Override
     public Map<String, String> getTraceContext() {
         return Collections.unmodifiableMap(traceContext);
     }
@@ -339,17 +345,13 @@ public class TransferProcess implements TraceCarrier {
                 .contentDataAddress(contentDataAddress)
                 .traceContext(traceContext)
                 .type(type)
+                .createdTimestamp(createdTimestamp)
                 .errorDetail(errorDetail)
                 .build();
     }
 
     public Builder toBuilder() {
         return new Builder(copy());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 
     @Override
@@ -362,6 +364,11 @@ public class TransferProcess implements TraceCarrier {
         }
         TransferProcess that = (TransferProcess) o;
         return id.equals(that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     @Override
@@ -415,6 +422,11 @@ public class TransferProcess implements TraceCarrier {
 
         public Builder type(Type type) {
             process.type = type;
+            return this;
+        }
+
+        public Builder createdTimestamp(long value) {
+            process.createdTimestamp = value;
             return this;
         }
 

@@ -74,6 +74,14 @@ public interface TransferProcessStoreStatements extends LeaseStatements {
         return "type";
     }
 
+    default String getCreatedTimestampColumn() {
+        return "created_time_stamp";
+    }
+
+    default String getContentDataAddressColumn() {
+        return "content_data_address";
+    }
+
     default String getAssetIdColumn() {
         return "asset_id";
     }

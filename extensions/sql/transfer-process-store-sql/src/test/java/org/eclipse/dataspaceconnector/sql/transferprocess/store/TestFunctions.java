@@ -45,6 +45,7 @@ class TestFunctions {
                 .protocol("ids-multipart")
                 .connectorId("some-connector")
                 .contractId("some-contract")
+                .managedResources(false)
                 .assetId(Asset.Builder.newInstance().id("asset-id").build().getId())
                 .processId(pid)
                 .build();
@@ -58,8 +59,10 @@ class TestFunctions {
         return TransferProcess.Builder.newInstance()
                 .id(processId)
                 .state(state.code())
+                .createdTimestamp(12314)
                 .type(TransferProcess.Type.CONSUMER)
                 .dataRequest(createDataRequest())
+                .contentDataAddress(DataAddress.Builder.newInstance().type("any").build())
                 .resourceManifest(createManifest())
                 .build();
     }

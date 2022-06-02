@@ -17,9 +17,11 @@ plugins {
     `maven-publish`
     checkstyle
     jacoco
+    signing
     id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
     id("org.eclipse.dataspaceconnector.module-names")
-    id("com.autonomousapps.dependency-analysis") version "1.0.0-rc05" apply (false)
+    id("com.autonomousapps.dependency-analysis") version "1.1.0" apply (false)
+    id("org.gradle.crypto.checksum") version "1.4.0"
 }
 
 repositories {
@@ -37,15 +39,27 @@ val rsApi: String by project
 val swagger: String by project
 val faker: String by project
 
+val edcDeveloperId: String by project
+val edcDeveloperName: String by project
+val edcDeveloperEmail: String by project
+val edcScmConnection: String by project
+val edcWebsiteUrl: String by project
+val edcScmUrl: String by project
 val groupId: String = "org.eclipse.dataspaceconnector"
 var edcVersion: String = "0.0.1-SNAPSHOT"
 
 if (project.version == "unspecified") {
     logger.warn("No version was specified, setting default 0.0.1-SNAPSHOT")
-    logger.warn("If you want to change this, supply the -Pversion=X.Y.Z parameter")
+    logger.warn("If you want to set a version, use the -Pversion=X.Y.Z parameter")
     logger.warn("")
 } else {
     edcVersion = project.version as String
+}
+
+var deployUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+
+if (edcVersion.contains("SNAPSHOT")) {
+    deployUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
 }
 
 subprojects {
@@ -56,9 +70,44 @@ subprojects {
             url = uri("https://maven.iais.fraunhofer.de/artifactory/eis-ids-public/")
         }
     }
-
     tasks.register<DependencyReportTask>("allDependencies") {}
 
+    // (re-)create a file that contains all maven publications
+    val f = File("${project.rootDir.absolutePath}/docs/developer/modules.md")
+    if (f.exists()) {
+        f.delete()
+    }
+    afterEvaluate {
+        publishing {
+            publications.forEach { i ->
+                val mp = (i as MavenPublication)
+                mp.pom {
+                    name.set(project.name)
+                    description.set("edc :: ${project.name}")
+                    url.set(edcWebsiteUrl)
+
+                    licenses {
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        }
+                        developers {
+                            developer {
+                                id.set(edcDeveloperId)
+                                name.set(edcDeveloperName)
+                                email.set(edcDeveloperEmail)
+                            }
+                        }
+                        scm {
+                            connection.set(edcScmConnection)
+                            url.set(edcScmUrl)
+                        }
+                    }
+                }
+                f.appendText("\n${mp.groupId}:${mp.artifactId}:${mp.version}")
+            }
+        }
+    }
 }
 
 buildscript {
@@ -71,6 +120,8 @@ allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
     apply(plugin = "java")
+
+
     apply(plugin = "org.eclipse.dataspaceconnector.test-summary")
 
     if (System.getenv("JACOCO") == "true") {
@@ -93,6 +144,8 @@ allprojects {
             // Ref: https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation
             options.release.set(javaVersion.toInt())
         }
+        withJavadocJar()
+        withSourcesJar()
     }
 
     // EdcRuntimeExtension uses this to determine the runtime classpath of the module to run.
@@ -121,20 +174,31 @@ allprojects {
             testImplementation("com.github.javafaker:javafaker:${faker}")
         }
 
-        publishing {
-            repositories {
-                maven {
-                    name = "GitHubPackages"
-                    url = uri("https://maven.pkg.github.com/eclipse-dataspaceconnector/DataSpaceConnector")
-                    credentials {
-                        username = System.getenv("GITHUB_ACTOR")
-                        password = System.getenv("GITHUB_TOKEN")
+        if (!project.hasProperty("skip.signing")) {
+
+            apply(plugin = "signing")
+            publishing {
+                repositories {
+                    maven {
+                        name = "OSSRH"
+                        setUrl(deployUrl)
+                        credentials {
+                            username = System.getenv("OSSRH_USER") ?: return@credentials
+                            password = System.getenv("OSSRH_PASSWORD") ?: return@credentials
+                        }
                     }
+                }
+
+                signing {
+                    useGpgCmd()
+                    sign(publishing.publications)
                 }
             }
         }
 
     }
+
+
 
     pluginManager.withPlugin("io.swagger.core.v3.swagger-gradle-plugin") {
 
@@ -147,6 +211,7 @@ allprojects {
         tasks.withType<io.swagger.v3.plugins.gradle.tasks.ResolveTask> {
             outputFileName = project.name
             outputFormat = io.swagger.v3.plugins.gradle.tasks.ResolveTask.Format.YAML
+            sortOutput = true
             prettyPrint = true
             classpath = java.sourceSets["main"].runtimeClasspath
             buildClasspath = classpath
@@ -207,7 +272,7 @@ allprojects {
         }
     }
 
-// Generate XML reports for Codecov
+    // Generate XML reports for Codecov
     if (System.getenv("JACOCO") == "true") {
         tasks.jacocoTestReport {
             reports {

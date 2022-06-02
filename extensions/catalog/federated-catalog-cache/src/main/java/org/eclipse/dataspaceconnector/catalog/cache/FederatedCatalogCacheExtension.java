@@ -39,6 +39,7 @@ import org.eclipse.dataspaceconnector.catalog.spi.WorkItem;
 import org.eclipse.dataspaceconnector.catalog.spi.WorkItemQueue;
 import org.eclipse.dataspaceconnector.catalog.spi.model.UpdateResponse;
 import org.eclipse.dataspaceconnector.catalog.store.InMemoryFederatedCacheStore;
+import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.spi.WebService;
 import org.eclipse.dataspaceconnector.spi.message.RemoteMessageDispatcherRegistry;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
@@ -58,6 +59,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -141,7 +143,7 @@ public class FederatedCatalogCacheExtension implements ServiceExtension {
     @Provider(isDefault = true)
     public FederatedCacheStore defaultCacheStore() {
         //todo: converts every criterion into a predicate that is always true. must be changed later!
-        return new InMemoryFederatedCacheStore(criterion -> offer -> true);
+        return new InMemoryFederatedCacheStore(criterion -> offer -> true, new LockManager(new ReentrantReadWriteLock()));
     }
 
     @Provider(isDefault = true)
@@ -152,7 +154,7 @@ public class FederatedCatalogCacheExtension implements ServiceExtension {
     @NotNull
     private LoaderManager createLoaderManager(FederatedCacheStore store) {
         return LoaderManagerImpl.Builder.newInstance()
-                .loaders(List.of(new LoaderImpl(store)))
+                .loaders(List.of(new LoaderImpl(store))) // one loader per store
                 .batchSize(partitionManagerConfig.getLoaderBatchSize(DEFAULT_BATCH_SIZE))
                 .waitStrategy(() -> partitionManagerConfig.getLoaderRetryTimeout(DEFAULT_RETRY_TIMEOUT_MILLIS))
                 .monitor(monitor)
@@ -168,7 +170,7 @@ public class FederatedCatalogCacheExtension implements ServiceExtension {
                 .map(n -> new WorkItem(n.getTargetUrl(), selectProtocol(n.getSupportedProtocols()))).collect(Collectors.toList());
 
         return new PartitionManagerImpl(monitor,
-                new DefaultWorkItemQueue(partitionManagerConfig.getWorkItemQueueSize(10)),
+                new DefaultWorkItemQueue(partitionManagerConfig.getWorkItemQueueSize()),
                 workItems -> createCrawler(workItems, context, protocolAdapterRegistry, updateResponseQueue),
                 partitionManagerConfig.getNumCrawlers(DEFAULT_NUM_CRAWLERS),
                 nodes);

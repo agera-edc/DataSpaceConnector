@@ -15,11 +15,13 @@
 package org.eclipse.dataspaceconnector.contract.definition.store;
 
 import net.jodah.failsafe.RetryPolicy;
+import org.eclipse.dataspaceconnector.azure.cosmos.CosmosClientProvider;
 import org.eclipse.dataspaceconnector.azure.cosmos.CosmosDbApiImpl;
 import org.eclipse.dataspaceconnector.cosmos.policy.store.model.ContractDefinitionDocument;
 import org.eclipse.dataspaceconnector.dataloading.ContractDefinitionLoader;
 import org.eclipse.dataspaceconnector.spi.contract.offer.store.ContractDefinitionStore;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
+import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -27,6 +29,12 @@ import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckService;
 
 @Provides({ ContractDefinitionStore.class, ContractDefinitionLoader.class })
 public class CosmosContractDefinitionStoreExtension implements ServiceExtension {
+
+    @Inject
+    private Vault vault;
+
+    @Inject
+    private CosmosClientProvider clientProvider;
 
     @Override
     public String name() {
@@ -36,9 +44,9 @@ public class CosmosContractDefinitionStoreExtension implements ServiceExtension 
     @Override
     public void initialize(ServiceExtensionContext context) {
         var configuration = new CosmosContractDefinitionStoreConfig(context);
-        Vault vault = context.getService(Vault.class);
 
-        var cosmosDbApi = new CosmosDbApiImpl(vault, configuration);
+        var client = clientProvider.createClient(vault, configuration);
+        var cosmosDbApi = new CosmosDbApiImpl(configuration, client);
 
         var store = new CosmosContractDefinitionStore(cosmosDbApi, context.getTypeManager(), (RetryPolicy<Object>) context.getService(RetryPolicy.class), configuration.getPartitionKey());
         context.registerService(ContractDefinitionStore.class, store);
