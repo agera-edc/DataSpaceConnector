@@ -52,6 +52,7 @@ import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.Provides;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
+import org.eclipse.dataspaceconnector.spi.telemetry.Telemetry;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.ContractNegotiation;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.command.ContractNegotiationCommand;
 
@@ -65,7 +66,6 @@ import java.time.Clock;
 public class ContractServiceExtension implements ServiceExtension {
 
     private static final long DEFAULT_ITERATION_WAIT = 5000; // millis
-    private Monitor monitor;
     private ConsumerContractNegotiationManagerImpl consumerNegotiationManager;
     private ProviderContractNegotiationManagerImpl providerNegotiationManager;
 
@@ -100,6 +100,12 @@ public class ContractServiceExtension implements ServiceExtension {
     private PolicyStore policyStore;
 
     @Inject
+    private Monitor monitor;
+
+    @Inject
+    private Telemetry telemetry;
+
+    @Inject
     private Clock clock;
 
     @Override
@@ -109,8 +115,6 @@ public class ContractServiceExtension implements ServiceExtension {
 
     @Override
     public void initialize(ServiceExtensionContext context) {
-        monitor = context.getMonitor();
-
         registerTypes(context);
         registerServices(context);
     }
@@ -147,8 +151,6 @@ public class ContractServiceExtension implements ServiceExtension {
         CommandQueue<ContractNegotiationCommand> commandQueue = new BoundedCommandQueue<>(10);
         CommandRunner<ContractNegotiationCommand> commandRunner = new CommandRunner<>(commandHandlerRegistry, monitor);
 
-        var clock = context.getClock();
-        var telemetry = context.getTelemetry();
         var observable = new ContractNegotiationObservableImpl();
         context.registerService(ContractNegotiationObservable.class, observable);
 
