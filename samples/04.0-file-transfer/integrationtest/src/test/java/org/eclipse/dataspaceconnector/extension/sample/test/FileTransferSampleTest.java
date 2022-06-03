@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
+import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
@@ -39,6 +40,7 @@ public class FileTransferSampleTest {
     private static final String SAMPLE_ASSET_FILE_PATH = TRANSFER_FILE_PATH;
     private static final String DESTINATION_FILE_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
     private static final Duration TIMEOUT = Duration.ofSeconds(15);
+    private static final Duration POLL_INTERVAL = Duration.ofMillis(1000);
     private static final String API_KEY_HEADER_KEY = "X-Api-Key";
     private static final String API_KEY_HEADER_VALUE = "password";
     @RegisterExtension
@@ -126,7 +128,7 @@ public class FileTransferSampleTest {
     void assertWaitForDestinationFileExistence() {
         var expectedFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
-        await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() ->
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() ->
                 Assertions.assertThat(expectedFile.exists()).isTrue()
         );
     }
@@ -145,7 +147,7 @@ public class FileTransferSampleTest {
             .when()
                 .post(INITIATE_CONTRACT_NEGOTIATION_URI)
             .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .jsonPath();
 
@@ -160,7 +162,7 @@ public class FileTransferSampleTest {
         var localContractAgreementId = new AtomicReference<String>();
 
         // Wait for transfer to be completed.
-        await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() -> {
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> {
                     var result = RestAssured
                         .given()
                             .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
@@ -168,7 +170,7 @@ public class FileTransferSampleTest {
                         .when()
                             .get(LOOK_UP_CONTRACT_AGREEMENT_URI, contractNegotiationId)
                         .then()
-                            .statusCode(200)
+                            .statusCode(HttpStatus.SC_OK)
                             .body("state", equalTo("CONFIRMED"))
                             .extract().body().jsonPath().getString("contractAgreementId");
 
@@ -198,7 +200,7 @@ public class FileTransferSampleTest {
             .when()
                 .post(INITIATE_TRANSFER_PROCESS_URI)
             .then()
-                .statusCode(200)
+                .statusCode(HttpStatus.SC_OK)
                 .extract()
                 .jsonPath();
 
