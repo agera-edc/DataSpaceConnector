@@ -6,6 +6,7 @@ import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.Assertions;
+import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -27,6 +28,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.equalTo;
 
+@EndToEndTest
 public class FileTransferSampleTest {
 
     public static final String INITIATE_CONTRACT_NEGOTIATION_URI = "http://localhost:9192/api/v1/data/contractnegotiations";
