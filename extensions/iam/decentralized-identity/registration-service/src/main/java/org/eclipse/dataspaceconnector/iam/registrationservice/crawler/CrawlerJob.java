@@ -41,7 +41,6 @@ import static java.lang.String.format;
 public class CrawlerJob implements Job {
 
     private static final String DIDS_PATH = "dids";
-    private static final Clock CLOCK = Clock.systemUTC();
     private String ionApiUrl;
 
     /**
@@ -60,7 +59,8 @@ public class CrawlerJob implements Job {
 
         monitor.info("CrawlerJob: browsing ION to obtain GaiaX DIDs");
 
-        var start = CLOCK.instant();
+        var clock = cc.getClock();
+        var start = clock.instant();
         var newDidFutures = getDidDocumentsFromBlockchainAsync(cc);
 
         List<DidDocument> newDids = newDidFutures.parallelStream()
@@ -70,7 +70,7 @@ public class CrawlerJob implements Job {
                 .map(Result::getContent)
                 .collect(Collectors.toList());
 
-        monitor.info("CrawlerJob: Found " + newDids.size() + " new DIDs on ION, took " + (Duration.between(start, CLOCK.instant()).toString()
+        monitor.info("CrawlerJob: Found " + newDids.size() + " new DIDs on ION, took " + (Duration.between(start, clock.instant()).toString()
                 .substring(2)
                 .replaceAll("(\\d[HMS])(?!$)", "$1 ")
                 .toLowerCase()));
