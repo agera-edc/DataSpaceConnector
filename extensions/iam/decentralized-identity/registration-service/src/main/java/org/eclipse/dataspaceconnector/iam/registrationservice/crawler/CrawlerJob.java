@@ -115,8 +115,7 @@ public class CrawlerJob implements Job {
         try (var response = client.newCall(request).execute()) {
             if (response.isSuccessful()) {
                 var json = Objects.requireNonNull(response.body()).string();
-                var typeReference = new TypeReference<List<String>>() {
-                };
+                var typeReference = new TypeReference<List<String>>() {};
                 return typeManager.readValue(json, typeReference);
             } else {
                 throw new EdcException(format("Could not get DIDs: error=%s, message=%s", response.code(), response.body().string()));
