@@ -156,7 +156,6 @@ public class FileTransferSampleTest {
                 .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                 .contentType(ContentType.JSON)
                 .body(new File(TestUtils.findBuildRoot(), CONTRACT_OFFER_FILE_PATH))
-                .log().all()
             .when()
                 .post(INITIATE_CONTRACT_NEGOTIATION_URI)
             .then()
@@ -179,7 +178,6 @@ public class FileTransferSampleTest {
                     var result = RestAssured
                         .given()
                             .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
-                            .log().all()
                         .when()
                             .get(LOOK_UP_CONTRACT_AGREEMENT_URI, contractNegotiationId)
                         .then()
@@ -209,7 +207,6 @@ public class FileTransferSampleTest {
                 .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                 .contentType(ContentType.JSON)
                 .body(sampleDataRequest)
-                .log().all()
             .when()
                 .post(INITIATE_TRANSFER_PROCESS_URI)
             .then()
