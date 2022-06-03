@@ -28,31 +28,39 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class FileTransferSampleTest {
 
-    private static final Duration TIMEOUT = Duration.ofSeconds(10);
-    private static final String API_KEY_HEADER = "X-Api-Key";
-    private static final String API_KEY = "password";
-    private static final String DESTINATION_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
+    public static final String INITIATE_CONTRACT_NEGOTIATION_URI = "http://localhost:9192/api/v1/data/contractnegotiations";
+    private static final String LOOK_UP_CONTRACT_AGREEMENT_URI = "http://localhost:9192/api/v1/data/contractnegotiations/{id}";
+    public static final String INITIATE_TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
+    public static final String CONTRACT_OFFER_FILE_PATH = "samples/04.0-file-transfer/contractoffer.json";
+    public static final String CONSUMER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.0-file-transfer/consumer/config.properties";
+    public static final String PROVIDER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.0-file-transfer/provider/config.properties";
+    private static final String TRANSFER_FILE_PATH = "samples/04.0-file-transfer/filetransfer.json";
     // Reuse an already existing file for the test. Could be set to any other existing file in the repository.
-    private static final String SAMPLE_ASSET_PATH = "samples/04.0-file-transfer/filetransfer.json";
-    // Starting EDC runtimes implicitly aligns to Run the sample / 1. Build and start the connectors.
-    @RegisterExtension
-    protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
-            ":samples:04.0-file-transfer:consumer",
-            "consumer",
-            Map.of(
-                    "edc.fs.config", new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/consumer/config.properties").getAbsolutePath()
-            )
-    );
+    private static final String SAMPLE_ASSET_FILE_PATH = TRANSFER_FILE_PATH;
+    private static final String DESTINATION_FILE_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
+    private static final Duration TIMEOUT = Duration.ofSeconds(15);
+    private static final String API_KEY_HEADER_KEY = "X-Api-Key";
+    private static final String API_KEY_HEADER_VALUE = "password";
     @RegisterExtension
     protected static EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":samples:04.0-file-transfer:provider",
             "provider",
             Map.of(
                     // Override 'edc.samples.04.asset.path' implicitly set via property 'edc.fs.config'.
-                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(), SAMPLE_ASSET_PATH).getAbsolutePath(),
-                    "edc.fs.config", new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/provider/config.properties").getAbsolutePath()
+                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(), SAMPLE_ASSET_FILE_PATH).getAbsolutePath(),
+                    "edc.fs.config", new File(TestUtils.findBuildRoot(), PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
             )
     );
+    // Starting EDC runtimes implicitly aligns to Run the sample / 1. Build and start the connectors.
+    @RegisterExtension
+    protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
+            ":samples:04.0-file-transfer:consumer",
+            "consumer",
+            Map.of(
+                    "edc.fs.config", new File(TestUtils.findBuildRoot(), CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
+            )
+    );
+    private final File destinationFile = new File(TestUtils.findBuildRoot(), FileTransferSampleTest.DESTINATION_FILE_PATH);
     private String contractNegotiationId;
     private String contractAgreementId;
 
@@ -89,13 +97,13 @@ public class FileTransferSampleTest {
     }
 
     private void assertTestPrerequisites() {
-        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_PATH);
+        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
         Assertions.assertThat(transferredFile.exists()).isFalse();
     }
 
     private void cleanTemporaryTestFiles() {
-        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_PATH);
+        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
         if (transferredFile.exists()) {
             transferredFile.delete();
@@ -103,7 +111,7 @@ public class FileTransferSampleTest {
     }
 
     void assertWaitForDestinationFileExistence() {
-        var expectedFile = new File(TestUtils.findBuildRoot(), DESTINATION_PATH);
+        var expectedFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
         await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() ->
                 Assertions.assertThat(expectedFile.exists()).isTrue()
@@ -114,14 +122,14 @@ public class FileTransferSampleTest {
         // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"
 
         JsonPath jsonPath = RestAssured
-            .given()
-                .headers(API_KEY_HEADER, API_KEY)
+                .given()
+                .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                 .contentType(ContentType.JSON)
-                .body(new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/contractoffer.json"))
+                .body(new File(TestUtils.findBuildRoot(), CONTRACT_OFFER_FILE_PATH))
                 .log().all()
-            .when()
-                .post("http://localhost:9192/api/v1/data/contractnegotiations")
-            .then()
+                .when()
+                .post(INITIATE_CONTRACT_NEGOTIATION_URI)
+                .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath();
@@ -137,12 +145,12 @@ public class FileTransferSampleTest {
         // Wait for transfer to be completed.
         await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() -> {
                     var result = RestAssured
-                        .given()
-                            .headers(API_KEY_HEADER, API_KEY)
+                            .given()
+                            .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                             .log().all()
-                        .when()
-                            .get("http://localhost:9192/api/v1/data/contractnegotiations/{id}", contractNegotiationId)
-                        .then()
+                            .when()
+                            .get(LOOK_UP_CONTRACT_AGREEMENT_URI, contractNegotiationId)
+                            .then()
                             .statusCode(200)
                             .body("state", equalTo("CONFIRMED"))
                             .extract().body().jsonPath().getString("contractAgreementId");
@@ -158,18 +166,18 @@ public class FileTransferSampleTest {
     void assertRequestFile() throws IOException {
         // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"
 
-        File transferJsonFile = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/filetransfer.json");
-        DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId, DESTINATION_PATH);
+        File transferJsonFile = new File(TestUtils.findBuildRoot(), TRANSFER_FILE_PATH);
+        DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId);
 
         JsonPath jsonPath = RestAssured
-            .given()
-                .headers(API_KEY_HEADER, API_KEY)
+                .given()
+                .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                 .contentType(ContentType.JSON)
                 .body(sampleDataRequest)
                 .log().all()
-            .when()
-                .post("http://localhost:9192/api/v1/data/transferprocess")
-            .then()
+                .when()
+                .post(INITIATE_TRANSFER_PROCESS_URI)
+                .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath();
@@ -179,16 +187,14 @@ public class FileTransferSampleTest {
         Assertions.assertThat(transferProcessId).isNotEmpty();
     }
 
-    DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId, String destinationPath) throws IOException {
+    DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId) throws IOException {
         // create object mapper instance
         ObjectMapper mapper = new ObjectMapper();
 
         // convert JSON file to map
         DataRequest sampleDataRequest = mapper.readValue(transferJsonFile, DataRequest.class);
 
-        String absolutePathDestination = new File(TestUtils.findBuildRoot(), destinationPath).getAbsolutePath();
-
-        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", absolutePathDestination).build();
+        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", destinationFile.getAbsolutePath()).build();
         DataRequest newSampleDataRequest = sampleDataRequest.toBuilder().contractId(contractAgreementId).dataDestination(newDataDestination).build();
 
         return newSampleDataRequest;
@@ -201,8 +207,8 @@ public class FileTransferSampleTest {
         // samples/04.0-file-transfer/provider/config.properties
         // ensure each port is defined only once
 
-        String pathConsumerConfigProperties = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/consumer/config.properties").getAbsolutePath();
-        String pathProviderConfigProperties = new File(TestUtils.findBuildRoot(), "samples/04.0-file-transfer/provider/config.properties").getAbsolutePath();
+        String pathConsumerConfigProperties = new File(TestUtils.findBuildRoot(), CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
+        String pathProviderConfigProperties = new File(TestUtils.findBuildRoot(), PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
 
         Properties consumerProperties = null;
         Properties providerProperties = null;
