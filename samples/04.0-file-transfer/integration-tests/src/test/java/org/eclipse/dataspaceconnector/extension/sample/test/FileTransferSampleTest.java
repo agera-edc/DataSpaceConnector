@@ -129,10 +129,7 @@ public class FileTransferSampleTest {
      */
     void cleanTemporaryTestFiles() {
         var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
-
-        if (transferredFile.exists()) {
-            transferredFile.delete();
-        }
+        transferredFile.delete();
     }
 
     /**
