@@ -38,29 +38,28 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.equalTo;
 
 @EndToEndTest
 public class FileTransferSampleTest {
 
-    public static final String INITIATE_CONTRACT_NEGOTIATION_URI = "http://localhost:9192/api/v1/data/contractnegotiations";
-    private static final String LOOK_UP_CONTRACT_AGREEMENT_URI = "http://localhost:9192/api/v1/data/contractnegotiations/{id}";
-    public static final String INITIATE_TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
-    public static final String CONTRACT_OFFER_FILE_PATH = "samples/04.0-file-transfer/contractoffer.json";
-    public static final String CONSUMER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.0-file-transfer/consumer/config.properties";
-    public static final String PROVIDER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.0-file-transfer/provider/config.properties";
-    private static final String TRANSFER_FILE_PATH = "samples/04.0-file-transfer/filetransfer.json";
+    static final String INITIATE_CONTRACT_NEGOTIATION_URI = "http://localhost:9192/api/v1/data/contractnegotiations";
+    static final String LOOK_UP_CONTRACT_AGREEMENT_URI = "http://localhost:9192/api/v1/data/contractnegotiations/{id}";
+    static final String INITIATE_TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
+    static final String CONTRACT_OFFER_FILE_PATH = "samples/04.0-file-transfer/contractoffer.json";
+    static final String CONSUMER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.0-file-transfer/consumer/config.properties";
+    static final String PROVIDER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.0-file-transfer/provider/config.properties";
+    static final String TRANSFER_FILE_PATH = "samples/04.0-file-transfer/filetransfer.json";
     // Reuse an already existing file for the test. Could be set to any other existing file in the repository.
-    private static final String SAMPLE_ASSET_FILE_PATH = TRANSFER_FILE_PATH;
-    private static final String DESTINATION_FILE_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
-    private static final Duration TIMEOUT = Duration.ofSeconds(15);
-    private static final Duration POLL_INTERVAL = Duration.ofMillis(1000);
-    private static final String API_KEY_HEADER_KEY = "X-Api-Key";
-    private static final String API_KEY_HEADER_VALUE = "password";
+    static final String SAMPLE_ASSET_FILE_PATH = TRANSFER_FILE_PATH;
+    static final String DESTINATION_FILE_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
+    static final Duration TIMEOUT = Duration.ofSeconds(15);
+    static final Duration POLL_INTERVAL = Duration.ofMillis(1000);
+    static final String API_KEY_HEADER_KEY = "X-Api-Key";
+    static final String API_KEY_HEADER_VALUE = "password";
     @RegisterExtension
-    protected static EdcRuntimeExtension provider = new EdcRuntimeExtension(
+    static EdcRuntimeExtension provider = new EdcRuntimeExtension(
             ":samples:04.0-file-transfer:provider",
             "provider",
             Map.of(
@@ -71,18 +70,18 @@ public class FileTransferSampleTest {
     );
     // Starting EDC runtimes implicitly aligns to Run the sample / 1. Build and start the connectors.
     @RegisterExtension
-    protected static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
+    static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":samples:04.0-file-transfer:consumer",
             "consumer",
             Map.of(
                     "edc.fs.config", new File(TestUtils.findBuildRoot(), CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
             )
     );
-    private final File destinationFile = new File(TestUtils.findBuildRoot(), FileTransferSampleTest.DESTINATION_FILE_PATH);
-    private String contractNegotiationId;
-    private String contractAgreementId;
+    final File destinationFile = new File(TestUtils.findBuildRoot(), FileTransferSampleTest.DESTINATION_FILE_PATH);
+    String contractNegotiationId;
+    String contractAgreementId;
 
-    private static Properties readPropertiesFile(String fileName) throws IOException {
+     static Properties readPropertiesFile(String fileName) throws IOException {
         FileInputStream fis = null;
         Properties prop = new Properties();
 
@@ -119,7 +118,7 @@ public class FileTransferSampleTest {
      * Assert that prerequisites are fulfilled before running the test.
      * This assertion checks only whether the file to be copied is not existing already.
      */
-    private void assertTestPrerequisites() {
+    void assertTestPrerequisites() {
         var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
         Assertions.assertThat(transferredFile.exists()).isFalse();
@@ -129,7 +128,7 @@ public class FileTransferSampleTest {
      * Remove files created while running the tests.
      * The copied file will be deleted.
      */
-    private void cleanTemporaryTestFiles() {
+    void cleanTemporaryTestFiles() {
         var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
         if (transferredFile.exists()) {
@@ -282,7 +281,7 @@ public class FileTransferSampleTest {
      * Helper method to assert that a given port number is existing only once in the given HashMap configuredPorts.
      * If port number was not already defined it will be added to the HashMap configuredPorts with the given participant and property name.
      */
-    private void assertPortDefinedOnce(Properties properties, String portPropertyName, HashMap<Integer, String> configuredPorts, String participantName) {
+    void assertPortDefinedOnce(Properties properties, String portPropertyName, HashMap<Integer, String> configuredPorts, String participantName) {
 
         String propertyValue = properties.getProperty(portPropertyName);
 
