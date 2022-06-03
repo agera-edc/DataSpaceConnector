@@ -24,6 +24,7 @@ import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -65,22 +66,29 @@ public class FileTransferSampleTest {
             "provider",
             Map.of(
                     // Override 'edc.samples.04.asset.path' implicitly set via property 'edc.fs.config'.
-                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(), SAMPLE_ASSET_FILE_PATH).getAbsolutePath(),
-                    "edc.fs.config", new File(TestUtils.findBuildRoot(), PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
+                    "edc.samples.04.asset.path", getFileFromRelativePath(SAMPLE_ASSET_FILE_PATH).getAbsolutePath(),
+                    "edc.fs.config", getFileFromRelativePath(PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
             )
     );
-    // Starting EDC runtimes implicitly aligns to Run the sample / 1. Build and start the connectors.
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":samples:04.0-file-transfer:consumer",
             "consumer",
             Map.of(
-                    "edc.fs.config", new File(TestUtils.findBuildRoot(), CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
+                    "edc.fs.config", getFileFromRelativePath(CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
             )
     );
-    final File destinationFile = new File(TestUtils.findBuildRoot(), FileTransferSampleTest.DESTINATION_FILE_PATH);
+    final File destinationFile = getFileFromRelativePath(FileTransferSampleTest.DESTINATION_FILE_PATH);
     String contractNegotiationId;
     String contractAgreementId;
+
+    /**
+     * Resolves a {@link File} instance from a relative path.
+     */
+    @NotNull
+    static File getFileFromRelativePath(String relativePath) {
+        return new File(TestUtils.findBuildRoot(), relativePath);
+    }
 
     /**
      * Reads a properties file and returns a {@link Properties} instance for the given properties file.
@@ -193,7 +201,7 @@ public class FileTransferSampleTest {
      * @throws IOException Thrown if there was an error accessing the transfer request file defined in {@link FileTransferSampleTest#TRANSFER_FILE_PATH}.
      */
     void assertRequestFile() throws IOException {
-        File transferJsonFile = new File(TestUtils.findBuildRoot(), TRANSFER_FILE_PATH);
+        File transferJsonFile = getFileFromRelativePath(TRANSFER_FILE_PATH);
         DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId);
 
         JsonPath jsonPath = RestAssured
@@ -239,8 +247,8 @@ public class FileTransferSampleTest {
      * Relates to sample guidance section: Create the connectors.
      */
     void assertConfigPropertiesUniquePorts() {
-        String pathConsumerConfigProperties = new File(TestUtils.findBuildRoot(), CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
-        String pathProviderConfigProperties = new File(TestUtils.findBuildRoot(), PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
+        String pathConsumerConfigProperties = getFileFromRelativePath(CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
+        String pathProviderConfigProperties = getFileFromRelativePath(PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
 
         Properties consumerProperties = null;
         Properties providerProperties = null;
