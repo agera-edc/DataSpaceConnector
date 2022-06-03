@@ -119,9 +119,7 @@ public class FileTransferSampleTest {
      * This assertion checks only whether the file to be copied is not existing already.
      */
     void assertTestPrerequisites() {
-        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
-
-        assertThat(transferredFile.exists()).isFalse();
+        assertThat(destinationFile.exists()).isFalse();
     }
 
     /**
@@ -129,8 +127,7 @@ public class FileTransferSampleTest {
      * The copied file will be deleted.
      */
     void cleanTemporaryTestFiles() {
-        var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
-        transferredFile.delete();
+        destinationFile.delete();
     }
 
     /**
@@ -138,9 +135,7 @@ public class FileTransferSampleTest {
      * This method waits a duration which is defined in {@link FileTransferSampleTest#TIMEOUT}.
      */
     void assertWaitForDestinationFileExistence() {
-        var expectedFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
-
-        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(expectedFile).doesNotExist());
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(destinationFile).doesNotExist());
     }
 
     /**
