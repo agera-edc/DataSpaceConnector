@@ -66,19 +66,7 @@ public class FileTransferSampleTest {
             ":samples:04.0-file-transfer:consumer",
             "consumer",
             Map.of(
-                    "web.http.port", String.valueOf(CONSUMER_CONNECTOR_PORT),
-                    "web.http.path", CONSUMER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(CONSUMER_MANAGEMENT_PORT),
-                    "web.http.data.path", CONSUMER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(CONSUMER_IDS_API_PORT),
-                    "web.http.ids.path", IDS_PATH,
-                    "ids.webhook.address", CONSUMER_IDS_API,
-                    "edc.api.auth.key", API_KEY,
-                    "edc.ids.id", "urn:connector:consumer"
-                    // Keep the following line commented out until both EdcRuntimeExtension can be used which is
-                    // currently not possible because CONFIG_LOCATION is static in
-                    // org/eclipse/dataspaceconnector/configuration/fs/FsConfigurationExtension.java
-//                    "edc.fs.config", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/consumer/config.properties").getAbsolutePath()
+                    "edc.fs.config", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/consumer/config.properties").getAbsolutePath()
             )
     );
 
@@ -87,21 +75,9 @@ public class FileTransferSampleTest {
             ":samples:04.0-file-transfer:provider",
             "provider",
             Map.of(
-                    "web.http.port", String.valueOf(PROVIDER_CONNECTOR_PORT),
-                    "web.http.path", PROVIDER_CONNECTOR_PATH,
-                    "web.http.data.port", String.valueOf(PROVIDER_MANAGEMENT_PORT),
-                    "web.http.data.path", PROVIDER_MANAGEMENT_PATH,
-                    "web.http.ids.port", String.valueOf(PROVIDER_IDS_API_PORT),
-                    "web.http.ids.path", IDS_PATH,
-                    "ids.webhook.address", PROVIDER_IDS_API,
-                    "edc.ids.id", "urn:connector:provider",
-                    // Even if property 'edc.fs.config' is used, keep the following line to override
-                    // 'edc.samples.04.asset.path' from 'samples/04.0-file-transfer/provider/config.properties'.
-                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(), SAMPLE_ASSET_PATH).getAbsolutePath()
-                    // Keep the following line commented out until both EdcRuntimeExtension can be used which is
-                    // currently not possible because CONFIG_LOCATION is static in
-                    // org/eclipse/dataspaceconnector/configuration/fs/FsConfigurationExtension.java
-//                    "edc.fs.config", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/provider/config.properties").getAbsolutePath()
+                    // Override 'edc.samples.04.asset.path' implicitly set via property 'edc.fs.config'.
+                    "edc.samples.04.asset.path", new File(TestUtils.findBuildRoot(), SAMPLE_ASSET_PATH).getAbsolutePath(),
+                    "edc.fs.config", new File(TestUtils.findBuildRoot(),"samples/04.0-file-transfer/provider/config.properties").getAbsolutePath()
             )
     );
 
@@ -279,15 +255,12 @@ public class FileTransferSampleTest {
 
     private static Properties readPropertiesFile(String fileName) throws IOException {
         FileInputStream fis = null;
-        Properties prop = null;
+        Properties prop = new Properties();
 
         try {
             fis = new FileInputStream(fileName);
-            prop = new Properties();
             prop.load(fis);
 
-        } catch (IOException fnfe) {
-            fnfe.printStackTrace();
         } finally {
             if (fis != null) fis.close();
         }
