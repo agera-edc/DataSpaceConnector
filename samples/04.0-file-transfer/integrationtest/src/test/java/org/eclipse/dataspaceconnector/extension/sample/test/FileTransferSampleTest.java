@@ -81,7 +81,8 @@ public class FileTransferSampleTest {
 
     /**
      * Run all sample steps in one single test.
-     * Note: Sample steps cannot be separated into single tests because {@link EdcRuntimeExtension} runs before each single test.
+     * Note: Sample steps cannot be separated into single tests because {@link EdcRuntimeExtension}
+     * runs before each single test.
      */
     @Test
     void runSampleSteps() throws IOException {
@@ -96,12 +97,20 @@ public class FileTransferSampleTest {
         cleanTemporaryTestFiles();
     }
 
+    /**
+     * Assert that prerequisites are fulfilled before running the test.
+     * This assertion checks only whether the file to be copied is not existing already.
+     */
     private void assertTestPrerequisites() {
         var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
         Assertions.assertThat(transferredFile.exists()).isFalse();
     }
 
+    /**
+     * Remove files created while running the tests.
+     * The copied file will be deleted.
+     */
     private void cleanTemporaryTestFiles() {
         var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
@@ -110,6 +119,10 @@ public class FileTransferSampleTest {
         }
     }
 
+    /**
+     * Assert that the file to be copied exists at the expected location.
+     * This method waits a duration which is defined in {@link FileTransferSampleTest#TIMEOUT}.
+     */
     void assertWaitForDestinationFileExistence() {
         var expectedFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
@@ -118,18 +131,20 @@ public class FileTransferSampleTest {
         );
     }
 
+    /**
+     * Assert that a POST request to initiate a contract negotiation is successful.
+     * This method corresponds to the command in the sample: curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"
+     */
     void assertInitiateContractNegotiation() {
-        // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"
-
         JsonPath jsonPath = RestAssured
-                .given()
+            .given()
                 .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                 .contentType(ContentType.JSON)
                 .body(new File(TestUtils.findBuildRoot(), CONTRACT_OFFER_FILE_PATH))
                 .log().all()
-                .when()
+            .when()
                 .post(INITIATE_CONTRACT_NEGOTIATION_URI)
-                .then()
+            .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath();
@@ -137,20 +152,22 @@ public class FileTransferSampleTest {
         contractNegotiationId = jsonPath.get("id");
     }
 
+    /**
+     * Assert that a GET request to look up a contract agreement is successful.
+     * This method corresponds to the command in the sample: curl -X GET -H 'X-Api-Key: password' "http://localhost:9192/api/v1/data/contractnegotiations/{UUID}"
+     */
     void assertLookUpContractAgreementId() {
-        // curl -X GET -H 'X-Api-Key: password' "http://localhost:9192/api/v1/data/contractnegotiations/{UUID}"
-
         var localContractAgreementId = new AtomicReference<String>();
 
         // Wait for transfer to be completed.
         await().atMost(TIMEOUT).pollInterval(1000, MILLISECONDS).untilAsserted(() -> {
                     var result = RestAssured
-                            .given()
+                        .given()
                             .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                             .log().all()
-                            .when()
+                        .when()
                             .get(LOOK_UP_CONTRACT_AGREEMENT_URI, contractNegotiationId)
-                            .then()
+                        .then()
                             .statusCode(200)
                             .body("state", equalTo("CONFIRMED"))
                             .extract().body().jsonPath().getString("contractAgreementId");
@@ -163,21 +180,24 @@ public class FileTransferSampleTest {
         contractAgreementId = localContractAgreementId.get();
     }
 
+    /**
+     * Assert that a POST request to initiate transfer process is successful.
+     * This methods corresponds to the command in the sample: curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"
+     * @throws IOException Thrown if there was an error accessing the transfer request file defined in {@link FileTransferSampleTest#TRANSFER_FILE_PATH}.
+     */
     void assertRequestFile() throws IOException {
-        // curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"
-
         File transferJsonFile = new File(TestUtils.findBuildRoot(), TRANSFER_FILE_PATH);
         DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId);
 
         JsonPath jsonPath = RestAssured
-                .given()
+            .given()
                 .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                 .contentType(ContentType.JSON)
                 .body(sampleDataRequest)
                 .log().all()
-                .when()
+            .when()
                 .post(INITIATE_TRANSFER_PROCESS_URI)
-                .then()
+            .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath();
@@ -187,6 +207,13 @@ public class FileTransferSampleTest {
         Assertions.assertThat(transferProcessId).isNotEmpty();
     }
 
+    /**
+     * Reads a transfer request file with changed value for contract agreement ID and file destination path.
+     * @param transferJsonFile A {@link File} instance pointing to a JSON transfer request file.
+     * @param contractAgreementId This string containing a UUID will be used as value for the contract agreement ID.
+     * @return An instance of {@link DataRequest} with changed values for contract agreement ID and file destination path.
+     * @throws IOException Thrown if there was an error accessing the file given in transferJsonFile.
+     */
     DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId) throws IOException {
         // create object mapper instance
         ObjectMapper mapper = new ObjectMapper();
@@ -200,13 +227,11 @@ public class FileTransferSampleTest {
         return newSampleDataRequest;
     }
 
+    /**
+     * Assert that the properties.config files are properly configured and all ports uniquely used.
+     * Relates to sample guidance section: Create the connectors.
+     */
     void assertConfigPropertiesUniquePorts() {
-        // test sample guidance: Create the connectors / Consumer connector
-        // read both config files
-        // samples/04.0-file-transfer/consumer/config.properties
-        // samples/04.0-file-transfer/provider/config.properties
-        // ensure each port is defined only once
-
         String pathConsumerConfigProperties = new File(TestUtils.findBuildRoot(), CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
         String pathProviderConfigProperties = new File(TestUtils.findBuildRoot(), PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
 
@@ -235,6 +260,10 @@ public class FileTransferSampleTest {
         }
     }
 
+    /**
+     * Helper method to assert that a given port number is existing only once in the given HashMap configuredPorts.
+     * If port number was not already defined it will be added to the HashMap configuredPorts with the given participant and property name.
+     */
     private void assertPortDefinedOnce(Properties properties, String portPropertyName, HashMap<Integer, String> configuredPorts, String participantName) {
 
         String propertyValue = properties.getProperty(portPropertyName);
