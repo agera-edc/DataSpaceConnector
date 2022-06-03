@@ -127,7 +127,7 @@ public class FileTransferSampleTest {
      * This assertion checks only whether the file to be copied is not existing already.
      */
     void assertTestPrerequisites() {
-        assertThat(destinationFile.exists()).isFalse();
+        assertThat(destinationFile).doesNotExist();
     }
 
     /**
@@ -143,7 +143,7 @@ public class FileTransferSampleTest {
      * This method waits a duration which is defined in {@link FileTransferSampleTest#TIMEOUT}.
      */
     void assertWaitForDestinationFileExistence() {
-        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(destinationFile).doesNotExist());
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(destinationFile).exists());
     }
 
     /**
