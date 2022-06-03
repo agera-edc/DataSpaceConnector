@@ -81,19 +81,18 @@ public class FileTransferSampleTest {
     String contractNegotiationId;
     String contractAgreementId;
 
+    /**
+     * Reads a properties file and returns a {@link Properties} instance for the given properties file.
+     * @param fileName Path to a properties file.
+     * @return A {@link Properties} instance for the given properties file.
+     * @throws IOException Thrown if error while accessing the specified properties file.
+     */
      static Properties readPropertiesFile(String fileName) throws IOException {
-        FileInputStream fis = null;
-        Properties prop = new Properties();
-
-        try {
-            fis = new FileInputStream(fileName);
-            prop.load(fis);
-
-        } finally {
-            if (fis != null) fis.close();
+        try (var propertiesFileInputStream = new FileInputStream(fileName)) {
+            Properties prop = new Properties();
+            prop.load(propertiesFileInputStream);
+            return prop;
         }
-
-        return prop;
     }
 
     /**
