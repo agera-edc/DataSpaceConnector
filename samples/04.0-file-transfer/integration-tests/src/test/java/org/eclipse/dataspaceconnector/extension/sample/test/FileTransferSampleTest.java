@@ -19,7 +19,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.apache.http.HttpStatus;
-import org.assertj.core.api.Assertions;
 import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
@@ -38,6 +37,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -120,7 +121,7 @@ public class FileTransferSampleTest {
     void assertTestPrerequisites() {
         var transferredFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
-        Assertions.assertThat(transferredFile.exists()).isFalse();
+        assertThat(transferredFile.exists()).isFalse();
     }
 
     /**
@@ -139,9 +140,7 @@ public class FileTransferSampleTest {
     void assertWaitForDestinationFileExistence() {
         var expectedFile = new File(TestUtils.findBuildRoot(), DESTINATION_FILE_PATH);
 
-        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() ->
-                Assertions.assertThat(expectedFile.exists()).isTrue()
-        );
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(expectedFile).doesNotExist());
     }
 
     /**
@@ -217,7 +216,7 @@ public class FileTransferSampleTest {
 
         String transferProcessId = jsonPath.get("id");
 
-        Assertions.assertThat(transferProcessId).isNotEmpty();
+        assertThat(transferProcessId).isNotEmpty();
     }
 
     /**
@@ -255,7 +254,7 @@ public class FileTransferSampleTest {
             consumerProperties = readPropertiesFile(pathConsumerConfigProperties);
             providerProperties = readPropertiesFile(pathProviderConfigProperties);
         } catch (IOException e) {
-            Assertions.fail("Could not read properties files.");
+            fail("Could not read properties files.");
         }
 
         List<String> portPropertyNames = List.of(
@@ -286,7 +285,7 @@ public class FileTransferSampleTest {
         int portNumber = Integer.parseInt(propertyValue);
 
         if (configuredPorts.containsKey(portNumber)) {
-            Assertions.fail(String.format("Port number '%d' defined multiple times.", portNumber));
+            fail(String.format("Port number '%d' defined multiple times.", portNumber));
         }
 
         configuredPorts.put(portNumber, String.format("%s/%s", participantName, portPropertyName));
