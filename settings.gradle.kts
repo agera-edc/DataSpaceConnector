@@ -180,7 +180,7 @@ include(":samples:03-configuration")
 include(":samples:04.0-file-transfer:consumer")
 include(":samples:04.0-file-transfer:provider")
 include(":samples:04.0-file-transfer:transfer-file")
-include(":samples:04.0-file-transfer:integrationtest")
+include(":samples:04.0-file-transfer:integration-tests")
 
 include(":samples:04.1-file-transfer-listener:consumer")
 include(":samples:04.1-file-transfer-listener:listener")
