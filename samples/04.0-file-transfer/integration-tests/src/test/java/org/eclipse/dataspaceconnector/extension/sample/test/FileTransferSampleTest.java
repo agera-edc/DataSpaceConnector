@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 @EndToEndTest
 public class FileTransferSampleTest {
@@ -160,6 +160,7 @@ public class FileTransferSampleTest {
                 .post(INITIATE_CONTRACT_NEGOTIATION_URI)
             .then()
                 .statusCode(HttpStatus.SC_OK)
+                .body("id", not(emptyString()))
                 .extract()
                 .jsonPath();
 
@@ -183,6 +184,7 @@ public class FileTransferSampleTest {
                         .then()
                             .statusCode(HttpStatus.SC_OK)
                             .body("state", equalTo("CONFIRMED"))
+                            .body("contractAgreementId", not(emptyString()))
                             .extract().body().jsonPath().getString("contractAgreementId");
 
                     localContractAgreementId.set(result);
@@ -211,6 +213,7 @@ public class FileTransferSampleTest {
                 .post(INITIATE_TRANSFER_PROCESS_URI)
             .then()
                 .statusCode(HttpStatus.SC_OK)
+                .body("id", not(emptyString()))
                 .extract()
                 .jsonPath();
 
