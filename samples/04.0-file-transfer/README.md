@@ -257,7 +257,7 @@ side, because like the contract negotiation, the data transfer is handled in a s
 
 Sample output:
 
-```bash
+```json
 {"id":"deeed974-8a43-4fd5-93ad-e1b8c26bfa44"}
 ```
 
