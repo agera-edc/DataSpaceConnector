@@ -11,6 +11,30 @@ in the detailed section referring to by linking pull requests or issues.
 
 ### Overview
 
+*
+
+### Detailed Changes
+
+#### Added
+
+*
+
+#### Changed
+
+* Provided default no-op `TransactionContext` (#1461)
+
+#### Removed
+
+* Old RegistrationService (was used for a PoC) (#164)
+
+#### Fixed
+
+*
+
+## [milestone-4] - 2022-06-07
+
+### Overview
+
 * Bugfixing DataManagementApi
 * Build improvements
 * Improvements to Dependency Resolution
@@ -38,6 +62,8 @@ in the detailed section referring to by linking pull requests or issues.
 * Add signing/publishing config (#1147)
 * Verify OpenAPI definitions (#1312)
 * Documentation for CosmosDB (#1334)
+* Add validation to contract definition id (#1347)
+* Shared clock service (#1416)
 
 #### Changed
 
@@ -59,12 +85,15 @@ in the detailed section referring to by linking pull requests or issues.
 * Update `slf4j-api` to `2.0.0-alpha7` (#1328)
 * Added timestamps to TransferProcess DTO (#1350)
 * Make Helm charts more generic (#1363)
+* Make `ParticipantAgent` claims more generic (#1405)
+* Introduced a `PolicyDefinition` object (#1340)
 
 #### Removed
 
 * Deprecated Control API (#1310)
 * Remove sample module `:extensions:policy:ids-policy` (#1348)
 * Unused `:launchers:basic` (#1360)
+* Dependency onto `token-validation` from IDS BOM (#1387)
 
 #### Fixed
 
@@ -84,6 +113,8 @@ in the detailed section referring to by linking pull requests or issues.
 * Fix misleading warning message on initialization (#1336)
 * Auto-upload of Cosmos stored procedures (#1338)
 * Resiliency against exceptions in the `PartitionManagerImpl` (#1366)
+* QuerySpec when right-op contains "=" or " " (#1380)
+* Fix check whether policy can be deleted (#1410)
 
 ## [milestone-3] - 2022-04-08
 
