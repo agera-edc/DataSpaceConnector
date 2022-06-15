@@ -41,7 +41,11 @@ public class InMemoryEntityStore<T extends StateMachineEntity<T>> {
     }
 
     public T find(String id) {
-        return entitiesById.get(id).copy();
+        T t = entitiesById.get(id);
+        if (t == null) {
+            return null;
+        }
+        return t.copy();
     }
 
     public void upsert(T entity) {
