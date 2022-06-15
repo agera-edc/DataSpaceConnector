@@ -32,7 +32,7 @@ public abstract class StateMachineEntity<T> implements TraceCarrier {
     protected long stateTimestamp;
     protected Map<String, String> traceContext = new HashMap<>();
     protected String errorDetail;
-    protected Clock clock = Clock.systemUTC();
+    protected Clock clock;
 
     protected StateMachineEntity() {
     }

@@ -391,7 +391,7 @@ public class ContractNegotiation extends StateMachineEntity<ContractNegotiation>
             if (Type.PROVIDER == target.type) {
                 Objects.requireNonNull(target.correlationId);
             }
-            return target;
+            return super.build();
         }
     }
 }
