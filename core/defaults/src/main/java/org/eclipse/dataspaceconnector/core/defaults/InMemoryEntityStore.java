@@ -40,16 +40,11 @@ public class InMemoryEntityStore<T extends StateMachineEntity<T>> {
     private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
 
     private class Item{
-        private T item;
+        private final T item;
         private boolean leased;
 
         public Item(T item) {
             this.item = item;
-        }
-
-        public Item(T item, boolean leased) {
-            this.item = item;
-            this.leased = leased;
         }
     }
 
@@ -66,9 +61,7 @@ public class InMemoryEntityStore<T extends StateMachineEntity<T>> {
     }
 
     public void upsert(T entity) {
-        T internalCopy = entity.copy();
-        // entitiesById.merge(entity.getId(), new Item(internalCopy), (v1, v2) -> new Item(v2.item, v1.leased));
-        entitiesById.put(entity.getId(), new Item(internalCopy));
+        entitiesById.put(entity.getId(), new Item(entity.copy()));
     }
 
     public void delete(String id) {
