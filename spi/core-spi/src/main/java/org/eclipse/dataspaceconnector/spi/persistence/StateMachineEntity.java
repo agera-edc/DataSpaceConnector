@@ -18,13 +18,10 @@ package org.eclipse.dataspaceconnector.spi.persistence;
 import org.eclipse.dataspaceconnector.spi.telemetry.TraceCarrier;
 
 import java.time.Clock;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import static java.lang.String.format;
 
 public abstract class StateMachineEntity<T> implements TraceCarrier {
 
@@ -65,6 +62,10 @@ public abstract class StateMachineEntity<T> implements TraceCarrier {
         return errorDetail;
     }
 
+    public void setErrorDetail(String errorDetail) {
+        this.errorDetail = errorDetail;
+    }
+
     /**
      * Sets the state timestamp to the clock time.
      *
@@ -86,7 +87,7 @@ public abstract class StateMachineEntity<T> implements TraceCarrier {
 
     public abstract T copy();
 
-    protected abstract static class Builder<T extends StateMachineEntity, B extends Builder<T, B>> {
+    protected abstract static class Builder<T extends StateMachineEntity<T>, B extends Builder<T, B>> {
 
         public abstract B self();
 
