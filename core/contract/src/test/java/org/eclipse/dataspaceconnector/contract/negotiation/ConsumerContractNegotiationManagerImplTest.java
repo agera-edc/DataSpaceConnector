@@ -37,7 +37,6 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOf
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +76,6 @@ class ConsumerContractNegotiationManagerImplTest {
     private final RemoteMessageDispatcherRegistry dispatcherRegistry = mock(RemoteMessageDispatcherRegistry.class);
     private final PolicyDefinitionStore policyStore = mock(PolicyDefinitionStore.class);
     private ConsumerContractNegotiationManagerImpl negotiationManager;
-    private final Clock clock = Clock.systemUTC();
 
     @BeforeEach
     void setUp() {
@@ -406,8 +404,7 @@ class ConsumerContractNegotiationManagerImplTest {
                 .counterPartyId("connectorId")
                 .counterPartyAddress("connectorAddress")
                 .protocol("protocol")
-                .stateTimestamp(Instant.now().toEpochMilli())
-                .clock(clock);
+                .stateTimestamp(Instant.now().toEpochMilli());
     }
 
     private ContractOffer contractOffer() {
