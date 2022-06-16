@@ -277,11 +277,15 @@ public class ContractNegotiation extends StateMachineEntity<ContractNegotiation>
      * @return The copy.
      */
     public ContractNegotiation copy() {
-        return Builder.newInstance().id(id).correlationId(correlationId).counterPartyId(counterPartyId)
-                .clock(clock)
-                .counterPartyAddress(counterPartyAddress).protocol(protocol).type(type).state(state).stateCount(stateCount)
-                .stateTimestamp(stateTimestamp).errorDetail(errorDetail).contractAgreement(contractAgreement)
-                .contractOffers(contractOffers).traceContext(traceContext).build();
+        var builder = Builder.newInstance()
+                .correlationId(correlationId)
+                .counterPartyId(counterPartyId)
+                .counterPartyAddress(counterPartyAddress)
+                .protocol(protocol)
+                .type(type)
+                .contractAgreement(contractAgreement)
+                .contractOffers(contractOffers);
+        return copy(builder);
     }
 
     @Override

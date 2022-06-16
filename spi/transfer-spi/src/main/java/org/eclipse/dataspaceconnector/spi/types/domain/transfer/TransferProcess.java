@@ -289,21 +289,13 @@ public class TransferProcess extends StateMachineEntity<TransferProcess> {
 
     @Override
     public TransferProcess copy() {
-        return Builder.newInstance()
-                .id(id)
-                .state(state)
-                .stateTimestamp(stateTimestamp)
-                .stateCount(stateCount)
+        var builder = Builder.newInstance()
                 .resourceManifest(resourceManifest)
                 .dataRequest(dataRequest)
                 .provisionedResourceSet(provisionedResourceSet)
                 .contentDataAddress(contentDataAddress)
-                .traceContext(traceContext)
-                .type(type)
-                .createdTimestamp(createdTimestamp)
-                .errorDetail(errorDetail)
-                .clock(clock)
-                .build();
+                .type(type);
+        return copy(builder);
     }
 
     public Builder toBuilder() {

@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class StateMachineEntity<T> implements TraceCarrier {
+public abstract class StateMachineEntity<T extends StateMachineEntity<T>> implements TraceCarrier {
 
     protected String id;
     protected long createdTimestamp;
@@ -138,13 +138,26 @@ public abstract class StateMachineEntity<T> implements TraceCarrier {
             return self();
         }
 
-        public T build() {
+        protected T build() {
             Objects.requireNonNull(target.id, "id");
-            Objects.requireNonNull(target.clock, "clock");
+            target.clock = Objects.requireNonNullElse(target.clock, Clock.systemUTC());
             if (target.stateTimestamp == 0) {
                 target.stateTimestamp = target.clock.millis();
             }
             return target;
         }
+    }
+
+    protected <B extends Builder<T, B>> T copy(Builder<T, B> builder) {
+        return builder
+                .id(id)
+                .createdTimestamp(createdTimestamp)
+                .state(state)
+                .stateCount(stateCount)
+                .stateTimestamp(stateTimestamp)
+                .traceContext(traceContext)
+                .errorDetail(errorDetail)
+                .clock(clock)
+                .build();
     }
 }
