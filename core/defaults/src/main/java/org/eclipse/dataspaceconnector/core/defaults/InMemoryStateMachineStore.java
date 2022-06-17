@@ -39,15 +39,6 @@ public class InMemoryStateMachineStore<T extends StateMachine<T>> {
     private final QueryResolver<T> queryResolver;
     private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
 
-    private static class Item<V> {
-        private final V item;
-        private boolean leased;
-
-        public Item(V item) {
-            this.item = item;
-        }
-    }
-
     protected InMemoryStateMachineStore(Class<T> clazz) {
         queryResolver = new ReflectionBasedQueryResolver<>(clazz);
     }
@@ -61,7 +52,7 @@ public class InMemoryStateMachineStore<T extends StateMachine<T>> {
     }
 
     public void upsert(T entity) {
-        entitiesById.put(entity.getId(), new Item(entity.copy()));
+        entitiesById.put(entity.getId(), new Item<>(entity.copy()));
     }
 
     public void delete(String id) {
@@ -87,5 +78,14 @@ public class InMemoryStateMachineStore<T extends StateMachine<T>> {
 
     protected Stream<T> findAll() {
         return entitiesById.values().stream().map(e -> e.item);
+    }
+
+    private static class Item<V> {
+        private final V item;
+        private boolean leased = false;
+
+        Item(V item) {
+            this.item = item;
+        }
     }
 }
