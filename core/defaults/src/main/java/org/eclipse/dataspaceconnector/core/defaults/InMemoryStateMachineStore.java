@@ -15,7 +15,7 @@
 package org.eclipse.dataspaceconnector.core.defaults;
 
 import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
-import org.eclipse.dataspaceconnector.spi.persistence.StateMachineEntity;
+import org.eclipse.dataspaceconnector.spi.persistence.StateMachine;
 import org.eclipse.dataspaceconnector.spi.query.QueryResolver;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.query.ReflectionBasedQueryResolver;
@@ -34,7 +34,7 @@ import static java.util.stream.Collectors.toList;
  * An in-memory, threadsafe entity store.
  * This implementation is intended for testing purposes only.
  */
-public class InMemoryEntityStore<T extends StateMachineEntity<T>> {
+public class InMemoryStateMachineStore<T extends StateMachine<T>> {
     private final Map<String, Item<T>> entitiesById = new ConcurrentHashMap<>();
     private final QueryResolver<T> queryResolver;
     private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
@@ -48,7 +48,7 @@ public class InMemoryEntityStore<T extends StateMachineEntity<T>> {
         }
     }
 
-    protected InMemoryEntityStore(Class<T> clazz) {
+    protected InMemoryStateMachineStore(Class<T> clazz) {
         queryResolver = new ReflectionBasedQueryResolver<>(clazz);
     }
 

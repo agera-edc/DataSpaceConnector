@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.core.defaults.transferprocessstore;
 
-import org.eclipse.dataspaceconnector.core.defaults.InMemoryEntityStore;
+import org.eclipse.dataspaceconnector.core.defaults.InMemoryStateMachineStore;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
 import org.jetbrains.annotations.Nullable;
@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * An in-memory, threadsafe process store.
  * This implementation is intended for testing purposes only.
  */
-public class InMemoryTransferProcessStore extends InMemoryEntityStore<TransferProcess> implements TransferProcessStore {
+public class InMemoryTransferProcessStore extends InMemoryStateMachineStore<TransferProcess> implements TransferProcessStore {
 
     public InMemoryTransferProcessStore() {
         super(TransferProcess.class);

@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import org.eclipse.dataspaceconnector.spi.persistence.StateMachineEntity;
+import org.eclipse.dataspaceconnector.spi.persistence.StateMachine;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.agreement.ContractAgreement;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +60,7 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiati
  */
 @JsonTypeName("dataspaceconnector:contractnegotiation")
 @JsonDeserialize(builder = ContractNegotiation.Builder.class)
-public class ContractNegotiation extends StateMachineEntity<ContractNegotiation> {
+public class ContractNegotiation extends StateMachine<ContractNegotiation> {
     private String correlationId;
     private String counterPartyId;
     private String counterPartyAddress;
@@ -332,7 +332,7 @@ public class ContractNegotiation extends StateMachineEntity<ContractNegotiation>
      * Builder for ContractNegotiation.
      */
     @JsonPOJOBuilder(withPrefix = "")
-    public static class Builder extends StateMachineEntity.Builder<ContractNegotiation, Builder> {
+    public static class Builder extends StateMachine.Builder<ContractNegotiation, Builder> {
 
         private Builder(ContractNegotiation negotiation) {
             super(negotiation);

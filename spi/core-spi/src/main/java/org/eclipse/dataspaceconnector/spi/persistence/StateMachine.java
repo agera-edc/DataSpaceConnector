@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public abstract class StateMachineEntity<T extends StateMachineEntity<T>> implements TraceCarrier {
+public abstract class StateMachine<T extends StateMachine<T>> implements TraceCarrier {
 
     protected String id;
     protected long createdTimestamp;
@@ -34,7 +34,7 @@ public abstract class StateMachineEntity<T extends StateMachineEntity<T>> implem
     protected String errorDetail;
     protected Clock clock;
 
-    protected StateMachineEntity() {
+    protected StateMachine() {
     }
 
     public long getCreatedTimestamp() {
@@ -87,7 +87,7 @@ public abstract class StateMachineEntity<T extends StateMachineEntity<T>> implem
 
     public abstract T copy();
 
-    protected abstract static class Builder<T extends StateMachineEntity<T>, B extends Builder<T, B>> {
+    protected abstract static class Builder<T extends StateMachine<T>, B extends Builder<T, B>> {
 
         public abstract B self();
 

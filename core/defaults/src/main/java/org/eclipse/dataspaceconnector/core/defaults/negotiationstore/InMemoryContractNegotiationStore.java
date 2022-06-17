@@ -16,7 +16,7 @@
 package org.eclipse.dataspaceconnector.core.defaults.negotiationstore;
 
 import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
-import org.eclipse.dataspaceconnector.core.defaults.InMemoryEntityStore;
+import org.eclipse.dataspaceconnector.core.defaults.InMemoryStateMachineStore;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.store.ContractNegotiationStore;
 import org.eclipse.dataspaceconnector.spi.query.QueryResolver;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 /**
  * An in-memory, threadsafe process store. This implementation is intended for testing purposes only.
  */
-public class InMemoryContractNegotiationStore extends InMemoryEntityStore<ContractNegotiation> implements ContractNegotiationStore {
+public class InMemoryContractNegotiationStore extends InMemoryStateMachineStore<ContractNegotiation> implements ContractNegotiationStore {
 
     private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
     private final QueryResolver<ContractNegotiation> negotiationQueryResolver = new ReflectionBasedQueryResolver<>(ContractNegotiation.class);
