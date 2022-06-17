@@ -276,6 +276,7 @@ public class ContractNegotiation extends StateMachineEntity<ContractNegotiation>
      *
      * @return The copy.
      */
+    @Override
     public ContractNegotiation copy() {
         var builder = Builder.newInstance()
                 .correlationId(correlationId)

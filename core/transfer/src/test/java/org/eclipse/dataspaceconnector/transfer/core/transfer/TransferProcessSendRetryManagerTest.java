@@ -53,7 +53,6 @@ class TransferProcessSendRetryManagerTest {
     void shouldDelay(long stateTimestamp, long currentTime, long retryDelay, boolean shouldDelay) {
         var stateCount = sendRetryLimit - 2;
         var process = TransferProcess.Builder.newInstance()
-                .clock(clock)
                 .type(TransferProcess.Type.CONSUMER)
                 .state(REQUESTING.code())
                 .id(UUID.randomUUID().toString())

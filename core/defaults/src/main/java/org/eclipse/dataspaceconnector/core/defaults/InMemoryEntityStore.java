@@ -35,15 +35,15 @@ import static java.util.stream.Collectors.toList;
  * This implementation is intended for testing purposes only.
  */
 public class InMemoryEntityStore<T extends StateMachineEntity<T>> {
-    private final Map<String, Item> entitiesById = new ConcurrentHashMap<>();
+    private final Map<String, Item<T>> entitiesById = new ConcurrentHashMap<>();
     private final QueryResolver<T> queryResolver;
     private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
 
-    private class Item{
-        private final T item;
+    private static class Item<V> {
+        private final V item;
         private boolean leased;
 
-        public Item(T item) {
+        public Item(V item) {
             this.item = item;
         }
     }
@@ -53,7 +53,7 @@ public class InMemoryEntityStore<T extends StateMachineEntity<T>> {
     }
 
     public T find(String id) {
-        Item t = entitiesById.get(id);
+        var t = entitiesById.get(id);
         if (t == null) {
             return null;
         }
