@@ -30,8 +30,6 @@ import java.util.Objects;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
-import static java.lang.String.format;
-
 /**
  * An in-memory, threadsafe process store. This implementation is intended for testing purposes only.
  */
@@ -73,14 +71,6 @@ public class InMemoryContractNegotiationStore extends InMemoryEntityStore<Contra
     @Override
     public @NotNull Stream<ContractAgreement> queryAgreements(QuerySpec querySpec) {
         return lockManager.readLock(() -> agreementQueryResolver.query(getAgreements(), querySpec));
-    }
-
-    @Override
-    public Stream<ContractNegotiation> getNegotiationsWithAgreementOnAsset(String assetId) {
-        var filter = format("contractAgreement.assetId = %s", assetId);
-        var query = QuerySpec.Builder.newInstance().filter(filter).build();
-
-        return queryNegotiations(query);
     }
 
     @NotNull
