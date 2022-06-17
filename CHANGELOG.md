@@ -17,7 +17,8 @@ in the detailed section referring to by linking pull requests or issues.
 
 #### Added
 
-*
+* Event Framework for Asset entity (#1453)
+* SQL Translation layer (#1357, #1459)
 
 #### Changed
 
@@ -26,10 +27,15 @@ in the detailed section referring to by linking pull requests or issues.
 #### Removed
 
 * Old RegistrationService (was used for a PoC) (#164)
+* Deprecated `InlineDataFlowController` (replaced by the Data Plane) (#1464)
+* Unused classes and interfaces at `ids.spi.policy` (#1471)
+* Remove modules `:extensions:transfer-functions:transfer-functions-spi` and `:extensions:transfer-functions:transfer-functions-core` (#1482)
+* Remove `ConnectorVersionProvider`, provide version as static string (#1470)
 
 #### Fixed
 
-*
+* Fixed a dead link in contributor documentation (#1477)
+* Fix usage of `NAME` property in `HttpDataSourceFactory` (#1460)
 
 ## [milestone-4] - 2022-06-07
 
