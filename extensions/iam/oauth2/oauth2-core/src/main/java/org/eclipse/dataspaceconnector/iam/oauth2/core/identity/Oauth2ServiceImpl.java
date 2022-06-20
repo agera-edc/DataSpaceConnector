@@ -71,7 +71,7 @@ public class Oauth2ServiceImpl implements IdentityService {
     }
 
     @Override
-    public Result<TokenRepresentation> obtainClientCredentials(String scope) {
+    public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
         var jwtCreationResult = tokenGenerationService.generate(jwtDecoratorRegistry.getAll().toArray(JwtDecorator[]::new));
         if (jwtCreationResult.failed()) {
             return jwtCreationResult;
@@ -112,7 +112,7 @@ public class Oauth2ServiceImpl implements IdentityService {
     }
 
     @Override
-    public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation) {
+    public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation, String audience) {
         return tokenValidationService.validate(tokenRepresentation);
     }
 }

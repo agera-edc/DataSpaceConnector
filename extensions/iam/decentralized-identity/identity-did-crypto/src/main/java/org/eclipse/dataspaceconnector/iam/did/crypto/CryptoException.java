@@ -17,15 +17,12 @@ package org.eclipse.dataspaceconnector.iam.did.crypto;
 import org.eclipse.dataspaceconnector.spi.EdcException;
 
 public class CryptoException extends EdcException {
-    public CryptoException(Exception inner) {
-        super(inner);
+
+    public CryptoException(String message) {
+        super(message);
     }
 
-    public CryptoException() {
-        super("Cyptographic Exception");
-    }
-
-    public CryptoException(String s) {
-        super(s);
+    public CryptoException(Throwable cause) {
+        super(cause);
     }
 }

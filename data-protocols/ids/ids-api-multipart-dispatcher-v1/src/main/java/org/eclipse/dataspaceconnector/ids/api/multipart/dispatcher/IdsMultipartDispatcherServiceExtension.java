@@ -47,10 +47,6 @@ public class IdsMultipartDispatcherServiceExtension implements ServiceExtension 
     public static final String EDC_IDS_ID = "edc.ids.id";
     public static final String DEFAULT_EDC_IDS_ID = "urn:connector:edc";
 
-    @EdcSetting
-    public static final String IDS_WEBHOOK_ADDRESS = "ids.webhook.address";
-    public static final String DEFAULT_IDS_WEBHOOK_ADDRESS = "http://localhost";
-
     @Inject
     private Monitor monitor;
     @Inject
@@ -79,10 +75,7 @@ public class IdsMultipartDispatcherServiceExtension implements ServiceExtension 
         //      once https://github.com/eclipse-dataspaceconnector/DataSpaceConnector/issues/236 is done
         var objectMapper = objectMapperFactory.getObjectMapper();
 
-        var idsWebhookAddress = getSetting(context, IDS_WEBHOOK_ADDRESS, DEFAULT_IDS_WEBHOOK_ADDRESS);
-        var idsApiPath = idsApiConfiguration.getPath();
-        var webhookPath = idsApiPath + (idsApiPath.endsWith("/") ? "data" : "/data");
-        idsWebhookAddress = idsWebhookAddress + webhookPath;
+        String idsWebhookAddress = idsApiConfiguration.getIdsWebhookAddress();
 
         var multipartDispatcher = new IdsMultipartRemoteMessageDispatcher();
         multipartDispatcher.register(new MultipartArtifactRequestSender(connectorId, httpClient, objectMapper, monitor, vault, identityService, transformerRegistry, idsWebhookAddress));

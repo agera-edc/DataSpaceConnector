@@ -99,8 +99,10 @@ abstract class IdsMultipartSender<M extends RemoteMessage, R> implements IdsMess
      */
     @Override
     public CompletableFuture<R> send(M request, MessageContext context) {
+        var remoteConnectorAddress = retrieveRemoteConnectorAddress(request);
+
         // Get Dynamic Attribute Token
-        var tokenResult = identityService.obtainClientCredentials(TOKEN_SCOPE);
+        var tokenResult = identityService.obtainClientCredentials(TOKEN_SCOPE, remoteConnectorAddress);
         if (tokenResult.failed()) {
             String message = "Failed to obtain token: " + String.join(",", tokenResult.getFailureMessages());
             monitor.severe(message);
@@ -114,8 +116,7 @@ abstract class IdsMultipartSender<M extends RemoteMessage, R> implements IdsMess
 
 
         // Get recipient address
-        var connectorAddress = retrieveRemoteConnectorAddress(request);
-        var requestUrl = HttpUrl.parse(connectorAddress);
+        var requestUrl = HttpUrl.parse(remoteConnectorAddress);
         if (requestUrl == null) {
             return failedFuture(new IllegalArgumentException("Connector address not specified"));
         }

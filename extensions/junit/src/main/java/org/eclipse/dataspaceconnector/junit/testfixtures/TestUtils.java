@@ -53,7 +53,7 @@ public class TestUtils {
 
     public static String getResourceFileContentAsString(String resourceName) {
         var stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
-        Scanner s = new Scanner(Objects.requireNonNull(stream)).useDelimiter("\\A");
+        Scanner s = new Scanner(Objects.requireNonNull(stream, "Not found: " + resourceName)).useDelimiter("\\A");
         return s.hasNext() ? s.next() : "";
     }
 
