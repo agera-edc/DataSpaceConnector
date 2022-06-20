@@ -15,37 +15,66 @@
 package org.eclipse.dataspaceconnector.core.defaults.transferprocessstore;
 
 import org.eclipse.dataspaceconnector.core.defaults.InMemoryStateMachineStore;
+import org.eclipse.dataspaceconnector.spi.persistence.StateMachine;
+import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * An in-memory, threadsafe process store.
  * This implementation is intended for testing purposes only.
  */
-public class InMemoryTransferProcessStore extends InMemoryStateMachineStore<TransferProcess> implements TransferProcessStore {
+public class InMemoryTransferProcessStore implements TransferProcessStore {
 
-    public InMemoryTransferProcessStore() {
-        super(TransferProcess.class);
-    }
+    private final InMemoryStateMachineStore<TransferProcess> store = new InMemoryStateMachineStore<>(TransferProcess.class);
 
     @Override
     @Nullable
     public String processIdForTransferId(String id) {
-        return findAll()
+        return store.findAll()
                 .filter(p -> id.equals(p.getDataRequest().getId()))
                 .findFirst()
-                .map(p -> p.getId())
+                .map(StateMachine::getId)
                 .orElse(null);
     }
 
     @Override
     public void create(TransferProcess process) {
-        upsert(process);
+        store.upsert(process);
     }
 
     @Override
     public void update(TransferProcess process) {
-        upsert(process);
+        store.upsert(process);
+    }
+
+    @Nullable
+    @Override
+    public TransferProcess find(String id) {
+        return store.find(id);
+    }
+
+    @Override
+    public void delete(String id) {
+        store.delete(id);
+    }
+
+    @Override
+    public Stream<TransferProcess> findAll(QuerySpec querySpec) {
+        return store.findAll(querySpec);
+    }
+
+    @Override
+    public @NotNull List<TransferProcess> nextForState(int state, int max) {
+        return store.nextForState(state, max);
+    }
+
+    public Stream<TransferProcess> findAll() {
+        return store.findAll();
     }
 }

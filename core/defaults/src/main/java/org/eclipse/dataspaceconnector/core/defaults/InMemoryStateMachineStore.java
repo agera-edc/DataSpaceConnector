@@ -39,7 +39,7 @@ public class InMemoryStateMachineStore<T extends StateMachine<T>> {
     private final QueryResolver<T> queryResolver;
     private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
 
-    protected InMemoryStateMachineStore(Class<T> clazz) {
+    public InMemoryStateMachineStore(Class<T> clazz) {
         queryResolver = new ReflectionBasedQueryResolver<>(clazz);
     }
 
@@ -76,7 +76,7 @@ public class InMemoryStateMachineStore<T extends StateMachine<T>> {
         });
     }
 
-    protected Stream<T> findAll() {
+    public Stream<T> findAll() {
         return entitiesById.values().stream().map(e -> e.item);
     }
 

@@ -26,6 +26,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiation.Cont
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -33,34 +34,41 @@ import java.util.stream.Stream;
 /**
  * An in-memory, threadsafe process store. This implementation is intended for testing purposes only.
  */
-public class InMemoryContractNegotiationStore extends InMemoryStateMachineStore<ContractNegotiation> implements ContractNegotiationStore {
+public class InMemoryContractNegotiationStore implements ContractNegotiationStore {
 
+    private final InMemoryStateMachineStore<ContractNegotiation> store = new InMemoryStateMachineStore<>(ContractNegotiation.class);
     private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
     private final QueryResolver<ContractNegotiation> negotiationQueryResolver = new ReflectionBasedQueryResolver<>(ContractNegotiation.class);
     private final QueryResolver<ContractAgreement> agreementQueryResolver = new ReflectionBasedQueryResolver<>(ContractAgreement.class);
 
-    public InMemoryContractNegotiationStore() {
-        super(ContractNegotiation.class);
+    @Override
+    public @Nullable ContractNegotiation find(String negotiationId) {
+        return store.find(negotiationId);
     }
 
     @Override
     public @Nullable ContractNegotiation findForCorrelationId(String correlationId) {
-        return findAll().filter(p -> correlationId.equals(p.getCorrelationId())).findFirst().orElse(null);
+        return store.findAll().filter(p -> correlationId.equals(p.getCorrelationId())).findFirst().orElse(null);
     }
 
     @Override
     public @Nullable ContractAgreement findContractAgreement(String contractId) {
-        return findAll().filter(p -> contractId.equals(p.getContractAgreement().getId())).findFirst().map(ContractNegotiation::getContractAgreement).orElse(null);
+        return store.findAll().filter(p -> contractId.equals(p.getContractAgreement().getId())).findFirst().map(ContractNegotiation::getContractAgreement).orElse(null);
     }
 
     @Override
     public void save(ContractNegotiation negotiation) {
-        upsert(negotiation);
+        store.upsert(negotiation);
+    }
+
+    @Override
+    public void delete(String negotiationId) {
+        store.delete(negotiationId);
     }
 
     @Override
     public @NotNull Stream<ContractNegotiation> queryNegotiations(QuerySpec querySpec) {
-        return lockManager.readLock(() -> negotiationQueryResolver.query(findAll(), querySpec));
+        return lockManager.readLock(() -> negotiationQueryResolver.query(store.findAll(), querySpec));
     }
 
     @Override
@@ -73,9 +81,14 @@ public class InMemoryContractNegotiationStore extends InMemoryStateMachineStore<
         return lockManager.readLock(() -> agreementQueryResolver.query(getAgreements(), querySpec));
     }
 
+    @Override
+    public @NotNull List<ContractNegotiation> nextForState(int state, int max) {
+        return store.nextForState(state, max);
+    }
+
     @NotNull
     private Stream<ContractAgreement> getAgreements() {
-        return findAll()
+        return store.findAll()
                 .map(ContractNegotiation::getContractAgreement)
                 .filter(Objects::nonNull);
     }
