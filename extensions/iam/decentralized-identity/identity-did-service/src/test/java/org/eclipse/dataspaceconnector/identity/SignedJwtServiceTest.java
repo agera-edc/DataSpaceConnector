@@ -9,78 +9,63 @@
  *
  *  Contributors:
  *       Daimler TSS GmbH - Initial implementation
+ *       Microsoft Corporation - audience verification
  *
  */
 
-package org.eclipse.dataspaceconnector.iam.did.crypto.credentials;
+package org.eclipse.dataspaceconnector.identity;
 
-import com.nimbusds.jose.JOSEException;
+import com.github.javafaker.Faker;
 import com.nimbusds.jose.jwk.ECKey;
-import org.eclipse.dataspaceconnector.iam.did.crypto.helper.TestHelper;
+import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
+import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.text.ParseException;
-import java.time.Clock;
+import java.io.IOException;
 import java.time.Instant;
-import java.util.Map;
+import java.time.temporal.ChronoUnit;
 
-import static java.time.ZoneOffset.UTC;
-import static java.time.temporal.ChronoUnit.MINUTES;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class VerifiableCredentialFactoryTest {
+class SignedJwtServiceTest {
 
+    static final Faker FAKER = new Faker();
 
-    private final Instant now = Instant.now();
-    private final Clock clock = Clock.fixed(now, UTC);
-    private ECKey privateKey;
+    String didUrl = FAKER.internet().url();
+    String connectorName = FAKER.lorem().word();
+    String audience = FAKER.internet().url();
+    SignedJwtService signedJwtService;
 
     @BeforeEach
-    void setup() throws JOSEException {
-        String contents = TestHelper.readFile("private_p256.pem");
-
-        privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(contents);
-    }
-
-
-    @Test
-    void createVerifiableCredential() throws ParseException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", clock);
-
-        assertThat(vc).isNotNull();
-        assertThat(vc.getJWTClaimsSet().getClaim("did-url")).isEqualTo("someUrl");
-        assertThat(vc.getJWTClaimsSet().getClaim("iss")).isEqualTo("test-connector");
-        assertThat(vc.getJWTClaimsSet().getClaim("sub")).isEqualTo("verifiable-credential");
-        assertThat(vc.getJWTClaimsSet().getExpirationTime()).isEqualTo(now.plus(10, MINUTES).truncatedTo(SECONDS));
+    void setup() throws Exception {
+        String privateKeyPem = readFile("private_p256.pem");
+        var privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(privateKeyPem);
+        signedJwtService = new SignedJwtService(didUrl, connectorName, new EcPrivateKeyWrapper(privateKey));
     }
 
     @Test
-    void ensureSerialization() throws ParseException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", clock);
+    void createVerifiableCredential() throws Exception {
+        var jwt = signedJwtService.create(audience);
 
-        assertThat(vc).isNotNull();
-        String jwtString = vc.serialize();
-
-        //deserialize
-        var deserialized = VerifiableCredentialFactory.parse(jwtString);
-
-        assertThat(deserialized.getJWTClaimsSet()).isEqualTo(vc.getJWTClaimsSet());
-        assertThat(deserialized.getHeader().getAlgorithm()).isEqualTo(vc.getHeader().getAlgorithm());
-        assertThat(deserialized.getPayload().toString()).isEqualTo(vc.getPayload().toString());
+        assertThat(jwt).isNotNull();
+        assertThat(jwt.getJWTClaimsSet().getClaim("iss")).isEqualTo(didUrl);
+        assertThat(jwt.getJWTClaimsSet().getClaim("owner")).isEqualTo(connectorName);
+        assertThat(jwt.getJWTClaimsSet().getClaim("sub")).isEqualTo("verifiable-credential");
+        assertThat(jwt.getJWTClaimsSet().getExpirationTime()).isNotNull()
+                .isAfter(Instant.now())
+                .isBefore(Instant.now().plus(11, ChronoUnit.MINUTES));
     }
 
     @Test
-    void verifyJwt() throws JOSEException {
-        var vc = VerifiableCredentialFactory.create(privateKey, Map.of("did-url", "someUrl"), "test-connector", clock);
-        String jwtString = vc.serialize();
+    void verifyJwt() throws Exception {
+        var jwt = signedJwtService.create(audience);
+        var pubKey = readFile("public_p256.pem");
 
-        //deserialize
-        var jwt = VerifiableCredentialFactory.parse(jwtString);
-        var pubKey = TestHelper.readFile("public_p256.pem");
+        assertThat(signedJwtService.verify(jwt, new EcPublicKeyWrapper((ECKey) ECKey.parseFromPEMEncodedObjects(pubKey)), audience)).isTrue();
+    }
 
-        assertThat(VerifiableCredentialFactory.verify(jwt, (ECKey) ECKey.parseFromPEMEncodedObjects(pubKey))).isTrue();
-
+    public String readFile(String filename) throws IOException {
+        return new String(Thread.currentThread().getContextClassLoader().getResourceAsStream(filename).readAllBytes());
     }
 }

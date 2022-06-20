@@ -16,7 +16,6 @@
 package org.eclipse.dataspaceconnector.identity;
 
 import com.nimbusds.jwt.SignedJWT;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyConverter;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidConstants;
@@ -37,17 +36,16 @@ import java.text.ParseException;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 
 public class DecentralizedIdentityService implements IdentityService {
-    private final Supplier<SignedJWT> verifiableCredentialProvider;
+    private final SignedJwtService signedJwtService;
     private final DidResolverRegistry resolverRegistry;
     private final CredentialsVerifier credentialsVerifier;
     private final Monitor monitor;
     private final Clock clock;
 
-    public DecentralizedIdentityService(Supplier<SignedJWT> vcProvider, DidResolverRegistry resolverRegistry, CredentialsVerifier credentialsVerifier, Monitor monitor, Clock clock) {
-        verifiableCredentialProvider = vcProvider;
+    public DecentralizedIdentityService(SignedJwtService signedJwtService, DidResolverRegistry resolverRegistry, CredentialsVerifier credentialsVerifier, Monitor monitor, Clock clock) {
+        this.signedJwtService = signedJwtService;
         this.resolverRegistry = resolverRegistry;
         this.credentialsVerifier = credentialsVerifier;
         this.monitor = monitor;
@@ -55,9 +53,8 @@ public class DecentralizedIdentityService implements IdentityService {
     }
 
     @Override
-    public Result<TokenRepresentation> obtainClientCredentials(String scope) {
-
-        var jwt = verifiableCredentialProvider.get();
+    public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
+        var jwt = signedJwtService.create(audience);
         var token = jwt.serialize();
         var expiration = clock.millis() + TimeUnit.MINUTES.toMillis(10);
 
@@ -65,7 +62,7 @@ public class DecentralizedIdentityService implements IdentityService {
     }
 
     @Override
-    public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation) {
+    public Result<ClaimToken> verifyJwtToken(TokenRepresentation tokenRepresentation, String audience) {
         try {
             var jwt = SignedJWT.parse(tokenRepresentation.getToken());
             monitor.debug("Starting verification...");
@@ -88,7 +85,7 @@ public class DecentralizedIdentityService implements IdentityService {
             PublicKeyWrapper publicKeyWrapper = KeyConverter.toPublicKeyWrapper(publicKeyJwk, publicKey.get().getId());
 
             monitor.debug("Verifying JWT with public key...");
-            if (!VerifiableCredentialFactory.verify(jwt, publicKeyWrapper)) {
+            if (!signedJwtService.verify(jwt, publicKeyWrapper, audience)) {
                 return Result.failure("Token could not be verified!");
             }
             monitor.debug("verification successful! Fetching data from IdentityHub");

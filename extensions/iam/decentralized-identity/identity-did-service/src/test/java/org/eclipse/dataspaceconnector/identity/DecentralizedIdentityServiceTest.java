@@ -16,25 +16,20 @@ package org.eclipse.dataspaceconnector.identity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
-import org.eclipse.dataspaceconnector.iam.did.crypto.credentials.VerifiableCredentialFactory;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.VerificationMethod;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolver;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
-import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
+import org.eclipse.dataspaceconnector.spi.monitor.ConsoleMonitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,23 +43,25 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.Map;
 
 import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
 
 /**
- * Test the {@link DecentralizedIdentityService} with different key algorithms.
- * See {@link WithP256} and {@link WithSecp256k1} for concrete impls.
+ * Test the {@link DecentralizedIdentityService} with a key algorithm.
+ * See {@link WithP256} for concrete impl.
  */
 
 abstract class DecentralizedIdentityServiceTest {
     private final Instant now = Instant.now();
     private final Clock clock = Clock.fixed(now, UTC);
+    private static final Faker FAKER = new Faker();
+
+    String didUrl = FAKER.internet().url();
+    String connectorName = FAKER.lorem().word();
     private DecentralizedIdentityService identityService;
-    private PrivateKeyWrapper privateKey;
-    private PublicKeyWrapper publicKey;
 
     @Test
     void verifyResolveHubUrl() throws IOException {
@@ -75,52 +72,34 @@ abstract class DecentralizedIdentityServiceTest {
     }
 
     @Test
-    void verifyObtainClientCredentials() throws Exception {
-        var result = identityService.obtainClientCredentials("Foo");
-
+    void generateAndVerifyJwtToken_valid() {
+        var result = identityService.obtainClientCredentials("Foo", "Bar");
         assertTrue(result.succeeded());
 
-        var jwt = SignedJWT.parse(result.getContent().getToken());
-        var verifier = publicKey.verifier();
-        assertTrue(jwt.verify(verifier));
+        Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent(), "Bar");
+        assertTrue(verificationResult.succeeded());
+        assertEquals("eu", verificationResult.getContent().getClaims().get("region"));
     }
 
     @Test
-    void verifyJwtToken() throws Exception {
-        var signer = privateKey.signer();
+    void generateAndVerifyJwtToken_wrongAudience() {
+        var result = identityService.obtainClientCredentials("Foo", "Bar");
 
-        var claimsSet = new JWTClaimsSet.Builder()
-                .subject("foo")
-                .issuer("did:ion:123abc")
-                .expirationTime(Date.from(now.plus(Duration.ofMinutes(10))))
-                .build();
-
-        var jwt = new SignedJWT(new JWSHeader.Builder(getHeaderAlgorithm()).keyID("primary").build(), claimsSet);
-        jwt.sign(signer);
-
-        var token = jwt.serialize();
-
-        var result = identityService.verifyJwtToken(token);
-
-        assertTrue(result.succeeded());
-        assertEquals("eu", result.getContent().getClaims().get("region"));
+        Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent(), "Bar2");
+        assertTrue(verificationResult.failed());
     }
 
     @BeforeEach
     void setUp() throws Exception {
         var keyPair = getKeyPair();
-        privateKey = getPrivateKey(keyPair.toECKey());
-        publicKey = getPublicKey(keyPair.toPublicJWK().toECKey());
+        var privateKey = new EcPrivateKeyWrapper(keyPair.toECKey());
 
         var didJson = Thread.currentThread().getContextClassLoader().getResourceAsStream("dids.json");
         var hubUrlDid = new String(didJson.readAllBytes(), StandardCharsets.UTF_8);
-
-        DidResolverRegistry didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
-
+        var didResolver = new TestResolverRegistry(hubUrlDid, keyPair);
         CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
-        Supplier<SignedJWT> signedJwtSupplier = () -> VerifiableCredentialFactory.create(privateKey, Map.of("region", "us"), "test-issuer", clock);
-        identityService = new DecentralizedIdentityService(signedJwtSupplier, didResolver, verifier, mock(Monitor.class), Clock.systemUTC());
-
+        var signedJwtService = new SignedJwtService(didUrl, connectorName, privateKey, clock);
+        identityService = new DecentralizedIdentityService(signedJwtService, didResolver, verifier, new ConsoleMonitor(), Clock.systemUTC());
     }
 
     @NotNull
@@ -128,15 +107,6 @@ abstract class DecentralizedIdentityServiceTest {
 
     @NotNull
     protected abstract JWSAlgorithm getHeaderAlgorithm();
-
-    private PublicKeyWrapper getPublicKey(JWK publicKey) {
-
-        return new EcPublicKeyWrapper((ECKey) publicKey);
-    }
-
-    private PrivateKeyWrapper getPrivateKey(JWK privateKey) {
-        return new EcPrivateKeyWrapper((ECKey) privateKey);
-    }
 
     public static class WithP256 extends DecentralizedIdentityServiceTest {
         @Override
