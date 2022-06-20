@@ -389,6 +389,7 @@ public class ContractNegotiation extends StateMachine<ContractNegotiation> {
             return this;
         }
 
+        @Override
         public ContractNegotiation build() {
             Objects.requireNonNull(target.counterPartyId);
             Objects.requireNonNull(target.counterPartyAddress);
