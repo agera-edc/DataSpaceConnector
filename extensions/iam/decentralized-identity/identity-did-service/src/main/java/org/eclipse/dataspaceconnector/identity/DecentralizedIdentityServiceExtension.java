@@ -28,7 +28,6 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 
 import java.time.Clock;
-import java.util.Map;
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -48,6 +47,8 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
 
     @Inject
     private Clock clock;
+
+    @Inject
     private SignedJwtService signedJwtService;
 
     @Override
@@ -72,8 +73,7 @@ public class DecentralizedIdentityServiceExtension implements ServiceExtension {
         var privateKey = privateKeyResolver.resolvePrivateKey(connectorName, ECKey.class); //to get the private key
         Objects.requireNonNull(privateKey, "Couldn't resolve private key for " + connectorName);
 
-        // FIXME return VerifiableCredentialFactory.create(privateKeyString, Map.of(VerifiableCredentialFactory.OWNER_CLAIM, connectorName), didUrl, clock);
-        return new SignedJwtService(didUrl, connectorName, new EcPrivateKeyWrapper(privateKey));
+        return new SignedJwtService(didUrl, connectorName, new EcPrivateKeyWrapper(privateKey), clock);
     }
 
 }
