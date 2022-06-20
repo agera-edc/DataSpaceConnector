@@ -37,7 +37,6 @@ import org.jetbrains.annotations.NotNull;
 import java.text.ParseException;
 import java.time.Clock;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 public class DecentralizedIdentityService implements IdentityService {
     private final DidResolverRegistry resolverRegistry;
@@ -60,9 +59,7 @@ public class DecentralizedIdentityService implements IdentityService {
     public Result<TokenRepresentation> obtainClientCredentials(String scope, String audience) {
         var jwt = VerifiableCredentialFactory.create(privateKey, issuer, audience, clock);
         var token = jwt.serialize();
-        var expiration = clock.millis() + TimeUnit.MINUTES.toMillis(10);
-
-        return Result.success(TokenRepresentation.Builder.newInstance().token(token).expiresIn(expiration).build());
+        return Result.success(TokenRepresentation.Builder.newInstance().token(token).build());
     }
 
     @Override

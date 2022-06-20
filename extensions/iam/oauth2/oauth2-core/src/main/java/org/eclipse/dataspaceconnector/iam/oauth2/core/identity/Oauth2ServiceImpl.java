@@ -103,8 +103,7 @@ public class Oauth2ServiceImpl implements IdentityService {
             var responsePayload = responseBody.string();
             var deserialized = typeManager.readValue(responsePayload, LinkedHashMap.class);
             var token = (String) deserialized.get("access_token");
-            var expiresIn = ((Integer) deserialized.get("expires_in")).longValue();
-            var tokenRepresentation = TokenRepresentation.Builder.newInstance().token(token).expiresIn(expiresIn).build();
+            var tokenRepresentation = TokenRepresentation.Builder.newInstance().token(token).build();
             return Result.success(tokenRepresentation);
         } catch (IOException e) {
             throw new EdcException(e);

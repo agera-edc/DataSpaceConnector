@@ -104,8 +104,6 @@ public class VerifiableCredentialFactory {
                     .build();
             var requiredClaims = Set.of(
                     ISSUER_CLAIM,
-                    SUBJECT_CLAIM,
-                    AUDIENCE_CLAIM,
                     EXPIRATION_TIME_CLAIM);
             var claimsVerifier = new DefaultJWTClaimsVerifier<>(exactMatchClaims, requiredClaims);
             try {

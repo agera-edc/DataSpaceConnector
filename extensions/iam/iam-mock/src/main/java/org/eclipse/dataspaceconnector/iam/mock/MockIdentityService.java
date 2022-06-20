@@ -21,7 +21,6 @@ import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 
-import java.time.Clock;
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -29,10 +28,8 @@ import static java.lang.String.format;
 public class MockIdentityService implements IdentityService {
     private final String region;
     private final TypeManager typeManager;
-    private final Clock clock;
 
-    public MockIdentityService(Clock clock, TypeManager typeManager, String region) {
-        this.clock = clock;
+    public MockIdentityService(TypeManager typeManager, String region) {
         this.typeManager = typeManager;
         this.region = region;
     }
@@ -44,7 +41,6 @@ public class MockIdentityService implements IdentityService {
         token.setRegion(region);
         TokenRepresentation tokenRepresentation = TokenRepresentation.Builder.newInstance()
                 .token(typeManager.writeValueAsString(token))
-                .expiresIn(clock.instant().plusSeconds(10_0000).toEpochMilli())
                 .build();
         return Result.success(tokenRepresentation);
     }

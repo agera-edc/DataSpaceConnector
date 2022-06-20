@@ -23,7 +23,6 @@ import java.util.Map;
  */
 public class TokenRepresentation {
     private String token;
-    private long expiresIn;
     private Map<String, Object> additional;
 
     private TokenRepresentation() {
@@ -35,13 +34,6 @@ public class TokenRepresentation {
      */
     public String getToken() {
         return token;
-    }
-
-    /**
-     * Returns the token expiration.
-     */
-    public long expiresIn() {
-        return expiresIn;
     }
 
     public Map<String, Object> getAdditional() {
@@ -61,11 +53,6 @@ public class TokenRepresentation {
 
         public Builder token(String token) {
             result.token = token;
-            return this;
-        }
-
-        public Builder expiresIn(long expiresIn) {
-            result.expiresIn = expiresIn;
             return this;
         }
 
