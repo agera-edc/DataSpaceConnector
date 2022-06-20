@@ -15,7 +15,6 @@
 
 package org.eclipse.dataspaceconnector.core.defaults.negotiationstore;
 
-import org.eclipse.dataspaceconnector.common.concurrency.LockManager;
 import org.eclipse.dataspaceconnector.core.defaults.InMemoryStateMachineStore;
 import org.eclipse.dataspaceconnector.spi.contract.negotiation.store.ContractNegotiationStore;
 import org.eclipse.dataspaceconnector.spi.query.QueryResolver;
@@ -28,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
 
 /**
@@ -37,7 +35,6 @@ import java.util.stream.Stream;
 public class InMemoryContractNegotiationStore implements ContractNegotiationStore {
 
     private final InMemoryStateMachineStore<ContractNegotiation> store = new InMemoryStateMachineStore<>(ContractNegotiation.class);
-    private final LockManager lockManager = new LockManager(new ReentrantReadWriteLock());
     private final QueryResolver<ContractNegotiation> negotiationQueryResolver = new ReflectionBasedQueryResolver<>(ContractNegotiation.class);
     private final QueryResolver<ContractAgreement> agreementQueryResolver = new ReflectionBasedQueryResolver<>(ContractAgreement.class);
 
@@ -68,17 +65,17 @@ public class InMemoryContractNegotiationStore implements ContractNegotiationStor
 
     @Override
     public @NotNull Stream<ContractNegotiation> queryNegotiations(QuerySpec querySpec) {
-        return lockManager.readLock(() -> negotiationQueryResolver.query(store.findAll(), querySpec));
+        return negotiationQueryResolver.query(store.findAll(), querySpec);
     }
 
     @Override
     public @NotNull Stream<ContractAgreement> getAgreementsForDefinitionId(String definitionId) {
-        return lockManager.readLock(() -> getAgreements().filter(it -> it.getId().startsWith(definitionId + ":")));
+        return getAgreements().filter(it -> it.getId().startsWith(definitionId + ":"));
     }
 
     @Override
     public @NotNull Stream<ContractAgreement> queryAgreements(QuerySpec querySpec) {
-        return lockManager.readLock(() -> agreementQueryResolver.query(getAgreements(), querySpec));
+        return agreementQueryResolver.query(getAgreements(), querySpec);
     }
 
     @Override
