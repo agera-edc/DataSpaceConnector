@@ -46,11 +46,11 @@ class DapsIntegrationTest {
 
     @Test
     void retrieveTokenAndValidate(IdentityService identityService) {
-        var tokenResult = identityService.obtainClientCredentials("idsc:IDS_CONNECTOR_ATTRIBUTES_ALL");
+        var tokenResult = identityService.obtainClientCredentials("idsc:IDS_CONNECTOR_ATTRIBUTES_ALL", "audience");
 
         assertThat(tokenResult.succeeded()).isTrue();
 
-        var verificationResult = identityService.verifyJwtToken(tokenResult.getContent().getToken());
+        var verificationResult = identityService.verifyJwtToken(tokenResult.getContent(), "audience");
 
         assertThat(verificationResult.succeeded()).isTrue();
     }
