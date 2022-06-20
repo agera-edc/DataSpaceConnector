@@ -23,9 +23,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
+import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SignedJwtServiceTest {
@@ -35,13 +39,15 @@ class SignedJwtServiceTest {
     String didUrl = FAKER.internet().url();
     String connectorName = FAKER.lorem().word();
     String audience = FAKER.internet().url();
+    private final Instant now = Instant.now();
+    private final Clock clock = Clock.fixed(now, UTC);
     SignedJwtService signedJwtService;
 
     @BeforeEach
     void setup() throws Exception {
         String privateKeyPem = readFile("private_p256.pem");
         var privateKey = (ECKey) ECKey.parseFromPEMEncodedObjects(privateKeyPem);
-        signedJwtService = new SignedJwtService(didUrl, connectorName, new EcPrivateKeyWrapper(privateKey));
+        signedJwtService = new SignedJwtService(didUrl, connectorName, new EcPrivateKeyWrapper(privateKey), clock);
     }
 
     @Test
@@ -52,9 +58,7 @@ class SignedJwtServiceTest {
         assertThat(jwt.getJWTClaimsSet().getClaim("iss")).isEqualTo(didUrl);
         assertThat(jwt.getJWTClaimsSet().getClaim("owner")).isEqualTo(connectorName);
         assertThat(jwt.getJWTClaimsSet().getClaim("sub")).isEqualTo("verifiable-credential");
-        assertThat(jwt.getJWTClaimsSet().getExpirationTime()).isNotNull()
-                .isAfter(Instant.now())
-                .isBefore(Instant.now().plus(11, ChronoUnit.MINUTES));
+        assertThat(jwt.getJWTClaimsSet().getExpirationTime()).isEqualTo(now.plus(Duration.ofMinutes(10)).truncatedTo(SECONDS));
     }
 
     @Test
@@ -66,6 +70,6 @@ class SignedJwtServiceTest {
     }
 
     public String readFile(String filename) throws IOException {
-        return new String(Thread.currentThread().getContextClassLoader().getResourceAsStream(filename).readAllBytes());
+        return new String(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream(filename)).readAllBytes());
     }
 }
