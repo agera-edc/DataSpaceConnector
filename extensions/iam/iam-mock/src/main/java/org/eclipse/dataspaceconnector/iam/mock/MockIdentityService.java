@@ -22,6 +22,9 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 
 import java.time.Clock;
+import java.util.Objects;
+
+import static java.lang.String.format;
 
 public class MockIdentityService implements IdentityService {
     private final String region;
