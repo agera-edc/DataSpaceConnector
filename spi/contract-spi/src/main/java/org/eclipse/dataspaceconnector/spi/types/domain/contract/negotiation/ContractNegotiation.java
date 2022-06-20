@@ -232,7 +232,7 @@ public class ContractNegotiation extends StateMachine<ContractNegotiation> {
         if (Type.CONSUMER == type) {
             transition(DECLINED, DECLINING, CONSUMER_OFFERED, REQUESTED);
         } else {
-            transition(DECLINED, DECLINING, PROVIDER_OFFERED, CONFIRMED, REQUESTED);
+            transition(DECLINED, DECLINING, PROVIDER_OFFERED, CONFIRMING, CONFIRMED, REQUESTED);
         }
 
     }
