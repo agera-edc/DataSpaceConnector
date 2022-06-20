@@ -10,7 +10,7 @@ The framework currently manage a single execution thread.
 - The `StateMachineManager` which manages an execution thread that periodically gives a chance to state machines to progress their state.
 - The state-machine specific Manager which instantiates the `StateMachineManager` and defines processors for each state for a given state machine class. For example, `ConsumerContractNegotiationManagerImpl` manages `ContractNegotiation`s in which the connector is a consumer.
 - The `ServiceExtension` which manages the Manager's lifecycle.
-- The Store which manage `StateMachine` persistence. `InMemoryStateMachineStore` provides a base class for in-memory implementations for testing.
+- The Store which manage `StateMachine` persistence. `InMemoryStateMachineStore` provides a utility class to back in-memory implementations for testing.
 
 ## State-machine specific Manager
 
