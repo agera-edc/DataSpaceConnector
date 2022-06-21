@@ -25,8 +25,10 @@ import java.util.Objects;
 
 /**
  * Base class for state machine persistent entities.
+ *
+ * @param <T> implementation type ({@link StateMachine} sub-class). Used to define {@link #copy()} method.
  */
-public abstract class StateMachine implements TraceCarrier {
+public abstract class StateMachine<T extends StateMachine<T>> implements TraceCarrier {
 
     protected String id;
     protected long createdTimestamp;
@@ -88,6 +90,8 @@ public abstract class StateMachine implements TraceCarrier {
         return id;
     }
 
+    public abstract T copy();
+
     /**
      * Base Builder class for derived classes.
      *
@@ -95,7 +99,7 @@ public abstract class StateMachine implements TraceCarrier {
      * @param <B> derived Builder ({@link Builder} sub-class)
      * @see <a href="http://egalluzzo.blogspot.com/2010/06/using-inheritance-with-fluent.html">Using inheritance with fluent interfaces (blog post)</a> for a background on the use of generic types.
      */
-    protected abstract static class Builder<T extends StateMachine, B extends Builder<T, B>> {
+    protected abstract static class Builder<T extends StateMachine<T>, B extends Builder<T, B>> {
 
         public abstract B self();
 
@@ -156,7 +160,7 @@ public abstract class StateMachine implements TraceCarrier {
         }
     }
 
-    protected <T extends StateMachine, B extends Builder<T, B>> T copy(Builder<T, B> builder) {
+    protected <B extends Builder<T, B>> T copy(Builder<T, B> builder) {
         return builder
                 .id(id)
                 .createdTimestamp(createdTimestamp)
