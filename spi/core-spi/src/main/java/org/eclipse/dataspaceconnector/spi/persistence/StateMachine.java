@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.spi.persistence;
 
 
+import org.eclipse.dataspaceconnector.spi.entity.StatefulEntity;
 import org.eclipse.dataspaceconnector.spi.telemetry.TraceCarrier;
 
 import java.time.Clock;
@@ -28,7 +29,7 @@ import java.util.Objects;
  *
  * @param <T> implementation type ({@link StateMachine} sub-class). Used to define {@link #copy()} method.
  */
-public abstract class StateMachine<T extends StateMachine<T>> implements TraceCarrier {
+public abstract class StateMachine<T extends StateMachine<T>> implements StatefulEntity, TraceCarrier {
 
     protected String id;
     protected long createdTimestamp;
