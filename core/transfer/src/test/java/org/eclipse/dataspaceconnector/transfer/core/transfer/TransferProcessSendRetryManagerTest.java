@@ -59,6 +59,7 @@ class TransferProcessSendRetryManagerTest {
                 .stateCount(stateCount)
                 .stateTimestamp(stateTimestamp)
                 .dataRequest(DataRequest.Builder.newInstance().destinationType(DESTINATION_TYPE).build())
+                .clock(clock)
                 .build();
 
         when(delayStrategy.retryInMillis())

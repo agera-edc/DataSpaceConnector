@@ -16,7 +16,7 @@
 package org.eclipse.dataspaceconnector.transfer.core.transfer;
 
 import io.opentelemetry.extension.annotations.WithSpan;
-import org.eclipse.dataspaceconnector.common.statemachine.StateMachine;
+import org.eclipse.dataspaceconnector.common.statemachine.StateMachineManager;
 import org.eclipse.dataspaceconnector.common.statemachine.StateProcessorImpl;
 import org.eclipse.dataspaceconnector.spi.asset.DataAddressResolver;
 import org.eclipse.dataspaceconnector.spi.command.CommandProcessor;
@@ -111,7 +111,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     private Monitor monitor;
     private Telemetry telemetry;
     private ExecutorInstrumentation executorInstrumentation;
-    private StateMachine stateMachine;
+    private StateMachineManager stateMachineManager;
     private DataAddressResolver addressResolver;
     private PolicyArchive policyArchive;
     private SendRetryManager<TransferProcess> sendRetryManager;
@@ -121,7 +121,7 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
     }
 
     public void start() {
-        stateMachine = StateMachine.Builder.newInstance("transfer-process", monitor, executorInstrumentation, waitStrategy)
+        stateMachineManager = StateMachineManager.Builder.newInstance("transfer-process", monitor, executorInstrumentation, waitStrategy)
                 .processor(processTransfersInState(INITIAL, this::processInitial))
                 .processor(processTransfersInState(PROVISIONING, this::processProvisioning))
                 .processor(processTransfersInState(PROVISIONED, this::processProvisioned))
@@ -132,12 +132,12 @@ public class TransferProcessManagerImpl implements TransferProcessManager, Provi
                 .processor(processTransfersInState(DEPROVISIONED, this::processDeprovisioned))
                 .processor(onCommands(this::processCommand))
                 .build();
-        stateMachine.start();
+        stateMachineManager.start();
     }
 
     public void stop() {
-        if (stateMachine != null) {
-            stateMachine.stop();
+        if (stateMachineManager != null) {
+            stateMachineManager.stop();
         }
     }
 
