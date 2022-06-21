@@ -30,6 +30,7 @@ import org.eclipse.dataspaceconnector.spi.transaction.TransactionContext;
 import org.eclipse.dataspaceconnector.spi.transaction.datasource.DataSourceRegistry;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
+import org.eclipse.dataspaceconnector.sql.translation.SqlConditionExpression;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -64,7 +65,33 @@ public class SqlAssetIndex implements AssetLoader, AssetIndex, DataAddressResolv
     }
 
     @Override
-    public void accept(Asset asset, DataAddress dataAddress) {
+    public Asset deleteById(String assetId) {
+        Objects.requireNonNull(assetId);
+
+        try (var connection = getConnection()) {
+            var asset = findById(assetId);
+            if (asset == null) {
+                return null;
+            }
+
+            transactionContext.execute(() -> {
+                executeQuery(connection, sqlAssetQueries.getSqlAssetDeleteByIdClause(), assetId);
+                executeQuery(connection, sqlAssetQueries.getSqlDataAddressDeleteByIdClause(), assetId);
+                executeQuery(connection, sqlAssetQueries.getSqlPropertyDeleteByIdClause(), assetId);
+            });
+
+            return asset;
+        } catch (Exception e) {
+            throw new EdcPersistenceException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void accept(AssetEntry item) {
+        Objects.requireNonNull(item);
+        var asset = item.getAsset();
+        var dataAddress = item.getDataAddress();
+
         Objects.requireNonNull(asset);
         Objects.requireNonNull(dataAddress);
 
@@ -101,35 +128,6 @@ public class SqlAssetIndex implements AssetLoader, AssetIndex, DataAddressResolv
             }
             throw new EdcPersistenceException(e.getMessage(), e);
         }
-    }
-
-    @Override
-    public Asset deleteById(String assetId) {
-        Objects.requireNonNull(assetId);
-
-        try (var connection = getConnection()) {
-            var asset = findById(assetId);
-            if (asset == null) {
-                return null;
-            }
-
-            transactionContext.execute(() -> {
-                executeQuery(connection, sqlAssetQueries.getSqlAssetDeleteByIdClause(), assetId);
-                executeQuery(connection, sqlAssetQueries.getSqlDataAddressDeleteByIdClause(), assetId);
-                executeQuery(connection, sqlAssetQueries.getSqlPropertyDeleteByIdClause(), assetId);
-            });
-
-            return asset;
-        } catch (Exception e) {
-            throw new EdcPersistenceException(e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public void accept(AssetEntry item) {
-        Objects.requireNonNull(item);
-
-        accept(item.getAsset(), item.getDataAddress());
     }
 
     @Override
@@ -241,8 +239,8 @@ public class SqlAssetIndex implements AssetLoader, AssetIndex, DataAddressResolv
     }
 
     /**
-     * Deserializes a value into an object using the object mapper.
-     * Note: if type is {@code java.lang.String} simply {@code value.toString()} is returned.
+     * Deserializes a value into an object using the object mapper. Note: if type is {@code java.lang.String} simply
+     * {@code value.toString()} is returned.
      */
     private Object fromPropertyValue(String value, String type) throws ClassNotFoundException, JsonProcessingException {
         var clazz = Class.forName(type);
