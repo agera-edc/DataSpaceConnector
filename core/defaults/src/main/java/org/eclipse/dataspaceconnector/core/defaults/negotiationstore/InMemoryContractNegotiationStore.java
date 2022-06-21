@@ -39,8 +39,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 /**
- * An in-memory, threadsafe process store.
- * This implementation is intended for testing purposes only.
+ * An in-memory, threadsafe process store. This implementation is intended for testing purposes only.
  */
 public class InMemoryContractNegotiationStore implements ContractNegotiationStore {
 
