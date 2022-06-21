@@ -93,7 +93,7 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferP
  */
 @JsonTypeName("dataspaceconnector:transferprocess")
 @JsonDeserialize(builder = TransferProcess.Builder.class)
-public class TransferProcess extends StateMachine<TransferProcess> {
+public class TransferProcess extends StateMachine {
 
     private Type type = Type.CONSUMER;
     private DataRequest dataRequest;
@@ -287,7 +287,6 @@ public class TransferProcess extends StateMachine<TransferProcess> {
         updateStateTimestamp();
     }
 
-    @Override
     public TransferProcess copy() {
         var builder = Builder.newInstance()
                 .resourceManifest(resourceManifest)

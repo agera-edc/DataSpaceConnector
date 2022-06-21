@@ -60,7 +60,7 @@ import static org.eclipse.dataspaceconnector.spi.types.domain.contract.negotiati
  */
 @JsonTypeName("dataspaceconnector:contractnegotiation")
 @JsonDeserialize(builder = ContractNegotiation.Builder.class)
-public class ContractNegotiation extends StateMachine<ContractNegotiation> {
+public class ContractNegotiation extends StateMachine {
     private String correlationId;
     private String counterPartyId;
     private String counterPartyAddress;
@@ -276,7 +276,6 @@ public class ContractNegotiation extends StateMachine<ContractNegotiation> {
      *
      * @return The copy.
      */
-    @Override
     public ContractNegotiation copy() {
         var builder = Builder.newInstance()
                 .correlationId(correlationId)
