@@ -19,9 +19,9 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.apache.http.HttpStatus;
-import org.eclipse.dataspaceconnector.common.annotations.EndToEndTest;
-import org.eclipse.dataspaceconnector.common.testfixtures.TestUtils;
-import org.eclipse.dataspaceconnector.junit.launcher.EdcRuntimeExtension;
+import org.eclipse.dataspaceconnector.common.util.junit.annotations.EndToEndTest;
+import org.eclipse.dataspaceconnector.junit.extensions.EdcRuntimeExtension;
+import org.eclipse.dataspaceconnector.junit.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.jetbrains.annotations.NotNull;
@@ -32,14 +32,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.*;
 
