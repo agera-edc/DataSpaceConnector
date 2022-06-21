@@ -113,7 +113,6 @@ public class FileTransferSampleTest {
     void runSampleSteps() throws IOException {
         assertTestPrerequisites();
 
-        assertConfigPropertiesUniquePorts();
         assertInitiateContractNegotiation();
         assertLookUpContractAgreementId();
         assertRequestFile();
@@ -242,55 +241,4 @@ public class FileTransferSampleTest {
         return newSampleDataRequest;
     }
 
-    /**
-     * Assert that the properties.config files are properly configured and all ports uniquely used.
-     * Relates to sample guidance section: Create the connectors.
-     */
-    void assertConfigPropertiesUniquePorts() {
-        String pathConsumerConfigProperties = getFileFromRelativePath(CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
-        String pathProviderConfigProperties = getFileFromRelativePath(PROVIDER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath();
-
-        Properties consumerProperties = null;
-        Properties providerProperties = null;
-
-        try {
-            consumerProperties = readPropertiesFile(pathConsumerConfigProperties);
-            providerProperties = readPropertiesFile(pathProviderConfigProperties);
-        } catch (IOException e) {
-            fail("Could not read properties files.");
-        }
-
-        List<String> portPropertyNames = List.of(
-                "web.http.port",
-                "web.http.data.port",
-                "web.http.ids.port"
-        );
-
-        HashMap<Integer, String> configuredPorts = new HashMap<>();
-
-        for (var portPropertyName : portPropertyNames) {
-            assertPortDefinedOnce(consumerProperties, portPropertyName, configuredPorts, "consumer");
-
-            assertPortDefinedOnce(providerProperties, portPropertyName, configuredPorts, "provider");
-        }
-    }
-
-    /**
-     * Helper method to assert that a given port number is existing only once in the given HashMap configuredPorts.
-     * If port number was not already defined it will be added to the HashMap configuredPorts with the given participant and property name.
-     */
-    void assertPortDefinedOnce(Properties properties, String portPropertyName, HashMap<Integer, String> configuredPorts, String participantName) {
-
-        String propertyValue = properties.getProperty(portPropertyName);
-
-        if (propertyValue == null) return;
-
-        int portNumber = Integer.parseInt(propertyValue);
-
-        if (configuredPorts.containsKey(portNumber)) {
-            fail(String.format("Port number '%d' defined multiple times.", portNumber));
-        }
-
-        configuredPorts.put(portNumber, String.format("%s/%s", participantName, portPropertyName));
-    }
 }
