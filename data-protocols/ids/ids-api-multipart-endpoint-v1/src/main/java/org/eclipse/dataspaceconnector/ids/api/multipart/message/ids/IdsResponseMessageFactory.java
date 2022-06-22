@@ -9,6 +9,7 @@
  *
  *  Contributors:
  *       Daimler TSS GmbH - Initial Implementation
+ *       Microsoft Corporation - Use IDS Webhook address for JWT audience claim
  *
  */
 

@@ -9,6 +9,7 @@
  *
  *  Contributors:
  *       Amadeus - initial API and implementation
+ *       Microsoft Corporation - Simplified token representation
  *
  */
 
