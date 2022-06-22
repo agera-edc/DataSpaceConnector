@@ -41,8 +41,6 @@ public class VerifiableCredentialFactory {
 
     // RFC 7519 Registered (standard) claims
     private static final String ISSUER_CLAIM = "iss";
-    private static final String SUBJECT_CLAIM = "sub";
-    private static final String AUDIENCE_CLAIM = "aud";
     private static final String EXPIRATION_TIME_CLAIM = "exp";
 
     // Subject claim value
