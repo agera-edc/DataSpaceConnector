@@ -67,9 +67,8 @@ public class IdsApiConfigurationExtension implements ServiceExtension {
         
         monitor.info(format("IDS API will be available at [path=%s], [port=%s].", path, port));
 
-        var idsWebhookAddress = context.getSetting(IDS_WEBHOOK_ADDRESS, DEFAULT_IDS_WEBHOOK_ADDRESS);
         var webhookPath = path + (path.endsWith("/") ? "data" : "/data");
-        idsWebhookAddress = idsWebhookAddress + webhookPath;
+        var idsWebhookAddress = context.getSetting(IDS_WEBHOOK_ADDRESS, DEFAULT_IDS_WEBHOOK_ADDRESS) + webhookPath;
 
         context.registerService(IdsApiConfiguration.class, new IdsApiConfiguration(contextAlias, idsWebhookAddress));
     }
