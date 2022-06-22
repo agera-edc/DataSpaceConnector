@@ -77,7 +77,7 @@ public class FileTransferSampleTest {
                     "edc.fs.config", getFileFromRelativePath(CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
             )
     );
-    final File destinationFile = getFileFromRelativePath(FileTransferSampleTest.DESTINATION_FILE_PATH);
+    static final File DESTINATION_FILE = getFileFromRelativePath(FileTransferSampleTest.DESTINATION_FILE_PATH);
     String contractNegotiationId;
     String contractAgreementId;
 
@@ -125,7 +125,7 @@ public class FileTransferSampleTest {
      * This assertion checks only whether the file to be copied is not existing already.
      */
     void assertTestPrerequisites() {
-        assertThat(destinationFile).doesNotExist();
+        assertThat(DESTINATION_FILE).doesNotExist();
     }
 
     /**
@@ -133,7 +133,7 @@ public class FileTransferSampleTest {
      * The copied file will be deleted.
      */
     void cleanTemporaryTestFiles() {
-        destinationFile.delete();
+        DESTINATION_FILE.delete();
     }
 
     /**
@@ -141,7 +141,7 @@ public class FileTransferSampleTest {
      * This method waits a duration which is defined in {@link FileTransferSampleTest#TIMEOUT}.
      */
     void assertWaitForDestinationFileExistence() {
-        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(destinationFile).exists());
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(DESTINATION_FILE).exists());
     }
 
     /**
@@ -234,7 +234,7 @@ public class FileTransferSampleTest {
         // convert JSON file to map
         DataRequest sampleDataRequest = mapper.readValue(transferJsonFile, DataRequest.class);
 
-        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", destinationFile.getAbsolutePath()).build();
+        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", DESTINATION_FILE.getAbsolutePath()).build();
         DataRequest newSampleDataRequest = sampleDataRequest.toBuilder().contractId(contractAgreementId).dataDestination(newDataDestination).build();
 
         return newSampleDataRequest;
