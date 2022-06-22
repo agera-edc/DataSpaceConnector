@@ -27,6 +27,7 @@ in the detailed section referring to by linking pull requests or issues.
 * Provided default no-op `TransactionContext` (#1461)
 * Refactored query capabilities for `Asset` (#1459)
 * Refactored query capabilities for `ContractDefinition` (#1458)
+* JWT audience claim check with DID (#1520)
 
 #### Removed
 
