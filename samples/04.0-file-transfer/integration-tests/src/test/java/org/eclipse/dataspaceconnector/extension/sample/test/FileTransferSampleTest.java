@@ -90,20 +90,6 @@ public class FileTransferSampleTest {
     }
 
     /**
-     * Reads a properties file and returns a {@link Properties} instance for the given properties file.
-     * @param fileName Path to a properties file.
-     * @return A {@link Properties} instance for the given properties file.
-     * @throws IOException Thrown if error while accessing the specified properties file.
-     */
-     static Properties readPropertiesFile(String fileName) throws IOException {
-        try (var propertiesFileInputStream = new FileInputStream(fileName)) {
-            Properties prop = new Properties();
-            prop.load(propertiesFileInputStream);
-            return prop;
-        }
-    }
-
-    /**
      * Run all sample steps in one single test.
      * Note: Sample steps cannot be separated into single tests because {@link EdcRuntimeExtension}
      * runs before each single test.
