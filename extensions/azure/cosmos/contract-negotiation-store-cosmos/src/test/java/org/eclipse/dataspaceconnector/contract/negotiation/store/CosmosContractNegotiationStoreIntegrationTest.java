@@ -452,7 +452,7 @@ class CosmosContractNegotiationStoreIntegrationTest {
         var query = QuerySpec.Builder.newInstance().sortField("xyz").sortOrder(SortOrder.ASC).build();
         var negotiations = store.queryNegotiations(query);
 
-        assertThat(negotiations).isEmpty();
+        assertThat(negotiations).hasSize(10);
     }
 
     @Test
