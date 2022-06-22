@@ -57,6 +57,7 @@ class EntitySendRetryManagerTest {
                 .id("any")
                 .stateCount(stateCount)
                 .stateTimestamp(stateTimestamp)
+                .clock(clock)
                 .build();
 
         when(delayStrategy.retryInMillis())
@@ -80,6 +81,7 @@ class EntitySendRetryManagerTest {
                 .id("any")
                 .stateCount(stateCount)
                 .stateTimestamp(stateTimestamp)
+                .clock(clock)
                 .build();
 
         var expected = retriesLeft < 0;
