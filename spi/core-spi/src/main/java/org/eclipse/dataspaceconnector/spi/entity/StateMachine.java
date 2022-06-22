@@ -12,10 +12,9 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.spi.persistence;
+package org.eclipse.dataspaceconnector.spi.entity;
 
 
-import org.eclipse.dataspaceconnector.spi.entity.StatefulEntity;
 import org.eclipse.dataspaceconnector.spi.telemetry.TraceCarrier;
 
 import java.time.Clock;

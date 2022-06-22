@@ -15,7 +15,7 @@
 package org.eclipse.dataspaceconnector.core.defaults.transferprocessstore;
 
 import org.eclipse.dataspaceconnector.core.defaults.InMemoryStateMachineStore;
-import org.eclipse.dataspaceconnector.spi.persistence.StateMachine;
+import org.eclipse.dataspaceconnector.spi.entity.StateMachine;
 import org.eclipse.dataspaceconnector.spi.query.QuerySpec;
 import org.eclipse.dataspaceconnector.spi.transfer.store.TransferProcessStore;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferProcess;

@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
-import org.eclipse.dataspaceconnector.spi.persistence.StateMachine;
+import org.eclipse.dataspaceconnector.spi.entity.StateMachine;
 import org.eclipse.dataspaceconnector.spi.retry.WaitStrategy;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
