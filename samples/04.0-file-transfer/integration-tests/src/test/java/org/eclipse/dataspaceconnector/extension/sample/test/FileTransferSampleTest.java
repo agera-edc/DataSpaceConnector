@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -155,27 +154,20 @@ public class FileTransferSampleTest {
      * This method corresponds to the command in the sample: {@code curl -X GET -H 'X-Api-Key: password' "http://localhost:9192/api/v1/data/contractnegotiations/{UUID}"}
      */
     void lookUpContractAgreementId() {
-        var localContractAgreementId = new AtomicReference<String>();
-
         // Wait for transfer to be completed.
-        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> {
-                    var result = RestAssured
-                        .given()
-                            .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
-                        .when()
-                            .get(LOOK_UP_CONTRACT_AGREEMENT_URI, contractNegotiationId)
-                        .then()
-                            .statusCode(HttpStatus.SC_OK)
-                            .body("state", equalTo("CONFIRMED"))
-                            .body("contractAgreementId", not(emptyString()))
-                            .extract().body().jsonPath().getString("contractAgreementId");
-
-                    localContractAgreementId.set(result);
-
-                }
-        );
-
-        contractAgreementId = localContractAgreementId.get();
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL)
+            .untilAsserted(() ->
+                contractAgreementId = RestAssured
+                    .given()
+                        .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
+                    .when()
+                        .get(LOOK_UP_CONTRACT_AGREEMENT_URI, contractNegotiationId)
+                    .then()
+                        .statusCode(HttpStatus.SC_OK)
+                        .body("state", equalTo("CONFIRMED"))
+                        .body("contractAgreementId", not(emptyString()))
+                        .extract().body().jsonPath().getString("contractAgreementId")
+            );
     }
 
     /**
