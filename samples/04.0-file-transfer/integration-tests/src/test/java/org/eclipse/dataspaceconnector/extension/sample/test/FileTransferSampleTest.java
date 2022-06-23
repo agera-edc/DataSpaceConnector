@@ -29,11 +29,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,10 +96,10 @@ public class FileTransferSampleTest {
     void runSampleSteps() throws IOException {
         assertTestPrerequisites();
 
-        assertInitiateContractNegotiation();
-        assertLookUpContractAgreementId();
-        assertRequestFile();
-        assertWaitForDestinationFileExistence();
+        initiateContractNegotiation();
+        lookUpContractAgreementId();
+        requestTransferFile();
+        waitForDestinationFileExistence();
 
         cleanTemporaryTestFiles();
     }
@@ -127,16 +125,15 @@ public class FileTransferSampleTest {
      * Assert that the file to be copied exists at the expected location.
      * This method waits a duration which is defined in {@link FileTransferSampleTest#TIMEOUT}.
      */
-    void assertWaitForDestinationFileExistence() {
+    void waitForDestinationFileExistence() {
         await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(DESTINATION_FILE).exists());
     }
 
     /**
      * Assert that a POST request to initiate a contract negotiation is successful.
-     * This method corresponds to the command in the sample: curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"
+     * This method corresponds to the command in the sample: {@code curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"}
      */
-    @SuppressWarnings("JavadocLinkAsPlainText")
-    void assertInitiateContractNegotiation() {
+    void initiateContractNegotiation() {
         JsonPath jsonPath = RestAssured
             .given()
                 .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
@@ -155,10 +152,9 @@ public class FileTransferSampleTest {
 
     /**
      * Assert that a GET request to look up a contract agreement is successful.
-     * This method corresponds to the command in the sample: curl -X GET -H 'X-Api-Key: password' "http://localhost:9192/api/v1/data/contractnegotiations/{UUID}"
+     * This method corresponds to the command in the sample: {@code curl -X GET -H 'X-Api-Key: password' "http://localhost:9192/api/v1/data/contractnegotiations/{UUID}"}
      */
-    @SuppressWarnings("JavadocLinkAsPlainText")
-    void assertLookUpContractAgreementId() {
+    void lookUpContractAgreementId() {
         var localContractAgreementId = new AtomicReference<String>();
 
         // Wait for transfer to be completed.
@@ -184,11 +180,10 @@ public class FileTransferSampleTest {
 
     /**
      * Assert that a POST request to initiate transfer process is successful.
-     * This methods corresponds to the command in the sample: curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"
+     * This method corresponds to the command in the sample: {@code curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/filetransfer.json "http://localhost:9192/api/v1/data/transferprocess"}
      * @throws IOException Thrown if there was an error accessing the transfer request file defined in {@link FileTransferSampleTest#TRANSFER_FILE_PATH}.
      */
-    @SuppressWarnings("JavadocLinkAsPlainText")
-    void assertRequestFile() throws IOException {
+    void requestTransferFile() throws IOException {
         File transferJsonFile = getFileFromRelativePath(TRANSFER_FILE_PATH);
         DataRequest sampleDataRequest = readAndUpdateTransferJsonFile(transferJsonFile, contractAgreementId);
 
@@ -217,7 +212,7 @@ public class FileTransferSampleTest {
      * @return An instance of {@link DataRequest} with changed values for contract agreement ID and file destination path.
      * @throws IOException Thrown if there was an error accessing the file given in transferJsonFile.
      */
-    DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId) throws IOException {
+    static DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId) throws IOException {
         // create object mapper instance
         ObjectMapper mapper = new ObjectMapper();
 
