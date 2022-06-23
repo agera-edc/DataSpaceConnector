@@ -70,8 +70,14 @@ public class DataAddress {
         properties.put(KEY_NAME, keyName);
     }
 
-    public DataAddress.Builder toBuilder() {
-        return new DataAddress.Builder(this);
+    public Builder toBuilder() {
+        return new Builder(copy());
+    }
+
+    private DataAddress copy() {
+        return Builder.newInstance()
+                .properties(this.properties)
+                .build();
     }
 
     @JsonPOJOBuilder(withPrefix = "")
