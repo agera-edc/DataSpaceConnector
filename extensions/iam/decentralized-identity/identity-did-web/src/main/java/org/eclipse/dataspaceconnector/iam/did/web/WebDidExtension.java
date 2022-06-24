@@ -20,7 +20,6 @@ import okhttp3.dnsoverhttps.DnsOverHttps;
 import org.eclipse.dataspaceconnector.common.string.StringUtils;
 import org.eclipse.dataspaceconnector.iam.did.spi.resolution.DidResolverRegistry;
 import org.eclipse.dataspaceconnector.iam.did.web.resolution.WebDidResolver;
-import org.eclipse.dataspaceconnector.spi.EdcSetting;
 import org.eclipse.dataspaceconnector.spi.system.Inject;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtension;
 import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
@@ -28,19 +27,10 @@ import org.eclipse.dataspaceconnector.spi.system.ServiceExtensionContext;
 import static java.util.Objects.requireNonNull;
 import static org.eclipse.dataspaceconnector.iam.did.web.ConfigurationKeys.DNS_OVER_HTTPS;
 
-
 /**
  * Initializes support for resolving Web DIDs.
  */
 public class WebDidExtension implements ServiceExtension {
-    /**
-     * Set to {@code false} to create DID URLs with {@code http} instead of {@code https} scheme.
-     * Defaults to {@code true}.
-     * <p>
-     * This setting can be used by EDC downstream projects, e.g. for testing with docker compose
-     */
-    @EdcSetting
-    private static final String USE_HTTPS_SCHEME = "edc.iam.did.web.use.https";
 
     @Inject
     private DidResolverRegistry resolverRegistry;
@@ -54,11 +44,10 @@ public class WebDidExtension implements ServiceExtension {
     public void initialize(ServiceExtensionContext context) {
         var mapper = context.getTypeManager().getMapper();
         var monitor = context.getMonitor();
-        var useHttpsScheme = context.getSetting(USE_HTTPS_SCHEME, true);
 
         OkHttpClient httpClient = getOkHttpClient(context);
 
-        var resolver = new WebDidResolver(httpClient, useHttpsScheme, mapper, monitor);
+        var resolver = new WebDidResolver(httpClient, mapper, monitor);
 
         resolverRegistry.register(resolver);
     }
