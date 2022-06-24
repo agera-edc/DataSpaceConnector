@@ -92,32 +92,42 @@ public class VerifiableCredentialFactory {
      * @return true if verified, false otherwise
      */
     public static Result<Void> verify(SignedJWT jwt, PublicKeyWrapper publicKey, String audience) {
+        // verify JWT signature
         try {
-            // verify JWT signature
             var verified = jwt.verify(publicKey.verifier());
             if (!verified) {
-                return Result.failure("Verification failed");
+                return Result.failure("Invalid signature");
             }
-
-            // verify claims
-            var exactMatchClaims = new JWTClaimsSet.Builder()
-                    .audience(audience)
-                    .subject(VERIFIABLE_CREDENTIAL)
-                    .build();
-            var requiredClaims = Set.of(
-                    ISSUER_CLAIM,
-                    EXPIRATION_TIME_CLAIM);
-            var claimsVerifier = new DefaultJWTClaimsVerifier<>(exactMatchClaims, requiredClaims);
-            try {
-                claimsVerifier.verify(jwt.getJWTClaimsSet());
-            } catch (BadJWTException e) {
-                // claim verification failed
-                return Result.failure(e.getMessage());
-            }
-
-            return Result.success();
-        } catch (JOSEException | ParseException e) {
-            throw new CryptoException(e);
+        } catch (JOSEException e) {
+            // Unable to verify, e.g. the JWS algorithm is not supported
+            return Result.failure(e.getMessage());
         }
+
+        JWTClaimsSet jwtClaimsSet;
+        try {
+            jwtClaimsSet = jwt.getJWTClaimsSet();
+        } catch (ParseException e) {
+            // The payload of the JWT doesn't represent a valid JSON object and a JWT claims set
+            return Result.failure(e.getMessage());
+        }
+
+        // verify claims
+        var exactMatchClaims = new JWTClaimsSet.Builder()
+                .audience(audience)
+                .subject(VERIFIABLE_CREDENTIAL)
+                .build();
+        var requiredClaims = Set.of(
+                ISSUER_CLAIM,
+                EXPIRATION_TIME_CLAIM);
+
+        var claimsVerifier = new DefaultJWTClaimsVerifier<>(exactMatchClaims, requiredClaims);
+        try {
+            claimsVerifier.verify(jwtClaimsSet);
+        } catch (BadJWTException e) {
+            // claim verification failed
+            return Result.failure(e.getMessage());
+        }
+
+        return Result.success();
     }
 }
