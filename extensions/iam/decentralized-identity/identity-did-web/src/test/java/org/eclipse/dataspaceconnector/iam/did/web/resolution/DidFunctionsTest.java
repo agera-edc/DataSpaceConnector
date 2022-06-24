@@ -14,9 +14,9 @@
 
 package org.eclipse.dataspaceconnector.iam.did.web.resolution;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.eclipse.dataspaceconnector.iam.did.web.resolution.DidFunctions.resolveDidDocumentUrl;
 
@@ -29,10 +29,10 @@ class DidFunctionsTest {
      * Verifies Web DID URN mappings.
      */
     @Test
-    void verifyConvertToUrl() throws Exception {
-        Assertions.assertThat(resolveDidDocumentUrl("did:web:w3c-ccg.github.io", true)).isEqualTo("https://w3c-ccg.github.io/.well-known/did.json");
-        Assertions.assertThat(resolveDidDocumentUrl("did:web:w3c-ccg.github.io", false)).isEqualTo("http://w3c-ccg.github.io/.well-known/did.json");
-        Assertions.assertThat(resolveDidDocumentUrl("did:web:w3c-ccg.github.io:user:alice", true)).isEqualTo("https://w3c-ccg.github.io/user/alice/did.json");
+    void verifyResolveDidDocumentUrl() {
+        assertThat(resolveDidDocumentUrl("did:web:w3c-ccg.github.io", true)).isEqualTo("https://w3c-ccg.github.io/.well-known/did.json");
+        assertThat(resolveDidDocumentUrl("did:web:w3c-ccg.github.io", false)).isEqualTo("http://w3c-ccg.github.io/.well-known/did.json");
+        assertThat(resolveDidDocumentUrl("did:web:w3c-ccg.github.io:user:alice", true)).isEqualTo("https://w3c-ccg.github.io/user/alice/did.json");
 
         assertThatIllegalArgumentException().isThrownBy(() -> resolveDidDocumentUrl("did:web:w3c-ccg.github.io:user:alice:", true));
     }
