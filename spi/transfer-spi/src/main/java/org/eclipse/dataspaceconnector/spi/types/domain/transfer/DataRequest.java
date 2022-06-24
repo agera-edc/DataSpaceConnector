@@ -260,11 +260,5 @@ public class DataRequest implements RemoteMessage, Polymorphic {
             request.transferType = transferType;
             return this;
         }
-
-        private Builder dataAddress(DataAddress dataAddress) {
-            request.dataDestination = dataAddress;
-            return this;
-        }
-
     }
 }
