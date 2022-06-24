@@ -49,7 +49,7 @@ public class DataRequest implements RemoteMessage, Polymorphic {
 
     private boolean managedResources = true;
 
-    private Map<String, String> properties = new HashMap<>();
+    private final Map<String, String> properties = new HashMap<>();
 
     private TransferType transferType;
 
@@ -244,8 +244,8 @@ public class DataRequest implements RemoteMessage, Polymorphic {
             return this;
         }
 
-        public Builder properties(Map<String, String> value) {
-            request.properties = value;
+        public Builder properties(Map<String, String> properties) {
+            request.properties.putAll(properties);
             return this;
         }
 
