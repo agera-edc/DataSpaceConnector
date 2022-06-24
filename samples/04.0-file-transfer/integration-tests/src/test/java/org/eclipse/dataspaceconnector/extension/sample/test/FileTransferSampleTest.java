@@ -42,6 +42,7 @@ import static org.hamcrest.Matchers.not;
 @EndToEndTest
 public class FileTransferSampleTest {
 
+    static final ObjectMapper MAPPER = new ObjectMapper();
     static final String INITIATE_CONTRACT_NEGOTIATION_URI = "http://localhost:9192/api/v1/data/contractnegotiations";
     static final String LOOK_UP_CONTRACT_AGREEMENT_URI = "http://localhost:9192/api/v1/data/contractnegotiations/{id}";
     static final String INITIATE_TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
@@ -205,14 +206,19 @@ public class FileTransferSampleTest {
      * @throws IOException Thrown if there was an error accessing the file given in transferJsonFile.
      */
     static DataRequest readAndUpdateTransferJsonFile(File transferJsonFile, String contractAgreementId) throws IOException {
-        // create object mapper instance
-        ObjectMapper mapper = new ObjectMapper();
-
         // convert JSON file to map
-        DataRequest sampleDataRequest = mapper.readValue(transferJsonFile, DataRequest.class);
+        DataRequest sampleDataRequest = MAPPER.readValue(transferJsonFile, DataRequest.class);
 
-        DataAddress newDataDestination = sampleDataRequest.getDataDestination().toBuilder().property("path", DESTINATION_FILE.getAbsolutePath()).build();
-        return sampleDataRequest.toBuilder().contractId(contractAgreementId).dataDestination(newDataDestination).build();
+        DataAddress newDataDestination = sampleDataRequest.getDataDestination()
+                .toBuilder()
+                .property("path", DESTINATION_FILE.getAbsolutePath())
+                .build();
+
+        return sampleDataRequest
+                .toBuilder()
+                .contractId(contractAgreementId)
+                .dataDestination(newDataDestination)
+                .build();
     }
 
 }
