@@ -22,6 +22,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPublicKeyWrapper;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,7 +97,8 @@ class VerifiableCredentialFactoryTest {
                 builderOperator.apply(builder).build());
         jwt.sign(privateKey.signer());
 
-        assertThat(VerifiableCredentialFactory.verify(jwt, publicKey, "test-audience")).isEqualTo(expectSuccess);
+        var result = VerifiableCredentialFactory.verify(jwt, publicKey, "test-audience");
+        assertThat(result.succeeded()).isEqualTo(expectSuccess);
     }
 
     public static Stream<Arguments> verifyJwtArgs() {

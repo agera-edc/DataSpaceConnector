@@ -25,6 +25,7 @@ import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.crypto.CryptoException;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 
 import java.text.ParseException;
 import java.time.Clock;
@@ -90,10 +91,13 @@ public class VerifiableCredentialFactory {
      * @param audience  The intended audience
      * @return true if verified, false otherwise
      */
-    public static boolean verify(SignedJWT jwt, PublicKeyWrapper publicKey, String audience) {
+    public static Result<Void> verify(SignedJWT jwt, PublicKeyWrapper publicKey, String audience) {
         try {
             // verify JWT signature
-            var verify = jwt.verify(publicKey.verifier());
+            var verified = jwt.verify(publicKey.verifier());
+            if (!verified) {
+                return Result.failure("Verification failed");
+            }
 
             // verify claims
             var exactMatchClaims = new JWTClaimsSet.Builder()
@@ -108,10 +112,10 @@ public class VerifiableCredentialFactory {
                 claimsVerifier.verify(jwt.getJWTClaimsSet());
             } catch (BadJWTException e) {
                 // claim verification failed
-                verify = false;
+                return Result.failure(e.getMessage());
             }
 
-            return verify;
+            return Result.success();
         } catch (JOSEException | ParseException e) {
             throw new CryptoException(e);
         }
