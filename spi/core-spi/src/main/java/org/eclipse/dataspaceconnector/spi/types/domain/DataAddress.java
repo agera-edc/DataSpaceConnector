@@ -74,7 +74,8 @@ public class DataAddress {
         return new Builder(copy());
     }
 
-    private DataAddress copy() {
+    public DataAddress copy() {
+        // No dedicated copy of type and key name as they are already part of the properties map.
         return Builder.newInstance()
                 .properties(this.properties)
                 .build();

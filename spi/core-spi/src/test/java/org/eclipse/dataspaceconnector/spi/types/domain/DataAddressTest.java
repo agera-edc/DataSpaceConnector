@@ -31,10 +31,8 @@ class DataAddressTest {
     void verifyDeserialization() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        DataAddress dataAddress = DataAddress.Builder.newInstance()
-                .type("test")
-                .keyName("somekey")
-                .property("foo", "bar").build();
+        DataAddress dataAddress =  newSampleDataAddress();
+
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, dataAddress);
 
@@ -60,4 +58,36 @@ class DataAddressTest {
                 .hasMessageContaining("Property key null.");
     }
 
+    @Test
+    void verifyCopy() {
+        DataAddress dataAddress = newSampleDataAddress();
+
+        var copy = dataAddress.copy();
+
+        assertSampleDataAddress(dataAddress, copy);
+    }
+
+    @Test
+    void verifyToBuilder() {
+        DataAddress dataAddress = newSampleDataAddress();
+
+        var copy = dataAddress.toBuilder().build();
+
+        assertSampleDataAddress(dataAddress, copy);
+    }
+
+    private DataAddress newSampleDataAddress() {
+        return DataAddress.Builder
+                .newInstance()
+                .type("test")
+                .keyName("somekey")
+                .property("foo", "bar")
+                .build();
+    }
+
+    private void assertSampleDataAddress(DataAddress dataAddress, DataAddress copy) {
+        assertEquals(dataAddress.getType(), copy.getType());
+        assertEquals(dataAddress.getKeyName(), copy.getKeyName());
+        assertEquals(dataAddress.getProperty("foo"), copy.getProperty("foo"));
+    }
 }
