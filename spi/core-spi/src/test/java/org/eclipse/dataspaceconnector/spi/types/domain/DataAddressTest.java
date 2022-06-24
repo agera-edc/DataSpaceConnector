@@ -68,6 +68,18 @@ class DataAddressTest {
     }
 
     @Test
+    void verifyDeepCopy() {
+        DataAddress dataAddress = newSampleDataAddress();
+
+        var copy = dataAddress.copy();
+
+        var copyProperties = copy.getProperties();
+        copyProperties.put("foo", "new value");
+
+        assertEquals(dataAddress.getProperty("foo"), "bar");
+    }
+
+    @Test
     void verifyToBuilder() {
         DataAddress dataAddress = newSampleDataAddress();
 
