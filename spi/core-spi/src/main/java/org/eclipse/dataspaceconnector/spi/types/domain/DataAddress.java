@@ -85,10 +85,6 @@ public class DataAddress {
     public static class Builder {
         protected final DataAddress address;
 
-        private Builder() {
-            this(new DataAddress());
-        }
-
         protected Builder(DataAddress address) {
             this.address = address;
         }
@@ -110,7 +106,7 @@ public class DataAddress {
         }
 
         public Builder properties(Map<String, String> properties) {
-            properties.forEach(this::property);
+            address.properties.putAll(properties);
             return this;
         }
 

@@ -76,7 +76,7 @@ class DataAddressTest {
         var copyProperties = copy.getProperties();
         copyProperties.put("foo", "new value");
 
-        assertEquals(dataAddress.getProperty("foo"), "bar");
+        assertEquals("bar", dataAddress.getProperty("foo"));
     }
 
     @Test
