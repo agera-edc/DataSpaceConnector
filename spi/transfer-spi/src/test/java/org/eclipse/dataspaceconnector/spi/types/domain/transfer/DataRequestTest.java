@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.spi.types.domain.transfer;
 
+import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
 import org.junit.jupiter.api.Test;
@@ -21,11 +22,29 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class DataRequestTest {
+
+    private static final Faker FAKER = new Faker();
+    private static final String DATA_ADDRESS_TYPE_NAME = FAKER.lorem().word();
+    private static final String DATA_ADDRESS_KEY_NAME = FAKER.lorem().word();
+    private static final String DATA_ADDRESS_PROPERTY_KEY = FAKER.lorem().word();
+    private static final String DATA_ADDRESS_PROPERTY_VALUE = FAKER.lorem().word();
+    private static final String TRANSFER_TYPE_CONTENT_TYPE = FAKER.lorem().word();
+    private static final String DATA_REQUEST_ID = FAKER.lorem().word();
+    private static final String DATA_REQUEST_PROCESS_ID = FAKER.lorem().word();
+    private static final String DATA_REQUEST_CONNECTOR_ADDRESS = FAKER.lorem().word();
+    private static final String DATA_REQUEST_PROTOCOL = FAKER.lorem().word();
+    private static final String DATA_REQUEST_CONNECTOR_ID = FAKER.lorem().word();
+    private static final String DATA_REQUEST_CONTRACT_ID = FAKER.lorem().word();
+    private static final String DATA_REQUEST_ASSET_ID = FAKER.lorem().word();
+    private static final String DATA_REQUEST_DESTINATION_TYPE = FAKER.lorem().word();
+    private static final String DATA_REQUEST_PROPERTIES_KEY = FAKER.lorem().word();
+    private static final String DATA_REQUEST_PROPERTIES_VALUE_ORIGINAL = FAKER.lorem().word();
+    private static final String DATA_REQUEST_PROPERTIES_VALUE_CHANGED = FAKER.lorem().word();
 
     @Test
     void verifyNoDestination() {
@@ -41,7 +60,7 @@ class DataRequestTest {
 
         var copy = dataRequest.copy();
 
-        assertSampleDataAddress(dataRequest, copy);
+        assertDataRequestsAreEqual(dataRequest, copy);
     }
 
     @Test
@@ -51,9 +70,9 @@ class DataRequestTest {
         var copy = dataRequest.copy();
 
         var copyProperties = copy.getProperties();
-        copyProperties.put("foo", "new value");
+        copyProperties.put(DATA_REQUEST_PROPERTIES_KEY, DATA_REQUEST_PROPERTIES_VALUE_CHANGED);
 
-        assertEquals("bar", dataRequest.getProperties().get("foo"));
+        assertThat(dataRequest.getProperties().get(DATA_REQUEST_PROPERTIES_KEY)).isEqualTo(DATA_REQUEST_PROPERTIES_VALUE_ORIGINAL);
     }
 
     @Test
@@ -62,35 +81,35 @@ class DataRequestTest {
 
         var copy = dataRequest.toBuilder().build();
 
-        assertSampleDataAddress(dataRequest, copy);
+        assertDataRequestsAreEqual(dataRequest, copy);
     }
 
     private DataRequest newSampleDataRequest() {
         var properties = new HashMap<String, String>(1);
-        properties.put("foo", "bar");
+        properties.put(DATA_REQUEST_PROPERTIES_KEY, DATA_REQUEST_PROPERTIES_VALUE_ORIGINAL);
 
         var dataAddress = DataAddress.Builder
                 .newInstance()
-                .type("test")
-                .keyName("somekey")
-                .property("foo", "bar")
+                .type(DATA_ADDRESS_TYPE_NAME)
+                .keyName(DATA_ADDRESS_KEY_NAME)
+                .property(DATA_ADDRESS_PROPERTY_KEY, DATA_ADDRESS_PROPERTY_VALUE)
                 .build();
 
         var transferType = TransferType.Builder.transferType()
                 .isFinite(false)
-                .contentType("someContentType")
+                .contentType(TRANSFER_TYPE_CONTENT_TYPE)
                 .build();
 
         return DataRequest.Builder
                 .newInstance()
-                .id("id")
-                .processId("process-id")
-                .connectorAddress("connector-address")
-                .protocol("protocol")
-                .connectorId("connector-id")
-                .contractId("contract-id")
-                .assetId("asset-id")
-                .destinationType("destination-type")
+                .id(DATA_REQUEST_ID)
+                .processId(DATA_REQUEST_PROCESS_ID)
+                .connectorAddress(DATA_REQUEST_CONNECTOR_ADDRESS)
+                .protocol(DATA_REQUEST_PROTOCOL)
+                .connectorId(DATA_REQUEST_CONNECTOR_ID)
+                .contractId(DATA_REQUEST_CONTRACT_ID)
+                .assetId(DATA_REQUEST_ASSET_ID)
+                .destinationType(DATA_REQUEST_DESTINATION_TYPE)
                 .dataDestination(dataAddress)
                 .managedResources(false)    // Set sample value to false because default is true.
                 .properties(properties)
@@ -98,17 +117,11 @@ class DataRequestTest {
                 .build();
     }
 
-    private void assertSampleDataAddress(DataRequest dataRequest, DataRequest copy) {
-        assertEquals(dataRequest.getId(), copy.getId());
-        assertEquals(dataRequest.getProcessId(), copy.getProcessId());
-        assertEquals(dataRequest.getConnectorAddress(), copy.getConnectorAddress());
-        assertEquals(dataRequest.getProtocol(), copy.getProtocol());
-        assertEquals(dataRequest.getConnectorId(), copy.getConnectorId());
-        assertEquals(dataRequest.getAssetId(), copy.getAssetId());
-        assertEquals(dataRequest.getDestinationType(), copy.getDestinationType());
-        assertEquals(dataRequest.getDataDestination().getProperty("foo"), copy.getDataDestination().getProperty("foo"));
-        assertEquals(dataRequest.getProperties().get("foo"), copy.getProperties().get("foo"));
-        assertEquals(dataRequest.isManagedResources(), copy.isManagedResources());
-        assertEquals(dataRequest.getTransferType(), copy.getTransferType());
+    private void assertDataRequestsAreEqual(DataRequest dataRequest, DataRequest copy) {
+        assertThat(copy).usingRecursiveComparison().isEqualTo(dataRequest);
+        assertThat(copy.getDataDestination().getProperty(DATA_ADDRESS_PROPERTY_KEY))
+                .isEqualTo(dataRequest.getDataDestination().getProperty(DATA_ADDRESS_PROPERTY_KEY));
+        assertThat(copy.getProperties().get(DATA_REQUEST_PROPERTIES_KEY))
+                .isEqualTo(dataRequest.getProperties().get(DATA_REQUEST_PROPERTIES_KEY));
     }
 }
