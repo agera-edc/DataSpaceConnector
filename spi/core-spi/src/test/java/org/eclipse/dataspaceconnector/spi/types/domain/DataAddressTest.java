@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.spi.types.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,11 +29,22 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DataAddressTest {
 
+    private static final Faker FAKER = new Faker();
+    private static final String TYPE_NAME = FAKER.lorem().word();
+    private static final String KEY_NAME = FAKER.lorem().word();
+    private static final String PROPERTY_KEY = FAKER.lorem().word();
+    private static final String PROPERTY_VALUE_ORIGINAL = FAKER.lorem().word();
+    private static final String PROPERTY_VALUE_CHANGED = FAKER.lorem().word();
+
+
     @Test
     void verifyDeserialization() throws IOException {
         ObjectMapper mapper = new ObjectMapper();
 
-        DataAddress dataAddress =  newSampleDataAddress();
+        DataAddress dataAddress = DataAddress.Builder.newInstance()
+                .type("test")
+                .keyName("somekey")
+                .property("foo", "bar").build();
 
         StringWriter writer = new StringWriter();
         mapper.writeValue(writer, dataAddress);
@@ -75,9 +87,9 @@ class DataAddressTest {
         var copy = dataAddress.copy();
 
         var copyProperties = copy.getProperties();
-        copyProperties.put("foo", "new value");
+        copyProperties.put(PROPERTY_KEY, PROPERTY_VALUE_CHANGED);
 
-        assertThat(dataAddress.getProperty("foo")).isEqualTo("bar");
+        assertThat(dataAddress.getProperty(PROPERTY_KEY)).isEqualTo(PROPERTY_VALUE_ORIGINAL);
     }
 
     @Test
@@ -92,10 +104,9 @@ class DataAddressTest {
     private DataAddress newSampleDataAddress() {
         return DataAddress.Builder
                 .newInstance()
-                .type("test")
-                .keyName("somekey")
-                .property("foo", "bar")
+                .type(TYPE_NAME)
+                .keyName(KEY_NAME)
+                .property(PROPERTY_KEY, PROPERTY_VALUE_ORIGINAL)
                 .build();
     }
-
 }
