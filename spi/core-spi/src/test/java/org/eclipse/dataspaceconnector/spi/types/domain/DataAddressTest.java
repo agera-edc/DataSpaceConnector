@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,7 +65,7 @@ class DataAddressTest {
 
         var copy = dataAddress.copy();
 
-        assertSampleDataAddress(dataAddress, copy);
+        assertThat(copy).usingRecursiveComparison().isEqualTo(dataAddress);
     }
 
     @Test
@@ -76,7 +77,7 @@ class DataAddressTest {
         var copyProperties = copy.getProperties();
         copyProperties.put("foo", "new value");
 
-        assertEquals("bar", dataAddress.getProperty("foo"));
+        assertThat(dataAddress.getProperty("foo")).isEqualTo("bar");
     }
 
     @Test
@@ -85,7 +86,7 @@ class DataAddressTest {
 
         var copy = dataAddress.toBuilder().build();
 
-        assertSampleDataAddress(dataAddress, copy);
+        assertThat(copy).usingRecursiveComparison().isEqualTo(dataAddress);
     }
 
     private DataAddress newSampleDataAddress() {
@@ -97,9 +98,4 @@ class DataAddressTest {
                 .build();
     }
 
-    private void assertSampleDataAddress(DataAddress dataAddress, DataAddress copy) {
-        assertEquals(dataAddress.getType(), copy.getType());
-        assertEquals(dataAddress.getKeyName(), copy.getKeyName());
-        assertEquals(dataAddress.getProperty("foo"), copy.getProperty("foo"));
-    }
 }
