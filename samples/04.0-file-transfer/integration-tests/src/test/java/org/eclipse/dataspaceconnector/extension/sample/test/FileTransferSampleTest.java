@@ -19,7 +19,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.apache.http.HttpStatus;
-import org.eclipse.dataspaceconnector.common.util.junit.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.junit.extensions.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.junit.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -76,6 +75,7 @@ public class FileTransferSampleTest {
             )
     );
     static final File DESTINATION_FILE = getFileFromRelativePath(FileTransferSampleTest.DESTINATION_FILE_PATH);
+    static final File SAMPLE_ASSET_FILE = getFileFromRelativePath(FileTransferSampleTest.SAMPLE_ASSET_FILE_PATH);
     String contractNegotiationId;
     String contractAgreementId;
 
@@ -99,7 +99,7 @@ public class FileTransferSampleTest {
         initiateContractNegotiation();
         lookUpContractAgreementId();
         requestTransferFile();
-        waitForDestinationFileExistence();
+        assertDestinationFileContent();
 
         cleanTemporaryTestFiles();
     }
@@ -125,8 +125,9 @@ public class FileTransferSampleTest {
      * Assert that the file to be copied exists at the expected location.
      * This method waits a duration which is defined in {@link FileTransferSampleTest#TIMEOUT}.
      */
-    void waitForDestinationFileExistence() {
-        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(() -> assertThat(DESTINATION_FILE).exists());
+    void assertDestinationFileContent() {
+        await().atMost(TIMEOUT).pollInterval(POLL_INTERVAL).untilAsserted(()
+                -> assertThat(DESTINATION_FILE).hasSameBinaryContentAs(SAMPLE_ASSET_FILE));
     }
 
     /**
