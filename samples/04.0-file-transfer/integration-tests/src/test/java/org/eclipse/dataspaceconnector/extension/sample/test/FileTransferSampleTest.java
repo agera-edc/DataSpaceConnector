@@ -19,6 +19,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.apache.http.HttpStatus;
+import org.eclipse.dataspaceconnector.common.util.junit.annotations.EndToEndTest;
 import org.eclipse.dataspaceconnector.junit.extensions.EdcRuntimeExtension;
 import org.eclipse.dataspaceconnector.junit.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
@@ -93,7 +94,7 @@ public class FileTransferSampleTest {
      * runs before each single test.
      */
     @Test
-    void runSampleSteps() throws IOException {
+    void runSampleSteps() throws Exception {
         assertTestPrerequisites();
 
         initiateContractNegotiation();
