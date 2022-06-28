@@ -53,7 +53,7 @@ public class FileTransferSampleTest {
     // Reuse an already existing file for the test. Could be set to any other existing file in the repository.
     static final String SAMPLE_ASSET_FILE_PATH = TRANSFER_FILE_PATH;
     static final String DESTINATION_FILE_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
-    static final Duration TIMEOUT = Duration.ofSeconds(5);
+    static final Duration TIMEOUT = Duration.ofSeconds(15);
     static final Duration POLL_INTERVAL = Duration.ofMillis(500);
     static final String API_KEY_HEADER_KEY = "X-Api-Key";
     static final String API_KEY_HEADER_VALUE = "password";
