@@ -53,8 +53,8 @@ public class FileTransferSampleTest {
     // Reuse an already existing file for the test. Could be set to any other existing file in the repository.
     static final String SAMPLE_ASSET_FILE_PATH = TRANSFER_FILE_PATH;
     static final String DESTINATION_FILE_PATH = "samples/04.0-file-transfer/consumer/requested.test.txt";
-    static final Duration TIMEOUT = Duration.ofSeconds(15);
-    static final Duration POLL_INTERVAL = Duration.ofMillis(1000);
+    static final Duration TIMEOUT = Duration.ofSeconds(5);
+    static final Duration POLL_INTERVAL = Duration.ofMillis(500);
     static final String API_KEY_HEADER_KEY = "X-Api-Key";
     static final String API_KEY_HEADER_VALUE = "password";
     @RegisterExtension
@@ -136,7 +136,7 @@ public class FileTransferSampleTest {
      * This method corresponds to the command in the sample: {@code curl -X POST -H "Content-Type: application/json" -H "X-Api-Key: password" -d @samples/04.0-file-transfer/contractoffer.json "http://localhost:9192/api/v1/data/contractnegotiations"}
      */
     void initiateContractNegotiation() {
-        JsonPath jsonPath = RestAssured
+        contractNegotiationId = RestAssured
             .given()
                 .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
                 .contentType(ContentType.JSON)
@@ -147,9 +147,8 @@ public class FileTransferSampleTest {
                 .statusCode(HttpStatus.SC_OK)
                 .body("id", not(emptyString()))
                 .extract()
-                .jsonPath();
-
-        contractNegotiationId = jsonPath.get("id");
+                .jsonPath()
+                .get("id");
     }
 
     /**
