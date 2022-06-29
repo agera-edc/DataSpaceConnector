@@ -14,6 +14,7 @@
 
 package org.eclipse.dataspaceconnector.test.e2e;
 
+import org.eclipse.dataspaceconnector.common.util.postgres.PostgresqlLocalInstance;
 import org.eclipse.dataspaceconnector.policy.model.Action;
 import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
@@ -24,7 +25,6 @@ import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.catalog.Catalog;
 import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractOffer;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.TransferType;
-import org.eclipse.dataspaceconnector.test.e2e.postgresql.PostgresqlLocalInstance;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
@@ -217,7 +217,8 @@ public class Participant {
                 "id", UUID.randomUUID().toString(),
                 "url", dataPlaneControl + "/transfer",
                 "allowedSourceTypes", List.of("HttpData", "HttpProvision"),
-                "allowedDestTypes", List.of("HttpData", "HttpProvision")
+                "allowedDestTypes", List.of("HttpData", "HttpProvision", "HttpProxy"),
+                "properties", Map.of("publicApiUrl", dataPlanePublic.toString())
         );
 
         given()
@@ -353,7 +354,7 @@ public class Participant {
                 put("web.http.public.path", "/public");
                 put("web.http.control.port", String.valueOf(dataPlaneControl.getPort()));
                 put("web.http.control.path", dataPlaneControl.getPath());
-                put("edc.controlplane.validation-endpoint", controlPlaneValidation + "/token");
+                put("edc.dataplane.token.validation.endpoint", controlPlaneValidation + "/token");
             }
         };
     }
