@@ -30,7 +30,7 @@ jobs:
           tool_name: 'checkstyle'
           checkstyle_version: '9.0'
           # Filtering does not work on github-check, needs github-pr-check
-          reporter: 'github-pr-check'
+          reporter: 'github-check'
           # Include only violations on added or modified files
           filter_mode: 'file'
 
