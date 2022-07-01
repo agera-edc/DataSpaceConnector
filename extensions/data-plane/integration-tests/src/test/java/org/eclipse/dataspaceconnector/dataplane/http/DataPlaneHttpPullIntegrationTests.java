@@ -111,29 +111,29 @@ public class DataPlaneHttpPullIntegrationTests {
     }
 
     private static Stream<Arguments> providerTestInstances() {
-        var get = new TestInstance(HttpMethod.GET.name());
-        var path = FAKER.lorem().word() + "/" + FAKER.lorem().word();
-        var body = FAKER.lorem().sentence();
+                    var get = new TestInstance(HttpMethod.GET.name());
+                    var path = FAKER.lorem().word() + "/" + FAKER.lorem().word();
+                    var body = FAKER.lorem().sentence();
 
         var getWithQueryParams = new TestInstance(HttpMethod.GET.name())
                 .queryParam(FAKER.lorem().word(), FAKER.lorem().word())
                 .queryParam(FAKER.lorem().word(), FAKER.lorem().word());
 
         var getWithPath = new TestInstance(HttpMethod.GET.name())
-                .path(path);
+                                       .path(path);
 
-        var post = new TestInstance(HttpMethod.POST.name())
-                .requestBody(body);
+                var post = new TestInstance(HttpMethod.POST.name())
+                        .requestBody(body);
 
-        var postWithPath = new TestInstance(HttpMethod.POST.name())
-                .path(path)
-                .requestBody(body);
+                var postWithPath = new TestInstance(HttpMethod.POST.name())
+                        .path(path)
+                        .requestBody(body);
 
         return Stream.of(
                 Arguments.of("POST", post),
                 Arguments.of("GET", get),
                 Arguments.of("GET WITH QUERY PARAMS", getWithQueryParams),
-                Arguments.of("GET WITH PATH", getWithPath),
+                                                Arguments.of("GET WITH PATH", getWithPath),
                 Arguments.of("POST WITH PATH", postWithPath)
         );
     }
