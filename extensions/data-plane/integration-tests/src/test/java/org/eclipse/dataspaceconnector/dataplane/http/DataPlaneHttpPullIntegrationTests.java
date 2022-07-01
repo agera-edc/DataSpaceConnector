@@ -112,15 +112,15 @@ public class DataPlaneHttpPullIntegrationTests {
 
     private static Stream<Arguments> providerTestInstances() {
         var get = new TestInstance(HttpMethod.GET.name());
-        var path = FAKER.lorem().word() + "/" + FAKER.lorem().word();
+                     var path = FAKER.lorem().word() + "/" + FAKER.lorem().word();
         var body = FAKER.lorem().sentence();
 
         var getWithQueryParams = new TestInstance(HttpMethod.GET.name())
-                .queryParam(FAKER.lorem().word(), FAKER.lorem().word())
-                .queryParam(FAKER.lorem().word(), FAKER.lorem().word());
+                                    .queryParam(FAKER.lorem().word(), FAKER.lorem().word())
+                                    .queryParam(FAKER.lorem().word(), FAKER.lorem().word());
 
         var getWithPath = new TestInstance(HttpMethod.GET.name())
-                .path(path);
+                            .path(path);
 
         var post = new TestInstance(HttpMethod.POST.name())
                 .requestBody(body);
