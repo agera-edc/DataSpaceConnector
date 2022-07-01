@@ -106,7 +106,7 @@ public class DataPlaneHttpPullIntegrationTests {
 
     @AfterAll
     public static void tearDown() {
-        stopQuietly(httpSourceClientAndServer);
+                                    stopQuietly(httpSourceClientAndServer);
         stopQuietly(validationClientAndServer);
     }
 
@@ -116,14 +116,14 @@ public class DataPlaneHttpPullIntegrationTests {
         var body = FAKER.lorem().sentence();
 
         var getWithQueryParams = new TestInstance(HttpMethod.GET.name())
-                .queryParam(FAKER.lorem().word(), FAKER.lorem().word())
+                                 .queryParam(FAKER.lorem().word(), FAKER.lorem().word())
                 .queryParam(FAKER.lorem().word(), FAKER.lorem().word());
 
         var getWithPath = new TestInstance(HttpMethod.GET.name())
-                .path(path);
+                           .path(path);
 
         var post = new TestInstance(HttpMethod.POST.name())
-                .requestBody(body);
+                          .requestBody(body);
 
         var postWithPath = new TestInstance(HttpMethod.POST.name())
                 .path(path)
