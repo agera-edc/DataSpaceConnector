@@ -53,9 +53,9 @@ class FileTransferDataSink extends ParallelSink {
     }
 
     private StatusResult<Void> getTransferResult(Exception e, String logMessage, Object... args) {
-        var message = format(logMessage, args);
-        monitor.severe(message, e);
-        return StatusResult.failure(ERROR_RETRY, message);
+                        var message = format(logMessage, args);
+                        monitor.severe(message, e);
+                        return StatusResult.failure(ERROR_RETRY, message);
     }
 
     public static class Builder extends ParallelSink.Builder<Builder, FileTransferDataSink> {
@@ -64,10 +64,10 @@ class FileTransferDataSink extends ParallelSink {
             return new Builder();
         }
 
-        public Builder file(File file) {
-            sink.file = file;
-            return this;
-        }
+                            public Builder file(File file) {
+                                sink.file = file;
+                                return this;
+                            }
 
         @Override
         protected void validate() {
