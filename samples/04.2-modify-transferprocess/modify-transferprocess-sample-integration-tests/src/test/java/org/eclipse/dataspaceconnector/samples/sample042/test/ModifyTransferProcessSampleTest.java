@@ -31,7 +31,7 @@ public class ModifyTransferProcessSampleTest {
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":samples:04.2-modify-transferprocess:consumer",
-            "provider",
+            "consumer",
             Map.of(
                     "edc.fs.config", getFileFromRelativePath(CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
             )
@@ -46,12 +46,10 @@ public class ModifyTransferProcessSampleTest {
     }
 
     /**
-     * Run all sample steps in one single test.
-     * Note: Sample steps cannot be separated into single tests because {@link EdcRuntimeExtension}
-     * runs before each single test.
+     * Let run the consumer EDC.
      */
     @Test
-    void runSampleSteps() {
-
+    void runSample() throws InterruptedException {
+        Thread.sleep(10000);
     }
 }
