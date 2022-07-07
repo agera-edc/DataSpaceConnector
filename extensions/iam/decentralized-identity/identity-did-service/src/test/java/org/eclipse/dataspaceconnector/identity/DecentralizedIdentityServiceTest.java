@@ -39,7 +39,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
-import java.util.Map;
 
 import static org.eclipse.dataspaceconnector.junit.testfixtures.TestUtils.getResourceFileContentAsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
