@@ -26,7 +26,6 @@ import org.eclipse.dataspaceconnector.spi.types.TypeManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.transfer.dataplane.spi.security.DataEncrypter;
 
-import static java.lang.String.format;
 import static java.lang.String.join;
 import static org.eclipse.dataspaceconnector.transfer.dataplane.spi.DataPlaneTransferConstants.DATA_ADDRESS;
 
@@ -58,11 +57,8 @@ public class DataPlaneTokenValidationApiController implements DataPlaneTokenVali
             throw new NotAuthorizedException("Token validation failed: " + join(", ", result.getFailureMessages()));
         }
 
-        var obj = result.getContent().getClaims().get(DATA_ADDRESS);
-        if (!(obj instanceof String)) {
-            throw new IllegalArgumentException(format("Missing claim `%s` in token", DATA_ADDRESS));
-        }
+        var obj = result.getContent().getClaims().stream().filter(claim -> claim.getProperty().equals(DATA_ADDRESS)).findFirst().get().getValue();
 
-        return typeManager.readValue(dataEncrypter.decrypt((String) obj), DataAddress.class);
+        return typeManager.readValue(dataEncrypter.decrypt(obj), DataAddress.class);
     }
 }

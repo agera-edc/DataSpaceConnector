@@ -137,7 +137,8 @@ class Oauth2ServiceImplTest {
         var result = authService.verifyJwtToken(jwt, PROVIDER_AUDIENCE);
 
         assertThat(result.succeeded()).isTrue();
-        assertThat(result.getContent().getClaims()).hasSize(3).containsKeys("aud", "nbf", "exp");
+        assertThat(result.getContent().getClaims()).hasSize(3).anyMatch(c -> c.getProperty().equals("aud"))
+                .anyMatch(c -> c.getProperty().equals("nbf")).anyMatch(c -> c.getProperty().equals("exp"));
     }
 
     private RSAKey testKey() throws JOSEException {

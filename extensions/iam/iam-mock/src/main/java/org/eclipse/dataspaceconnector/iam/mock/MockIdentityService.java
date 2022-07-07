@@ -16,6 +16,7 @@
 
 package org.eclipse.dataspaceconnector.iam.mock;
 
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
 import org.eclipse.dataspaceconnector.spi.iam.TokenParameters;
@@ -53,7 +54,7 @@ public class MockIdentityService implements IdentityService {
         if (!Objects.equals(token.audience, audience)) {
             return Result.failure(format("Mismatched audience: expected %s, got %s", audience, token.audience));
         }
-        return Result.success(ClaimToken.Builder.newInstance().claim("region", token.region).claim("iss", "government A").build());
+        return Result.success(ClaimToken.Builder.newInstance().claim(new Claim("subjectA", "region", token.region, "governmentA")).build());
     }
 
     private static class MockToken {
