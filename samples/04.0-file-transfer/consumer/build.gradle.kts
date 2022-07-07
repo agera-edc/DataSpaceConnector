@@ -32,7 +32,7 @@ dependencies {
     implementation(project(":extensions:iam:iam-mock"))
 
     implementation(project(":extensions:api:auth-tokenbased"))
-    implementation(project(":extensions:api:data-management"))
+    implementation(project(":extensions:api:data-management:transferprocess"))
 
     implementation(project(":data-protocols:ids"))
 }
