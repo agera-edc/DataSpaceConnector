@@ -32,6 +32,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDe
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.Collections.emptyMap;
@@ -67,7 +68,7 @@ class ContractOfferServiceImplTest {
                 .selectorExpression(AssetSelectorExpression.SELECT_ALL)
                 .build();
 
-        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(emptyMap(), emptyMap()));
+        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(List.of(), emptyMap()));
         when(contractDefinitionService.definitionsFor(isA(ParticipantAgent.class), any())).thenReturn(Stream.of(contractDefinition));
         var assetStream = Stream.of(Asset.Builder.newInstance().build(), Asset.Builder.newInstance().build());
         when(assetIndex.queryAssets(isA(AssetSelectorExpression.class))).thenReturn(assetStream);
@@ -90,7 +91,7 @@ class ContractOfferServiceImplTest {
                 .contractPolicyId("contract")
                 .selectorExpression(AssetSelectorExpression.SELECT_ALL)
                 .build();
-        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(emptyMap(), emptyMap()));
+        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(List.of(), emptyMap()));
         when(contractDefinitionService.definitionsFor(isA(ParticipantAgent.class), any())).thenReturn(Stream.of(contractDefinition));
         when(assetIndex.queryAssets(isA(AssetSelectorExpression.class))).thenReturn(Stream.of(Asset.Builder.newInstance().build()));
         when(policyStore.findById(any())).thenReturn(null);

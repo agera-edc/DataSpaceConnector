@@ -17,6 +17,7 @@ package org.eclipse.dataspaceconnector.transfer.dataplane.sync.api;
 import com.github.javafaker.Faker;
 import org.eclipse.dataspaceconnector.common.token.TokenValidationService;
 import org.eclipse.dataspaceconnector.spi.exception.NotAuthorizedException;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.types.TypeManager;
@@ -25,6 +26,7 @@ import org.eclipse.dataspaceconnector.transfer.dataplane.spi.security.DataEncryp
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,9 +60,9 @@ class DataPlaneTokenValidationApiControllerTest {
         var encryptedDataAddress = FAKER.internet().uuid();
         var decryptedDataAddress = DataAddress.Builder.newInstance().type(FAKER.internet().uuid()).build();
         var claims = ClaimToken.Builder.newInstance()
-                .claims(Map.of(
-                                FAKER.lorem().word(), FAKER.lorem().word(),
-                                DATA_ADDRESS, encryptedDataAddress
+                .claims(List.of(new Claim(FAKER.lorem().word(),
+                                FAKER.lorem().word(), FAKER.lorem().word(),FAKER.lorem().word()),
+                                new Claim(FAKER.lorem().word(), DATA_ADDRESS, encryptedDataAddress, FAKER.lorem().word())
                         )
                 )
                 .build();
@@ -91,8 +93,9 @@ class DataPlaneTokenValidationApiControllerTest {
     void verifyMissingAddressThrowsException() {
         var token = FAKER.internet().uuid();
         var claims = ClaimToken.Builder.newInstance()
-                .claims(Map.of(
-                                FAKER.lorem().word(), FAKER.lorem().word()
+                .claims(List.of(new Claim(FAKER.lorem().word(),
+                                FAKER.lorem().word(), FAKER.lorem().word(),
+                                FAKER.lorem().word())
                         )
                 )
                 .build();

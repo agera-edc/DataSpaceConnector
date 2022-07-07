@@ -29,6 +29,7 @@ import org.eclipse.dataspaceconnector.spi.types.domain.contract.offer.ContractDe
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -60,7 +61,7 @@ class ContractDefinitionServiceImplTest {
 
     @Test
     void definitionsFor_verifySatisfiesPolicies() {
-        var agent = new ParticipantAgent(Map.of(), Map.of());
+        var agent = new ParticipantAgent(List.of(), Map.of());
         var def = PolicyDefinition.Builder.newInstance().policy(Policy.Builder.newInstance().build()).build();
         when(policyStore.findById(any())).thenReturn(def);
         when(policyEngine.evaluate(NEGOTIATION_SCOPE, def.getPolicy(), agent)).thenReturn(Result.success(def.getPolicy()));
@@ -75,7 +76,7 @@ class ContractDefinitionServiceImplTest {
 
     @Test
     void definitionsFor_verifyDoesNotSatisfyAccessPolicy() {
-        var agent = new ParticipantAgent(Map.of(), Map.of());
+        var agent = new ParticipantAgent(List.of(), Map.of());
         var definition = PolicyDefinition.Builder.newInstance().policy(Policy.Builder.newInstance().build()).uid("access").build();
         when(policyStore.findById(any())).thenReturn(definition);
         var contractDefinition = ContractDefinition.Builder.newInstance().id("1").accessPolicyId("access").contractPolicyId("contract").selectorExpression(SELECT_ALL).build();
@@ -91,7 +92,7 @@ class ContractDefinitionServiceImplTest {
 
     @Test
     void definitionsFor_verifyDoesNotSatisfyUsagePolicy() {
-        var agent = new ParticipantAgent(Map.of(), Map.of());
+        var agent = new ParticipantAgent(List.of(), Map.of());
         var definition = PolicyDefinition.Builder.newInstance().policy(Policy.Builder.newInstance().build()).uid("access").build();
         var contractDefinition = ContractDefinition.Builder.newInstance().id("1")
                 .accessPolicyId("access").contractPolicyId("contract").selectorExpression(SELECT_ALL).build();
@@ -110,7 +111,7 @@ class ContractDefinitionServiceImplTest {
 
     @Test
     void definitionsFor_verifyPoliciesNotFound() {
-        var agent = new ParticipantAgent(Map.of(), Map.of());
+        var agent = new ParticipantAgent(List.of(), Map.of());
         var policy = Policy.Builder.newInstance().build();
         when(policyStore.findById(any())).thenReturn(null);
         when(policyEngine.evaluate(NEGOTIATION_SCOPE, policy, agent)).thenReturn(Result.success(policy));
@@ -124,7 +125,7 @@ class ContractDefinitionServiceImplTest {
 
     @Test
     void definitionFor_found() {
-        var agent = new ParticipantAgent(Map.of(), Map.of());
+        var agent = new ParticipantAgent(List.of(), Map.of());
         var definition = PolicyDefinition.Builder.newInstance().policy(Policy.Builder.newInstance().build()).build();
         var contractDefinition = ContractDefinition.Builder.newInstance().id("1").accessPolicyId("access")
                 .contractPolicyId("contract").selectorExpression(SELECT_ALL).build();
@@ -140,7 +141,7 @@ class ContractDefinitionServiceImplTest {
 
     @Test
     void definitionFor_notFound() {
-        var agent = new ParticipantAgent(Map.of(), Map.of());
+        var agent = new ParticipantAgent(List.of(), Map.of());
         when(definitionStore.findById(any())).thenReturn(null);
 
         var result = definitionService.definitionFor(agent, "nodefinition");

@@ -39,6 +39,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -84,7 +85,7 @@ class ContractValidationServiceImplTest {
                 .selectorExpression(AssetSelectorExpression.SELECT_ALL)
                 .build();
 
-        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(emptyMap(), emptyMap()));
+        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(List.of(), emptyMap()));
         when(definitionService.definitionFor(isA(ParticipantAgent.class), eq("1"))).thenReturn(contractDefinition);
         when(policyStore.findById("access")).thenReturn(PolicyDefinition.Builder.newInstance().policy(Policy.Builder.newInstance().build()).build());
         when(policyStore.findById("contract")).thenReturn(PolicyDefinition.Builder.newInstance().policy(newPolicy).build());
@@ -118,7 +119,7 @@ class ContractValidationServiceImplTest {
                 .selectorExpression(AssetSelectorExpression.SELECT_ALL)
                 .build();
 
-        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(emptyMap(), emptyMap()));
+        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(List.of(), emptyMap()));
         when(definitionService.definitionFor(isA(ParticipantAgent.class), eq("1"))).thenReturn(contractDefinition);
         when(policyStore.findById("access")).thenReturn(PolicyDefinition.Builder.newInstance().policy(Policy.Builder.newInstance().build()).build());
         when(policyStore.findById("contract")).thenReturn(PolicyDefinition.Builder.newInstance().policy(newPolicy).build());
@@ -166,7 +167,7 @@ class ContractValidationServiceImplTest {
                 .selectorExpression(AssetSelectorExpression.SELECT_ALL)
                 .build();
 
-        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(emptyMap(), emptyMap()));
+        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(List.of(), emptyMap()));
         when(definitionService.definitionFor(isA(ParticipantAgent.class), eq("1"))).thenReturn(contractDefinition);
         when(policyStore.findById(any())).thenReturn(null);
         when(assetIndex.queryAssets(isA(QuerySpec.class))).thenReturn(Stream.of(asset));
@@ -185,7 +186,7 @@ class ContractValidationServiceImplTest {
     }
 
     private boolean validateAgreementDate(long signingDate, long startDate, long endDate) {
-        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(emptyMap(), emptyMap()));
+        when(agentService.createFor(isA(ClaimToken.class))).thenReturn(new ParticipantAgent(List.of(), emptyMap()));
 
         var claimToken = ClaimToken.Builder.newInstance().build();
         var agreement = ContractAgreement.Builder.newInstance().id("1")
