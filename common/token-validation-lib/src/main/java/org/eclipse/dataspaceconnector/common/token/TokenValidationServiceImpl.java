@@ -20,6 +20,7 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.factories.DefaultJWSVerifierFactory;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
@@ -76,7 +77,7 @@ public class TokenValidationServiceImpl implements TokenValidationService {
             claimsSet.getClaims().entrySet().stream()
                     .map(entry -> Map.entry(entry.getKey(), Objects.toString(entry.getValue())))
                     .filter(entry -> entry.getValue() != null)
-                    .forEach(entry -> tokenBuilder.claim(entry.getKey(), entry.getValue()));
+                    .forEach(entry -> tokenBuilder.claim(new Claim("", entry.getKey(), entry.getValue(), "")));
 
             return Result.success(tokenBuilder.build());
 

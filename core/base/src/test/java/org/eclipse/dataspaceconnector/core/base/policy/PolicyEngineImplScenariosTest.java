@@ -21,12 +21,12 @@ import org.eclipse.dataspaceconnector.policy.model.Permission;
 import org.eclipse.dataspaceconnector.policy.model.Policy;
 import org.eclipse.dataspaceconnector.policy.model.Prohibition;
 import org.eclipse.dataspaceconnector.spi.agent.ParticipantAgent;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.spi.policy.RuleBindingRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +57,7 @@ public class PolicyEngineImplScenariosTest {
         var policy = Policy.Builder.newInstance().permission(usePermission).build();
 
 
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
         assertThat(policyEngine.evaluate(TEST_SCOPE, policy, agent).succeeded()).isTrue();
     }
 
@@ -72,7 +72,7 @@ public class PolicyEngineImplScenariosTest {
 
         var policy = Policy.Builder.newInstance().prohibition(prohibition).build();
 
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         policyEngine.registerFunction(ALL_SCOPES, Prohibition.class, (rule, context) -> rule.getAction().getType().equals(USE_ACTION.getType()));
         assertThat(policyEngine.evaluate(TEST_SCOPE, policy, agent).succeeded()).isFalse();
@@ -89,7 +89,7 @@ public class PolicyEngineImplScenariosTest {
         // function that verifies the EU region
         policyEngine.registerFunction(ALL_SCOPES, Permission.class, ABS_SPATIAL_CONSTRAINT, (operator, value, permission, context) -> {
             var claims = context.getParticipantAgent().getClaims();
-            return claims.containsKey("region") && claims.get("region").equals(value);
+            return claims.stream().anyMatch(claim -> claim.getProperty().equals("region") && claim.getValue().equals(value));
         });
 
         var left = new LiteralExpression(ABS_SPATIAL_CONSTRAINT);
@@ -100,10 +100,10 @@ public class PolicyEngineImplScenariosTest {
 
         var policy = Policy.Builder.newInstance().permission(usePermission).build();
 
-        var euAgent = new ParticipantAgent(Map.of("region", "eu"), emptyMap());
+        var euAgent = new ParticipantAgent(List.of(new Claim("", "region", "eu", "")), emptyMap());
         assertThat(policyEngine.evaluate(TEST_SCOPE, policy, euAgent).succeeded()).isTrue();
 
-        var noRegionAgent = new ParticipantAgent(emptyMap(), emptyMap());
+        var noRegionAgent = new ParticipantAgent(List.of(), emptyMap());
         assertThat(policyEngine.evaluate(TEST_SCOPE, policy, noRegionAgent).succeeded()).isFalse();
     }
 
@@ -128,7 +128,7 @@ public class PolicyEngineImplScenariosTest {
 
         var policy = Policy.Builder.newInstance().permission(usePermission).build();
 
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
         assertThat(policyEngine.evaluate(TEST_SCOPE, policy, agent).succeeded()).isTrue();
     }
 

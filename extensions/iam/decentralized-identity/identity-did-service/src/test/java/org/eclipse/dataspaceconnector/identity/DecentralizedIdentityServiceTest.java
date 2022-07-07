@@ -21,7 +21,7 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
-import org.eclipse.dataspaceconnector.iam.did.spi.credentials.Claim;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.eclipse.dataspaceconnector.junit.testfixtures.TestUtils.getResourceFileContentAsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -72,7 +73,9 @@ abstract class DecentralizedIdentityServiceTest {
 
         Result<ClaimToken> verificationResult = identityService.verifyJwtToken(result.getContent(), "Bar");
         assertTrue(verificationResult.succeeded());
-        assertEquals("eu", verificationResult.getContent().getClaims().get("region"));
+        var regionClaim = verificationResult.getContent().getClaims().stream().filter(c -> c.getProperty().equals("region")).findFirst();
+        assertThat(regionClaim).isPresent();
+        assertEquals("eu", regionClaim.get().getValue());
     }
 
     @Test
@@ -92,7 +95,7 @@ abstract class DecentralizedIdentityServiceTest {
         var privateKey = new EcPrivateKeyWrapper(keyPair.toECKey());
 
         var didResolver = new TestResolverRegistry(DID_DOCUMENT, keyPair);
-        CredentialsVerifier verifier = (document) -> Result.success(List.of(new Claim(document, "region", "eu", document)));
+        CredentialsVerifier verifier = (document) -> Result.success(List.of(new Claim(document.toString(), "region", "eu", document.toString())));
         identityService = new DecentralizedIdentityService(didResolver, verifier, new ConsoleMonitor(), privateKey, didUrl, Clock.systemUTC());
     }
 

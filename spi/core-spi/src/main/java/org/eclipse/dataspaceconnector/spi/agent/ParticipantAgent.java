@@ -14,8 +14,11 @@
 
 package org.eclipse.dataspaceconnector.spi.agent;
 
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -29,11 +32,11 @@ import java.util.Map;
  * additional values added by the current system based on
  */
 public class ParticipantAgent {
-    private final Map<String, Object> claims;
+    private final Collection<Claim> claims;
     private final Map<String, String> attributes;
 
-    public ParticipantAgent(Map<String, Object> claims, Map<String, String> attributes) {
-        this.claims = Map.copyOf(claims);
+    public ParticipantAgent(Collection<Claim> claims, Map<String, String> attributes) {
+        this.claims = Collections.unmodifiableCollection(claims);
         this.attributes = Map.copyOf(attributes);
     }
 
@@ -41,7 +44,7 @@ public class ParticipantAgent {
      * Returns the claims such as verifiable credentials associated with the agent.
      */
     @NotNull
-    public Map<String, Object> getClaims() {
+    public Collection<Claim> getClaims() {
         return claims;
     }
 

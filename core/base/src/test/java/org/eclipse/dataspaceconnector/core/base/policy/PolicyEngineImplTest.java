@@ -27,6 +27,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.eclipse.dataspaceconnector.policy.model.Operator.EQ;
@@ -39,7 +41,7 @@ class PolicyEngineImplTest {
 
     @Test
     void validateEmptyPolicy() {
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         var emptyPolicy = Policy.Builder.newInstance().build();
 
@@ -54,7 +56,7 @@ class PolicyEngineImplTest {
         bindingRegistry.bind("foo", ALL_SCOPES);
 
         policyEngine.registerFunction(ALL_SCOPES, Duty.class, "foo", (op, rv, duty, context) -> false);
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         var left = new LiteralExpression("foo");
         var right = new LiteralExpression("bar");
@@ -72,7 +74,7 @@ class PolicyEngineImplTest {
         // If the permission is not properly filtered, the constraint will not be fulfilled and raise an exception.
         bindingRegistry.bind("foo", ALL_SCOPES);
 
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         var left = new LiteralExpression("foo");
         var right = new LiteralExpression("bar");
@@ -91,7 +93,7 @@ class PolicyEngineImplTest {
         bindingRegistry.bind("foo", ALL_SCOPES);
 
         policyEngine.registerFunction(ALL_SCOPES, Permission.class, "foo", (op, rv, duty, context) -> false);
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         var left = new LiteralExpression("foo");
         var right = new LiteralExpression("bar");
@@ -110,7 +112,7 @@ class PolicyEngineImplTest {
         bindingRegistry.bind("foo", ALL_SCOPES);
 
         policyEngine.registerFunction(ALL_SCOPES, Prohibition.class, "foo", (op, rv, duty, context) -> true);
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         Policy policy = createTestPolicy();
 
@@ -126,7 +128,7 @@ class PolicyEngineImplTest {
 
         policyEngine.registerFunction("foo", Prohibition.class, "foo", (op, rv, duty, context) -> Assertions.fail("Foo prohibition should be out of scope"));
         policyEngine.registerFunction("bar", Prohibition.class, "foo", (op, rv, duty, context) -> true);
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         Policy policy = createTestPolicy();
 
@@ -142,7 +144,7 @@ class PolicyEngineImplTest {
 
         policyEngine.registerFunction("bar", Prohibition.class, "foo", (op, rv, duty, context) -> true);
         policyEngine.registerFunction("bar.child", Prohibition.class, "foo", (op, rv, duty, context) -> Assertions.fail("Child prohibition should be out of scope"));
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         Policy policy = createTestPolicy();
 
@@ -157,7 +159,7 @@ class PolicyEngineImplTest {
         bindingRegistry.bind("foo", ALL_SCOPES);
 
         policyEngine.registerFunction("bar", Prohibition.class, "foo", (op, rv, duty, context) -> true);
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         Policy policy = createTestPolicy();
 
@@ -177,7 +179,7 @@ class PolicyEngineImplTest {
 
         var policy = Policy.Builder.newInstance().permission(permission).build();
 
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         policyEngine.registerFunction("foo", Permission.class, (rule, context) -> Assertions.fail("Foo permission should be out of scope"));
         policyEngine.registerFunction("bar", Permission.class, (rule, context) -> rule.getAction().getType().equals(action.getType()));
@@ -190,7 +192,7 @@ class PolicyEngineImplTest {
 
         policyEngine.registerPreValidator(ALL_SCOPES, (policy, context) -> false);
         var policy = Policy.Builder.newInstance().build();
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         var result = policyEngine.evaluate(TEST_SCOPE, policy, agent);
 
@@ -203,7 +205,7 @@ class PolicyEngineImplTest {
 
         policyEngine.registerPostValidator(ALL_SCOPES, (policy, context) -> false);
         var policy = Policy.Builder.newInstance().build();
-        var agent = new ParticipantAgent(emptyMap(), emptyMap());
+        var agent = new ParticipantAgent(List.of(), emptyMap());
 
         var result = policyEngine.evaluate(TEST_SCOPE, policy, agent);
 

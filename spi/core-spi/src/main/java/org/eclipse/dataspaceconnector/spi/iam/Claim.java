@@ -12,7 +12,7 @@
  *
  */
 
-package org.eclipse.dataspaceconnector.iam.did.spi.credentials;
+package org.eclipse.dataspaceconnector.spi.iam;
 
 /**
  * A <a href="https://www.w3.org/TR/vc-data-model/#claims">claim</a> is a statement about a subject.
@@ -26,6 +26,22 @@ public class Claim {
     String value;
     // DID of the entity that issued the claim
     String issuerDid;
+
+    public String getSubjectDid() {
+        return subjectDid;
+    }
+
+    public String getProperty() {
+        return property;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getIssuerDid() {
+        return issuerDid;
+    }
 
     public Claim(String subjectDid, String property, String value, String issuerDid) {
         this.subjectDid = subjectDid;

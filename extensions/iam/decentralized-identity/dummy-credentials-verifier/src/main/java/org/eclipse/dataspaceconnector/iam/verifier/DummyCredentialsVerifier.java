@@ -14,8 +14,9 @@
 
 package org.eclipse.dataspaceconnector.iam.verifier;
 
-import org.eclipse.dataspaceconnector.iam.did.spi.credentials.Claim;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
+import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 
@@ -38,8 +39,8 @@ public class DummyCredentialsVerifier implements CredentialsVerifier {
     }
 
     @Override
-    public Result<Collection<Claim>> getVerifiedClaims(String participantDid) {
+    public Result<Collection<Claim>> getVerifiedClaims(DidDocument participantDid) {
         monitor.debug("Starting (dummy) claims verification from participant:" + participantDid);
-        return Result.success(List.of(new Claim(participantDid, "region", "eu", "dummyIssuerDid")));
+        return Result.success(List.of(new Claim(participantDid.toString(), "region", "eu", "dummyIssuerDid")));
     }
 }

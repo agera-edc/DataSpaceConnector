@@ -14,15 +14,16 @@
 
 package org.eclipse.dataspaceconnector.spi.iam;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Models a token containing claims such as a JWT.
  * Currently only a String representation of claims values is supported.
  */
 public class ClaimToken {
-    private final Map<String, Object> claims = new HashMap<>();
+    private final Collection<Claim> claims = new ArrayList<>();
 
     private ClaimToken() {
     }
@@ -30,8 +31,8 @@ public class ClaimToken {
     /**
      * Returns the claims.
      */
-    public Map<String, Object> getClaims() {
-        return claims;
+    public Collection<Claim> getClaims() {
+        return Collections.unmodifiableCollection(claims);
     }
 
     public static class Builder {
@@ -45,13 +46,13 @@ public class ClaimToken {
             return new Builder();
         }
 
-        public Builder claim(String key, Object value) {
-            token.claims.put(key, value);
+        public Builder claim(Claim claim) {
+            token.claims.add(claim);
             return this;
         }
 
-        public Builder claims(Map<String, Object> map) {
-            token.claims.putAll(map);
+        public Builder claims(Collection<Claim> claims) {
+            token.claims.addAll(claims);
             return this;
         }
 

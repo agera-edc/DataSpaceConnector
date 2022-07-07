@@ -23,6 +23,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.spi.iam.PublicKeyResolver;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.jetbrains.annotations.Nullable;
@@ -77,8 +78,8 @@ class TokenValidationServiceImplTest {
 
         assertThat(result.succeeded()).isTrue();
         assertThat(result.getContent().getClaims())
-                .containsEntry("foo", "bar")
-                .containsEntry("exp", now.toString());
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsOnly(new Claim("", "foo", "bar", ""), new Claim("", "exp", now.toString(), ""));
     }
 
     @Test

@@ -14,6 +14,8 @@
 
 package org.eclipse.dataspaceconnector.iam.did.spi.credentials;
 
+import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 
 import java.util.Collection;
@@ -29,6 +31,6 @@ public interface CredentialsVerifier {
      *
      * @param participantDid DID Document of the participant
      */
-    Result<Collection<Claim>> getVerifiedClaims(String participantDid);
+    Result<Collection<Claim>> getVerifiedClaims(DidDocument participantDid);
 
 }

@@ -53,7 +53,7 @@ public class MockIdentityService implements IdentityService {
         if (!Objects.equals(token.audience, audience)) {
             return Result.failure(format("Mismatched audience: expected %s, got %s", audience, token.audience));
         }
-        return Result.success(ClaimToken.Builder.newInstance().claim("region", token.region).build());
+        return Result.success(ClaimToken.Builder.newInstance().claim("region", token.region).claim("iss", "government A").build());
     }
 
     private static class MockToken {
