@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.dataspaceconnector.ids.api.multipart.controller.MultipartController;
 import org.eclipse.dataspaceconnector.ids.core.serialization.ObjectMapperFactory;
 import org.eclipse.dataspaceconnector.junit.extensions.EdcExtension;
+import org.eclipse.dataspaceconnector.spi.iam.Claim;
 import org.eclipse.dataspaceconnector.spi.iam.ClaimToken;
 import org.eclipse.dataspaceconnector.spi.iam.IdentityService;
 import org.eclipse.dataspaceconnector.spi.iam.TokenRepresentation;
@@ -76,7 +77,7 @@ abstract class AbstractMultipartDispatcherIntegrationTest {
         }
 
         var tokenResult = TokenRepresentation.Builder.newInstance().token("token").build();
-        var claimToken = ClaimToken.Builder.newInstance().claim("key", "value").build();
+        var claimToken = ClaimToken.Builder.newInstance().claim(new Claim("", "key", "value", "")).build();
         identityService = mock(IdentityService.class);
         when(identityService.obtainClientCredentials(any())).thenReturn(Result.success(tokenResult));
         when(identityService.verifyJwtToken(any(), any())).thenReturn(Result.success(claimToken));
