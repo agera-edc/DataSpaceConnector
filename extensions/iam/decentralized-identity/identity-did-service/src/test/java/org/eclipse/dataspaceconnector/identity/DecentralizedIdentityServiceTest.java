@@ -21,6 +21,7 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.EcPrivateKeyWrapper;
 import org.eclipse.dataspaceconnector.iam.did.crypto.key.KeyPairFactory;
+import org.eclipse.dataspaceconnector.iam.did.spi.credentials.Claim;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.DidDocument;
 import org.eclipse.dataspaceconnector.iam.did.spi.document.EllipticCurvePublicKey;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.Clock;
+import java.util.List;
 import java.util.Map;
 
 import static org.eclipse.dataspaceconnector.junit.testfixtures.TestUtils.getResourceFileContentAsString;
@@ -91,7 +93,7 @@ abstract class DecentralizedIdentityServiceTest {
         var privateKey = new EcPrivateKeyWrapper(keyPair.toECKey());
 
         var didResolver = new TestResolverRegistry(DID_DOCUMENT, keyPair);
-        CredentialsVerifier verifier = (document, url) -> Result.success(Map.of("region", "eu"));
+        CredentialsVerifier verifier = (document) -> Result.success(List.of(new Claim(document, "region", "eu", document)));
         identityService = new DecentralizedIdentityService(didResolver, verifier, new ConsoleMonitor(), privateKey, didUrl, Clock.systemUTC());
     }
 
