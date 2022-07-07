@@ -63,6 +63,6 @@ public class DataPlaneTokenValidationApiController implements DataPlaneTokenVali
             throw new IllegalArgumentException(format("Missing claim `%s` in token", DATA_ADDRESS));
         }
 
-        return typeManager.readValue(dataEncrypter.decrypt(dataAddressClaim.get().getProperty()), DataAddress.class);
+        return typeManager.readValue(dataEncrypter.decrypt(dataAddressClaim.get().getValue()), DataAddress.class);
     }
 }
