@@ -60,7 +60,7 @@ class DataPlaneTokenValidationApiControllerTest {
         var decryptedDataAddress = DataAddress.Builder.newInstance().type(FAKER.internet().uuid()).build();
         var claims = ClaimToken.Builder.newInstance()
                 .claims(List.of(new Claim(FAKER.lorem().word(),
-                                FAKER.lorem().word(), FAKER.lorem().word(),FAKER.lorem().word()),
+                                FAKER.lorem().word(), FAKER.lorem().word(), FAKER.lorem().word()),
                                 new Claim(FAKER.lorem().word(), DATA_ADDRESS, encryptedDataAddress, FAKER.lorem().word())
                         )
                 )
