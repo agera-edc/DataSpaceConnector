@@ -19,9 +19,7 @@ package org.eclipse.dataspaceconnector.iam.did.spi.credentials;
  * For example, ParticipantA is in region eu, is a claim about participantA.
  */
 public class Claim {
-
     String subjectDid;
-
     // A Property name, for example "region".
     String property;
     // Property value, for example "eu".
