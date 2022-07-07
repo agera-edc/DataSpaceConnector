@@ -14,12 +14,13 @@
 
 package org.eclipse.dataspaceconnector.iam.verifier;
 
+import org.eclipse.dataspaceconnector.iam.did.spi.credentials.Claim;
 import org.eclipse.dataspaceconnector.iam.did.spi.credentials.CredentialsVerifier;
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Implements a sample credentials validator that checks for signed registration credentials.
@@ -37,9 +38,8 @@ public class DummyCredentialsVerifier implements CredentialsVerifier {
     }
 
     @Override
-    public Result<Map<String, Object>> verifyCredentials(String hubBaseUrl, PublicKeyWrapper othersPublicKey) {
-        monitor.debug("Starting (dummy) credential verification against hub URL " + hubBaseUrl);
-
-        return Result.success(Map.of("region", "eu"));
+    public Result<Collection<Claim>> getVerifiedClaims(String participantDid) {
+        monitor.debug("Starting (dummy) claims verification from participant:" + participantDid);
+        return Result.success(List.of(new Claim(participantDid, "region", "eu", "dummyIssuerDid")));
     }
 }

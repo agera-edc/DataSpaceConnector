@@ -14,24 +14,21 @@
 
 package org.eclipse.dataspaceconnector.iam.did.spi.credentials;
 
-import org.eclipse.dataspaceconnector.iam.did.spi.key.PublicKeyWrapper;
 import org.eclipse.dataspaceconnector.spi.result.Result;
 
-import java.util.Map;
+import java.util.Collection;
 
 /**
- * Obtains and verifies credentials associated with a DID according to an implementation-specific trust model.
+ * Obtains and verifies claims associated with a DID according to an implementation-specific trust model.
  */
 @FunctionalInterface
 public interface CredentialsVerifier {
 
-
     /**
-     * Verifies credentials contained in the given hub.
+     * Get and verifies claims of a participant.
      *
-     * @param hubBaseUrl the hub base url
-     * @param publicKey  the hub's public key to encrypt messages with
+     * @param participantDid DID Document of the participant
      */
-    Result<Map<String, Object>> verifyCredentials(String hubBaseUrl, PublicKeyWrapper publicKey);
+    Result<Collection<Claim>> getVerifiedClaims(String participantDid);
 
 }
