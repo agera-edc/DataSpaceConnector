@@ -16,9 +16,14 @@ plugins {
     `java-library`
 }
 
+val nimbusVersion: String by project
+
 dependencies {
     api(project(":spi"))
     implementation(project(":common:util"))
+    implementation("org.bouncycastle:bcpkix-jdk15on:1.70")
+    testImplementation(project(":extensions:iam:decentralized-identity:identity-did-crypto"))
+    testImplementation("com.nimbusds:nimbus-jose-jwt:${nimbusVersion}")
 }
 
 publishing {

@@ -53,7 +53,7 @@ public class FsVaultExtension implements ServiceExtension {
         context.registerService(Vault.class, vault);
 
         KeyStore keyStore = loadKeyStore();
-        var privateKeyResolver = new FsPrivateKeyResolver(KEYSTORE_PASSWORD, keyStore);
+        var privateKeyResolver = new FsPrivateKeyResolver(KEYSTORE_PASSWORD, keyStore, context.getMonitor());
         context.registerService(PrivateKeyResolver.class, privateKeyResolver);
 
         var certificateResolver = new FsCertificateResolver(keyStore);

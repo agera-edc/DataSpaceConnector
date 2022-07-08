@@ -15,25 +15,37 @@
 
 package org.eclipse.dataspaceconnector.core.security.fs;
 
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.eclipse.dataspaceconnector.spi.EdcException;
+import org.eclipse.dataspaceconnector.spi.monitor.Monitor;
+import org.eclipse.dataspaceconnector.spi.security.KeyParser;
 import org.eclipse.dataspaceconnector.spi.security.PrivateKeyResolver;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Resolves an RSA or EC private key from a JKS keystore.
  */
 public class FsPrivateKeyResolver implements PrivateKeyResolver {
     private final Map<String, PrivateKey> privateKeyCache = new HashMap<>();
+    private final List<KeyParser<?>> parsers = new ArrayList<>();
+
+    private final Monitor monitor;
 
     /**
      * Constructor.
@@ -42,7 +54,8 @@ public class FsPrivateKeyResolver implements PrivateKeyResolver {
      * @param password the keystore password. Individual key passwords are not supported.
      * @param keyStore the keystore
      */
-    public FsPrivateKeyResolver(String password, KeyStore keyStore) {
+    public FsPrivateKeyResolver(String password, KeyStore keyStore, Monitor monitor) {
+        this.monitor = monitor;
         char[] encodedPassword = password.toCharArray();
         try {
             Enumeration<String> iter = keyStore.aliases();
@@ -64,6 +77,58 @@ public class FsPrivateKeyResolver implements PrivateKeyResolver {
 
     @Override
     public <T> @Nullable T resolvePrivateKey(String id, Class<T> keyType) {
-        return keyType.cast(privateKeyCache.get(id));
+        var key = privateKeyCache.get(id);
+
+        if (key == null) {
+            return null;
+        }
+
+        var keyParser = getParser(keyType);
+
+        if (keyParser == null) {
+            monitor.debug("No KeyParser available for type " + keyType);
+            return keyType.cast(privateKeyCache.get(id));
+        }
+
+        return keyType.cast(keyParser.parse(toPEMEncoded(key)));
+    }
+
+    @Override
+    public <T> void addParser(KeyParser<T> parser) {
+        parsers.add(parser);
+    }
+
+    @Override
+    public <T> void addParser(Class<T> forType, Function<String, T> parseFunction) {
+        var p = new KeyParser<T>() {
+
+            @Override
+            public boolean canParse(Class<?> keyType) {
+                return Objects.equals(keyType, forType);
+            }
+
+            @Override
+            public T parse(String encoded) {
+                return parseFunction.apply(encoded);
+            }
+        };
+        addParser(p);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> KeyParser<T> getParser(Class<T> keytype) {
+        return (KeyParser<T>) parsers.stream().filter(p -> p.canParse(keytype))
+                .findFirst().orElse(null);
+    }
+
+    private String toPEMEncoded(PrivateKey key) {
+        var writer = new StringWriter();
+        try (var jcaPEMWriter = new JcaPEMWriter(writer)) {
+            jcaPEMWriter.writeObject(key);
+        } catch (IOException e) {
+            throw new EdcException("Unable to convert private in PEM format ", e);
+        }
+
+        return writer.toString();
     }
 }
