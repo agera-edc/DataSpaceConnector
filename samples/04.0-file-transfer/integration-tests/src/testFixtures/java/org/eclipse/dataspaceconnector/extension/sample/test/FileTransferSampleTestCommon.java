@@ -44,7 +44,7 @@ public class FileTransferSampleTestCommon {
     //region constant test settings
     static final String INITIATE_CONTRACT_NEGOTIATION_URI = "http://localhost:9192/api/v1/data/contractnegotiations";
     static final String LOOK_UP_CONTRACT_AGREEMENT_URI = "http://localhost:9192/api/v1/data/contractnegotiations/{id}";
-    static final String INITIATE_TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
+    public static final String TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
     static final String CONTRACT_OFFER_FILE_PATH = "samples/04.0-file-transfer/contractoffer.json";
     static final String TRANSFER_FILE_PATH = "samples/04.0-file-transfer/filetransfer.json";
     public static final String API_KEY_HEADER_KEY = "X-Api-Key";
@@ -168,7 +168,7 @@ public class FileTransferSampleTestCommon {
                     .contentType(ContentType.JSON)
                     .body(sampleDataRequest)
                 .when()
-                    .post(INITIATE_TRANSFER_PROCESS_URI)
+                    .post(TRANSFER_PROCESS_URI)
                 .then()
                     .statusCode(HttpStatus.SC_OK)
                     .body("id", not(emptyString()))

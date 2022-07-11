@@ -27,6 +27,7 @@ import java.util.Map;
 import static org.awaitility.Awaitility.await;
 import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.API_KEY_HEADER_KEY;
 import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.API_KEY_HEADER_VALUE;
+import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.TRANSFER_PROCESS_URI;
 import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.getFileFromRelativePath;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -34,7 +35,6 @@ import static org.hamcrest.Matchers.equalTo;
 public class ModifyTransferProcessSampleTest {
 
     static final String CONSUMER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.2-modify-transferprocess/consumer/config.properties";
-    static final String TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
     public static final String EXPECTED_ID_PROPERTY_NAME = "id[0]";
     public static final String EXPECTED_ID_PROPERTY_VALUE = "tp-sample-04.2";
     public static final String EXPECTED_STATE_PROPERTY_NAME = "state[0]";
