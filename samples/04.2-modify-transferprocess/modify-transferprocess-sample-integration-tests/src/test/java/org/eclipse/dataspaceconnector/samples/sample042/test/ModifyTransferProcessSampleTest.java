@@ -53,7 +53,7 @@ public class ModifyTransferProcessSampleTest {
     static final Duration POLL_INTERVAL = Duration.ofMillis(500);
 
     /**
-     * Let run the consumer EDC.
+     * Requests transfer processes from data management API and check for expected changes on the transfer process.
      */
     @Test
     void runSample() {
