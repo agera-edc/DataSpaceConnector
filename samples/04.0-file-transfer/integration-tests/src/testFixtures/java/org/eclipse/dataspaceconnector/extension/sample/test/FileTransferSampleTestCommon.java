@@ -19,6 +19,7 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.path.json.JsonPath;
 import org.apache.http.HttpStatus;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.junit.testfixtures.TestUtils;
 import org.eclipse.dataspaceconnector.spi.types.domain.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
@@ -44,11 +45,11 @@ public class FileTransferSampleTestCommon {
     //region constant test settings
     static final String INITIATE_CONTRACT_NEGOTIATION_URI = "http://localhost:9192/api/v1/data/contractnegotiations";
     static final String LOOK_UP_CONTRACT_AGREEMENT_URI = "http://localhost:9192/api/v1/data/contractnegotiations/{id}";
-    public static final String TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
+    static final String TRANSFER_PROCESS_URI = "http://localhost:9192/api/v1/data/transferprocess";
     static final String CONTRACT_OFFER_FILE_PATH = "samples/04.0-file-transfer/contractoffer.json";
     static final String TRANSFER_FILE_PATH = "samples/04.0-file-transfer/filetransfer.json";
-    public static final String API_KEY_HEADER_KEY = "X-Api-Key";
-    public static final String API_KEY_HEADER_VALUE = "password";
+    static final String API_KEY_HEADER_KEY = "X-Api-Key";
+    static final String API_KEY_HEADER_VALUE = "password";
     //endregion
 
     //region changeable test settings
@@ -129,6 +130,20 @@ public class FileTransferSampleTestCommon {
                 .extract()
                 .jsonPath()
                 .get("id");
+    }
+
+    /**
+     * Gets the first transfer process as returned by the data management API
+     * @return The transfer process
+     */
+    public TransferProcessDto getTransferProcess() {
+        return RestAssured.given()
+                .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
+            .when()
+                .get(TRANSFER_PROCESS_URI)
+            .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().jsonPath().getObject("[0]", TransferProcessDto.class);
     }
 
     /**
