@@ -25,6 +25,7 @@ dependencies {
     testImplementation(testFixtures(project(":common:util")))
     testImplementation("io.rest-assured:rest-assured:${restAssured}")
     testImplementation("org.awaitility:awaitility:${awaitility}")
+    testImplementation(project(":extensions:api:data-management:transferprocess"))
 
     testImplementation(testFixtures(project(":samples:04.0-file-transfer:integration-tests")))
 

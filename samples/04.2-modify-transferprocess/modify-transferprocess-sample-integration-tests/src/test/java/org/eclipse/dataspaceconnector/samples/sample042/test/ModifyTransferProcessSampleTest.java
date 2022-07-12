@@ -14,9 +14,9 @@
 
 package org.eclipse.dataspaceconnector.samples.sample042.test;
 
-import io.restassured.RestAssured;
-import org.apache.http.HttpStatus;
+import org.eclipse.dataspaceconnector.api.datamanagement.transferprocess.model.TransferProcessDto;
 import org.eclipse.dataspaceconnector.common.util.junit.annotations.EndToEndTest;
+import org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon;
 import org.eclipse.dataspaceconnector.junit.extensions.EdcRuntimeExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
@@ -24,23 +24,17 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import java.time.Duration;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.API_KEY_HEADER_KEY;
-import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.API_KEY_HEADER_VALUE;
-import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.TRANSFER_PROCESS_URI;
 import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferSampleTestCommon.getFileFromRelativePath;
-import static org.hamcrest.Matchers.equalTo;
 
 @EndToEndTest
 public class ModifyTransferProcessSampleTest {
 
     static final String CONSUMER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.2-modify-transferprocess/consumer/config.properties";
-    static final String EXPECTED_ID_PROPERTY_NAME = "id[0]";
-    static final String EXPECTED_ID_PROPERTY_VALUE = "tp-sample-04.2";
-    static final String EXPECTED_STATE_PROPERTY_NAME = "state[0]";
-    static final String EXPECTED_STATE_PROPERTY_VALUE = "ERROR";
-    static final String EXPECTED_ERROR_DETAIL_PROPERTY_NAME = "errorDetail[0]";
-    static final String EXPECTED_ERROR_DETAIL_PROPERTY_VALUE = "timeout by watchdog";
+    public static final String EXPECTED_ID_PROPERTY_VALUE = "tp-sample-04.2";
+    public static final String EXPECTED_STATE_PROPERTY_VALUE = "ERROR";
+    public static final String EXPECTED_ERROR_DETAIL_PROPERTY_VALUE = "timeout by watchdog";
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":samples:04.2-modify-transferprocess:consumer",
@@ -52,6 +46,8 @@ public class ModifyTransferProcessSampleTest {
     static final Duration DURATION = Duration.ofSeconds(15);
     static final Duration POLL_INTERVAL = Duration.ofMillis(500);
 
+    final FileTransferSampleTestCommon testUtils = new FileTransferSampleTestCommon("", ""); // no sample asset transfer in this sample
+
     /**
      * Requests transfer processes from data management API and check for expected changes on the transfer process.
      */
@@ -59,18 +55,13 @@ public class ModifyTransferProcessSampleTest {
     void runSample() {
         await().atMost(DURATION).pollInterval(POLL_INTERVAL)
                 .untilAsserted(() ->
-                        RestAssured
-                                .given()
-                                    .headers(API_KEY_HEADER_KEY, API_KEY_HEADER_VALUE)
-                                .when()
-                                    .get(TRANSFER_PROCESS_URI)
-                                .then()
-                                    .statusCode(HttpStatus.SC_OK)
-                                    .body(
-                                            EXPECTED_ID_PROPERTY_NAME, equalTo(EXPECTED_ID_PROPERTY_VALUE),
-                                            EXPECTED_STATE_PROPERTY_NAME, equalTo(EXPECTED_STATE_PROPERTY_VALUE),
-                                            EXPECTED_ERROR_DETAIL_PROPERTY_NAME, equalTo(EXPECTED_ERROR_DETAIL_PROPERTY_VALUE)
-                                    )
-        );
+                        assertThat(testUtils.getTransferProcess())
+                                .usingRecursiveComparison()
+                                .ignoringExpectedNullFields()
+                                .isEqualTo(TransferProcessDto.Builder.newInstance()
+                                        .id(EXPECTED_ID_PROPERTY_VALUE)
+                                        .state(EXPECTED_STATE_PROPERTY_VALUE)
+                                        .errorDetail(EXPECTED_ERROR_DETAIL_PROPERTY_VALUE)
+                                        .build()));
     }
 }
