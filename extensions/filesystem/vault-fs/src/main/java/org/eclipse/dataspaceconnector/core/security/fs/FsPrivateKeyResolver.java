@@ -90,7 +90,7 @@ public class FsPrivateKeyResolver implements PrivateKeyResolver {
             return keyType.cast(privateKeyCache.get(id));
         }
 
-        return keyType.cast(keyParser.parse(toPEMEncoded(key)));
+        return keyType.cast(keyParser.parse(toPemEncoded(key)));
     }
 
     @Override
@@ -121,7 +121,7 @@ public class FsPrivateKeyResolver implements PrivateKeyResolver {
                 .findFirst().orElse(null);
     }
 
-    private String toPEMEncoded(PrivateKey key) {
+    private String toPemEncoded(PrivateKey key) {
         var writer = new StringWriter();
         try (var jcaPEMWriter = new JcaPEMWriter(writer)) {
             jcaPEMWriter.writeObject(key);
