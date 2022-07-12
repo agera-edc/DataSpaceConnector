@@ -35,12 +35,12 @@ import static org.hamcrest.Matchers.equalTo;
 public class ModifyTransferProcessSampleTest {
 
     static final String CONSUMER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.2-modify-transferprocess/consumer/config.properties";
-    public static final String EXPECTED_ID_PROPERTY_NAME = "id[0]";
-    public static final String EXPECTED_ID_PROPERTY_VALUE = "tp-sample-04.2";
-    public static final String EXPECTED_STATE_PROPERTY_NAME = "state[0]";
-    public static final String EXPECTED_STATE_PROPERTY_VALUE = "ERROR";
-    public static final String EXPECTED_ERROR_DETAIL_PROPERTY_NAME = "errorDetail[0]";
-    public static final String EXPECTED_ERROR_DETAIL_PROPERTY_VALUE = "timeout by watchdog";
+    static final String EXPECTED_ID_PROPERTY_NAME = "id[0]";
+    static final String EXPECTED_ID_PROPERTY_VALUE = "tp-sample-04.2";
+    static final String EXPECTED_STATE_PROPERTY_NAME = "state[0]";
+    static final String EXPECTED_STATE_PROPERTY_VALUE = "ERROR";
+    static final String EXPECTED_ERROR_DETAIL_PROPERTY_NAME = "errorDetail[0]";
+    static final String EXPECTED_ERROR_DETAIL_PROPERTY_VALUE = "timeout by watchdog";
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":samples:04.2-modify-transferprocess:consumer",
