@@ -31,10 +31,14 @@ import static org.eclipse.dataspaceconnector.extension.sample.test.FileTransferS
 @EndToEndTest
 public class ModifyTransferProcessSampleTest {
 
+    static final String SAMPLE_ASSET_FILE_PATH = "samples/04.2-file-transfer-listener/README.md";
+    static final String DESTINATION_FILE_PATH = "samples/04.2-file-transfer-listener/requested.test.txt";
     static final String CONSUMER_CONFIG_PROPERTIES_FILE_PATH = "samples/04.2-modify-transferprocess/consumer/config.properties";
-    public static final String EXPECTED_ID_PROPERTY_VALUE = "tp-sample-04.2";
-    public static final String EXPECTED_STATE_PROPERTY_VALUE = "ERROR";
-    public static final String EXPECTED_ERROR_DETAIL_PROPERTY_VALUE = "timeout by watchdog";
+    static final String EXPECTED_ID_PROPERTY_VALUE = "tp-sample-04.2";
+    static final String EXPECTED_STATE_PROPERTY_VALUE = "ERROR";
+    static final String EXPECTED_ERROR_DETAIL_PROPERTY_VALUE = "timeout by watchdog";
+    static final Duration DURATION = Duration.ofSeconds(15);
+    static final Duration POLL_INTERVAL = Duration.ofMillis(500);
     @RegisterExtension
     static EdcRuntimeExtension consumer = new EdcRuntimeExtension(
             ":samples:04.2-modify-transferprocess:consumer",
@@ -43,16 +47,16 @@ public class ModifyTransferProcessSampleTest {
                     "edc.fs.config", getFileFromRelativePath(CONSUMER_CONFIG_PROPERTIES_FILE_PATH).getAbsolutePath()
             )
     );
-    static final Duration DURATION = Duration.ofSeconds(15);
-    static final Duration POLL_INTERVAL = Duration.ofMillis(500);
 
-    final FileTransferSampleTestCommon testUtils = new FileTransferSampleTestCommon("", ""); // no sample asset transfer in this sample
+    final FileTransferSampleTestCommon testUtils = new FileTransferSampleTestCommon(SAMPLE_ASSET_FILE_PATH, DESTINATION_FILE_PATH);
 
     /**
      * Requests transfer processes from data management API and check for expected changes on the transfer process.
      */
     @Test
     void runSample() {
+        // No transfer initiated in this sample. TransferProcess is created directly in the TransferSimulationExtension.
+
         await().atMost(DURATION).pollInterval(POLL_INTERVAL)
                 .untilAsserted(() ->
                         assertThat(testUtils.getTransferProcess())

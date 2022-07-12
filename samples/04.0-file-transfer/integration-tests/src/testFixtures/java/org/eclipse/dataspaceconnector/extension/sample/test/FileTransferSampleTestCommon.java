@@ -53,9 +53,7 @@ public class FileTransferSampleTestCommon {
     //endregion
 
     //region changeable test settings
-    final String sampleAssetFilePath;
     final File sampleAssetFile;
-    final String destinationFilePath;
     final File destinationFile;
     Duration timeout = Duration.ofSeconds(15);
     Duration pollInterval = Duration.ofMillis(500);
@@ -71,10 +69,7 @@ public class FileTransferSampleTestCommon {
      * @param destinationFilePath Relative path starting from the root of the project where the transferred file will be written to.
      */
     public FileTransferSampleTestCommon(@NotNull String sampleAssetFilePath, @NotNull String destinationFilePath) {
-        this.sampleAssetFilePath = sampleAssetFilePath;
         this.sampleAssetFile  = getFileFromRelativePath(sampleAssetFilePath);
-
-        this.destinationFilePath = sampleAssetFilePath;
         this.destinationFile  = getFileFromRelativePath(destinationFilePath);
     }
 
