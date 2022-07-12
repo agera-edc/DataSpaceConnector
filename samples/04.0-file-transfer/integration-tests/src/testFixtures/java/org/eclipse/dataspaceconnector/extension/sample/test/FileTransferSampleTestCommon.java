@@ -36,7 +36,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
 
 /**
- * Encapsulates common settings, test steps, and helper methods for the test for samples 4.0 and 4.1.
+ * Encapsulates common settings, test steps, and helper methods for the test for samples 4.x.
  */
 public class FileTransferSampleTestCommon {
 
@@ -133,8 +133,9 @@ public class FileTransferSampleTestCommon {
     }
 
     /**
-     * Gets the first transfer process as returned by the data management API
-     * @return The transfer process
+     * Gets the first transfer process as returned by the data management API.
+     *
+     * @return The transfer process.
      */
     public TransferProcessDto getTransferProcess() {
         return RestAssured.given()
