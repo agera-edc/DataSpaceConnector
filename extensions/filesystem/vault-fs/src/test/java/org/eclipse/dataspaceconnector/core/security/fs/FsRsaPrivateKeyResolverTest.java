@@ -81,6 +81,7 @@ class FsRsaPrivateKeyResolverTest {
         assertThat(keyResolver.resolvePrivateKey("testkey-ec", PrivateKeyWrapper.class)).isNotNull();
     }
 
+    // Test Key Parser for RSAPrivateKey and ECPrivateKey keys.
     static class FsPrivateKeyTestParser<T> implements KeyParser<T> {
 
         @Override
