@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.security.KeyStore;
+import java.security.PrivateKey;
 import java.security.Security;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -47,18 +48,12 @@ class FsRsaPrivateKeyResolverTest {
 
     @Test
     public void verifyResolution_Rsa() {
-        // Arrange - Add Key Parser
-        keyResolver.addParser(new FsPrivateKeyTestParser<RSAPrivateKey>());
-        // Act & Assert
         assertThat(keyResolver.resolvePrivateKey("testkey", RSAPrivateKey.class))
                 .isNotNull();
     }
 
     @Test
     public void verifyResolution_ec() {
-        // Arrange - Add Key Parser
-        keyResolver.addParser(new FsPrivateKeyTestParser<ECPrivateKey>());
-        // Act & Assert
         assertThat(keyResolver.resolvePrivateKey("testkey-ec", ECPrivateKey.class))
                 .isNotNull();
     }
@@ -82,7 +77,7 @@ class FsRsaPrivateKeyResolverTest {
     }
 
     // Test Key Parser for RSAPrivateKey and ECPrivateKey keys.
-    static class FsPrivateKeyTestParser<T> implements KeyParser<T> {
+    static class FsPrivateKeyTestParser implements KeyParser<PrivateKey> {
 
         @Override
         public boolean canParse(Class<?> keyType) {
@@ -90,7 +85,7 @@ class FsRsaPrivateKeyResolverTest {
         }
 
         @Override
-        public T parse(String encoded) {
+        public PrivateKey parse(String encoded) {
             try {
                 var pemParser = new PEMParser(new StringReader(encoded));
                 var keyObj = pemParser.readObject();
@@ -100,7 +95,7 @@ class FsRsaPrivateKeyResolverTest {
                 var keyPair = new JcaPEMKeyConverter()
                         .setProvider("BC").getKeyPair((PEMKeyPair) keyObj);
 
-                return (T) keyPair.getPrivate();
+                return keyPair.getPrivate();
             } catch (IOException e) {
                 throw new EdcException(e);
             }
@@ -109,9 +104,6 @@ class FsRsaPrivateKeyResolverTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        // Add BouncyCastleProvider to java security.
-        Security.addProvider(new BouncyCastleProvider());
-
         var url = getClass().getClassLoader().getResource(FsRsaPrivateKeyResolverTest.TEST_KEYSTORE);
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         assert url != null;
@@ -119,5 +111,9 @@ class FsRsaPrivateKeyResolverTest {
             keyStore.load(stream, FsRsaPrivateKeyResolverTest.PASSWORD.toCharArray());
         }
         keyResolver = new FsPrivateKeyResolver(FsRsaPrivateKeyResolverTest.PASSWORD, keyStore);
+        // Add Parser for test keys.
+        keyResolver.addParser(new FsPrivateKeyTestParser());
+        // Add BouncyCastleProvider to java security.
+        Security.addProvider(new BouncyCastleProvider());
     }
 }
