@@ -41,7 +41,7 @@ public abstract class AbstractPrivateKeyResolver implements PrivateKeyResolver {
 
     @Override
     public <T> void addParser(Class<T> forType, Function<String, T> parseFunction) {
-        var p = new KeyParser<T>() {
+        var parser = new KeyParser<T>() {
 
             @Override
             public boolean canParse(Class<?> keyType) {
@@ -53,14 +53,14 @@ public abstract class AbstractPrivateKeyResolver implements PrivateKeyResolver {
                 return parseFunction.apply(encoded);
             }
         };
-        addParser(p);
+        addParser(parser);
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> KeyParser<T> getParser(Class<T> keytype) {
-        return (KeyParser<T>) parsers.stream().filter(p -> p.canParse(keytype))
+    protected <T> KeyParser<T> getParser(Class<T> keyType) {
+        return (KeyParser<T>) parsers.stream().filter(p -> p.canParse(keyType))
                 .findFirst().orElseThrow(() -> {
-                            throw new EdcException("Cannot find KeyParser for type " + keytype);
+                            throw new EdcException("Cannot find KeyParser for type " + keyType);
                         }
                 );
     }
