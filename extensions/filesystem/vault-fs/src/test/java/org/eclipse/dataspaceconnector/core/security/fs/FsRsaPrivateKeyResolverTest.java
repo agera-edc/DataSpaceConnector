@@ -113,7 +113,7 @@ class FsRsaPrivateKeyResolverTest {
         keyResolver = new FsPrivateKeyResolver(FsRsaPrivateKeyResolverTest.PASSWORD, keyStore);
         // Add Parser for test keys.
         keyResolver.addParser(new FsPrivateKeyTestParser());
-        // Add BouncyCastleProvider to java security.
+        // Add BouncyCastleProvider to java security.Required for parsing keys with BouncyCastle library.
         Security.addProvider(new BouncyCastleProvider());
     }
 }
