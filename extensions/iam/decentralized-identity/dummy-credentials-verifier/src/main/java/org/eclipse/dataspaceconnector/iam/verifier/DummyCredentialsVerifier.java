@@ -30,7 +30,7 @@ public class DummyCredentialsVerifier implements CredentialsVerifier {
     private final Monitor monitor;
 
     /**
-     * Create a new credentials verifier that uses an Identity Hub
+     * Create a new dummy Credentials verifier.
      *
      * @param monitor a {@link Monitor}
      */
@@ -41,14 +41,7 @@ public class DummyCredentialsVerifier implements CredentialsVerifier {
     @Override
     public Result<Map<String, Object>> verifyCredentials(DidDocument didDocument) {
 
-        var hubBaseUrl = didDocument.getService().stream()
-                .filter(service -> service.getType().equals(DidConstants.HUB_URL))
-                .map(Service::getServiceEndpoint)
-                .findFirst();
-
-        if (hubBaseUrl.isEmpty()) return Result.failure("No IdentityHub URL service found in DidDocument");
-
-        monitor.debug("Starting (dummy) credential verification against hub URL " + hubBaseUrl.get());
+        monitor.debug("Starting (dummy) credential verification.");
 
         return Result.success(Map.of("region", "eu"));
     }
