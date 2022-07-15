@@ -44,10 +44,11 @@ public class DummyCredentialsVerifier implements CredentialsVerifier {
         var hubBaseUrl = didDocument.getService().stream()
                 .filter(service -> service.getType().equals(DidConstants.HUB_URL))
                 .map(Service::getServiceEndpoint)
-                .findFirst()
-                .orElseThrow();
+                .findFirst();
 
-        monitor.debug("Starting (dummy) credential verification against hub URL " + hubBaseUrl);
+        if (hubBaseUrl.isEmpty()) return Result.failure("No IdentityHub URL service found in DidDocument");
+
+        monitor.debug("Starting (dummy) credential verification against hub URL " + hubBaseUrl.get());
 
         return Result.success(Map.of("region", "eu"));
     }
