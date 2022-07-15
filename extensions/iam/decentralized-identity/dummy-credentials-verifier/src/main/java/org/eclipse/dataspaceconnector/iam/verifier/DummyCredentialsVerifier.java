@@ -39,7 +39,7 @@ public class DummyCredentialsVerifier implements CredentialsVerifier {
     }
 
     @Override
-    public Result<Map<String, Object>> getVerifiedClaims(DidDocument didDocument) {
+    public Result<Map<String, Object>> verifyCredentials(DidDocument didDocument) {
 
         var hubBaseUrl = didDocument.getService().stream().filter(service -> service.getType().equals(DidConstants.HUB_URL)).map(Service::getServiceEndpoint).findFirst().orElseThrow();
         monitor.debug("Starting (dummy) credential verification against hub URL " + hubBaseUrl);

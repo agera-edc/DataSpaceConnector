@@ -95,7 +95,7 @@ public class DecentralizedIdentityService implements IdentityService {
             }
 
             monitor.debug("verification successful! Fetching data from IdentityHub");
-            var credentialsResult = credentialsVerifier.getVerifiedClaims(didResult.getContent());
+            var credentialsResult = credentialsVerifier.verifyCredentials(didResult.getContent());
 
             monitor.debug("Building ClaimToken");
             var tokenBuilder = ClaimToken.Builder.newInstance();
