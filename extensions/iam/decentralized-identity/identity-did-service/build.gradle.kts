@@ -3,12 +3,15 @@ plugins {
     `java-test-fixtures`
 }
 
+val datafaker: String by project
+
 dependencies {
     api(project(":extensions:iam:decentralized-identity:identity-did-spi"))
     implementation(project(":extensions:iam:decentralized-identity:identity-did-crypto"))
 
     testImplementation(testFixtures(project(":extensions:iam:decentralized-identity:identity-common-test")))
     testImplementation(project(":extensions:junit"))
+    testImplementation("net.datafaker:datafaker:${datafaker}")
 }
 
 publishing {
