@@ -15,6 +15,7 @@
 package org.eclipse.dataspaceconnector.api.auth;
 
 import org.eclipse.dataspaceconnector.spi.exception.AuthenticationFailedException;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -28,5 +29,5 @@ public interface AuthenticationService {
      * @param headers The headers, that contain the credential to be used, e.g. a token, Basic-Auth header, etc.
      * @throws AuthenticationFailedException when the credential passed was not acceptable (e.g. null, empty, invalid base64)
      */
-    boolean isAuthenticated(Map<String, List<String>> headers);
+    Result<? extends AuthenticationContext> authenticate(Map<String, List<String>> headers);
 }

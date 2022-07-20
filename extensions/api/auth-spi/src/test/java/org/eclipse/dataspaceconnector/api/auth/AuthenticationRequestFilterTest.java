@@ -43,36 +43,36 @@ class AuthenticationRequestFilterTest {
 
     @Test
     void filter() {
-        when(authSrvMock.isAuthenticated(anyMap())).thenReturn(true);
+        when(authSrvMock.authenticate(anyMap())).thenReturn(true);
         var contextMock = mock(ContainerRequestContext.class);
         when(contextMock.getHeaders()).thenReturn(new MultivaluedHashMap<>(Map.of("foo", "bar")));
 
         filter.filter(contextMock); //should not throw an exception
-        verify(authSrvMock).isAuthenticated(anyMap());
+        verify(authSrvMock).authenticate(anyMap());
     }
 
     @Test
     void filter_serviceThrowsException() throws IOException {
         var exc = new AuthenticationFailedException("test");
-        when(authSrvMock.isAuthenticated(anyMap())).thenThrow(exc);
+        when(authSrvMock.authenticate(anyMap())).thenThrow(exc);
         var contextMock = mock(ContainerRequestContext.class);
 
         when(contextMock.getHeaders()).thenReturn(new MultivaluedHashMap<>(Map.of("foo", "bar")));
 
         assertThatThrownBy(() -> filter.filter(contextMock)).isInstanceOf(AuthenticationFailedException.class).hasMessage("test");
-        verify(authSrvMock).isAuthenticated(anyMap());
+        verify(authSrvMock).authenticate(anyMap());
     }
 
 
     @Test
     void filter_notAuthorized() {
-        when(authSrvMock.isAuthenticated(anyMap())).thenReturn(false);
+        when(authSrvMock.authenticate(anyMap())).thenReturn(false);
         var contextMock = mock(ContainerRequestContext.class);
 
         when(contextMock.getHeaders()).thenReturn(new MultivaluedHashMap<>(Map.of("foo", "bar")));
 
         assertThatThrownBy(() -> filter.filter(contextMock)).isInstanceOf(AuthenticationFailedException.class);
-        verify(authSrvMock).isAuthenticated(anyMap());
+        verify(authSrvMock).authenticate(anyMap());
     }
 
     @Test
@@ -81,6 +81,6 @@ class AuthenticationRequestFilterTest {
         when(contextMock.getMethod()).thenReturn("OPTIONS");
 
         filter.filter(contextMock);
-        verify(authSrvMock, never()).isAuthenticated(anyMap());
+        verify(authSrvMock, never()).authenticate(anyMap());
     }
 }

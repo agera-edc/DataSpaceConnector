@@ -19,14 +19,19 @@ import org.eclipse.dataspaceconnector.spi.result.Result;
 import org.eclipse.dataspaceconnector.spi.security.Vault;
 
 import java.util.Base64;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static jakarta.ws.rs.core.SecurityContext.BASIC_AUTH;
 
 public class BasicAuthenticationService implements AuthenticationService {
 
     private static final String BASIC_AUTH_HEADER_NAME = "Authorization";
-    private final Base64.Decoder b64Decoder;
+    private static final Base64.Decoder BASE64_DECODER = Base64.getDecoder();
+
     private final Vault vault;
     private final List<BasicAuthenticationExtension.ConfigCredentials> basicAuthUsersWithVaultKeyConfigs;
     private final Monitor monitor;
@@ -38,34 +43,33 @@ public class BasicAuthenticationService implements AuthenticationService {
         this.vault = vault;
         this.basicAuthUsersWithVaultKeyConfigs = basicAuthUsersWithVaultKeyConfigs;
         this.monitor = monitor;
-        b64Decoder = Base64.getDecoder();
     }
 
-    /**
-     * Validates if the request is authenticated
-     *
-     * @param headers The headers, that contains the credential to be used, in this case the Basic-Auth credentials.
-     * @return True if the credentials are correct.
-     */
     @Override
-    public boolean isAuthenticated(Map<String, List<String>> headers) {
+    public Result<? extends AuthenticationContext> authenticate(Map<String, List<String>> headers) {
         Objects.requireNonNull(headers, "headers");
 
-        return headers.keySet().stream()
+        List<Result<BasicAuthCredentials>> decodingResults = headers.keySet().stream()
                 .filter(k -> k.equalsIgnoreCase(BASIC_AUTH_HEADER_NAME))
                 .map(headers::get)
                 .filter(list -> !list.isEmpty())
-                .anyMatch(list -> list.stream()
-                        .map(this::decodeAuthHeader)
-                        .anyMatch(this::checkBasicAuthValid));
+                .flatMap(Collection::stream)
+                .map(this::decodeAuthHeader)
+                .collect(Collectors.toList());
+        return decodingResults
+                .stream()
+                .filter(this::checkBasicAuthValid)
+                .findFirst()
+                .map(c -> new NamedPrincipalAuthenticationContext(c.getContent().username, BASIC_AUTH))
+                .map(Result::success)
+                .orElse(Result.failure(decodingResults.stream().flatMap(r -> r.getFailureMessages().stream()).collect(Collectors.toList())));
     }
 
     /**
      * Decodes the base64 request header.
      *
      * @param authHeader Base64 encoded credentials from the request header
-     * @return Array with the encoded credentials. First is the username and the second the password. If there was a
-     *     problem an array with 0 entries will be returned.
+     * @return A successful result with the encoded credentials, or a failure result.
      */
     private Result<BasicAuthCredentials> decodeAuthHeader(String authHeader) {
         String[] authCredentials;
@@ -76,7 +80,7 @@ public class BasicAuthenticationService implements AuthenticationService {
         }
 
         try {
-            authCredentials = new String(b64Decoder.decode(separatedAuthHeader[1])).split(":");
+            authCredentials = new String(BASE64_DECODER.decode(separatedAuthHeader[1])).split(":");
         } catch (IllegalArgumentException ex) {
             return Result.failure("Authorization header could no base64 decoded");
         }

@@ -41,36 +41,36 @@ class TokenBasedAuthenticationServiceTest {
     @ValueSource(strings = { "x-api-key", "X-API-KEY", "X-Api-Key" })
     void isAuthorized(String validKey) {
         var map = Map.of(validKey, List.of(TEST_API_KEY));
-        assertThat(service.isAuthenticated(map)).isTrue();
+        assertThat(service.authenticate(map)).isTrue();
     }
 
     @Test
     void isAuthorized_headerNotPresent_throwsException() {
         var map = Map.of("header1", List.of("val1, val2"),
                 "header2", List.of("anotherval1", "anotherval2"));
-        assertThatThrownBy(() -> service.isAuthenticated(map)).isInstanceOf(AuthenticationFailedException.class).hasMessage("x-api-key not found");
+        assertThatThrownBy(() -> service.authenticate(map)).isInstanceOf(AuthenticationFailedException.class).hasMessage("x-api-key not found");
     }
 
     @Test
     void isAuthorized_headersEmpty_throwsException() {
         Map<String, List<String>> map = Collections.emptyMap();
-        assertThatThrownBy(() -> service.isAuthenticated(map)).isInstanceOf(AuthenticationFailedException.class).hasMessage("x-api-key not found");
+        assertThatThrownBy(() -> service.authenticate(map)).isInstanceOf(AuthenticationFailedException.class).hasMessage("x-api-key not found");
     }
 
     @Test
     void isAuthorized_headersNull_throwsException() {
-        assertThatThrownBy(() -> service.isAuthenticated(null)).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(() -> service.authenticate(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void isAuthorized_notAuthorized() {
         var map = Map.of("x-api-key", List.of("invalid_api_key"));
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
     void isAuthorized_multipleValues_oneAuthorized() {
         var map = Map.of("x-api-key", List.of("invalid_api_key", TEST_API_KEY));
-        assertThat(service.isAuthenticated(map)).isTrue();
+        assertThat(service.authenticate(map)).isTrue();
     }
 }

@@ -62,26 +62,26 @@ class BasicAuthenticationServiceTest {
     void isAuthorized(String validKey) {
         var map = Map.of(validKey, List.of(testCredentialsEncoded.get(0)));
         var map2 = Map.of(validKey, List.of(testCredentialsEncoded.get(1)));
-        assertThat(service.isAuthenticated(map)).isTrue();
-        assertThat(service.isAuthenticated(map2)).isTrue();
+        assertThat(service.authenticate(map)).isTrue();
+        assertThat(service.authenticate(map2)).isTrue();
     }
 
     @Test
     void isAuthorized_headerNotPresent() {
         var map = Map.of("header1", List.of("val1, val2"),
                 "header2", List.of("anotherval1", "anotherval2"));
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
     void isAuthorized_headersEmpty() {
         Map<String, List<String>> map = Collections.emptyMap();
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
     void isAuthorized_headersNull() {
-        assertThatThrownBy(() -> service.isAuthenticated(null))
+        assertThatThrownBy(() -> service.authenticate(null))
                 .isInstanceOf(NullPointerException.class);
     }
 
@@ -90,25 +90,25 @@ class BasicAuthenticationServiceTest {
         var map = Map.of(
                 "authorization", List.of(generateBearerToken("invalid-user:random"))
         );
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
     void isAuthorized_decoderError_notBearerToken() {
         var map = Map.of("authorization", List.of("invalid_auth_header_value"));
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
     void isAuthorized_decoderError_notValidBearerToken() {
         var map = Map.of("authorization", List.of("Bearer invalid_token"));
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
     void isAuthorized_decoderError_missingColon() {
         var map = Map.of("authorization", List.of(generateBearerToken("missingcolon")));
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
@@ -117,7 +117,7 @@ class BasicAuthenticationServiceTest {
                 testCredentialsEncoded.get(0),
                 generateBearerToken("invalid-user:random")
         ));
-        assertThat(service.isAuthenticated(map)).isTrue();
+        assertThat(service.authenticate(map)).isTrue();
     }
 
     @Test
@@ -126,7 +126,7 @@ class BasicAuthenticationServiceTest {
                 generateBearerToken("invalid-user:random"),
                 testCredentialsEncoded.get(0)
         ));
-        assertThat(service.isAuthenticated(map)).isTrue();
+        assertThat(service.authenticate(map)).isTrue();
     }
 
     @Test
@@ -137,7 +137,7 @@ class BasicAuthenticationServiceTest {
                         generateBearerToken("invalid-user2:random2")
                 )
         );
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     @Test
@@ -148,7 +148,7 @@ class BasicAuthenticationServiceTest {
         var service = new BasicAuthenticationService(vault, wrongVaultKeyConfig, mock(Monitor.class));
         var map = Map.of("authorization", List.of(testCredentialsEncoded.get(0)));
 
-        assertThat(service.isAuthenticated(map)).isFalse();
+        assertThat(service.authenticate(map)).isFalse();
     }
 
     private String generateBearerToken(String plainCredentials) {

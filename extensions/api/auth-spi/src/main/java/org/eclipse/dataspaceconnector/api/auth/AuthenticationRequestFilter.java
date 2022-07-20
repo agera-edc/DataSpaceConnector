@@ -41,10 +41,11 @@ public class AuthenticationRequestFilter implements ContainerRequestFilter {
 
         // OPTIONS requests don't have credentials - do not authenticate
         if (!OPTIONS.equalsIgnoreCase(requestContext.getMethod())) {
-            var isAuthenticated = authenticationService.isAuthenticated(headers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-            if (!isAuthenticated) {
+            var isAuthenticated = authenticationService.authenticate(headers.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+            if (!isAuthenticated.succeeded()) {
                 throw new AuthenticationFailedException();
             }
+            requestContext.setSecurityContext(new AuthenticationContextSecurityContext(isAuthenticated.getContent()));
         }
     }
 }

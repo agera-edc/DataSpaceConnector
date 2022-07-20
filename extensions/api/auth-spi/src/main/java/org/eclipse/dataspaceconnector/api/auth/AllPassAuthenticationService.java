@@ -14,6 +14,8 @@
 
 package org.eclipse.dataspaceconnector.api.auth;
 
+import org.eclipse.dataspaceconnector.spi.result.Result;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,9 +24,10 @@ import java.util.Map;
  */
 public class AllPassAuthenticationService implements AuthenticationService {
 
-    @Override
-    public boolean isAuthenticated(Map<String, List<String>> headers) {
-        return true;
-    }
+    private static final String ALL_PASS = "ALL_PASS";
 
+    @Override
+    public Result<? extends AuthenticationContext> authenticate(Map<String, List<String>> headers) {
+        return Result.success(new NamedPrincipalAuthenticationContext(ALL_PASS, ALL_PASS));
+    }
 }

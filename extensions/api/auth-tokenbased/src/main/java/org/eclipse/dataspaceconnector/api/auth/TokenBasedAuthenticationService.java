@@ -14,7 +14,7 @@
 
 package org.eclipse.dataspaceconnector.api.auth;
 
-import org.eclipse.dataspaceconnector.spi.exception.AuthenticationFailedException;
+import org.eclipse.dataspaceconnector.spi.result.Result;
 
 import java.util.List;
 import java.util.Map;
@@ -22,6 +22,8 @@ import java.util.Objects;
 
 public class TokenBasedAuthenticationService implements AuthenticationService {
 
+    private static final String PRINCIPAL_NAME = "api-key-authenticated-client";
+    private static final String SCHEME = "API_KEY";
     private static final String API_KEY_HEADER_NAME = "x-api-key";
     private final String hardCodedApiKey; //todo: have a list of API keys?
 
@@ -36,8 +38,7 @@ public class TokenBasedAuthenticationService implements AuthenticationService {
      * @throws IllegalArgumentException The map of headers did not contain the "X-Api-Key" header
      */
     @Override
-    public boolean isAuthenticated(Map<String, List<String>> headers) {
-
+    public Result<? extends AuthenticationContext> authenticate(Map<String, List<String>> headers) {
         Objects.requireNonNull(headers, "headers");
 
         var apiKey = headers.keySet().stream()
@@ -45,10 +46,16 @@ public class TokenBasedAuthenticationService implements AuthenticationService {
                 .map(headers::get)
                 .findFirst();
 
-        return apiKey.map(this::checkApiKeyValid).orElseThrow(() -> new AuthenticationFailedException(API_KEY_HEADER_NAME + " not found"));
+        return apiKey
+                .map(this::checkApiKeyValid)
+                .orElse(Result.failure(API_KEY_HEADER_NAME + " not found"));
     }
 
-    private boolean checkApiKeyValid(List<String> apiKeys) {
-        return apiKeys.stream().anyMatch(hardCodedApiKey::equalsIgnoreCase);
+    private Result<NamedPrincipalAuthenticationContext> checkApiKeyValid(List<String> apiKeys) {
+        return apiKeys.stream()
+                .filter(hardCodedApiKey::equalsIgnoreCase)
+                .findFirst()
+                .map(k -> Result.success(new NamedPrincipalAuthenticationContext(PRINCIPAL_NAME, SCHEME)))
+                .orElse(Result.failure("Invalid API key"));
     }
 }
