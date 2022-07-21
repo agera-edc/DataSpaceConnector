@@ -73,8 +73,8 @@ class JwtUtilsTest {
         var vc = create(privateKey, "test-issuer", "test-subject", "test-audience", clock);
 
         assertThat(vc).isNotNull();
-        assertThat(vc.getJWTClaimsSet().getIssuer()).isEqualTo("test-connector");
-        assertThat(vc.getJWTClaimsSet().getSubject()).isEqualTo("test-connector");
+        assertThat(vc.getJWTClaimsSet().getIssuer()).isEqualTo("test-issuer");
+        assertThat(vc.getJWTClaimsSet().getSubject()).isEqualTo("test-subject");
         assertThat(vc.getJWTClaimsSet().getAudience()).containsExactly("test-audience");
         assertThat(vc.getJWTClaimsSet().getJWTID()).satisfies(UUID::fromString);
         assertThat(vc.getJWTClaimsSet().getExpirationTime()).isEqualTo(now.plus(10, MINUTES).truncatedTo(SECONDS));
