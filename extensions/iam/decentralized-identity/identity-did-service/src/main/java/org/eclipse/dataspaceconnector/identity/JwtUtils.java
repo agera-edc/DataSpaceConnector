@@ -48,16 +48,18 @@ class JwtUtils {
      * Creates a signed JWT {@link SignedJWT} that contains a set of claims and an issuer. Although all private key types are possible, in the context of Distributed Identity
      * using an Elliptic Curve key ({@code P-256}) is advisable.
      *
-     * @param privateKey       A Private Key represented as {@link PrivateKeyWrapper}.
-     * @param issuerAndSubject the value of the token issuer and subject claims. For Distributed Identity, these values are identical.
-     * @param audience         the value of the token audience claim, e.g. the IDS Webhook address.
-     * @param clock            clock used to get current time
-     * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed
+     * @param privateKey A Private Key represented as {@link PrivateKeyWrapper}.
+     * @param issuer     the value of the token issuer claim.
+     * @param subject    the value of the token subject claim. For Distributed Identity, this value is identical to the issuer claim.
+     * @param audience   the value of the token audience claim, e.g. the IDS Webhook address.
+     * @param clock      clock used to get current time.
+     * @return a {@code SignedJWT} that is signed with the private key and contains all claims listed.
      */
-    static SignedJWT create(PrivateKeyWrapper privateKey, String issuerAndSubject, String audience, Clock clock) {
+
+    static SignedJWT create(PrivateKeyWrapper privateKey, String issuer, String subject, String audience, Clock clock) {
         var claimsSet = new JWTClaimsSet.Builder()
-                .issuer(issuerAndSubject)
-                .subject(issuerAndSubject)
+                .issuer(issuer)
+                .subject(subject)
                 .audience(audience)
                 .expirationTime(Date.from(clock.instant().plus(10, ChronoUnit.MINUTES)))
                 .jwtID(UUID.randomUUID().toString())

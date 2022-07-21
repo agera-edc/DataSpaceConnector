@@ -70,7 +70,7 @@ class JwtUtilsTest {
     @Test
     @SuppressWarnings("ResultOfMethodCallIgnored")
     void createVerifiableCredential() throws Exception {
-        var vc = create(privateKey, "test-connector", "test-audience", clock);
+        var vc = create(privateKey, "test-issuer", "test-subject", "test-audience", clock);
 
         assertThat(vc).isNotNull();
         assertThat(vc.getJWTClaimsSet().getIssuer()).isEqualTo("test-connector");
@@ -82,7 +82,7 @@ class JwtUtilsTest {
 
     @Test
     void ensureSerialization() throws Exception {
-        var vc = create(privateKey, "test-connector", "test-audience", clock);
+        var vc = create(privateKey, "test-issuer", "test-subject", "test-audience", clock);
 
         assertThat(vc).isNotNull();
         String jwtString = vc.serialize();
@@ -97,7 +97,7 @@ class JwtUtilsTest {
 
     @Test
     void verifyJwt_OnInvalidSignature_fails() {
-        var jwt = create(privateKey, "test-connector", "test-audience", clock);
+        var jwt = create(privateKey, "test-issuer", "test-subject", "test-audience", clock);
         var unrelatedPublicKey = new EcPublicKeyWrapper(generateKeyPairP256());
         assertThat(verify(jwt, unrelatedPublicKey, "test-audience").getFailureMessages()).containsExactly("Invalid signature");
     }
@@ -125,7 +125,7 @@ class JwtUtilsTest {
     @ParameterizedTest(name = "{2}")
     @ArgumentsSource(ClaimsArgs.class)
     void verifyJwt_OnClaims(UnaryOperator<JWTClaimsSet.Builder> builderOperator, boolean expectSuccess, String ignoredName) throws Exception {
-        var vc = create(privateKey, "test-connector", "test-audience", clock);
+        var vc = create(privateKey, "test-issuer", "test-subject", "test-audience", clock);
 
         var claimsSetBuilder = new JWTClaimsSet.Builder(vc.getJWTClaimsSet());
         var claimsSet = builderOperator.apply(claimsSetBuilder).build();

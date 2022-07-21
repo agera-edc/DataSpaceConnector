@@ -58,7 +58,7 @@ public class DecentralizedIdentityService implements IdentityService {
 
     @Override
     public Result<TokenRepresentation> obtainClientCredentials(TokenParameters parameters) {
-        var jwt = JwtUtils.create(privateKey, issuer, parameters.getAudience(), clock);
+        var jwt = JwtUtils.create(privateKey, issuer, issuer, parameters.getAudience(), clock);
         var token = jwt.serialize();
         return Result.success(TokenRepresentation.Builder.newInstance().token(token).build());
     }
