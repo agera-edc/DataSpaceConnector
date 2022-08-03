@@ -110,11 +110,6 @@ public class IdentityDidCoreExtension implements ServiceExtension {
     }
 
     @Provider(isDefault = true)
-    public DidResolverRegistry defaultDidResolverRegistry() {
-        return new DidResolverRegistryImpl();
-    }
-
-    @Provider(isDefault = true)
     public DidPublicKeyResolver defaultDidPublicKeyResolver() {
         return new DidPublicKeyResolverImpl(didResolverRegistry);
     }
