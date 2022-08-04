@@ -23,6 +23,7 @@ import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubClientImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.IdentityHubImpl;
 import org.eclipse.dataspaceconnector.iam.did.hub.store.InMemoryIdentityHubStore;
 import org.eclipse.dataspaceconnector.iam.did.resolution.DidPublicKeyResolverImpl;
+import org.eclipse.dataspaceconnector.iam.did.resolution.DidResolverRegistryImpl;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHub;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubClient;
 import org.eclipse.dataspaceconnector.iam.did.spi.hub.IdentityHubStore;
@@ -43,7 +44,6 @@ import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckResult;
 import org.eclipse.dataspaceconnector.spi.system.health.HealthCheckService;
 
 import java.time.Clock;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 
@@ -111,7 +111,7 @@ public class IdentityDidCoreExtension implements ServiceExtension {
 
     @Provider(isDefault = true)
     public DidPublicKeyResolver defaultDidPublicKeyResolver() {
-        return new DidPublicKeyResolverImpl(Objects.requireNonNull(didResolverRegistry));
+        return new DidPublicKeyResolverImpl(didResolverRegistry);
     }
 
     private void registerParsers(PrivateKeyResolver resolver) {
