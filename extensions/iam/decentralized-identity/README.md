@@ -22,7 +22,6 @@ implementations) are likely to change in the future and without notice.
 - the Verifier is a trusted third party, e.g. some company like Accenture used to verify additional object data
 - "(additional) object data" refers to an arbitrary set of properties or a JSON structure that are stored in a
   connector's Hub
-- Hub and Identity Hub are the same thing
 - DID and DID Document are the same thing
 - VerifiableAssertion = hub data object
 
