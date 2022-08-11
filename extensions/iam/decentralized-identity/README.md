@@ -4,7 +4,7 @@ These extensions contain modules that implement the "Decentralized Identifier" u
 
 - `identity-did-spi`: contains extension points for the distributed identity subsystem
 - `identity-did-crypto`: contains the cryptographic utilities
-- `identity-did-core`: contains core services, including the `IdentityHub` and `DidResolverRegistry`
+- `identity-did-core`: contains core services, including the `DidResolverRegistry`
 - `identity-did-service`: contains the `DecentralizedIdentifierService`, which is an implementation of the `IdentityService`
   interface.
 - `identity-did-web`: contains support for resolving Web DIDs. 
